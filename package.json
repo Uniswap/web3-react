@@ -1,0 +1,52 @@
+{
+  "name": "web3-react",
+  "version": "1.0.0",
+  "description": "Web3 manager for React-based Ethereum dApps",
+  "main": "dist/Web3Context.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "rm -rf dist/ && npx babel src/ --out-dir dist --copy-files",
+    "watch": "rm -rf dist/ && npx babel src/ --out-dir dist --copy-files --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NoahZinsmeister/web3-react.git"
+  },
+  "keywords": [
+    "react",
+    "ethereum",
+    "solidity",
+    "javascript",
+    "web3",
+    "hooks",
+    "context",
+    "frontend",
+    "dapp"
+  ],
+  "author": "Noah Zinsmeister",
+  "license": "GPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/NoahZinsmeister/web3-react/issues"
+  },
+  "homepage": "https://github.com/NoahZinsmeister/web3-react#readme",
+  "peerDependencies": {
+    "react": "^16.7.0-alpha.0",
+    "react-dom": "^16.7.0-alpha.0",
+    "@babel/polyfill": "^7.0.0"
+  },
+  "dependencies": {
+    "ethereumjs-util": "^6.0.0",
+    "prop-types": "^15.6.2",
+    "web3": "^1.0.0-beta.36"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.1.0",
+    "@babel/core": "^7.1.0",
+    "@babel/polyfill": "^7.0.0",
+    "@babel/preset-env": "^7.1.0",
+    "@babel/preset-react": "^7.0.0",
+    "babel-eslint": "^10.0.1",
+    "eslint": "^5.6.0",
+    "eslint-plugin-react": "^7.11.1"
+  }
+}

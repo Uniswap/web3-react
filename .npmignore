@@ -1,0 +1,4 @@
+_assets/
+src/
+babel.config.js
+.eslintrc.json
