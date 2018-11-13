@@ -1,5 +1,5 @@
 import { useContext, useState, useEffect } from 'react'
-import { Web3Context } from './Web3Context'
+import { Web3Context } from './index'
 
 export const useAccountBalance = (numberOfDigits = 3) => {
   const context = useContext(Web3Context);

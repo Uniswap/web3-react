@@ -1,4 +1,4 @@
 _assets/
 src/
-babel.config.js
-.eslintrc.json
+__tests__/
+.nyc_output/
