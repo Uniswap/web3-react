@@ -1,0 +1,37 @@
+{
+  "author": "Noah Zinsmeister",
+  "scripts": {
+    "bootstrap": "lerna bootstrap",
+    "publish": "lerna publish",
+    "start": "lerna run start",
+    "build": "lerna run build",
+    "test": "lerna run test",
+    "lint": "lerna run lint"
+  },
+  "devDependencies": {
+    "@types/jest": "^24.0.21",
+    "@types/react": "^16.9.11",
+    "@types/react-dom": "^16.9.3",
+    "husky": "^3.0.9",
+    "lerna": "^3.18.3",
+    "react": "^16.11.0",
+    "react-dom": "^16.11.0",
+    "tsdx": "^0.11.0",
+    "tslib": "^1.10.0",
+    "typescript": "^3.6.4"
+  },
+  "peerDependencies": {
+    "react": ">=16.8"
+  },
+  "license": "GPL-3.0-or-later",
+  "prettier": {
+    "printWidth": 120,
+    "semi": false,
+    "singleQuote": true
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lerna run lint"
+    }
+  }
+}
