@@ -52,7 +52,7 @@ ErrorTemplate.propTypes = {
 }
 
 ErrorTemplate.defaultProps = {
-  message: <p></p>
+  message: ''
 }
 
 export default ErrorTemplate

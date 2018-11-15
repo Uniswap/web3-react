@@ -1,7 +1,7 @@
 import React from 'react'
 import ErrorTemplate from './template/ErrorTemplate'
 
-function NoWeb3() {
+export default function NoWeb3() {
   return (
     <ErrorTemplate
       title='No Web3 Provider'
@@ -15,5 +15,3 @@ function NoWeb3() {
     />
   )
 }
-
-export default NoWeb3

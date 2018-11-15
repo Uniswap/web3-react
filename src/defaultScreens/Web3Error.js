@@ -3,10 +3,12 @@ import PropTypes from 'prop-types'
 import ErrorTemplate from './template/ErrorTemplate'
 
 function Web3Error(props) {
+  const { error } = props
+
   return (
     <ErrorTemplate
       title='Web3 Error'
-      message={props.error.toString()}
+      message={error.toString()}
     />
   )
 }

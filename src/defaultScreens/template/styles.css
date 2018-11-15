@@ -9,29 +9,36 @@
 .inner {
   background: white;
   border-radius: 40px;
-  width: 50%;
   position: relative;
+  width: 50%;
   z-index: 1;
 }
 
 .inner:before {
   background-color: #ffffff;
   background-color: rgba(0, 0, 0, .1);
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  right: 0;
-  z-index: -1;
   border-radius: 40px;
+  bottom: 0;
+  content: '';
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+  z-index: -1;
 }
 
 .image {
   display: block;
   margin: auto;
+  /* csslint ignore:start */
   padding: 10px 0 10px 0;
+  /* csslint ignore:end */
   width: 35%;
+}
+
+.loader {
+  height: 80px;
+  width: 80px;
 }
 
 .hidden {
@@ -41,11 +48,6 @@
 .fadeIn {
   opacity: 1;
   transition: opacity 1s;
-}
-
-.loader {
-  height: 80px;
-  width: 80px;
 }
 
 .text {

@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { useState, useEffect } from 'react'
 import './template/styles.css'
 
 function LoadingIcon() {
@@ -62,27 +62,19 @@ function LoadingIcon() {
   )
 }
 
-export default class Initializing extends Component {
-  constructor(props) {
-    super(props)
-    this.state = {loaderHidden: true}
-  }
+export default function Initializing () {
+  const [loaderHidden, setLoaderHidden] = useState(true)
 
-  componentDidMount() {
-    this.loaderTimer = setTimeout(() => this.setState({loaderHidden: false}), 1000)
-  }
+  useEffect(() => {
+    const loaderTimer = setTimeout(() => setLoaderHidden(false), 1000)
+    return () => clearTimeout(loaderTimer)
+  }, [])
 
-  componentWillUnmount() {
-    clearTimeout(this.loaderTimer)
-  }
-
-  render() {
-    return (
-      <div className="wrapper">
-        <div className={`loader ${this.state.loaderHidden ? "hidden" : "fadeIn"}`}>
-          <LoadingIcon />
-        </div>
+  return (
+    <div className="wrapper">
+      <div className={`loader ${loaderHidden ? 'hidden' : 'fadeIn'}`}>
+        <LoadingIcon />
       </div>
-    )
-  }
+    </div>
+  )
 }

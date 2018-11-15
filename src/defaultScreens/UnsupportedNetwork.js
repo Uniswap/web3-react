@@ -3,9 +3,11 @@ import PropTypes from 'prop-types'
 import ErrorTemplate from './template/ErrorTemplate'
 
 function UnsupportedNetwork(props) {
-  const message = props.supportedNetworkNames.length === 1 ?
-    `the '${props.supportedNetworkNames[0]}' network.` :
-    `one of the following supported networks: '${props.supportedNetworkNames.join("', '")}'.`
+  const { supportedNetworkNames } = props
+
+  const message = supportedNetworkNames.length === 1 ?
+    `the '${supportedNetworkNames[0]}' network.` :
+    `one of the following supported networks: '${supportedNetworkNames.join("', '")}'.`
 
   return (
     <ErrorTemplate
