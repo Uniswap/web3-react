@@ -1,4 +1,9 @@
-const ethUtil = require('ethereumjs-util')
+import * as ethUtil from 'ethereumjs-util'
+export const libraries = { ethUtil }
+
+export const TRANSACTION_ERRORS = [
+  'GAS_PRICE_UNAVAILABLE', 'FAILING_TRANSACTION', 'SENDING_BALANCE_UNAVAILABLE','INSUFFICIENT_BALANCE'
+]
 
 const ERC20ABI = [{"constant":true,"inputs":[{"name":"_owner","type":"address"}],"name":"balanceOf","outputs":[{"name":"balance","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"decimals","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"}] // eslint-disable-line
 
@@ -22,6 +27,10 @@ const networkDataById = {
     name: 'Kovan',
     type: 'PoA',
     etherscanPrefix: 'kovan.'
+  },
+  6284: {
+    name: 'Görli',
+    type: 'PoA'
   }
 }
 
@@ -31,102 +40,93 @@ const ethereumVariables = {
   networkId: undefined
 }
 
-const setEthereumVariables = (variables) => {
+export function setEthereumVariables (variables) {
   Object.keys(variables).forEach(variable => {
     ethereumVariables[variable] = variables[variable]
   })
 }
 
-const sendTransaction = (method, handlers) => {
-  let requiredHandlers = ['error']
-  let optionalHandlers = ['transactionHash', 'receipt', 'confirmation']
-  let allHandlers = requiredHandlers.concat(optionalHandlers)
-  // ensure an error handler was passed
-  if (!requiredHandlers.every(handler => { return Object.keys(handlers).includes(handler) })) {
-    throw Error('Please provide an \'error\' handler.')
-  }
-  // ensure only allowed handlers can be passed
-  if (!Object.keys(handlers).every(handler => { return allHandlers.includes(handler) })) {
-    throw Error(`Invalid handler passed. Allowed handlers are: '${allHandlers.toString().join(`', '`)}'.`)
-  }
+export function sendTransaction (method, handlers, transactionOptions = {}) {
+  // sanitize transactionOptions
+  const allowedOptions = ['gasPrice', 'gas', 'value']
+  if (!Object.keys(transactionOptions).every(option => allowedOptions.includes(option)))
+    throw Error(`Invalid option passed. Allowed options are: '${allowedOptions.toString().join(`', '`)}'.`)
+
+  // sanitize handlers
+  const allowedHandlers = ['transactionHash', 'receipt', 'confirmation']
+  if (!Object.keys(handlers).every(handler => allowedHandlers.includes(handler)))
+    throw Error(`Invalid handler passed. Allowed handlers are: '${allowedHandlers.toString().join(`', '`)}'.`)
+
   // for all handlers that weren't passed, set them as empty functions
-  for (let i = 0; i < allHandlers.length; i++) {
-    if (handlers[allHandlers[i]] === undefined) handlers[allHandlers[i]] = () => {}
+  for (let handler of allowedHandlers) {
+    handlers[handler] = handlers[handler] || function () {}
+  }
+
+  // custom errors
+  const allErrors = [
+    'GAS_PRICE_UNAVAILABLE', 'FAILING_TRANSACTION', 'SENDING_BALANCE_UNAVAILABLE','INSUFFICIENT_BALANCE'
+  ]
+
+  function wrapError(error, name) {
+    if (!Object.keys(allErrors).includes(name)) return Error(`Passed error name ${name} is not valid.`)
+    error.code = allErrors[name]
+    return error
   }
 
   // define promises for the variables we need to validate/send the transaction
   const gasPricePromise = () => {
+    if (transactionOptions.gasPrice) return transactionOptions.gasPrice
+
     return ethereumVariables.web3js.eth.getGasPrice()
       .catch(error => {
-        handlers['error'](error, 'Could not fetch gas price.')
-        return null
+        throw wrapError(error, 'GAS_PRICE_UNAVAILABLE')
       })
   }
 
   const gasPromise = () => {
-    return method.estimateGas({ from: ethereumVariables.account })
+    return method.estimateGas({ from: ethereumVariables.account, gas: transactionOptions.gas })
       .catch(error => {
-        handlers['error'](error, 'The transaction would fail.')
-        return null
+        throw wrapError(error, 'FAILING_TRANSACTION')
       })
   }
 
   const balanceWeiPromise = () => {
     return getBalance(undefined, 'wei')
       .catch(error => {
-        handlers['error'](error, 'Could not fetch sending address balance.')
-        return null
+        throw wrapError(error, 'SENDING_BALANCE_UNAVAILABLE')
       })
   }
 
-  const handledErrorName = 'HandledError'
-
   return Promise.all([gasPricePromise(), gasPromise(), balanceWeiPromise()])
-    .then(results => {
-      // ensure that none of the promises failed
-      if (results.some(result => { return result === null })) {
-        let error = Error('This error was already handled.')
-        error.name = handledErrorName
-        throw error
-      }
-
-      // extract variables
-      const [gasPrice, gas, balanceWei] = results
-
+    .then(([gasPrice, gas, balanceWei]) => {
       // ensure the sender has enough ether to pay gas
       const safeGas = parseInt(gas * 1.1)
       const requiredWei = new ethUtil.BN(gasPrice).mul(new ethUtil.BN(safeGas))
       if (new ethUtil.BN(balanceWei).lt(requiredWei)) {
         const requiredEth = toDecimal(requiredWei.toString(), '18')
         const errorMessage = `Insufficient balance. Ensure you have at least ${requiredEth} ETH.`
-        handlers['error'](Error(errorMessage), errorMessage)
-        return
+        throw wrapError(Error(errorMessage), 'INSUFFICIENT_BALANCE')
       }
 
       // send the transaction
-      method.send({ from: ethereumVariables.account, gasPrice: gasPrice, gas: safeGas })
+      return method.send({from: ethereumVariables.account, gasPrice: gasPrice, gas: safeGas, value: transactionOptions.value})
         .on('transactionHash', transactionHash => {
           handlers['transactionHash'](transactionHash)
         })
-        .on('receipt', (receipt) => {
+        .on('receipt', receipt => {
           handlers['receipt'](receipt)
         })
         .on('confirmation', (confirmationNumber, receipt) => {
           handlers['confirmation'](confirmationNumber, receipt)
         })
-        .on('error', error => {
-          handlers['error'](error, 'Unable to send transaction.')
-        })
-    })
-    .catch(error => {
-      if (error.name !== handledErrorName) { handlers['error'](error, 'Unexpected error.') }
     })
 }
 
-const signPersonal = (message) => {
+export function signPersonal (message) {
   const from = ethereumVariables.account
   if (!ethUtil.isValidChecksumAddress(from)) throw Error(`Current account '${from}' has an invalid checksum.`)
 
+  // format message properly
   let encodedMessage
   if (Buffer.isBuffer(message)) {
     encodedMessage = ethUtil.addHexPrefix(message.toString('hex'))
@@ -173,23 +173,18 @@ const signPersonal = (message) => {
   })
 }
 
-const getBalance = (account, format) => {
-  if (account === undefined) account = ethereumVariables.account
-  if (format === undefined) format = 'ether'
-
+export function getBalance (account = ethereumVariables.account, format = 'ether') {
   return ethereumVariables.web3js.eth.getBalance(account)
     .then(balance => {
       return ethereumVariables.web3js.utils.fromWei(balance, format)
     })
 }
 
-const getERC20Balance = (ERC20Address, account) => {
-  if (account === undefined) account = ethereumVariables.account
+export function getERC20Balance (ERC20Address, account = ethereumVariables.account) {
+  const ERC20 = getContract(ERC20ABI, ERC20Address)
 
-  let ERC20 = getContract(ERC20ABI, ERC20Address)
-
-  let decimalsPromise = () => { return ERC20.methods.decimals().call() }
-  let balancePromise = () => { return ERC20.methods.balanceOf(account).call() }
+  const decimalsPromise = () => ERC20.methods.decimals().call()
+  const balancePromise = () => ERC20.methods.balanceOf(account).call()
 
   return Promise.all([balancePromise(), decimalsPromise()])
     .then(([balance, decimals]) => {
@@ -197,73 +192,65 @@ const getERC20Balance = (ERC20Address, account) => {
     })
 }
 
-const toDecimal = (number, decimals) => {
+export function toDecimal (number, decimals) {
+  if (typeof number !== 'string') throw Error(`Passed 'number' argument '${number}' must be a string.`)
+  if (typeof decimals !== 'number') throw Error(`Passed 'decimals' argument '${decimals}' must be a number.`)
+
   if (number.length < decimals) {
     number = '0'.repeat(decimals - number.length) + number
   }
-  let difference = number.length - decimals
+  const difference = number.length - decimals
 
-  let integer = difference === 0 ? '0' : number.slice(0, difference)
-  let fraction = number.slice(difference).replace(/0+$/g, '')
+  const integer = difference === 0 ? '0' : number.slice(0, difference)
+  const fraction = number.slice(difference).replace(/0+$/g, '')
 
   return integer + (fraction === '' ? '' : '.') + fraction
 }
 
-const fromDecimal = (number, decimals) => {
+export function fromDecimal (number, decimals) {
+  if (typeof number !== 'string') throw Error(`Passed 'number' argument '${number}' must be a string.`)
+  if (typeof decimals !== 'number') throw Error(`Passed 'decimals' argument '${decimals}' must be a number.`)
+
   var [integer, fraction] = number.split('.')
+
   fraction = fraction === undefined ? '' : fraction
-  if (fraction.length > decimals) throw new Error('The fractional amount of the passed number was too high')
+  if (fraction.length > decimals) throw Error('The fractional amount of the passed number was too high.')
   fraction = fraction + '0'.repeat(decimals - fraction.length)
+
   return integer + fraction
 }
 
-const getNetworkName = (networkId) => {
-  networkId = networkId === undefined ? String(ethereumVariables.networkId) : String(networkId)
-  if (!Object.keys(networkDataById).includes(networkId)) throw Error(`Network id '${networkId}' is invalid.`)
+export function getNetworkName (networkId = ethereumVariables.networkId) {
+  if (!Object.keys(networkDataById).includes(String(networkId))) throw Error(`Network id '${networkId}' is invalid.`)
   return networkDataById[networkId].name
 }
 
-const getNetworkType = (networkId) => {
-  networkId = networkId === undefined ? String(ethereumVariables.networkId) : String(networkId)
-  if (!Object.keys(networkDataById).includes(networkId)) throw Error(`Network id '${networkId}' is invalid.`)
+export function getNetworkType (networkId = ethereumVariables.networkId) {
+  if (!Object.keys(networkDataById).includes(String(networkId))) throw Error(`Network id '${networkId}' is invalid.`)
   return networkDataById[networkId].type
 }
 
-const getContract = (ABI, address, options) => {
+export function getContract (ABI, address, options) {
   return new ethereumVariables.web3js.eth.Contract(ABI, address, options)
 }
 
-const etherscanFormat = (type, data, networkId) => {
+export function etherscanFormat (type, data, networkId = ethereumVariables.networkId) {
   if (!['transaction', 'address', 'token'].includes(type)) throw Error(`Type '${type}' is invalid.`)
-  networkId = networkId === undefined ? String(ethereumVariables.networkId) : String(networkId)
   if (!Object.keys(networkDataById).includes(networkId)) throw Error(`Network id '${networkId}' is invalid.`)
 
-  let prefix = networkDataById[networkId].etherscanPrefix
-  var path
-  if (type === 'transaction') {
-    path = 'tx'
-  } else if (type === 'address') {
-    path = 'address'
-  } else {
-    path = 'token'
+  const prefix = networkDataById[networkId].etherscanPrefix
+  let path
+  switch (type) {
+    case 'transaction':
+      path = 'tx'
+      break
+    case 'address':
+      path = 'address'
+      break
+    default:
+      path = 'token'
+      break
   }
 
   return `https://${prefix}etherscan.io/${path}/${data}`
-}
-
-module.exports = {
-  setEthereumVariables:       setEthereumVariables,
-  signPersonal:               signPersonal,
-  getBalance:                 getBalance,
-  getERC20Balance:            getERC20Balance,
-  getNetworkName:             getNetworkName,
-  getNetworkType:             getNetworkType,
-  getContract:                getContract,
-  sendTransaction:            sendTransaction,
-  toDecimal:                  toDecimal,
-  fromDecimal:                fromDecimal,
-  etherscanFormat:            etherscanFormat,
-  libraries: {
-    'ethereumjs-util': ethUtil
-  }
 }
