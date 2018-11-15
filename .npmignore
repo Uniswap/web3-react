@@ -1,4 +1,4 @@
-_assets/
-src/
 __tests__/
+_assets/
 .nyc_output/
+src/
