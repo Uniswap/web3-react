@@ -25,12 +25,13 @@
   "bugs": {
     "url": "https://github.com/NoahZinsmeister/web3-react/issues"
   },
-  "main": "dist/index.js",
+  "browser": "dist/",
   "scripts": {
+    "lint": "eslint src/",
     "test": "ava",
     "coverage": "rm -rf .nyc_output && nyc ava",
-    "build": "rm -rf dist/ && npx babel src/ --out-dir dist --copy-files",
-    "watch": "rm -rf dist/ && npx babel src/ --out-dir dist --copy-files --watch"
+    "build": "rm -rf dist/ && babel src/ --out-dir dist --copy-files",
+    "watch": "rm -rf dist/ && babel src/ --out-dir dist --copy-files --watch"
   },
   "dependencies": {
     "ethereumjs-util": "^6.0.0",
@@ -46,6 +47,7 @@
     "@babel/register": "^7.0.0",
     "ava": "^1.0.0-rc.2",
     "babel-eslint": "^10.0.1",
+    "babel-plugin-module-resolver": "^3.1.1",
     "coveralls": "^3.0.2",
     "eslint": "^5.9.0",
     "eslint-plugin-ava": "^5.1.1",
@@ -53,27 +55,13 @@
     "eslint-plugin-react-hooks": "0.0.0",
     "ignore-styles": "^5.0.1",
     "nyc": "^13.1.0",
-    "react": "^16.7.0-alpha.0",
-    "react-dom": "^16.7.0-alpha.0",
-    "react-test-renderer": "^16.7.0-alpha.0"
+    "react": "^16.7.0-alpha.2",
+    "react-dom": "^16.7.0-alpha.2",
+    "react-test-renderer": "^16.7.0-alpha.2"
   },
   "peerDependencies": {
-    "react": "^16.7.0-alpha.0",
-    "react-dom": "^16.7.0-alpha.0"
-  },
-  "babel": {
-    "presets": [
-      "@babel/env",
-      "@babel/react"
-    ]
-  },
-  "ava": {
-    "require": [
-      "ignore-styles",
-      "@babel/register",
-      "@babel/polyfill"
-    ],
-    "verbose": true
+    "react": "^16.7.0-alpha.2",
+    "react-dom": "^16.7.0-alpha.2"
   },
   "eslintConfig": {
     "plugins": [
@@ -83,7 +71,8 @@
     ],
     "env": {
       "es6": true,
-      "node": true
+      "node": true,
+      "browser": true
     },
     "parser": "babel-eslint",
     "extends": [
@@ -92,8 +81,36 @@
       "plugin:ava/recommended"
     ],
     "rules": {
-      "new-cap": "off",
       "react-hooks/rules-of-hooks": "error"
+    },
+    "settings": {
+      "react": {
+        "version": "16.7.0-alpha.2"
+      }
     }
+  },
+  "ava": {
+    "require": [
+      "ignore-styles",
+      "@babel/register",
+      "@babel/polyfill"
+    ],
+    "verbose": true
+  },
+  "babel": {
+    "presets": [
+      [
+        "@babel/env",
+        {
+          "targets": [
+            ">0.2%",
+            "not dead",
+            "not ie <= 11",
+            "not op_mini all"
+          ]
+        }
+      ],
+      "@babel/react"
+    ]
   }
 }
