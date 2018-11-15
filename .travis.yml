@@ -9,8 +9,8 @@ cache:
   - node_modules
 install: npm install
 script:
-  -npm run lint
-  -npm run build
-  -npm run test
+  - npm run lint
+  - npm run build
+  - npm run test
 after_script:
   - npm run coverage && nyc report --reporter=text-lcov | coveralls
