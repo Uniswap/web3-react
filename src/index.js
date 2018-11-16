@@ -1,4 +1,4 @@
-import React, { Component, Fragment, useState, useEffect, useRef } from 'react'
+import React, { Component, Fragment, useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import Web3 from 'web3'
 
@@ -32,46 +32,37 @@ function useWeb3Manager (pollTime) {
   const web3Initialized = web3State.web3js && web3State.account !== undefined && web3State.networkId
 
   // web3 error ref
-  const web3Error = useRef(null)
-  function setWeb3Error (error) {
-    web3Error.current = error
-  }
+  const [web3Error, setWeb3Error] = useState(null)
   useEffect(() => {
-    if (web3Initialized) web3Error.current = null
+    if (web3Initialized && web3Error) setWeb3Error(null)
   })
 
   // run one-time initialization effect
-  useEffect(async () => {
+  useEffect(() => {
     const { web3, ethereum } = window
 
-    // initialize web3js
-    let web3js
-    let error
     // for modern dapp browsers
     if (ethereum)
-      await ethereum.enable()
+      ethereum.enable()
         .then(() => {
-          web3js = new Web3(ethereum)
+          const web3js = new Web3(ethereum)
+          setWeb3StateIndividually({web3js: web3js})
         })
         .catch(deniedAccessMessage => {
           const deniedAccessError = Error(deniedAccessMessage.toString())
           deniedAccessError.code = ETHEREUM_ACCESS_DENIED
-          error = deniedAccessError
+          setWeb3Error(deniedAccessError)
         })
     // for legacy dapp browsers
-    else if (web3 && web3.currentProvider)
-      web3js = new Web3(web3.currentProvider)
+    else if (web3 && web3.currentProvider) {
+      const web3js = new Web3(web3.currentProvider)
+      setWeb3StateIndividually({web3js: web3js})
+    }
     // no web3 detected
     else {
       const noWeb3Error = Error('No Web3 Provider Detected.')
       noWeb3Error.code = NO_WEB3
-      error = noWeb3Error
-    }
-
-    if (error)
-      setWeb3Error(error)
-    else {
-      setWeb3StateIndividually({web3js: web3js})
+      setWeb3Error(noWeb3Error)
     }
   }, [])
 
@@ -110,19 +101,19 @@ function useWeb3Manager (pollTime) {
     }
   }, [web3State.web3js, web3State.account])
 
-  // rerenderers
-  const [accountRerenderer, setAccountRerenderer] = useState(0)
-  function forceAccountRerender () {
-    setAccountRerenderer(accountRerenderer + 1)
+  // reRenderers
+  const [accountReRenderer, setAccountReRenderer] = useState(0)
+  function forceAccountReRender () {
+    setAccountReRenderer(accountReRenderer + 1)
   }
-  const [networkRerenderer, setNetworkRerenderer] = useState(0)
-  function forceNetworkRerender () {
-    setNetworkRerenderer(networkRerenderer + 1)
+  const [networkReRenderer, setNetworkReRenderer] = useState(0)
+  function forceNetworkReRender () {
+    setNetworkReRenderer(networkReRenderer + 1)
   }
 
   return [
-    {...web3State, utilities: utilitiesToInject}, web3Initialized, web3Error.current,
-    { accountRerenderer, forceAccountRerender, networkRerenderer, forceNetworkRerender }
+    web3State, web3Initialized, web3Error,
+    { accountReRenderer, forceAccountReRender, networkReRenderer, forceNetworkReRender }
   ]
 }
 
@@ -130,14 +121,11 @@ function useWeb3Manager (pollTime) {
 // web3 provider
 export const Web3Context = React.createContext()
 
-function Web3Provider(props) {
+function InnerWeb3Provider(props) {
   const { screens, pollTime, supportedNetworks, children } = props
   const { Web3Error, Initializing, UnsupportedNetwork, PermissionNeeded, UnlockNeeded } = screens
 
-  const [
-    web3State, web3Initialized, web3Error,
-    { accountRerenderer, forceAccountRerender, networkRerenderer, forceNetworkRerender }
-  ] = useWeb3Manager(pollTime)
+  const [web3State, web3Initialized, web3Error, reRenderers] = useWeb3Manager(pollTime)
 
   if (web3Error) {
     if (web3Error.code === ETHEREUM_ACCESS_DENIED)
@@ -152,7 +140,7 @@ function Web3Provider(props) {
     return <Initializing />
 
   if (!supportedNetworks.includes(web3State.networkId)) {
-    const supportedNetworkNames = supportedNetworks.map(id => web3State.utilities.getNetworkName(id))
+    const supportedNetworkNames = supportedNetworks.map(id => utilitiesToInject.getNetworkName(id))
     return <UnsupportedNetwork supportedNetworkNames={supportedNetworkNames} />
   }
 
@@ -160,9 +148,7 @@ function Web3Provider(props) {
     return <UnlockNeeded />
 
   return (
-    <Web3Context.Provider
-      value={{...web3State, accountRerenderer, forceAccountRerender, networkRerenderer, forceNetworkRerender}}
-    >
+    <Web3Context.Provider value={{...web3State, utilities: {...utilitiesToInject}, reRenderers: {...reRenderers}}}>
       {children}
     </Web3Context.Provider>
   )
@@ -196,12 +182,11 @@ const web3ProviderPropTypes = {
 const web3ProviderDefaultProps = {
   screens:           defaultScreens,
   pollTime:          1000,
-  supportedNetworks: [1, 3, 4, 42],
-  children:          ''
+  supportedNetworks: [1, 3, 4, 42]
 }
 
-Web3Provider.propTypes = web3ProviderPropTypes
-Web3Provider.defaultProps = web3ProviderDefaultProps
+InnerWeb3Provider.propTypes = web3ProviderPropTypes
+InnerWeb3Provider.defaultProps = web3ProviderDefaultProps
 
 
 // error boundary
@@ -233,21 +218,21 @@ Web3ReactErrorBoundary.propTypes = {
 
 
 // web3 provider wrapped in error boundary
-function WrappedWeb3Provider(props) {
+function Web3Provider(props) {
   const { screens } = props
   const { Web3Error } = screens
 
   return (
     <Web3ReactErrorBoundary ErrorScreen={Web3Error}>
-      <Web3Provider {...props} />
+      <InnerWeb3Provider {...props} />
     </Web3ReactErrorBoundary>
   )
 }
 
-WrappedWeb3Provider.propTypes = web3ProviderPropTypes
-WrappedWeb3Provider.defaultProps = web3ProviderDefaultProps
+Web3Provider.propTypes = web3ProviderPropTypes
+Web3Provider.defaultProps = web3ProviderDefaultProps
 
-export default WrappedWeb3Provider
+export default Web3Provider
 
 
 // render props pattern: the consumer is exposed to give access to the web3 context via render props

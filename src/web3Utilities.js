@@ -1,8 +1,7 @@
 import * as ethUtil from 'ethereumjs-util'
-export const libraries = { ethUtil }
 
 export const TRANSACTION_ERRORS = [
-  'GAS_PRICE_UNAVAILABLE', 'FAILING_TRANSACTION', 'SENDING_BALANCE_UNAVAILABLE','INSUFFICIENT_BALANCE'
+  'GAS_PRICE_UNAVAILABLE', 'FAILING_TRANSACTION', 'SENDING_BALANCE_UNAVAILABLE', 'INSUFFICIENT_BALANCE'
 ]
 
 const ERC20ABI = [{"constant":true,"inputs":[{"name":"_owner","type":"address"}],"name":"balanceOf","outputs":[{"name":"balance","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"decimals","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"}] // eslint-disable-line
@@ -10,27 +9,22 @@ const ERC20ABI = [{"constant":true,"inputs":[{"name":"_owner","type":"address"}]
 const networkDataById = {
   1: {
     name: 'Mainnet',
-    type: 'PoW',
     etherscanPrefix: ''
   },
   3: {
     name: 'Ropsten',
-    type: 'PoW',
     etherscanPrefix: 'ropsten.'
   },
   4: {
     name: 'Rinkeby',
-    type: 'PoA',
     etherscanPrefix: 'rinkeby.'
   },
   42: {
     name: 'Kovan',
-    type: 'PoA',
     etherscanPrefix: 'kovan.'
   },
   6284: {
-    name: 'Görli',
-    type: 'PoA'
+    name: 'Görli'
   }
 }
 
@@ -62,14 +56,12 @@ export function sendTransaction (method, handlers, transactionOptions = {}) {
     handlers[handler] = handlers[handler] || function () {}
   }
 
-  // custom errors
-  const allErrors = [
-    'GAS_PRICE_UNAVAILABLE', 'FAILING_TRANSACTION', 'SENDING_BALANCE_UNAVAILABLE','INSUFFICIENT_BALANCE'
-  ]
+  // unwrap _method if it's a function
+  const _method = typeof method === 'function' ? method() : method
 
   function wrapError(error, name) {
-    if (!Object.keys(allErrors).includes(name)) return Error(`Passed error name ${name} is not valid.`)
-    error.code = allErrors[name]
+    if (!Object.keys(TRANSACTION_ERRORS).includes(name)) return Error(`Passed error name ${name} is not valid.`)
+    error.code = TRANSACTION_ERRORS[name]
     return error
   }
 
@@ -84,7 +76,7 @@ export function sendTransaction (method, handlers, transactionOptions = {}) {
   }
 
   const gasPromise = () => {
-    return method.estimateGas({ from: ethereumVariables.account, gas: transactionOptions.gas })
+    return _method.estimateGas({ from: ethereumVariables.account, gas: transactionOptions.gas })
       .catch(error => {
         throw wrapError(error, 'FAILING_TRANSACTION')
       })
@@ -109,7 +101,9 @@ export function sendTransaction (method, handlers, transactionOptions = {}) {
       }
 
       // send the transaction
-      return method.send({from: ethereumVariables.account, gasPrice: gasPrice, gas: safeGas, value: transactionOptions.value})
+      return _method.send(
+        {from: ethereumVariables.account, gasPrice: gasPrice, gas: safeGas, value: transactionOptions.value}
+      )
         .on('transactionHash', transactionHash => {
           handlers['transactionHash'](transactionHash)
         })
@@ -223,11 +217,6 @@ export function fromDecimal (number, decimals) {
 export function getNetworkName (networkId = ethereumVariables.networkId) {
   if (!Object.keys(networkDataById).includes(String(networkId))) throw Error(`Network id '${networkId}' is invalid.`)
   return networkDataById[networkId].name
-}
-
-export function getNetworkType (networkId = ethereumVariables.networkId) {
-  if (!Object.keys(networkDataById).includes(String(networkId))) throw Error(`Network id '${networkId}' is invalid.`)
-  return networkDataById[networkId].type
 }
 
 export function getContract (ABI, address, options) {
