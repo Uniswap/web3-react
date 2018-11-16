@@ -4,7 +4,7 @@
 [![Build Status](https://travis-ci.org/NoahZinsmeister/web3-react.svg?branch=master)](https://travis-ci.org/NoahZinsmeister/web3-react)
 [![Coverage Status](https://coveralls.io/repos/github/NoahZinsmeister/web3-react/badge.svg?branch=master)](https://coveralls.io/github/NoahZinsmeister/web3-react?branch=master)
 
-Web3 React is a drop in solution for building single-page Ethereum dApps in React. Yes, it uses [Hooks]((https://reactjs.org/docs/hooks-intro.html)!
+Web3 React is a drop in solution for building single-page Ethereum dApps in React. Yes, it uses [Hooks](https://reactjs.org/docs/hooks-intro.html)!
 
 ![Example GIF](./_assets/example.gif)
 
