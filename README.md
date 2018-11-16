@@ -6,6 +6,8 @@
 
 Web3 React is a drop in solution for building single-page Ethereum dApps in React. Yes, it uses [Hooks](https://reactjs.org/docs/hooks-intro.html)!
 
+[![Edit web3-react-demo](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/3x9mvl51yq)
+
 ![Example GIF](./_assets/example.gif)
 
 The marquee features of Web3 React are:
@@ -19,7 +21,9 @@ The marquee features of Web3 React are:
 - A front-to-back solution for sending transactions that abstracts away from common annoyances like estimating gas usage and fetching current gas prices.
 
 ## Sample Implementations
-Many of the patterns and APIs described below can be seen in this CodeSandbox demo: [![Edit web3-react-demo](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/3x9mvl51yq)
+Many of the patterns and APIs described below can be seen in the CodeSandbox demo.
+
+[![Edit web3-react-demo](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/3x9mvl51yq)
 
 Open a PR to add your project here!
 
@@ -33,13 +37,13 @@ npm install web3-react
 
 Web3-react exports 4 objects:
 
-1. `Web3Provider`. The default export. This Component wraps a React Context Provider to ensure that child components are able to access the `Web3Context`. `Web3Provider` takes [4 optional props](#web3provider-props).
+1. `Web3Provider`. The default export. This Component wraps a React Context Provider to ensure that child components are able to access the `Web3Context`. `Web3Provider` takes [4 optional props](#1-web3provider-props).
 
-2. `Web3Context`. A named export. A React Context object that can be used in Hooks or Components with: `useContext(Web3Context)`. `Web3Context` consists of [4 elements](#web3context-elements).
+2. `Web3Context`. A named export. A React Context object that can be used in Hooks or Components with: `useContext(Web3Context)`. `Web3Context` consists of [4 elements](#2-web3context-elements).
 
-3. `Web3Consumer`: A named export. This Component wraps a React Context Consumer to enable users to access the `Web3Context` via a render prop. `Web3Consumer` takes [2 optional props](#web3consumer-props)
+3. `Web3Consumer`: A named export. This Component wraps a React Context Consumer to enable users to access the `Web3Context` via a render prop. `Web3Consumer` takes [2 optional props](#3-web3consumer-props)
 
-4. `withWeb3`: A named export. This [HOC](https://reactjs.org/docs/context.html#consuming-context-with-a-hoc) enables users to access the `Web3Context` by injecting a `web3` prop into wrapped Components. `Web3Consumer` takes [1 optional argument](#withWeb3-arguments).
+4. `withWeb3`: A named export. This [HOC](https://reactjs.org/docs/context.html#consuming-context-with-a-hoc) enables users to access the `Web3Context` by injecting a `web3` prop into wrapped Components. `Web3Consumer` takes [1 optional argument](#4-withWeb3-arguments).
 
 ### Starter Code
 
@@ -66,7 +70,7 @@ const rootElement = document.getElementById("root");
 ReactDOM.render(<App />, rootElement);
 ```
 
-### Using Web3 React: Hooks *Recommended*
+### Using Web3 React: Hooks - *Recommended*
 The easiest way to use Web3 React is with Hooks! All Hooks exported by Web3 React are documented in [docs/Hooks.md](./docs/Hooks.md).
 
 ```javascript
@@ -79,13 +83,15 @@ function MyComponent () {
   const balance = useAccountBalance()
 
   return (
-    <p>{context.account}</p>
-    <p>{balance}</p>
+    <>
+      <p>{context.account}</p>
+      <p>{balance}</p>
+    </>
   )
 }
 ```
 
-### Using Web3 React: Render Props *Conditionally Recommended*
+### Using Web3 React: Render Props - *Conditionally Recommended*
 In some situations, it could be useful to access the `Web3Context` with a render prop.
 
 ```javascript
@@ -110,7 +116,7 @@ function MyComponent () {
 
 Note that this pattern will work for arbitrarily deeply nested components. This means that the `Web3Consumer` doesn't necessarily need to be at the root of your app. There also won't be performance concerns if you choose to use multiple `Web3Consumer`s at different nesting levels.
 
-### Using Web3 React: HOCs *Not Recommended*
+### Using Web3 React: HOCs - *Not Recommended*
 
 HOCs are less than ideal for a number of reasons, so using Hooks or render props are officially recommended over this pattern.
 
@@ -173,7 +179,7 @@ const web3ProviderDefaultProps = {
     - Default value: The default `Web3Error` Component displays the text of the passed error to the user.
 
 2. `pollTime`: The poll interval (in milliseconds). The current recommendation is to poll for [account](https://github.com/MetaMask/faq/blob/master/DEVELOPERS.md) and [network](https://medium.com/metamask/breaking-change-no-longer-reloading-pages-on-network-change-4a3e1fd2f5e7) changes.
-  - Default value: `1000`
+- Default value: `1000`
 
 3. `supportedNetworks`: Enforces that the web3 instance is connected to a particular network. If the detected network id is not in the passed list, the `UnsupportedNetwork` screen will be shown. Supported network ids are: `1` (Mainnet), `3` (Ropsten), `4` (Rinkeby), and `42` (Kovan).
   - Default value: `[1, 3, 4, 42]`
