@@ -1,10 +1,12 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import ErrorTemplate from './template/ErrorTemplate'
+import { getNetworkName } from '../web3Utilities'
 
 function UnsupportedNetwork(props) {
-  const { supportedNetworkNames } = props
+  const { supportedNetworkIds } = props
 
+  const supportedNetworkNames = supportedNetworkIds.map(networkId => getNetworkName(networkId))
   const message = supportedNetworkNames.length === 1 ?
     `the '${supportedNetworkNames[0]}' network.` :
     `one of the following supported networks: '${supportedNetworkNames.join("', '")}'.`
@@ -18,7 +20,7 @@ function UnsupportedNetwork(props) {
 }
 
 UnsupportedNetwork.propTypes = {
-  supportedNetworkNames: PropTypes.arrayOf(PropTypes.string).isRequired
+  supportedNetworkIds: PropTypes.arrayOf(PropTypes.number).isRequired
 }
 
 export default UnsupportedNetwork

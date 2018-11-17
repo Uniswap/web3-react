@@ -2,8 +2,6 @@ import React, { Component, Fragment, useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import Web3 from 'web3'
 
-import { useThrottled } from './utilities'
-import * as utilities from './web3Utilities'
 import { Initializing, NoWeb3, PermissionNeeded, UnlockNeeded, UnsupportedNetwork, Web3Error } from './defaultScreens'
 
 
@@ -11,11 +9,21 @@ import { Initializing, NoWeb3, PermissionNeeded, UnlockNeeded, UnsupportedNetwor
 const ETHEREUM_ACCESS_DENIED = 'ETHEREUM_ACCESS_DENIED'
 const NO_WEB3 = 'NO_WEB3'
 
+
+// define throttler
+export const useThrottled = (functionToThrottle, interval, initialLastCalled = 0) => {
+  const [lastCalled, setLastCalled] = useState(initialLastCalled)
+
+  return function throttle () {
+    const now = Date.now()
+    if (now >= lastCalled + interval) {
+      setLastCalled(now)
+      functionToThrottle()
+    }
+  }
+}
+
 // web3 manager
-const {
-  setEthereumVariables,
-  ...utilitiesToInject
-} = utilities
 const initialWeb3State = { web3js: undefined, account: undefined, networkId: undefined}
 
 function useWeb3Manager (pollTime) {
@@ -24,9 +32,6 @@ function useWeb3Manager (pollTime) {
   function setWeb3StateIndividually (newState) {
     setWeb3State({...web3State, ...newState})
   }
-
-  // set state in utilities
-  setEthereumVariables(web3State)
 
   // compute initialization status
   const web3Initialized = web3State.web3js && web3State.account !== undefined && web3State.networkId
@@ -140,15 +145,14 @@ function InnerWeb3Provider(props) {
     return <Initializing />
 
   if (!supportedNetworks.includes(web3State.networkId)) {
-    const supportedNetworkNames = supportedNetworks.map(id => utilitiesToInject.getNetworkName(id))
-    return <UnsupportedNetwork supportedNetworkNames={supportedNetworkNames} />
+    return <UnsupportedNetwork supportedNetworkIds={supportedNetworks} />
   }
 
   if (web3State.account === null)
     return <UnlockNeeded />
 
   return (
-    <Web3Context.Provider value={{...web3State, utilities: {...utilitiesToInject}, reRenderers: {...reRenderers}}}>
+    <Web3Context.Provider value={{...web3State, reRenderers: {...reRenderers}}}>
       {children}
     </Web3Context.Provider>
   )
