@@ -1,33 +1,39 @@
-import { useContext, useState, useEffect } from 'react'
+import { useState, useEffect, useContext, useMemo } from 'react'
 
-import { Web3Context } from './index'
+import Web3Context from './Web3Context'
 import {
   getNetworkName, getEtherscanLink, getAccountBalance, getERC20Balance,
   signPersonal, sendTransaction, TRANSACTION_ERRORS
 } from './web3Utilities'
 
+export function useWeb3Context () {
+  return useContext(Web3Context)
+}
+
 export function useNetworkName (networkId) {
-  const context = useContext(Web3Context)
-  return getNetworkName(networkId || context.networkId)
+  const context = useWeb3Context()
+  return useMemo(() => getNetworkName(networkId || context.networkId), [networkId, context.networkId])
 }
 
 export function useEtherscanLink (networkId, type, data) {
-  const context = useContext(Web3Context)
-  return getEtherscanLink(networkId || context.networkId, type, data)
+  const context = useWeb3Context()
+  return useMemo(
+    () => getEtherscanLink(networkId || context.networkId, type, data), [networkId, context.networkId, type, data]
+  )
 }
 
 export function useAccountEffect(effect, depends) {
-  const context = useContext(Web3Context)
+  const context = useWeb3Context()
   useEffect(effect, [...depends, context.account, context.accountReRenderer])
 }
 
 export function useNetworkEffect(effect, depends) {
-  const context = useContext(Web3Context)
+  const context = useWeb3Context()
   useEffect(effect, [...depends, context.networkId, context.networkReRenderer])
 }
 
 export function useAccountBalance (address, {numberOfDigits = 3, format} = {}) {
-  const context = useContext(Web3Context)
+  const context = useWeb3Context()
   const [ balance, setBalance ] = useState(undefined)
 
   useAccountEffect(() => {
@@ -41,7 +47,7 @@ export function useAccountBalance (address, {numberOfDigits = 3, format} = {}) {
 }
 
 export function useERC20Balance (ERC20Address, address, numberOfDigits = 3) {
-  const context = useContext(Web3Context)
+  const context = useWeb3Context()
   const [ ERC20Balance, setERC20Balance ] = useState(undefined)
 
   useAccountEffect(() => {
@@ -55,7 +61,7 @@ export function useERC20Balance (ERC20Address, address, numberOfDigits = 3) {
 }
 
 export function useSignPersonal () {
-  const context = useContext(Web3Context)
+  const context = useWeb3Context()
   function wrappedSignPersonal (message) {
     return signPersonal(context.web3js, context.account, message)
   }
@@ -63,7 +69,7 @@ export function useSignPersonal () {
 }
 
 export function useSendTransaction () {
-  const context = useContext(Web3Context)
+  const context = useWeb3Context()
   function wrappedSendTransaction (method, handlers, transactionOptions) {
     return sendTransaction(context.web3js, context.account, method, handlers, transactionOptions)
   }

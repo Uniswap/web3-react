@@ -20,9 +20,6 @@ const networkDataById = {
   42: {
     name: 'Kovan',
     etherscanPrefix: 'kovan.'
-  },
-  6284: {
-    name: 'Görli'
   }
 }
 

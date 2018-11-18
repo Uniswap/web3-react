@@ -1,27 +1,14 @@
-import React, { Component, Fragment, useState, useEffect } from 'react'
+import React, { Suspense, Component, Fragment, useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import Web3 from 'web3'
 
-import { Initializing, NoWeb3, PermissionNeeded, UnlockNeeded, UnsupportedNetwork, Web3Error } from './defaultScreens'
+import Web3Context from './Web3Context'
 
 
 // define custom error codes
 const ETHEREUM_ACCESS_DENIED = 'ETHEREUM_ACCESS_DENIED'
 const NO_WEB3 = 'NO_WEB3'
 
-
-// define throttler
-export const useThrottled = (functionToThrottle, interval, initialLastCalled = 0) => {
-  const [lastCalled, setLastCalled] = useState(initialLastCalled)
-
-  return function throttle () {
-    const now = Date.now()
-    if (now >= lastCalled + interval) {
-      setLastCalled(now)
-      functionToThrottle()
-    }
-  }
-}
 
 // web3 manager
 const initialWeb3State = { web3js: undefined, account: undefined, networkId: undefined}
@@ -42,7 +29,7 @@ function useWeb3Manager (pollTime) {
     if (web3Initialized && web3Error) setWeb3Error(null)
   })
 
-  // run one-time initialization effect
+  // run one-time initialization
   useEffect(() => {
     const { web3, ethereum } = window
 
@@ -78,7 +65,6 @@ function useWeb3Manager (pollTime) {
       })
       .catch(error => setWeb3Error(error))
   }
-  const throttledNetworkPoll = useThrottled(networkPoll, pollTime * 5)
 
   function accountPoll () {
     web3State.web3js.eth.getAccounts()
@@ -88,12 +74,11 @@ function useWeb3Manager (pollTime) {
       })
       .catch(error => setWeb3Error(error))
   }
-  const throttledAccountPoll = useThrottled(accountPoll, pollTime)
 
   useEffect(() => {
     if (web3State.web3js) {
       networkPoll()
-      const networkPollInterval = setInterval(throttledNetworkPoll, pollTime)
+      const networkPollInterval = setInterval(networkPoll, pollTime)
       return () => clearInterval(networkPollInterval)
     }
   }, [web3State.web3js, web3State.networkId])
@@ -101,7 +86,7 @@ function useWeb3Manager (pollTime) {
   useEffect(() => {
     if (web3State.web3js) {
       accountPoll()
-      const accountPollInterval = setInterval(throttledAccountPoll, pollTime)
+      const accountPollInterval = setInterval(accountPoll, pollTime)
       return () => clearInterval(accountPollInterval)
     }
   }, [web3State.web3js, web3State.account])
@@ -123,38 +108,45 @@ function useWeb3Manager (pollTime) {
 }
 
 
-// web3 provider
-export const Web3Context = React.createContext()
-
-function InnerWeb3Provider(props) {
-  const { screens, pollTime, supportedNetworks, children } = props
-  const { Web3Error, Initializing, UnsupportedNetwork, PermissionNeeded, UnlockNeeded } = screens
+function Web3Provider(props) {
+  const { screens, pollTime, supportedNetworks, accountRequired, children } = props
+  for (let defaultScreen of Object.keys(defaultScreens)) {
+    screens[defaultScreen] = screens[defaultScreen] || defaultScreens[defaultScreen]
+  }
+  const { Initializing, NoWeb3, PermissionNeeded, UnlockNeeded, UnsupportedNetwork, Web3Error } = screens
 
   const [web3State, web3Initialized, web3Error, reRenderers] = useWeb3Manager(pollTime)
 
-  if (web3Error) {
-    if (web3Error.code === ETHEREUM_ACCESS_DENIED)
-      return <PermissionNeeded />
-    else if (web3Error.code === NO_WEB3)
-      return <NoWeb3 />
-    else
-      return <Web3Error error={web3Error} />
+  const Body = () => {
+    if (web3Error) {
+      if (web3Error.code === ETHEREUM_ACCESS_DENIED)
+        return <PermissionNeeded />
+      else if (web3Error.code === NO_WEB3)
+        return <NoWeb3 />
+      else
+        return <Web3Error error={web3Error} />
+    }
+
+    if (!web3Initialized)
+      return <Initializing />
+
+    if (!supportedNetworks.includes(web3State.networkId))
+      return <UnsupportedNetwork supportedNetworkIds={supportedNetworks} />
+
+    if (accountRequired && web3State.account === null)
+      return <UnlockNeeded />
+
+    return (
+      <Web3Context.Provider value={{...web3State, reRenderers: {...reRenderers}}}>
+        {children}
+      </Web3Context.Provider>
+    )
   }
-
-  if (!web3Initialized)
-    return <Initializing />
-
-  if (!supportedNetworks.includes(web3State.networkId)) {
-    return <UnsupportedNetwork supportedNetworkIds={supportedNetworks} />
-  }
-
-  if (web3State.account === null)
-    return <UnlockNeeded />
 
   return (
-    <Web3Context.Provider value={{...web3State, reRenderers: {...reRenderers}}}>
-      {children}
-    </Web3Context.Provider>
+    <Suspense fallback={<div></div>}>
+      {Body()}
+    </Suspense>
   )
 }
 
@@ -168,73 +160,28 @@ const screens = {
 }
 
 const defaultScreens = {
-  Initializing:       Initializing,
-  NoWeb3:             NoWeb3,
-  PermissionNeeded:   PermissionNeeded,
-  UnlockNeeded:       UnlockNeeded,
-  UnsupportedNetwork: UnsupportedNetwork,
-  Web3Error:          Web3Error
+  Initializing:       React.lazy(() => import('./defaultScreens/Initializing')),
+  NoWeb3:             React.lazy(() => import('./defaultScreens/NoWeb3')),
+  PermissionNeeded:   React.lazy(() => import('./defaultScreens/PermissionNeeded')),
+  UnlockNeeded:       React.lazy(() => import('./defaultScreens/UnlockNeeded')),
+  UnsupportedNetwork: React.lazy(() => import('./defaultScreens/UnsupportedNetwork')),
+  Web3Error:          React.lazy(() => import('./defaultScreens/Web3Error'))
 }
 
-const web3ProviderPropTypes = {
+Web3Provider.propTypes = {
   screens:           PropTypes.shape(screens),
   pollTime:          PropTypes.number,
   supportedNetworks: PropTypes.arrayOf(PropTypes.number),
+  accountRequired:   PropTypes.bool,
   children:          PropTypes.node
 }
 
-const web3ProviderDefaultProps = {
+Web3Provider.defaultProps = {
   screens:           defaultScreens,
   pollTime:          1000,
-  supportedNetworks: [1, 3, 4, 42]
+  supportedNetworks: [1, 3, 4, 42],
+  accountRequired:   true
 }
-
-InnerWeb3Provider.propTypes = web3ProviderPropTypes
-InnerWeb3Provider.defaultProps = web3ProviderDefaultProps
-
-
-// error boundary
-class Web3ReactErrorBoundary extends React.Component {
-  constructor(props) {
-    super(props)
-    this.state = { error: undefined }
-  }
-
-  static getDerivedStateFromError(error) {
-    return { error: error }
-  }
-
-  componentDidCatch(error) {
-    console.error(error) // eslint-disable-line no-console
-  }
-
-  render() {
-    const { ErrorScreen, children } = this.props
-    if (this.state.error) return <ErrorScreen error={this.state.error} />
-    return children
-  }
-}
-
-Web3ReactErrorBoundary.propTypes = {
-  ErrorScreen: PropTypes.any.isRequired,
-  children:    PropTypes.node.isRequired
-}
-
-
-// web3 provider wrapped in error boundary
-function Web3Provider(props) {
-  const { screens } = props
-  const { Web3Error } = screens
-
-  return (
-    <Web3ReactErrorBoundary ErrorScreen={Web3Error}>
-      <InnerWeb3Provider {...props} />
-    </Web3ReactErrorBoundary>
-  )
-}
-
-Web3Provider.propTypes = web3ProviderPropTypes
-Web3Provider.defaultProps = web3ProviderDefaultProps
 
 export default Web3Provider
 
