@@ -1,4 +1,6 @@
 __tests__/
 _assets/
 .nyc_output/
+docs/
 src/
+.travis.yml
