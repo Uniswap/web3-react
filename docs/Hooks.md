@@ -7,6 +7,15 @@ This README documents the Hooks available through Web3 React. The implementation
 import { ... } from 'web3-react/hooks'
 ```
 
+### `useWeb3Context`
+Exposes the `Web3Context`.
+```javascript
+useWeb3Context()
+```
+```javascript
+const context = useWeb3Context()
+```
+
 ### `useNetworkName`
 Returns the name of a network (defaults to the current network).
 ```javascript
