@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { memo } from 'react'
 import PropTypes from 'prop-types'
 import './styles.css'
 
@@ -55,4 +55,4 @@ ErrorTemplate.defaultProps = {
   message: ''
 }
 
-export default ErrorTemplate
+export default memo(ErrorTemplate)

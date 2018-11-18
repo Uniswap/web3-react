@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { memo } from 'react'
 import PropTypes from 'prop-types'
 import ErrorTemplate from './template/ErrorTemplate'
 import { getNetworkName } from '../web3Utilities'
@@ -23,4 +23,4 @@ UnsupportedNetwork.propTypes = {
   supportedNetworkIds: PropTypes.arrayOf(PropTypes.number).isRequired
 }
 
-export default UnsupportedNetwork
+export default memo(UnsupportedNetwork)

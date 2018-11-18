@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { memo } from 'react'
 import PropTypes from 'prop-types'
 import ErrorTemplate from './template/ErrorTemplate'
 
@@ -17,4 +17,4 @@ Web3Error.propTypes = {
   error: PropTypes.object.isRequired
 }
 
-export default Web3Error
+export default memo(Web3Error)
