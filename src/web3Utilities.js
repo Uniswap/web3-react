@@ -27,7 +27,7 @@ const etherscanTypes = {'transaction': 'tx', 'address': 'address', 'token': 'tok
 
 const ERC20_ABI = [{"constant":true,"inputs":[{"name":"_owner","type":"address"}],"name":"balanceOf","outputs":[{"name":"balance","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"decimals","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"}] // eslint-disable-line
 
-export const TRANSACTION_ERRORS = [
+export const TRANSACTION_ERROR_CODES = [
   'GAS_PRICE_UNAVAILABLE', 'FAILING_TRANSACTION', 'SENDING_BALANCE_UNAVAILABLE', 'INSUFFICIENT_BALANCE'
 ]
 
@@ -38,7 +38,7 @@ export function getNetworkName (networkId) {
 
 export function getEtherscanLink(networkId, type, data) {
   if (!Object.keys(etherscanTypes).includes(type)) throw Error(`type '${type}' is invalid.`)
-  if (!Object.keys(networkDataById).includes(networkId)) throw Error(`networkID '${networkId}' is invalid.`)
+  if (!Object.keys(networkDataById).includes(String(networkId))) throw Error(`networkID '${networkId}' is invalid.`)
 
   const path = etherscanTypes[type]
   const prefix = networkDataById[networkId].etherscanPrefix
@@ -126,8 +126,8 @@ export function sendTransaction(web3js, address, method, handlers = {}, transact
 
   // lets us throw specific errors
   function wrapError(error, name) {
-    if (!Object.keys(TRANSACTION_ERRORS).includes(name)) return Error(`Passed error name ${name} is not valid.`)
-    error.code = TRANSACTION_ERRORS[name]
+    if (!TRANSACTION_ERROR_CODES.includes(name)) return Error(`Passed error name ${name} is not valid.`)
+    error.code = name
     return error
   }
 
@@ -186,8 +186,8 @@ export function sendTransaction(web3js, address, method, handlers = {}, transact
 }
 
 export function toDecimal (number, decimals) {
-  if (typeof number !== 'string') throw Error(`Passed 'number' argument '${number}' must be a string.`)
-  if (typeof decimals !== 'number') throw Error(`Passed 'decimals' argument '${decimals}' must be a number.`)
+  number = String(number)
+  decimals = Number(decimals)
 
   if (number.length < decimals) {
     number = '0'.repeat(decimals - number.length) + number
@@ -201,8 +201,8 @@ export function toDecimal (number, decimals) {
 }
 
 export function fromDecimal (number, decimals) {
-  if (typeof number !== 'string') throw Error(`Passed 'number' argument '${number}' must be a string.`)
-  if (typeof decimals !== 'number') throw Error(`Passed 'decimals' argument '${decimals}' must be a number.`)
+  number = String(number)
+  decimals = Number(decimals)
 
   var [integer, fraction] = number.split('.')
 
