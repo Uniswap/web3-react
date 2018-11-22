@@ -47,11 +47,11 @@ Manages a transaction sending flow. Ensures that function calls won't fail given
 
 ### `TRANSACTION_ERRORS`
 ```javascript
-const TRANSACTION_ERRORS = [
+const TRANSACTION_ERROR_CODES = [
   'GAS_PRICE_UNAVAILABLE', 'FAILING_TRANSACTION', 'SENDING_BALANCE_UNAVAILABLE','INSUFFICIENT_BALANCE'
 ]
 ```
-Errors throw by [sendTransaction](#sendtransaction) may have a code in the above list, in which case users can be alerted as to why specifically their transaction failed.
+Errors thrown by [sendTransaction](#sendtransaction) may have a code in the above list, in which case users can be alerted as to why specifically their transaction failed.
 
 ### `toDecimal`
 ```javascript

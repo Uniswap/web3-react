@@ -16,6 +16,24 @@ useWeb3Context()
 const context = useWeb3Context()
 ```
 
+### `useAccountEffect`
+useAccountEffect(effect, depends = [])
+```javascript
+useAccountEffect(effect, depends)
+```
+```javascript
+useAccountEffect(() => { ... }, [...])
+```
+
+### `useNetworkEffect`
+Identical to `useEffect`, except that it also triggers on network re-renders.
+```javascript
+useNetworkEffect(effect, depends = [])
+```
+```javascript
+useNetworkEffect(() => { ... }, [...])
+```
+
 ### `useNetworkName`
 Returns the name of a network (defaults to the current network).
 ```javascript
@@ -28,28 +46,10 @@ const networkName = useNetworkName()
 ### `useEtherscanLink`
 Returns an [Etherscan](https://etherscan.io/) link (defaults to the current network).
 ```javascript
-useEtherscanLink(networkId, type, data)
+useEtherscanLink(type, data, networkId)
 ```
 ```javascript
 const link = useEtherscanLink(...)
-```
-
-### `useAccountEffect`
-useAccountEffect(effect, depends)
-```javascript
-useAccountEffect(effect, depends)
-```
-```javascript
-useAccountEffect(() => { ... }, [...])
-```
-
-### `useNetworkEffect`
-Identical to `useEffect`, except that it also triggers on network re-renders.
-```javascript
-useNetworkEffect(effect, depends)
-```
-```javascript
-useNetworkEffect(() => { ... }, [...])
 ```
 
 ### `useAccountBalance`
@@ -70,20 +70,22 @@ useERC20Balance(ERC20Address, address, numberOfDigits = 3)
 const [ ERC20Balance ] = useERC20Balance()
 ```
 
-### `useSignPersonal`
+### `useSignPersonalManager`
 Wraps the `signPersonal` utility function with current `Web3Context` values.
 ```javascript
-useSignPersonal()
+useSignPersonal(message,  { handlers = {} })
 ```
+`handlers` must be one of: `['success', 'error']`.
 ```javascript
-const [ signPersonal ] = useSignPersonal()
+const [signatureState, signatureData, signPersonal, resetSignature] = useSignPersonalManager(message)
 ```
 
-### `useSendTransaction`
+### `useTransactionManager`
 Wraps the `sendTransaction` utility function with current `Web3Context` values.
 ```javascript
-useSendTransaction()
+useSendTransaction(method, { handlers = {}, transactionOptions = {}, maximumConfirmations = null } = {})
 ```
+`handlers` must be one of: `['transactionHash', 'receipt', 'confirmation', 'error']`.
 ```javascript
 const [ sendTransaction, transactionErrors ] = useSendTransaction()
 ```
