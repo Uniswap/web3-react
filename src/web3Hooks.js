@@ -60,12 +60,50 @@ export function useERC20Balance (ERC20Address, address, numberOfDigits = 3) {
   return ERC20Balance
 }
 
-export function useSignPersonal () {
+const initialSignature = {
+  state: 'ready',
+  data: {
+    signature:          undefined,
+    signatureError:     undefined
+  }
+}
+
+function signatureReducer (state, action) {
+  switch (action.type) {
+    case 'ready':
+      return initialSignature
+    case 'pending':
+      return { state: 'pending', data: initialSignature.data }
+    case 'success':
+      return { state: 'success', data: { ...state.data, ...action.data } }
+    case 'error':
+      return { state: 'error',   data: { ...state.data, ...action.data } }
+    default:
+      return initialSignature
+  }
+}
+
+export function useSignPersonalManager (message, { handlers = {} } = {}) {
   const context = useWeb3Context()
 
-  return function wrappedSignPersonal (message) {
-    return signPersonal(context.web3js, context.account, message)
+  const [signature, dispatch] = useReducer(signatureReducer, initialSignature)
+
+  function _signPersonal () {
+    dispatch({ type: 'pending' })
+    signPersonal(context.web3js, context.account, message)
+      .then(signature => {
+        dispatch({ type: 'success', data: { signature: signature } })
+        handlers.success && handlers.success()
+      })
+      .catch(error => {
+        dispatch({ type: 'error', data: { signatureError: error } })
+        handlers.error && handlers.error()
+      })
   }
+
+  function resetSignature () { dispatch({ type: 'ready' }) }
+
+  return [signature.state, signature.data, _signPersonal, resetSignature]
 }
 
 const initialTransaction = {
@@ -96,30 +134,40 @@ function transactionReducer (state, action) {
   }
 }
 
-export function useTransactionManager (method, { transactionOptions, maximumConfirmations } = {}) {
+export function useTransactionManager (
+  method, { handlers = {}, transactionOptions = {}, maximumConfirmations = null } = {}
+) {
   const context = useWeb3Context()
 
   const [transaction, dispatch] = useReducer(transactionReducer, initialTransaction)
 
-  const handlers = {
-    transactionHash: transactionHash => dispatch({ type: 'pending', data: { transactionHash:    transactionHash } }),
-    receipt: transactionReceipt =>      dispatch({ type: 'success', data: { transactionReceipt: transactionReceipt } }),
+  const wrappedHandlers = {
+    transactionHash: transactionHash => {
+      dispatch({ type: 'pending', data: { transactionHash: transactionHash } })
+      handlers.transactionHash && handlers.transactionHash()
+    },
+    receipt: transactionReceipt => {
+      dispatch({ type: 'success', data: { transactionReceipt: transactionReceipt } })
+      handlers.receipt && handlers.receipt()
+    },
     confirmation: (transactionConfirmations, transactionReceipt) => {
       if (maximumConfirmations && transactionConfirmations <= maximumConfirmations) {
         dispatch({
           type: 'success',
           data: { transactionConfirmations: transactionConfirmations, transactionReceipt: transactionReceipt }
         })
+        handlers.confirmation && handlers.confirmation()
       }
     }
   }
 
   function _sendTransaction () {
     dispatch({ type: 'sending' })
-    sendTransaction(context.web3js, context.account, method, handlers, transactionOptions)
+    sendTransaction(context.web3js, context.account, method, wrappedHandlers, transactionOptions)
       .catch(error => {
         const transactionErrorCode = TRANSACTION_ERROR_CODES.includes(error.code) ? error.code : undefined
         dispatch({ type: 'error', data: { transactionError: error, transactionErrorCode: transactionErrorCode } })
+        handlers.error && handlers.error()
       })
   }
 
