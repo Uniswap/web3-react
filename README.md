@@ -6,6 +6,8 @@
 
 Web3 React is a drop in solution for building single-page Ethereum dApps in React. Yes, it uses [Hooks](https://reactjs.org/docs/hooks-intro.html)!
 
+Note: Hooks are an [_experimental new technology_](https://reactjs.org/docs/hooks-intro.html), use [with appropriate caution](https://medium.com/@dan_abramov/making-sense-of-react-hooks-fdbde8803889).
+
 [![Edit web3-react-demo](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/3x9mvl51yq)
 
 ![Example GIF](./_assets/example.gif)
