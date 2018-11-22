@@ -93,11 +93,11 @@ export function useSignPersonalManager (message, { handlers = {} } = {}) {
     signPersonal(context.web3js, context.account, message)
       .then(signature => {
         dispatch({ type: 'success', data: { signature: signature } })
-        handlers.success && handlers.success()
+        handlers.success && handlers.success(signature)
       })
       .catch(error => {
         dispatch({ type: 'error', data: { signatureError: error } })
-        handlers.error && handlers.error()
+        handlers.error && handlers.error(error)
       })
   }
 
@@ -144,11 +144,11 @@ export function useTransactionManager (
   const wrappedHandlers = {
     transactionHash: transactionHash => {
       dispatch({ type: 'pending', data: { transactionHash: transactionHash } })
-      handlers.transactionHash && handlers.transactionHash()
+      handlers.transactionHash && handlers.transactionHash(transactionHash)
     },
     receipt: transactionReceipt => {
       dispatch({ type: 'success', data: { transactionReceipt: transactionReceipt } })
-      handlers.receipt && handlers.receipt()
+      handlers.receipt && handlers.receipt(transactionReceipt)
     },
     confirmation: (transactionConfirmations, transactionReceipt) => {
       if (maximumConfirmations && transactionConfirmations <= maximumConfirmations) {
@@ -156,7 +156,7 @@ export function useTransactionManager (
           type: 'success',
           data: { transactionConfirmations: transactionConfirmations, transactionReceipt: transactionReceipt }
         })
-        handlers.confirmation && handlers.confirmation()
+        handlers.confirmation && handlers.confirmation(transactionConfirmations, transactionReceipt)
       }
     }
   }
@@ -167,7 +167,7 @@ export function useTransactionManager (
       .catch(error => {
         const transactionErrorCode = TRANSACTION_ERROR_CODES.includes(error.code) ? error.code : undefined
         dispatch({ type: 'error', data: { transactionError: error, transactionErrorCode: transactionErrorCode } })
-        handlers.error && handlers.error()
+        handlers.error && handlers.error(error)
       })
   }
 
