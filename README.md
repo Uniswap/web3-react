@@ -1,6 +1,7 @@
 # Web3 React
 
-[![npm version](https://badge.fury.io/js/web3-react.svg)](https://badge.fury.io/js/web3-react)
+[![npm version](https://badge.fury.io/js/web3-react.svg)](https://www.npmjs.com/package/web3-react)
+[![npm downloads](https://img.shields.io/npm/dm/web3-react.svg)](https://www.npmjs.com/package/web3-react)
 [![Build Status](https://travis-ci.org/NoahZinsmeister/web3-react.svg?branch=master)](https://travis-ci.org/NoahZinsmeister/web3-react)
 [![Coverage Status](https://coveralls.io/repos/github/NoahZinsmeister/web3-react/badge.svg?branch=master)](https://coveralls.io/github/NoahZinsmeister/web3-react?branch=master)
 
