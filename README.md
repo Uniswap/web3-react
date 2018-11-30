@@ -26,7 +26,10 @@ Many of the patterns and APIs described below are shown in this CodeSandbox demo
 
 [![Edit web3-react-demo](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/3x9mvl51yq)
 
-Open a PR to include your Web3 React project here!
+Current projects using Web3 React include:
+1. https://github.com/NoahHydro/snowflake-dashboard
+
+Open a PR to add your project to the list!
 
 ## Quickstart
 
