@@ -32,6 +32,11 @@ export function useNetworkEffect(effect, depends = []) {
   useEffect(effect, [...depends, context.networkId, context.reRenderers.networkReRenderer])
 }
 
+export function useAccountAndNetworkEffect(effect, depends = []) {
+  const context = useWeb3Context()
+  useAccountEffect(effect, depends.concat([context.reRenderers.networkReRenderer]))
+}
+
 export function useAccountBalance (address, {numberOfDigits = 3, format} = {}) {
   const context = useWeb3Context()
   const [ balance, setBalance ] = useState(undefined)

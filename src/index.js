@@ -1,4 +1,4 @@
-import React, { Suspense, Component, Fragment, useState, useEffect } from 'react'
+import React, { Suspense, Component, Fragment, useState, useEffect, useReducer } from 'react'
 import PropTypes from 'prop-types'
 import Web3 from 'web3'
 
@@ -11,14 +11,25 @@ const NO_WEB3 = 'NO_WEB3'
 
 
 // web3 manager
-const initialWeb3State = { web3js: undefined, account: undefined, networkId: undefined}
+const initialWeb3State = { web3js: undefined, account: undefined, networkId: undefined, usingProviderURL: undefined }
 
-function useWeb3Manager (pollTime) {
-  // web3 state
-  const [web3State, setWeb3State] = useState(initialWeb3State)
-  function setWeb3StateIndividually (newState) {
-    setWeb3State({...web3State, ...newState})
+function web3StateReducer (state, action) {
+  switch (action.type) {
+    case 'INITIALIZE':
+      return { ...state, web3js: action.payload, usingProviderURL: false }
+    case 'INITIALIZE_URL':
+      return { ...state, web3js: action.payload, usingProviderURL: true }
+    case 'UPDATE_NETWORK_ID':
+      return { ...state, networkId: action.payload }
+    case 'UPDATE_ACCOUNT':
+      return { ...state, account: action.payload }
+    default:
+      return initialWeb3State
   }
+}
+
+function useWeb3Manager (pollTime, providerURL) {
+  const [web3State, dispatchWeb3State] = useReducer(web3StateReducer, initialWeb3State)
 
   // compute initialization status
   const web3Initialized = web3State.web3js && web3State.account !== undefined && web3State.networkId
@@ -38,7 +49,7 @@ function useWeb3Manager (pollTime) {
       ethereum.enable()
         .then(() => {
           const web3js = new Web3(ethereum)
-          setWeb3StateIndividually({web3js: web3js})
+          dispatchWeb3State({ type: 'INITIALIZE', payload: web3js })
         })
         .catch(deniedAccessMessage => {
           const deniedAccessError = Error(deniedAccessMessage.toString())
@@ -48,7 +59,12 @@ function useWeb3Manager (pollTime) {
     // for legacy dapp browsers
     else if (web3 && web3.currentProvider) {
       const web3js = new Web3(web3.currentProvider)
-      setWeb3StateIndividually({web3js: web3js})
+      dispatchWeb3State({ type: 'INITIALIZE', payload: web3js })
+    }
+    // use providerURL as a backup
+    else if (providerURL) {
+      const web3js = new Web3(providerURL)
+      dispatchWeb3State({ type: 'INITIALIZE_URL', payload: web3js })
     }
     // no web3 detected
     else {
@@ -61,7 +77,7 @@ function useWeb3Manager (pollTime) {
   function networkPoll () {
     web3State.web3js.eth.net.getId()
       .then(networkId => {
-        if (networkId !== web3State.networkId) setWeb3StateIndividually({networkId: networkId})
+        if (networkId !== web3State.networkId) dispatchWeb3State({ type: 'UPDATE_NETWORK_ID', payload: networkId })
       })
       .catch(error => setWeb3Error(error))
   }
@@ -70,7 +86,7 @@ function useWeb3Manager (pollTime) {
     web3State.web3js.eth.getAccounts()
       .then(accounts => {
         const account = (accounts === undefined || accounts[0] === undefined) ? null : accounts[0]
-        if (account !== web3State.account) setWeb3StateIndividually({account: account})
+        if (account !== web3State.account) dispatchWeb3State({ type: 'UPDATE_ACCOUNT', payload: account })
       })
       .catch(error => setWeb3Error(error))
   }
@@ -101,21 +117,22 @@ function useWeb3Manager (pollTime) {
     setNetworkReRenderer(networkReRenderer + 1)
   }
 
+  const { usingProviderURL, ...rest } = web3State
+
   return [
-    web3State, web3Initialized, web3Error,
+    rest, web3Initialized, usingProviderURL, web3Error,
     { accountReRenderer, forceAccountReRender, networkReRenderer, forceNetworkReRender }
   ]
 }
 
 
-function Web3Provider(props) {
-  const { screens, pollTime, supportedNetworks, accountRequired, children } = props
+function Web3Provider({ screens, providerURL, pollTime, supportedNetworks, accountRequired, children }) {
   for (let defaultScreen of Object.keys(defaultScreens)) {
     screens[defaultScreen] = screens[defaultScreen] || defaultScreens[defaultScreen]
   }
   const { Initializing, NoWeb3, PermissionNeeded, UnlockNeeded, UnsupportedNetwork, Web3Error } = screens
 
-  const [web3State, web3Initialized, web3Error, reRenderers] = useWeb3Manager(pollTime)
+  const [web3State, web3Initialized, usingProviderURL, web3Error, reRenderers] = useWeb3Manager(pollTime, providerURL)
 
   const Body = () => {
     if (web3Error) {
@@ -133,18 +150,18 @@ function Web3Provider(props) {
     if (!supportedNetworks.includes(web3State.networkId))
       return <UnsupportedNetwork supportedNetworkIds={supportedNetworks} />
 
-    if (accountRequired && web3State.account === null)
+    if (accountRequired && !usingProviderURL && web3State.account === null)
       return <UnlockNeeded />
 
     return (
-      <Web3Context.Provider value={{...web3State, reRenderers: {...reRenderers}}}>
+      <Web3Context.Provider value={{...web3State, reRenderers: reRenderers}}>
         {children}
       </Web3Context.Provider>
     )
   }
 
   return (
-    <Suspense fallback={<div></div>}>
+    <Suspense fallback={<div />}>
       {Body()}
     </Suspense>
   )
@@ -170,6 +187,7 @@ const defaultScreens = {
 
 Web3Provider.propTypes = {
   screens:           PropTypes.shape(screens),
+  providerURL:       PropTypes.string,
   pollTime:          PropTypes.number,
   supportedNetworks: PropTypes.arrayOf(PropTypes.number),
   accountRequired:   PropTypes.bool,
