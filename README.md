@@ -29,6 +29,7 @@ Many of the patterns and APIs described below are shown in this CodeSandbox demo
 Current projects using Web3 React include:
 1. https://github.com/NoahHydro/snowflake-dashboard
 2. https://conlan.github.io/compound-liquidator/
+3. https://uniswap.info
 
 Open a PR to add your project to the list!
 
