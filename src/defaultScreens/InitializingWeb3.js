@@ -62,7 +62,7 @@ function LoadingIcon() {
   )
 }
 
-export default function Initializing () {
+export default function InitializingWeb3 () {
   const [loaderHidden, setLoaderHidden] = useState(true)
 
   useEffect(() => {

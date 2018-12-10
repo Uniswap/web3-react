@@ -1,7 +1,7 @@
 import React, { memo } from 'react'
 import PropTypes from 'prop-types'
 import ErrorTemplate from './template/ErrorTemplate'
-import { getNetworkName } from '../web3Utilities'
+import { getNetworkName } from '../utilities'
 
 function UnsupportedNetwork(props) {
   const { supportedNetworkIds } = props

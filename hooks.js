@@ -1,1 +1,1 @@
-export * from './dist/web3Hooks'
+export * from './dist/hooks'

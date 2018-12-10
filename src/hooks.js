@@ -1,10 +1,10 @@
 import { useState, useEffect, useContext, useReducer, useMemo } from 'react'
 
-import Web3Context from './Web3Context'
+import Web3Context from './context'
 import {
   getNetworkName, getEtherscanLink, getAccountBalance, getERC20Balance,
   signPersonal, sendTransaction, TRANSACTION_ERROR_CODES
-} from './web3Utilities'
+} from './utilities'
 
 export function useWeb3Context () {
   return useContext(Web3Context)

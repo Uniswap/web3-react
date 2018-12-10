@@ -1,1 +1,1 @@
-export * from './dist/web3Utilities'
+export * from './dist/utilities'
