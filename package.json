@@ -1,6 +1,6 @@
 {
   "name": "web3-react",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Drop in solution for building single-page Ethereum dApps in React.",
   "author": "Noah Zinsmeister <noahwz@gmail.com>",
   "keywords": [
