@@ -43,7 +43,7 @@ export function useAccountBalance (address, {numberOfDigits = 3, format} = {}) {
 
   useAccountEffect(() => {
     if (context.account) {
-      getAccountBalance(context.web3js, address || context.account, format)
+      getAccountBalance(context.library, address || context.account, format)
         .then(balance =>
           setBalance(Number(balance).toLocaleString(undefined, { maximumFractionDigits: numberOfDigits }))
         )
@@ -59,7 +59,7 @@ export function useERC20Balance (ERC20Address, address, numberOfDigits = 3) {
 
   useAccountEffect(() => {
     if (address || context.account) {
-      getERC20Balance(context.web3js, ERC20Address, address || context.account)
+      getERC20Balance(context.library, ERC20Address, address || context.account)
         .then(balance =>
           setERC20Balance(Number(balance).toLocaleString(undefined, { maximumFractionDigits: numberOfDigits }))
         )
@@ -99,7 +99,7 @@ export function useSignPersonalManager (message, { handlers = {} } = {}) {
 
   function _signPersonal () {
     dispatch({ type: 'PENDING' })
-    signPersonal(context.web3js, context.account, message)
+    signPersonal(context.library, context.account, message)
       .then(signature => {
         dispatch({ type: 'SUCCESS', data: { signature: signature } })
         handlers.success && handlers.success(signature)
@@ -175,7 +175,7 @@ export function useTransactionManager (
 
   function _sendTransaction () {
     dispatch({ type: 'SENDING' })
-    sendTransaction(context.web3js, context.account, method, wrappedHandlers, transactionOptions)
+    sendTransaction(context.library, context.account, method, wrappedHandlers, transactionOptions)
       .catch(error => {
         const transactionErrorCode = TRANSACTION_ERROR_CODES.includes(error.code) ? error.code : undefined
         dispatch({ type: 'ERROR', data: { transactionError: error, transactionErrorCode: transactionErrorCode } })
