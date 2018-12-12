@@ -35,6 +35,9 @@
   "dependencies": {
     "ethereumjs-util": "^6.0.0",
     "prop-types": "^15.6.2",
+    "qrcode.react": "^0.8.0",
+    "react-modal": "^3.7.1",
+    "styled-components": "^4.1.2",
     "walletconnect": "^0.7.28",
     "web3": "^1.0.0-beta.36"
   },

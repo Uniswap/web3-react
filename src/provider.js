@@ -1,42 +1,46 @@
-import React, { useState, Suspense, Component, Fragment } from 'react'
+import React, { useRef, Suspense, Component, Fragment } from 'react'
 import PropTypes from 'prop-types'
 
 import Web3Context from './context'
 import useWeb3Manager from './manager'
 import { Connector } from './connectors'
 
-// if (web3Error.code === MANAGER_ERROR_CODES.ETHEREUM_ACCESS_DENIED)
-//   return <PermissionNeeded />
-// else if (web3Error.code === MANAGER_ERROR_CODES.NO_WEB3)
-//   return <NoWeb3 />
-// if (!supportedNetworks.includes(web3State.networkId))
-//   return <UnsupportedNetwork supportedNetworkIds={supportedNetworks} />
-// if (accountRequired && !usingProviderURL && web3State.account === null)
-//   return <UnlockNeeded />
-
-
 function Web3Provider({ connectors, screens, children }) {
-  for (let defaultScreen of Object.keys(defaultScreens))
-    screens[defaultScreen] = screens[defaultScreen] || defaultScreens[defaultScreen]
-  const { InitializingWeb3, Web3Error } = screens
+  const allScreens = useRef(Object.keys(defaultScreens).reduce(
+    (accumulator, currentValue) => {
+      accumulator[currentValue] = screens[currentValue] || defaultScreens[currentValue]
+      return accumulator
+    },
+    {}
+  ))
+  const { InitializingWeb3, Web3Error } = allScreens.current
 
-  const [currentConnector, _setCurrentConnector] = useState(null)
-  function setCurrentConnector(i) {
-    _setCurrentConnector(connectors[i])
-  }
-
-  const [web3State, web3Initialized, web3Error, reRenderers] = useWeb3Manager(currentConnector)
+  const [
+    inAutomaticPhase, web3Initialized, activeConnector, setActiveConnector, unsetActiveConnector,
+    web3State, web3Error, reRenderers
+  ] = useWeb3Manager(connectors)
 
   const Body = () => {
     if (web3Error)
-      return <Web3Error error={web3Error} connector={currentConnector} setCurrentConnector={setCurrentConnector} />
+      return <Web3Error
+        error={web3Error}
+        connectors={connectors} currentConnector={activeConnector}
+        setConnector={setActiveConnector} unsetConnector={unsetActiveConnector}
+      />
 
     if (!web3Initialized)
-      return <InitializingWeb3 connector={currentConnector} setCurrentConnector={setCurrentConnector} />
+      return <InitializingWeb3
+        inAutomaticPhase={inAutomaticPhase}
+        connectors={connectors} currentConnector={activeConnector}
+        setConnector={setActiveConnector} unsetConnector={unsetActiveConnector}
+      />
 
     return (
       <Web3Context.Provider
-        value={{ ...web3State, reRenderers: reRenderers, setCurrentConnector: setCurrentConnector }}
+        value={{
+          ...web3State, reRenderers,
+          connector: activeConnector, setConnector: setActiveConnector, unsetConnector: unsetActiveConnector
+        }}
       >
         {children}
       </Web3Context.Provider>
@@ -61,7 +65,7 @@ const defaultScreens = {
 }
 
 Web3Provider.propTypes = {
-  connectors: PropTypes.arrayOf(PropTypes.instanceOf(Connector)).isRequired,
+  connectors: PropTypes.objectOf(PropTypes.instanceOf(Connector)).isRequired,
   screens:    PropTypes.shape(screens),
   children:   PropTypes.node.isRequired
 }

@@ -42,10 +42,12 @@ export function useAccountBalance (address, {numberOfDigits = 3, format} = {}) {
   const [ balance, setBalance ] = useState(undefined)
 
   useAccountEffect(() => {
-    getAccountBalance(context.web3js, address || context.account, format)
-      .then(balance =>
-        setBalance(Number(balance).toLocaleString(undefined, { maximumFractionDigits: numberOfDigits }))
-      )
+    if (context.account) {
+      getAccountBalance(context.web3js, address || context.account, format)
+        .then(balance =>
+          setBalance(Number(balance).toLocaleString(undefined, { maximumFractionDigits: numberOfDigits }))
+        )
+    }
   })
 
   return balance
@@ -56,10 +58,12 @@ export function useERC20Balance (ERC20Address, address, numberOfDigits = 3) {
   const [ ERC20Balance, setERC20Balance ] = useState(undefined)
 
   useAccountEffect(() => {
-    getERC20Balance(context.web3js, ERC20Address, address || context.account)
-      .then(balance =>
-        setERC20Balance(Number(balance).toLocaleString(undefined, { maximumFractionDigits: numberOfDigits }))
-      )
+    if (address || context.account) {
+      getERC20Balance(context.web3js, ERC20Address, address || context.account)
+        .then(balance =>
+          setERC20Balance(Number(balance).toLocaleString(undefined, { maximumFractionDigits: numberOfDigits }))
+        )
+    }
   })
 
   return ERC20Balance
@@ -75,16 +79,16 @@ const initialSignature = {
 
 function signatureReducer (state, action) {
   switch (action.type) {
-    case 'ready':
+    case 'READY':
       return initialSignature
-    case 'pending':
+    case 'PENDING':
       return { state: 'pending', data: initialSignature.data }
-    case 'success':
+    case 'SUCCESS':
       return { state: 'success', data: { ...state.data, ...action.data } }
-    case 'error':
+    case 'ERROR':
       return { state: 'error',   data: { ...state.data, ...action.data } }
     default:
-      return initialSignature
+      throw Error('No default case.')
   }
 }
 
@@ -94,19 +98,22 @@ export function useSignPersonalManager (message, { handlers = {} } = {}) {
   const [signature, dispatch] = useReducer(signatureReducer, initialSignature)
 
   function _signPersonal () {
-    dispatch({ type: 'pending' })
+    dispatch({ type: 'PENDING' })
     signPersonal(context.web3js, context.account, message)
       .then(signature => {
-        dispatch({ type: 'success', data: { signature: signature } })
+        dispatch({ type: 'SUCCESS', data: { signature: signature } })
         handlers.success && handlers.success(signature)
       })
       .catch(error => {
-        dispatch({ type: 'error', data: { signatureError: error } })
+        dispatch({ type: 'ERROR', data: { signatureError: error } })
         handlers.error && handlers.error(error)
       })
   }
 
-  function resetSignature () { dispatch({ type: 'ready' }) }
+  function resetSignature () { dispatch({ type: 'READY' }) }
+
+  if (!context.account)
+    throw Error('useSignPersonalManager was called without an account in context. Please use an appropriate connector.')
 
   return [signature.state, signature.data, _signPersonal, resetSignature]
 }
@@ -124,18 +131,18 @@ const initialTransaction = {
 
 function transactionReducer (state, action) {
   switch (action.type) {
-    case 'ready':
+    case 'READY':
       return initialTransaction
-    case 'sending':
+    case 'SENDING':
       return { state: 'sending', data: initialTransaction.data }
-    case 'pending':
+    case 'PENDING':
       return { state: 'pending', data: { ...state.data, ...action.data } }
-    case 'success':
+    case 'SUCCESS':
       return { state: 'success', data: { ...state.data, ...action.data } }
-    case 'error':
+    case 'ERROR':
       return { state: 'error',   data: { ...state.data, ...action.data } }
     default:
-      return initialTransaction
+      throw Error('No default case.')
   }
 }
 
@@ -148,17 +155,17 @@ export function useTransactionManager (
 
   const wrappedHandlers = {
     transactionHash: transactionHash => {
-      dispatch({ type: 'pending', data: { transactionHash: transactionHash } })
+      dispatch({ type: 'PENDING', data: { transactionHash: transactionHash } })
       handlers.transactionHash && handlers.transactionHash(transactionHash)
     },
     receipt: transactionReceipt => {
-      dispatch({ type: 'success', data: { transactionReceipt: transactionReceipt } })
+      dispatch({ type: 'SUCCESS', data: { transactionReceipt: transactionReceipt } })
       handlers.receipt && handlers.receipt(transactionReceipt)
     },
     confirmation: (transactionConfirmations, transactionReceipt) => {
       if (maximumConfirmations && transactionConfirmations <= maximumConfirmations) {
         dispatch({
-          type: 'success',
+          type: 'SUCCESS',
           data: { transactionConfirmations: transactionConfirmations, transactionReceipt: transactionReceipt }
         })
         handlers.confirmation && handlers.confirmation(transactionConfirmations, transactionReceipt)
@@ -167,16 +174,19 @@ export function useTransactionManager (
   }
 
   function _sendTransaction () {
-    dispatch({ type: 'sending' })
+    dispatch({ type: 'SENDING' })
     sendTransaction(context.web3js, context.account, method, wrappedHandlers, transactionOptions)
       .catch(error => {
         const transactionErrorCode = TRANSACTION_ERROR_CODES.includes(error.code) ? error.code : undefined
-        dispatch({ type: 'error', data: { transactionError: error, transactionErrorCode: transactionErrorCode } })
+        dispatch({ type: 'ERROR', data: { transactionError: error, transactionErrorCode: transactionErrorCode } })
         handlers.error && handlers.error(error)
       })
   }
 
-  function resetTransaction () { dispatch({ type: 'ready' }) }
+  function resetTransaction () { dispatch({ type: 'READY' }) }
+
+  if (!context.account)
+    throw Error('useTransactionManager was called without an account in context. Please use an appropriate connector.')
 
   return [transaction.state, transaction.data, _sendTransaction, resetTransaction, TRANSACTION_ERROR_CODES]
 }

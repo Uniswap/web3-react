@@ -1,23 +1,36 @@
 import Web3 from 'web3'
 import WalletConnect from 'walletconnect'
+import EventEmitter from 'events'
 
-export class Connector {
-  constructor({ pollForNetworkChanges, networkPollInterval, pollForAccountChanges, accountPollInterval }) {
-    if (!(typeof pollForNetworkChanges === 'boolean'))
-      throw Error(`Passed 'pollForNetworkChanges' parameter ${pollForNetworkChanges} is not a boolean.`)
-    if (pollForNetworkChanges && !Number.isInteger(networkPollInterval))
-      throw Error(`Passed 'networkPollInterval' parameter ${networkPollInterval} is not an integer.`)
+export const UNSUPPORTED_NETWORK = 'UNSUPPORTED_NETWORK'
+const ConnectorErrorCodes = [UNSUPPORTED_NETWORK]
 
-    if (!(typeof pollForAccountChanges === 'boolean'))
-      throw Error(`Passed 'pollForAccountChanges' parameter ${pollForAccountChanges} is not a boolean.`)
-    if (pollForAccountChanges && !Number.isInteger(accountPollInterval))
-      throw Error(`Passed 'accountPollInterval' parameter ${accountPollInterval} is not an integer.`)
+export class Connector extends EventEmitter {
+  constructor({ supportedNetworks = null, automaticPriority = null }) {
+    super()
 
-    this.pollForNetworkChanges = pollForNetworkChanges
-    this.pollForAccountChanges = pollForAccountChanges
+    if (supportedNetworks && !Array.isArray(supportedNetworks))
+      throw Error(`Passed 'supportedNetworks' parameter is not an array.`)
+    if (supportedNetworks && !(supportedNetworks.length >= 1))
+      throw Error(`Passed 'supportedNetworks' parameter does not have length >= 1.`)
+    if (supportedNetworks && supportedNetworks.every(n => !Number.isInteger(n)))
+      throw Error(`Passed 'supportedNetworks' parameter contains a non-integer element.`)
 
-    this.networkPollInterval = pollForNetworkChanges ? networkPollInterval : null
-    this.accountPollInterval = pollForAccountChanges ? accountPollInterval : null
+    if (automaticPriority && !Number.isInteger(automaticPriority))
+      throw Error(`Passed 'automaticPriority' parameter ${automaticPriority} is not an integer.`)
+
+    this.supportedNetworks = supportedNetworks
+    this.automaticPriority = automaticPriority
+  }
+
+  validateNetworkId (networkId) {
+    if (this.supportedNetworks && !this.supportedNetworks.includes(networkId)) {
+      const unsupportedNetworkError = Error('Unsupported Network.')
+      unsupportedNetworkError.code = UNSUPPORTED_NETWORK
+      throw unsupportedNetworkError
+    }
+
+    return networkId
   }
 
   async getLibrary () { throw Error(`Connector did not implement 'getLibrary'.`) }
@@ -31,14 +44,12 @@ function ErrorCodeMixin (Base, errorCodes) {
     throw Error(`Required parameter 'errorCodes' was not provided.`)
   if (!Array.isArray(errorCodes))
     throw Error(`Required parameter 'errorCodes' is not an array.`)
-  if (!(errorCodes.length >= 1))
-    throw Error(`Required parameter 'errorCodes' does not have length >= 1.`)
   if (!errorCodes.every(e => typeof e === 'string'))
     throw Error(`Required parameter 'errorCodes' contains a non-string element.`)
 
   return class extends Base {
     static get errorCodes() {
-      return { errorCodes }.reduce(
+      return ConnectorErrorCodes.concat(errorCodes).reduce(
         (accumulator, currentValue) => {
           accumulator[currentValue] = currentValue
           return accumulator
@@ -49,19 +60,13 @@ function ErrorCodeMixin (Base, errorCodes) {
   }
 }
 
-export class InjectedConnector extends ErrorCodeMixin(Connector, ['ETHEREUM_ACCESS_DENIED', 'NO_WEB3']) {
-  constructor({ supportedNetworks = [1, 3, 4, 42], networkPollInterval = 2000, accountPollInterval = 500 } = {}) {
-    if (!Array.isArray(supportedNetworks))
-      throw Error(`Optional parameter 'supportedNetworks' is not an array.`)
-    if (!(supportedNetworks.length >= 1))
-      throw Error(`Optional parameter 'errorCodes' does not have length >= 1.`)
-    if (supportedNetworks.every(n => !Number.isInteger(n)))
-      throw Error(`Optional parameter 'supportedNetworks' contains a non-integer element.`)
+const InjectedConnectorErrorCodes = ConnectorErrorCodes.concat(['ETHEREUM_ACCESS_DENIED', 'NO_WEB3', 'LEGACY_PROVIDER'])
+export class InjectedConnector extends ErrorCodeMixin(Connector, InjectedConnectorErrorCodes) {
+  constructor({ supportedNetworks = [1, 3, 4, 42], automaticPriority } = {}) {
+    super({ supportedNetworks, automaticPriority })
 
-    super({
-      pollForNetworkChanges: true, networkPollInterval: networkPollInterval,
-      pollForAccountChanges: true, accountPollInterval: accountPollInterval
-    })
+    this.listenForNetworkChanges = true
+    this.listenForAccountChanges = true
   }
 
   async getLibrary () {
@@ -78,8 +83,10 @@ export class InjectedConnector extends ErrorCodeMixin(Connector, ['ETHEREUM_ACCE
       return new Web3(ethereum)
     }
     // for legacy dapp browsers
-    else if (web3 && web3.currentProvider) {
-      return new Web3(web3.currentProvider)
+    else if (web3) {
+      const legacyError = Error('Your web3 provider is outdated, please upgrade.')
+      legacyError.code = InjectedConnector.errorCodes.LEGACY_PROVIDER
+      throw legacyError
     }
     // no injected web3 detected
     else {
@@ -90,7 +97,8 @@ export class InjectedConnector extends ErrorCodeMixin(Connector, ['ETHEREUM_ACCE
   }
 
   async getNetworkId(library) {
-    return library.eth.net.getId()
+    const networkId = await library.eth.net.getId()
+    return super.validateNetworkId(networkId)
   }
 
   async getAccount(library) {
@@ -99,9 +107,9 @@ export class InjectedConnector extends ErrorCodeMixin(Connector, ['ETHEREUM_ACCE
   }
 }
 
-export class WalletConnectConnector extends Connector {
-  constructor({ providerURL, bridgeURL, dappName } = {}) {
-    super({ pollForNetworkChanges: false, pollForAccountChanges: false })
+export class WalletConnectConnector extends ErrorCodeMixin(Connector, []) {
+  constructor({ supportedNetworks, automaticPriority, providerURL, bridgeURL, dappName } = {}) {
+    super({ supportedNetworks, automaticPriority })
 
     if (!providerURL)
       throw Error(`Required parameter 'providerURL' was not provided.`)
@@ -127,7 +135,8 @@ export class WalletConnectConnector extends Connector {
   }
 
   async getNetworkId(library) {
-    return library.eth.net.getId()
+    const networkId = await library.eth.net.getId()
+    return super.validateNetworkId(networkId)
   }
 
   async getAccount() {
@@ -135,8 +144,11 @@ export class WalletConnectConnector extends Connector {
       const accounts = this.webConnector.accounts
       return (!accounts || !accounts[0]) ? null : accounts[0]
     } else {
-      await this.webConnector.initSession()
+      if (!this.webConnectorSession)
+        this.webConnectorSession = this.webConnector.initSession()
+      await this.webConnectorSession
       this.uri = this.webConnector.uri
+      this.emit('URIAvailable')
       await this.webConnector.listenSessionStatus()
       const accounts = this.webConnector.accounts
       return (!accounts || !accounts[0]) ? null : accounts[0]
@@ -144,9 +156,9 @@ export class WalletConnectConnector extends Connector {
   }
 }
 
-export class NetworkOnlyConnector extends Connector {
-  constructor({ providerURL } = {}) {
-    super({ pollForNetworkChanges: false, pollForAccountChanges: false })
+export class NetworkOnlyConnector extends ErrorCodeMixin(Connector, []) {
+  constructor({ supportedNetworks, automaticPriority, providerURL } = {}) {
+    super({ supportedNetworks, automaticPriority })
 
     if (!providerURL)
       throw Error(`Required parameter 'providerURL' was not provided.`)
@@ -161,7 +173,8 @@ export class NetworkOnlyConnector extends Connector {
   }
 
   async getNetworkId(library) {
-    return library.eth.net.getId()
+    const networkId = await library.eth.net.getId()
+    return super.validateNetworkId(networkId)
   }
 
   async getAccount() {
