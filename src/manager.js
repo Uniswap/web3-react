@@ -84,7 +84,6 @@ export default function useWeb3Manager (connectors) {
   function handleError(error) {
     if (!triedAllAutomatic) {
       // if the error is an unsupported network error, throw it
-      window.a = activeConnector
       if (error.code === UNSUPPORTED_NETWORK) {
         automaticHalted.current = true
         dispatchWeb3State({ type: 'UPDATE_ERROR', payload: error })
@@ -142,7 +141,7 @@ export default function useWeb3Manager (connectors) {
     dispatchWeb3State({ type: 'UPDATE_ACCOUNT', payload: accounts[0] })
   }
 
-  // run network poll
+  // run network listener
   useEffect(() => {
     if (web3State.connectorName && activeConnector.listenForNetworkChanges && web3State.library && !web3State.error) {
       const { ethereum } = window
@@ -151,7 +150,7 @@ export default function useWeb3Manager (connectors) {
     }
   }, [web3State.connectorName, web3State.library, web3State.error, web3State.networkId])
 
-  // run account poll
+  // run account listener
   useEffect(() => {
     if (web3State.connectorName && activeConnector.listenForAccountChanges && web3State.library && !web3State.error) {
       const { ethereum } = window

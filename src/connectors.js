@@ -39,7 +39,7 @@ export class Connector extends EventEmitter {
   static get errorCodes() { return {} }
 }
 
-function ErrorCodeMixin (Base, errorCodes) {
+function ErrorCodeMixin (Base, errorCodes = []) {
   if (!errorCodes)
     throw Error(`Required parameter 'errorCodes' was not provided.`)
   if (!Array.isArray(errorCodes))
@@ -107,7 +107,7 @@ export class InjectedConnector extends ErrorCodeMixin(Connector, InjectedConnect
   }
 }
 
-export class WalletConnectConnector extends ErrorCodeMixin(Connector, []) {
+export class WalletConnectConnector extends ErrorCodeMixin(Connector) {
   constructor({ supportedNetworks, automaticPriority, providerURL, bridgeURL, dappName } = {}) {
     super({ supportedNetworks, automaticPriority })
 
@@ -150,13 +150,17 @@ export class WalletConnectConnector extends ErrorCodeMixin(Connector, []) {
       this.uri = this.webConnector.uri
       this.emit('URIAvailable')
       await this.webConnector.listenSessionStatus()
+        .catch(error => {
+          // TODO: fix this temporary work-around
+          if (!error.message.match(/listener\stimeout/i)) throw error
+        })
       const accounts = this.webConnector.accounts
       return (!accounts || !accounts[0]) ? null : accounts[0]
     }
   }
 }
 
-export class NetworkOnlyConnector extends ErrorCodeMixin(Connector, []) {
+export class NetworkOnlyConnector extends ErrorCodeMixin(Connector) {
   constructor({ supportedNetworks, automaticPriority, providerURL } = {}) {
     super({ supportedNetworks, automaticPriority })
 

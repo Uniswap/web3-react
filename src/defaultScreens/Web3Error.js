@@ -41,7 +41,8 @@ const ErrorText = styled(Text)`
 `
 
 export default function Web3Error ({ error, currentConnector, unsetConnector }) {
-  console.error(currentConnector.constructor.name, 'threw an error.') // eslint-disable-line no-console
+  // eslint-disable-next-line no-console
+  if (currentConnector) console.error(currentConnector.constructor.name, 'threw an error.')
   console.error(error) // eslint-disable-line no-console
 
   const getErrorMessage = () => {
