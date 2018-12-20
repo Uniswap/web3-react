@@ -53,7 +53,7 @@ function Web3Provider({ connectors, passive, screens, libraryName, children }: W
 
     return (
       <Web3Context.Provider
-        value={{...rest, reRenderers, connectorName, activate, activateAccount, setConnector, unsetConnector}}
+        value={{...rest, ...reRenderers, connectorName, activate, activateAccount, setConnector, unsetConnector}}
       >
         {children}
       </Web3Context.Provider>

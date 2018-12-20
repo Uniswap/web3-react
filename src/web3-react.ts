@@ -20,6 +20,7 @@ export interface Web3ContextInterface {
   connectorName       ?: string
   activate            ?: () => void
   activateAccount     ?: () => void
+  setConnector        ?: () => void
   unsetConnector      ?: () => void
 }
 
