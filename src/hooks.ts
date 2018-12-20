@@ -1,6 +1,6 @@
 import { useState, useEffect, useContext, useReducer } from 'react'
 
-import { Web3ContextInterface } from './index'
+import { Web3ContextInterface } from './web3-react'
 import Web3Context from './context'
 import {
   getNetworkName, getEtherscanLink, getAccountBalance, getERC20Balance,
@@ -195,7 +195,7 @@ export function useTransactionManager (
     dispatch({ type: 'SENDING' })
 
     sendTransaction(context.library, context.account, method, wrappedHandlers, transactionOptions)
-      .catch((error: Error) => {
+      .catch((error: any) => {
         const transactionErrorCode = error.code ? (TRANSACTION_ERROR_CODES.includes(error.code as string) ? error.code : undefined) : undefined
         dispatch({ type: 'ERROR', data: { transactionError: error, transactionErrorCode: transactionErrorCode } })
         handlers.error && handlers.error(error)

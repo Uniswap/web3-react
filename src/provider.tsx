@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 
 import Web3Context from './context'
 import useWeb3Manager from './manager'
-import { Web3ContextInterface, Connectors, LibraryName } from './index'
+import { Web3ContextInterface, Connectors, LibraryName } from './web3-react'
 
 import Loader from './defaultScreens/loader'
 
@@ -139,7 +139,7 @@ export { Web3Consumer }
 
 
 // HOC pattern: withWeb3 is an wrapper that gives passed components access to the web3 context
-export function withWeb3(ComponentToWrap: any, { recreateOnNetworkChange = true, recreateOnAccountChange = true } = {}) {
+export function withWeb3(ComponentToWrap: any, { recreateOnNetworkChange = true, recreateOnAccountChange = true } = {}): any {
   class WithWeb3 extends Component {
     render() {
       return (

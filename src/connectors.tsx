@@ -3,7 +3,7 @@ import WalletConnect from 'walletconnect'
 
 import { getNewProvider, getNetworkId, getAccounts } from './libraries'
 
-import { Library, LibraryName } from './index'
+import { Library, LibraryName } from './web3-react'
 
 interface ErrorCodes {
   [propName: string]: string

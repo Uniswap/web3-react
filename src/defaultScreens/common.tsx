@@ -103,7 +103,7 @@ export const Link = styled.a`
   }
 `
 
-function Loader ({ children }: { children: any }): any {
+function Base ({ children }: { children: any }): any {
   return (
     <Background>
       <FlexWrapper>
@@ -125,8 +125,8 @@ function Loader ({ children }: { children: any }): any {
   )
 }
 
-Loader.propTypes = {
+Base.propTypes = {
   children: PropTypes.any
 }
 
-export default Loader
+export default Base

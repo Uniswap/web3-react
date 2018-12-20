@@ -10,7 +10,7 @@ import {
   isWeb3
 } from './libraries'
 
-import { Library } from './index'
+import { Library } from './web3-react'
 
 interface NetworkId {
   name: string
@@ -38,7 +38,7 @@ const networkDataById: { [propName: string]: NetworkId } = {
 
 const etherscanTypes: any = {'transaction': 'tx', 'address': 'address', 'token': 'token'}
 
-export const TRANSACTION_ERROR_CODES: string[] = [
+export const TRANSACTION_ERROR_CODES: Array<string> = [
   'GAS_PRICE_UNAVAILABLE', 'FAILING_TRANSACTION', 'SENDING_BALANCE_UNAVAILABLE', 'INSUFFICIENT_BALANCE'
 ]
 

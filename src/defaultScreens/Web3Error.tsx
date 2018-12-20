@@ -44,7 +44,7 @@ export default function Web3Error (
   { error, connectorName, connector, unsetConnector }:
   { error: Error, connectorName: string, connector: Connector, unsetConnector: Function }
 ) {
-  console.error(`The ${connectorName} threw an error.`) // eslint-disable-line no-console
+  console.error(`The ${connectorName}' connector threw an error.`) // eslint-disable-line no-console
   console.error(error) // eslint-disable-line no-console
 
   const getErrorMessage = () => {

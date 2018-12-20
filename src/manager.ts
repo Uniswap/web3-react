@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useReducer } from 'react'
 
 import { Connector } from './connectors'
-import { Connectors, Library, LibraryName } from './index'
+import { Connectors, Library, LibraryName } from './web3-react'
 
 const initialWeb3State = {
   active: undefined, connectorName: undefined,
@@ -68,7 +68,8 @@ export default function useWeb3Manager (connectors: Connectors, passive: boolean
     }
 
     if (automaticHalted.current) automaticHalted.current = false
-    if (Object.values(automaticState.current).some(x => x)) automaticState.current = initialAutomaticState.current
+    if (Object.keys(automaticState.current).map(k => automaticState.current[k]).some((x: any) => x))
+      automaticState.current = initialAutomaticState.current
     dispatchWeb3State({ type: 'ACTIVATE', payload: automaticConnectors.current[0] })
   }
 
@@ -101,13 +102,19 @@ export default function useWeb3Manager (connectors: Connectors, passive: boolean
   // flag for whether the automatic phase is active
   const inAutomaticPhase = !(
     automaticHalted.current ||
-    automaticConnectors.current.length === 0 ? true : Object.values(automaticState.current).every(x => x)
+    automaticConnectors.current.length === 0 ? true :
+      Object.keys(automaticState.current).every(x => automaticState.current[x])
   )
 
   function setActiveConnector (connectorName: string, skipSettingAutomaticHalted: boolean = false) {
     if (!skipSettingAutomaticHalted && !automaticHalted.current) automaticHalted.current = true
     if (!Object.keys(connectors).includes(connectorName))
       throw Error(`Passed 'connectorName' parameter ${connectorName} is not recognized.`)
+    if (connectorName === web3State.connectorName) {
+      console.error('Calling setActiveConnector for the currently initialized connector is a no-op.')
+      return
+    }
+
     dispatchWeb3State({ type: 'UPDATE_CONNECTOR_NAME', payload: connectorName })
   }
 
@@ -158,8 +165,7 @@ export default function useWeb3Manager (connectors: Connectors, passive: boolean
 
   useEffect(() => {
     if (web3State.connectorName) {
-      if (!automaticHalted.current)
-        automaticState.current = { ...automaticState.current, activeConnectorName: true }
+      if (!automaticHalted.current) automaticState.current = { ...automaticState.current, activeConnectorName: true }
       if (activeConnector) {
         activeConnector.onActivation()
           .then(() => initializeConnectorValues())

@@ -4,10 +4,10 @@ import PropTypes from 'prop-types'
 import Modal from 'react-modal'
 import QRCode from 'qrcode.react'
 
-import Loader from './Loader'
+import Loader from './loader'
 import { Connector, MetaMaskConnector, InfuraConnector, WalletConnectConnector, TrustWalletRedirectConnector } from '../connectors'
 import Common, { Button, ButtonLink, Text, Link } from './common'
-import { Connectors } from '../index'
+import { Connectors } from '../web3-react'
 
 import metamaskLogo from './assets/metamask.svg';
 import infuraLogo from './assets/infura.svg';
