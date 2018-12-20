@@ -4,22 +4,24 @@ import PropTypes from 'prop-types'
 import Modal from 'react-modal'
 import QRCode from 'qrcode.react'
 
-import Loader from './loader'
-import { Connector, InjectedConnector, NetworkOnlyConnector, WalletConnectConnector } from '../connectors'
-import Common, { Button, Text, Link } from './common'
+import Loader from './Loader'
+import { Connector, MetaMaskConnector, InfuraConnector, WalletConnectConnector, TrustWalletRedirectConnector } from '../connectors'
+import Common, { Button, ButtonLink, Text, Link } from './common'
+import { Connectors } from '../index'
 
 import metamaskLogo from './assets/metamask.svg';
 import infuraLogo from './assets/infura.svg';
 import walletConnectLogo from './assets/walletConnect.svg';
+import trustWalletLogo from './assets/trust.svg';
 
-Modal.defaultStyles.overlay.backgroundColor = 'rgba(0, 0, 0, .3)';
+Modal.defaultStyles!.overlay!.backgroundColor = 'rgba(0, 0, 0, .3)';
 
 const greyTextColor = '#a3a5a8'
 
 const mobilePixelCutoff = '600px'
 
 const Container = styled.div`
-  height: 75vh;
+  margin: 2em;
 
   @media (max-width: ${mobilePixelCutoff}) {
     width: 95%;
@@ -55,11 +57,11 @@ const ConnectorWrapper = styled.div`
   }
 `
 
-const ConnectorSection = styled.div`
+const ConnectorSection: any = styled.div`
   display: flex;
   align-items: center;
-  justify-content: ${props => props.justifyContent};
-  flex-basis: ${props => props.percent};
+  justify-content: ${(props: any) => props.justifyContent};
+  flex-basis: ${(props: any) => props.percent};
 
   @media (max-width: ${mobilePixelCutoff}) {
     justify-content: center;
@@ -67,6 +69,17 @@ const ConnectorSection = styled.div`
 `
 
 const ConnectorButton = styled(Button)`
+  margin-right: 1em;
+  padding-left: 1.5em;
+  padding-right: 1.5em;
+
+  @media (max-width: ${mobilePixelCutoff}) {
+    margin-right: 0em;
+    margin-bottom: 1em;
+  }
+`
+
+const ConnectorButtonLink = styled(ButtonLink)`
   margin-right: 1em;
   padding-left: 1.5em;
   padding-right: 1.5em;
@@ -117,9 +130,12 @@ const InfuraLogo = styled(Logo)`
   background-image: url(${infuraLogo});
 `
 
-// '#4099FF'
 const WalletConnectLogo = styled(Logo)`
   background-image: url(${walletConnectLogo});
+`
+
+const TrustWalletLogo = styled(Logo)`
+  background-image: url(${trustWalletLogo});
 `
 
 const QRWrapper = styled.div`
@@ -127,8 +143,14 @@ const QRWrapper = styled.div`
   flex-direction: column;
 `
 
-function getDetails(connector) {
-  if (connector instanceof InjectedConnector)
+interface connectorDetails {
+  logo: any
+  text: any
+  buttonText: string
+}
+
+function getDetails(connector: Connector): connectorDetails {
+  if (connector instanceof MetaMaskConnector)
     return {
       logo: <MetamaskLogo />,
       text: (
@@ -140,17 +162,17 @@ function getDetails(connector) {
       ),
       buttonText: 'Connect to MetaMask'
     }
-  if (connector instanceof NetworkOnlyConnector)
+  if (connector instanceof InfuraConnector)
     return {
       logo: <InfuraLogo />,
       text: (
         <>
-          Connect in read-only mode with{' '}
+          View with{' '}
           <Link href='https://infura.io/' target='_blank' rel='noopener noreferrer'>Infura</Link>
           .
         </>
       ),
-      buttonText: 'Connect'
+      buttonText: 'View'
     }
   if (connector instanceof WalletConnectConnector)
     return {
@@ -164,6 +186,21 @@ function getDetails(connector) {
       ),
       buttonText: 'Use WalletConnect'
     }
+
+  if (!(connector instanceof TrustWalletRedirectConnector))
+    throw Error('Unrecognized connector.')
+
+  return {
+    logo: <TrustWalletLogo />,
+    text: (
+      <>
+        Open in {' '}
+        <Link href='https://trustwallet.com/' target='_blank' rel='noopener noreferrer'>Trust</Link>
+        .
+      </>
+    ),
+    buttonText: 'Open in Trust'
+  }
 }
 
 const walletConnectModalStyles = {content: {
@@ -176,35 +213,31 @@ const walletConnectModalStyles = {content: {
   border:      'none'
 }}
 
+interface URIState { available: boolean, uri: undefined | string }
+const initialURIState: URIState = { available: false, uri: undefined }
 export default function InitializingWeb3 (
-  { connectors, currentConnector, inAutomaticPhase, setConnector, unsetConnector }
-) {
-  const [URIAvailable, setURIAvailable] = useState(false)
-  function URIAvailableHandler () {
-    if (!URIAvailable) setURIAvailable(true)
+  { inAutomaticPhase, connectors, connector, setConnector, unsetConnector }:
+  { inAutomaticPhase: boolean, connectors: Connectors, connector: Connector, setConnector: Function, unsetConnector: Function }) {
+  const [URIState, setURIState] = useState(initialURIState)
+
+  function URIAvailableHandler (URI: string) {
+    setURIState({ available: true, uri: URI })
   }
 
   useEffect(() => {
-    if (currentConnector instanceof WalletConnectConnector) {
-      currentConnector.on('URIAvailable', URIAvailableHandler)
-      return () => currentConnector.removeListener('URIAvailable', URIAvailableHandler)
+    if (connector instanceof WalletConnectConnector) {
+      connector.on('URIAvailable', URIAvailableHandler)
+      return () => connector.removeListener('URIAvailable', URIAvailableHandler)
     }
-  }, [currentConnector])
-
-  if (inAutomaticPhase && currentConnector && !(currentConnector instanceof WalletConnectConnector))
-    return null
-
-  if (currentConnector && !(currentConnector instanceof WalletConnectConnector))
+  }, [connector])
+  if (inAutomaticPhase)
     return <Loader />
 
-  if (currentConnector instanceof WalletConnectConnector && currentConnector.webConnector.isConnected)
-     return <Loader />
+  if (connector && !(connector instanceof WalletConnectConnector))
+    return <Loader />
 
-  const walletConnectModalOpen =
-    URIAvailable &&
-    currentConnector instanceof WalletConnectConnector &&
-    !currentConnector.webConnector.isConnected &&
-    !!currentConnector.uri
+  if (connector instanceof WalletConnectConnector && connector.webConnector.isConnected)
+     return <Loader />
 
   return (
     <Common>
@@ -213,16 +246,22 @@ export default function InitializingWeb3 (
           const connectorDetails = getDetails(connectors[c])
           return (
             <ConnectorWrapper key={c}>
-              <ConnectorSection percent='20%' flexShrink='0'>
+              <ConnectorSection percent='20%'>
                 {connectorDetails.logo}
               </ConnectorSection>
-              <ConnectorSection percent='40%' justifyContent='flex-start' flexShrink='2'>
+              <ConnectorSection percent='40%' justifyContent='flex-start'>
                 <ExplanatoryText>
                   {connectorDetails.text}
                 </ExplanatoryText>
               </ConnectorSection>
-              <ConnectorSection percent='40%' justifyContent='flex-end' flexShrink='0' last={true}>
-                <ConnectorButton onClick={() => setConnector(c)}>{connectorDetails.buttonText}</ConnectorButton>
+              <ConnectorSection percent='40%' justifyContent='flex-end'>
+                {connectors[c].redirectTo ?
+                  <ConnectorButtonLink href={connectors[c].redirectTo} target='_blank' rel='noopener noreferrer'>
+                    {connectorDetails.buttonText}
+                  </ConnectorButtonLink>
+                  :
+                  <ConnectorButton onClick={() => setConnector(c)}>{connectorDetails.buttonText}</ConnectorButton>
+                }
               </ConnectorSection>
             </ConnectorWrapper>
           )
@@ -230,18 +269,16 @@ export default function InitializingWeb3 (
       </Container>
 
       <Modal
-        isOpen={walletConnectModalOpen}
+        isOpen={URIState.available}
         style={walletConnectModalStyles}
         ariaHideApp={false}
         contentLabel="WalletConnect Modal"
       >
         <QRWrapper>
           <ModalTitleText>WalletConnect</ModalTitleText>
-          {!!(currentConnector instanceof WalletConnectConnector) && currentConnector.uri &&
-            <QRCode value={currentConnector.uri} level='L' size={250} />
-          }
+          {URIState.uri && <QRCode value={URIState.uri} level='L' size={250} />}
           <br />
-          <WalletConnectButton onClick={unsetConnector}>Close</WalletConnectButton>
+          <WalletConnectButton onClick={() => unsetConnector}>Close</WalletConnectButton>
         </QRWrapper>
       </Modal>
     </Common>
@@ -249,9 +286,10 @@ export default function InitializingWeb3 (
 }
 
 InitializingWeb3.propTypes = {
-  connectors:       PropTypes.objectOf(PropTypes.instanceOf(Connector)).isRequired,
-  currentConnector: PropTypes.instanceOf(Connector),
   inAutomaticPhase: PropTypes.bool.isRequired,
+  connectors:       PropTypes.objectOf(PropTypes.object).isRequired,
+  connectorName:    PropTypes.string.isRequired,
+  connector:        PropTypes.object.isRequired,
   setConnector:     PropTypes.func.isRequired,
   unsetConnector:   PropTypes.func.isRequired
 }

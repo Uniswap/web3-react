@@ -1,1 +1,1 @@
-export { InjectedConnector, WalletConnectConnector, NetworkOnlyConnector } from './dist/connectors'
+export * from './dist/connectors'

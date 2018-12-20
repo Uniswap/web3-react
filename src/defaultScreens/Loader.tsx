@@ -1,7 +1,11 @@
 import React from 'react'
-import styled, { keyframes } from 'styled-components'
+import styled from 'styled-components'
 
 import Common, { linkColor } from './common'
+
+const LoadingWrapper: any = styled.div`
+  width: ${(props: any) => props.width};
+`
 
 function LoadingIcon() {
   return (
@@ -64,27 +68,10 @@ function LoadingIcon() {
   )
 }
 
-const fadeIn = keyframes`
-  from {
-    opacity: 0;
-  }
-
-  to {
-    opacity: 1;
-  }
-`
-
-const LoadingWrapper = styled.div`
-  width: 12%;
-  opacity: 0;
-  animation: ${fadeIn} 1s ease-in 1s;
-  animation-fill-mode: forwards;
-`
-
 export default function Loader () {
   return (
     <Common>
-      <LoadingWrapper>
+      <LoadingWrapper width='10%'>
         <LoadingIcon />
       </LoadingWrapper>
     </Common>

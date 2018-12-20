@@ -1,48 +1,54 @@
-import { useState, useEffect, useContext, useReducer, useMemo } from 'react'
+import { useState, useEffect, useContext, useReducer } from 'react'
 
+import { Web3ContextInterface } from './index'
 import Web3Context from './context'
 import {
   getNetworkName, getEtherscanLink, getAccountBalance, getERC20Balance,
   signPersonal, sendTransaction, TRANSACTION_ERROR_CODES
 } from './utilities'
 
-export function useWeb3Context () {
+export function useWeb3Context (): Web3ContextInterface  {
   return useContext(Web3Context)
 }
 
-export function useNetworkName (networkId) {
+export function useNetworkName (networkId?: number): string | undefined {
   const context = useWeb3Context()
-  return useMemo(() => getNetworkName(networkId || context.networkId), [networkId, context.networkId])
+  return context.networkId ? getNetworkName(networkId || context.networkId) : undefined
 }
 
-export function useEtherscanLink (type, data, networkId) {
+export function useEtherscanLink (type: string, data: string, networkId?: number): string | undefined {
   const context = useWeb3Context()
-  return useMemo(
-    () => getEtherscanLink(networkId || context.networkId, type, data), [networkId, context.networkId, type, data]
-  )
+  return context.networkId ? getEtherscanLink(networkId || context.networkId, type, data) : undefined
 }
 
-export function useAccountEffect(effect, depends = []) {
+export function useAccountEffect(effect: React.EffectCallback, depends?: Array<any>) {
   const context = useWeb3Context()
-  useEffect(effect, [...depends, context.networkId, context.account, context.reRenderers.accountReRenderer])
+  const defaultReRenderers = [context.networkId, context.account, context.accountReRenderer]
+  useEffect(effect, depends ? [...depends, ...defaultReRenderers] : defaultReRenderers)
 }
 
-export function useNetworkEffect(effect, depends = []) {
+export function useNetworkEffect(effect: React.EffectCallback, depends?: Array<any>) {
   const context = useWeb3Context()
-  useEffect(effect, [...depends, context.networkId, context.reRenderers.networkReRenderer])
+  const defaultReRenderers = [context.networkId, context.networkReRenderer]
+  useEffect(effect, depends ? [...depends, ...defaultReRenderers] : defaultReRenderers)
 }
 
-export function useAccountAndNetworkEffect(effect, depends = []) {
+export function useAccountAndNetworkEffect(effect: React.EffectCallback, depends?: Array<any>) {
   const context = useWeb3Context()
-  useAccountEffect(effect, depends.concat([context.reRenderers.networkReRenderer]))
+  const defaultReRenderers = [
+    context.networkId, context.account, context.accountReRenderer, context.networkReRenderer
+  ]
+  useAccountEffect(effect, depends ? [...depends, ...defaultReRenderers] : defaultReRenderers)
 }
 
-export function useAccountBalance (address, {numberOfDigits = 3, format} = {}) {
+export function useAccountBalance (
+  { address, numberOfDigits = 3, format }: { address?: string, numberOfDigits?: number, format?: string } = {}
+): string | undefined {
   const context = useWeb3Context()
-  const [ balance, setBalance ] = useState(undefined)
+  const [ balance, setBalance ]: [string | undefined, Function] = useState(undefined)
 
   useAccountEffect(() => {
-    if (context.account) {
+    if (context.library && context.account) {
       getAccountBalance(context.library, address || context.account, format)
         .then(balance =>
           setBalance(Number(balance).toLocaleString(undefined, { maximumFractionDigits: numberOfDigits }))
@@ -53,13 +59,13 @@ export function useAccountBalance (address, {numberOfDigits = 3, format} = {}) {
   return balance
 }
 
-export function useERC20Balance (ERC20Address, address, numberOfDigits = 3) {
+export function useERC20Balance (ERC20Address: string, address: string, numberOfDigits: number = 3): string | undefined {
   const context = useWeb3Context()
-  const [ ERC20Balance, setERC20Balance ] = useState(undefined)
+  const [ ERC20Balance, setERC20Balance ]: [string | undefined, Function] = useState(undefined)
 
   useAccountEffect(() => {
-    if (address || context.account) {
-      getERC20Balance(context.library, ERC20Address, address || context.account)
+    if (context.library && (context.account || address)) {
+      getERC20Balance(context.library, ERC20Address, context.account || address)
         .then(balance =>
           setERC20Balance(Number(balance).toLocaleString(undefined, { maximumFractionDigits: numberOfDigits }))
         )
@@ -72,12 +78,12 @@ export function useERC20Balance (ERC20Address, address, numberOfDigits = 3) {
 const initialSignature = {
   state: 'ready',
   data: {
-    signature:          undefined,
-    signatureError:     undefined
+    signature:      undefined,
+    signatureError: undefined
   }
 }
 
-function signatureReducer (state, action) {
+function signatureReducer (state: any, action: any) {
   switch (action.type) {
     case 'READY':
       return initialSignature
@@ -92,28 +98,32 @@ function signatureReducer (state, action) {
   }
 }
 
-export function useSignPersonalManager (message, { handlers = {} } = {}) {
+export function useSignPersonalManager (message: string, { handlers = {} }: { handlers?: any } = {}) {
   const context = useWeb3Context()
 
   const [signature, dispatch] = useReducer(signatureReducer, initialSignature)
 
   function _signPersonal () {
+    if (!context.library)
+      throw Error('No library in context. Ensure your connector is configured correctly.')
+
+    if (!context.account)
+      throw Error('No account in context. Ensure your connector is configured correctly.')
+
     dispatch({ type: 'PENDING' })
+
     signPersonal(context.library, context.account, message)
-      .then(signature => {
+      .then((signature: any) => {
         dispatch({ type: 'SUCCESS', data: { signature: signature } })
         handlers.success && handlers.success(signature)
       })
-      .catch(error => {
+      .catch((error: Error) => {
         dispatch({ type: 'ERROR', data: { signatureError: error } })
         handlers.error && handlers.error(error)
       })
   }
 
   function resetSignature () { dispatch({ type: 'READY' }) }
-
-  if (!context.account)
-    throw Error('useSignPersonalManager was called without an account in context. Please use an appropriate connector.')
 
   return [signature.state, signature.data, _signPersonal, resetSignature]
 }
@@ -129,7 +139,7 @@ const initialTransaction = {
   }
 }
 
-function transactionReducer (state, action) {
+function transactionReducer (state: any, action: any) {
   switch (action.type) {
     case 'READY':
       return initialTransaction
@@ -147,22 +157,24 @@ function transactionReducer (state, action) {
 }
 
 export function useTransactionManager (
-  method, { handlers = {}, transactionOptions = {}, maximumConfirmations = null } = {}
+  method: any,
+  { handlers = {}, transactionOptions = {}, maximumConfirmations }:
+  { handlers?: any, transactionOptions?: any, maximumConfirmations?: number } = {}
 ) {
   const context = useWeb3Context()
 
   const [transaction, dispatch] = useReducer(transactionReducer, initialTransaction)
 
   const wrappedHandlers = {
-    transactionHash: transactionHash => {
+    transactionHash: (transactionHash: any) => {
       dispatch({ type: 'PENDING', data: { transactionHash: transactionHash } })
       handlers.transactionHash && handlers.transactionHash(transactionHash)
     },
-    receipt: transactionReceipt => {
+    receipt: (transactionReceipt: any) => {
       dispatch({ type: 'SUCCESS', data: { transactionReceipt: transactionReceipt } })
       handlers.receipt && handlers.receipt(transactionReceipt)
     },
-    confirmation: (transactionConfirmations, transactionReceipt) => {
+    confirmation: (transactionConfirmations: any, transactionReceipt: any) => {
       if (maximumConfirmations && transactionConfirmations <= maximumConfirmations) {
         dispatch({
           type: 'SUCCESS',
@@ -174,19 +186,23 @@ export function useTransactionManager (
   }
 
   function _sendTransaction () {
+    if (!context.library)
+      throw Error('No library in context. Ensure your connector is configured correctly.')
+
+    if (!context.account)
+      throw Error('No account in context. Ensure your connector is configured correctly.')
+
     dispatch({ type: 'SENDING' })
+
     sendTransaction(context.library, context.account, method, wrappedHandlers, transactionOptions)
-      .catch(error => {
-        const transactionErrorCode = TRANSACTION_ERROR_CODES.includes(error.code) ? error.code : undefined
+      .catch((error: Error) => {
+        const transactionErrorCode = error.code ? (TRANSACTION_ERROR_CODES.includes(error.code as string) ? error.code : undefined) : undefined
         dispatch({ type: 'ERROR', data: { transactionError: error, transactionErrorCode: transactionErrorCode } })
         handlers.error && handlers.error(error)
       })
   }
 
   function resetTransaction () { dispatch({ type: 'READY' }) }
-
-  if (!context.account)
-    throw Error('useTransactionManager was called without an account in context. Please use an appropriate connector.')
 
   return [transaction.state, transaction.data, _sendTransaction, resetTransaction, TRANSACTION_ERROR_CODES]
 }

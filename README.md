@@ -5,7 +5,7 @@
 [![Build Status](https://travis-ci.org/NoahZinsmeister/web3-react.svg?branch=master)](https://travis-ci.org/NoahZinsmeister/web3-react)
 [![Coverage Status](https://coveralls.io/repos/github/NoahZinsmeister/web3-react/badge.svg?branch=master)](https://coveralls.io/github/NoahZinsmeister/web3-react?branch=master)
 
-Web3 React is a drop in solution for building single-page Ethereum dApps in React. Yes, it uses [Hooks](https://reactjs.org/docs/hooks-intro.html)!
+Web3 React is a drop in solution for building Ethereum dApps in React. Yes, it uses [Hooks](https://reactjs.org/docs/hooks-intro.html)!
 
 [![Edit web3-react-demo](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/3x9mvl51yq)
 
@@ -13,7 +13,9 @@ Web3 React is a drop in solution for building single-page Ethereum dApps in Reac
 
 The marquee features of Web3 React are:
 
-- A robust management framework for the `web3` object injected into browsers by [MetaMask](https://metamask.io/), [Trust](https://trustwalletapp.com/), etc. The framework exposes the current account, the current network ID, and an instantiated [web3.js](https://web3js.readthedocs.io/en/1.0/) instance via a [React Context](https://reactjs.org/docs/context.html).
+- A large and fully extensible collection of _Connectors_, which manage connectivity with the Ethereum blockchain and user account(s). Connectors make your dApp compatible with [MetaMask](https://metamask.io/), [WalletConnect](https://walletconnect.org/), [Infura](https://infura.io/), [Trust](https://trustwalletapp.com/), and more.
+
+- A robust management framework for web3. The framework exposes the current account, the current network ID, and an instantiated [web3.js](https://web3js.readthedocs.io/en/1.0/) instance via a [React Context](https://reactjs.org/docs/context.html).
 
 - A collection of [React Hooks](https://reactjs.org/docs/hooks-intro.html) that can be used to display ETH and ERC20 balances, sign messages, and more.
 
@@ -35,16 +37,23 @@ Open a PR to add your project to the list!
 
 ## Quickstart
 
-Install the npm package:
+### 1. Install
+
+First, get the npm package:
 
 ```bash
 npm install web3-react
 ```
 
+### 2. Connectors
+Next, decide how you want users to interact with your dApp. This could be as simple as . Pick your connectors
+
+Connect
+
 Web3 React exports 3 objects:
 
 1. `Web3Provider` (default export)
-  - A Component wrapping the `Web3Context` Provider that ensure children can access the `Web3Context`. `Web3Provider` takes [5 optional props](#1-web3provider-props).
+  - A Component wrapping the `Web3Context` Provider that ensure children can access the `Web3Context`. `Web3Provider` takes [4 optional props](#1-web3provider-props).
 
 1. `Web3Consumer` (named export)
   - A Component wrapping the `Web3Context` Consumer that enables children to access the `Web3Context` via a render prop. `Web3Consumer` takes [2 optional props](#2-web3consumer-props).
@@ -63,7 +72,7 @@ import Web3Provider from 'web3-react'
 
 function App () {
   return (
-    <Web3Provider>
+    <Web3Provider ...>
       ...
     </Web3Provider>
   )
@@ -77,10 +86,14 @@ This ensures that your app will be able to access the `Web3Context`, which consi
 
 ```javascript
 {
-  web3js: ...,
+  library: ...,
   account: ...,
   networkId: ...,
   reRenderers: {...}
+  connectorName: ...,
+  activate: ...,
+  activateAccount: ...,
+  unsetConnector: ...
 }
 ```
 

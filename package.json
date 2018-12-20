@@ -1,7 +1,7 @@
 {
   "name": "web3-react",
   "version": "2.0.1",
-  "description": "Drop in solution for building single-page Ethereum dApps in React.",
+  "description": "Drop in solution for building Ethereum dApps in React.",
   "author": "Noah Zinsmeister <noahwz@gmail.com>",
   "keywords": [
     "react",
@@ -24,22 +24,26 @@
   "bugs": {
     "url": "https://github.com/NoahZinsmeister/web3-react/issues"
   },
-  "browser": "dist/provider",
+  "browser": "./dist/provider.js",
+  "types": "./dist/index.d.ts",
   "scripts": {
+    "postinstall": "rm -f node_modules/web3/index.d.ts",
     "lint": "eslint src/",
     "test": "ava",
     "coverage": "rm -rf .nyc_output && nyc ava",
-    "build": "rm -rf dist/ && babel src/ --out-dir dist --copy-files",
-    "watch": "rm -rf dist/ && babel src/ --out-dir dist --copy-files --watch"
+    "copy-files": "cp -r ./src/defaultScreens/assets ./dist/defaultScreens/ && cp ./src/index.d.ts ./dist/",
+    "build": "rm -rf dist/ && tsc && npm run copy-files",
+    "watch": "npm run build && tsc --watch"
   },
   "dependencies": {
     "ethereumjs-util": "^6.0.0",
+    "ethers": "^4.0.20",
     "prop-types": "^15.6.2",
     "qrcode.react": "^0.8.0",
     "react-modal": "^3.7.1",
     "styled-components": "^4.1.2",
     "walletconnect": "^0.7.28",
-    "web3": "^1.0.0-beta.36"
+    "web3": "1.0.0-beta.34"
   },
   "devDependencies": {
     "@babel/cli": "^7.1.5",
@@ -49,6 +53,14 @@
     "@babel/preset-env": "^7.1.5",
     "@babel/preset-react": "^7.0.0",
     "@babel/register": "^7.0.0",
+    "@types/ethereumjs-util": "^5.2.0",
+    "@types/node": "^10.12.17",
+    "@types/qrcode.react": "^0.8.1",
+    "@types/react": "^16.7.17",
+    "@types/react-dom": "^16.0.11",
+    "@types/react-modal": "^3.6.0",
+    "@types/styled-components": "^4.1.4",
+    "@types/web3": "^1.0.14",
     "ava": "^1.0.0-rc.2",
     "babel-eslint": "^10.0.1",
     "babel-plugin-module-resolver": "^3.1.1",
@@ -61,7 +73,8 @@
     "nyc": "^13.1.0",
     "react": "^16.7.0-alpha.2",
     "react-dom": "^16.7.0-alpha.2",
-    "react-test-renderer": "^16.7.0-alpha.2"
+    "react-test-renderer": "^16.7.0-alpha.2",
+    "typescript": "^3.2.2"
   },
   "peerDependencies": {
     "react": "^16.7.0-alpha.2",
