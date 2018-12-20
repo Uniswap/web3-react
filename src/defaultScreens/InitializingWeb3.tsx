@@ -278,7 +278,7 @@ export default function InitializingWeb3 (
           <ModalTitleText>WalletConnect</ModalTitleText>
           {URIState.uri && <QRCode value={URIState.uri} level='L' size={250} />}
           <br />
-          <WalletConnectButton onClick={() => unsetConnector}>Close</WalletConnectButton>
+          <WalletConnectButton onClick={() => unsetConnector()}>Close</WalletConnectButton>
         </QRWrapper>
       </Modal>
     </Common>
@@ -288,8 +288,8 @@ export default function InitializingWeb3 (
 InitializingWeb3.propTypes = {
   inAutomaticPhase: PropTypes.bool.isRequired,
   connectors:       PropTypes.objectOf(PropTypes.object).isRequired,
-  connectorName:    PropTypes.string.isRequired,
-  connector:        PropTypes.object.isRequired,
+  connectorName:    PropTypes.string,
+  connector:        PropTypes.object,
   setConnector:     PropTypes.func.isRequired,
   unsetConnector:   PropTypes.func.isRequired
 }
