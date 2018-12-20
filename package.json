@@ -1,6 +1,6 @@
 {
   "name": "web3-react",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Drop in solution for building Ethereum dApps in React.",
   "author": "Noah Zinsmeister <noahwz@gmail.com>",
   "keywords": [
