@@ -41,10 +41,10 @@ const ErrorText = styled(Text)`
 `
 
 export default function Web3Error (
-  { error, connectorName, connector, unsetConnector }:
-  { error: Error, connectorName: string, connector: Connector, unsetConnector: Function }
+  { error, connectorName, connector, resetConnectors }:
+  { error: Error, connectorName: string, connector: Connector, resetConnectors: Function }
 ) {
-  console.error(`The ${connectorName}' connector threw an error.`) // eslint-disable-line no-console
+  console.error(`The '${connectorName}' connector threw an error.`) // eslint-disable-line no-console
   console.error(error) // eslint-disable-line no-console
 
   const getErrorMessage = () => {
@@ -72,7 +72,7 @@ export default function Web3Error (
       <ErrorWrapper>
         <ErrorLogo></ErrorLogo>
         <ErrorText>{getErrorMessage()}</ErrorText>
-        <ResetButton onClick={() => unsetConnector()}>Reset</ResetButton>
+        <ResetButton onClick={() => resetConnectors()}>Reset</ResetButton>
       </ErrorWrapper>
     </Common>
   )

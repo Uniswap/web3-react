@@ -76,7 +76,7 @@ const fadeIn = keyframes`
 const LoadingWrapper: any = styled.div`
   width: ${(props: any) => props.width};
   opacity: 0;
-  animation: ${fadeIn} 1s ease-in 1s;
+  animation: ${fadeIn} 1s ease-in;
   animation-fill-mode: forwards;
 `
 

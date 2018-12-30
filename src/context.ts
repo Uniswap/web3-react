@@ -1,5 +1,18 @@
 import { createContext } from 'react'
 
-import { Web3ContextInterface } from './web3-react'
+import { Web3ContextInterface } from './types'
 
-export default createContext<Web3ContextInterface>({})
+const defaultError = () => { throw Error('No Context Provider found') }
+const defaultContext = {
+  networkReRenderer   : NaN,
+  forceNetworkReRender: defaultError,
+  accountReRenderer   : NaN,
+  forceAccountReRender: defaultError,
+
+  activate            : defaultError,
+  activateAccount     : defaultError,
+  setConnector        : defaultError,
+  resetConnectors     : defaultError
+}
+
+export default createContext<Web3ContextInterface>(defaultContext)

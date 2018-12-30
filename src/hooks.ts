@@ -1,6 +1,6 @@
 import { useState, useEffect, useContext, useReducer } from 'react'
 
-import { Web3ContextInterface } from './web3-react'
+import { Web3ContextInterface, isValidWeb3ContextInterface } from './types'
 import Web3Context from './context'
 import {
   getNetworkName, getEtherscanLink, getAccountBalance, getERC20Balance,
@@ -48,9 +48,11 @@ export function useAccountBalance (
   const [ balance, setBalance ]: [string | undefined, Function] = useState(undefined)
 
   useAccountEffect(() => {
-    if (context.library && context.account) {
-      getAccountBalance(context.library, address || context.account, format)
-        .then(balance =>
+    if (isValidWeb3ContextInterface(context)) {
+      const addressToCheck = address ? address : context.account
+      if (addressToCheck === null) throw Error('tests')
+      getAccountBalance(context.library, addressToCheck, format)
+        .then((balance: string) =>
           setBalance(Number(balance).toLocaleString(undefined, { maximumFractionDigits: numberOfDigits }))
         )
     }
@@ -64,9 +66,11 @@ export function useERC20Balance (ERC20Address: string, address: string, numberOf
   const [ ERC20Balance, setERC20Balance ]: [string | undefined, Function] = useState(undefined)
 
   useAccountEffect(() => {
-    if (context.library && (context.account || address)) {
+    if (isValidWeb3ContextInterface(context)) {
+      const addressToCheck = address ? address : context.account
+      if (addressToCheck === null) throw Error('tests')
       getERC20Balance(context.library, ERC20Address, context.account || address)
-        .then(balance =>
+        .then((balance: string) =>
           setERC20Balance(Number(balance).toLocaleString(undefined, { maximumFractionDigits: numberOfDigits }))
         )
     }
@@ -104,10 +108,10 @@ export function useSignPersonalManager (message: string, { handlers = {} }: { ha
   const [signature, dispatch] = useReducer(signatureReducer, initialSignature)
 
   function _signPersonal () {
-    if (!context.library)
+    if (!isValidWeb3ContextInterface(context))
       throw Error('No library in context. Ensure your connector is configured correctly.')
 
-    if (!context.account)
+    if (context.account === null)
       throw Error('No account in context. Ensure your connector is configured correctly.')
 
     dispatch({ type: 'PENDING' })
@@ -186,10 +190,10 @@ export function useTransactionManager (
   }
 
   function _sendTransaction () {
-    if (!context.library)
+    if (!isValidWeb3ContextInterface(context))
       throw Error('No library in context. Ensure your connector is configured correctly.')
 
-    if (!context.account)
+    if (context.account === null)
       throw Error('No account in context. Ensure your connector is configured correctly.')
 
     dispatch({ type: 'SENDING' })

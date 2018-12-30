@@ -1,87 +1,30 @@
 import { useState, useEffect, useRef, useReducer } from 'react'
 
 import { Connector } from './connectors'
-import { Connectors, Library, LibraryName } from './web3-react'
+import { Connectors, Library, LibraryName } from './types'
 
-const initialWeb3State = {
-  active: undefined, connectorName: undefined,
-  library: undefined, networkId: undefined, account: undefined, error: undefined
+export interface ValidWeb3State {
+  active       : boolean,
+  connectorName: string,
+  library      : Library,
+  networkId    : number,
+  account      : string | null,
+  error        : Error | null
 }
 
-function web3StateReducer (state: any, action: any) {
-  switch (action.type) {
-    case 'SETUP': {
-      const { active, connectorName } = action.payload
-      return { ...initialWeb3State, active, connectorName }
-    }
-    case 'ACTIVATE':
-      return { ...initialWeb3State, active: true, connectorName: action.payload }
-    case 'UPDATE_CONNECTOR_NAME':
-      return { ...initialWeb3State, active: true, connectorName: action.payload}
-    case 'UPDATE_CONNECTOR_VALUES': {
-      const { library, networkId, account } = action.payload
-      return { active: true, connectorName: state.connectorName, library, networkId, account, error: null  }
-    }
-    case 'UPDATE_NETWORK_ID':
-      return { ...state, networkId: action.payload }
-    case 'UPDATE_ACCOUNT':
-      return { ...state, account: action.payload }
-    case 'UPDATE_ERROR':
-      return { ...state, error: action.payload }
-    case 'RESET':
-      return { ...initialWeb3State, active: action.payload }
-    default:
-      throw Error('No default case.')
-  }
+interface UndefinedWeb3State {
+  active        : boolean,
+  connectorName?: string,
+  library      ?: Library,
+  networkId    ?: number,
+  account      ?: string | null,
+  error         : Error | null
 }
 
-interface ConnectorAutomaticState {
-  [propName: string]: boolean
-}
+type Web3State = ValidWeb3State | UndefinedWeb3State
 
-export default function useWeb3Manager (connectors: Connectors, passive: boolean, libraryName: LibraryName) {
-  // keep track of all connectors that should be tried automatically. [] or [connectorName, ...]
-  const automaticConnectors = useRef(
-    Object.keys(connectors)
-      .filter(k => connectors[k].automaticPriority)
-      .sort(k => connectors[k].automaticPriority || 0)
-  )
-
-  // keep track of which connectors have been tried automatically. {} or { connectorName: false, ... }
-  const initialAutomaticState = useRef(
-    automaticConnectors.current.reduce(
-      (accumulator: any, currentValue: string) => {
-        accumulator[currentValue] = false
-        return accumulator
-      },
-      {}
-    )
-  )
-  const automaticState: React.MutableRefObject<ConnectorAutomaticState> = useRef(initialAutomaticState.current)
-
-  // function to activate the manager
-  function activate () {
-    if (web3State.active) {
-      // eslint-disable-next-line no-console
-      console.error('Calling activate while in an already-activated state is a no-op.')
-      return
-    }
-
-    if (automaticHalted.current) automaticHalted.current = false
-    if (Object.keys(automaticState.current).map(k => automaticState.current[k]).some((x: any) => x))
-      automaticState.current = initialAutomaticState.current
-    dispatchWeb3State({ type: 'ACTIVATE', payload: automaticConnectors.current[0] })
-  }
-
-  // keep track of web3 state
-  const [web3State, dispatchWeb3State] = useReducer(
-    web3StateReducer,
-    initialWeb3State,
-    {
-      type: 'SETUP',
-      payload: { active: !passive, connectorName: passive ? undefined : automaticConnectors.current[0] } }
-  )
-  const web3Initialized = (
+export function isValidWeb3State(web3State: Web3State): web3State is ValidWeb3State {
+  return !!(
     web3State.active &&
     web3State.connectorName &&
     web3State.library &&
@@ -89,102 +32,186 @@ export default function useWeb3Manager (connectors: Connectors, passive: boolean
     web3State.account !== undefined &&
     !web3State.error
   )
+}
 
-  // keep track of active connector
-  const activeConnector = web3State.connectorName ? connectors[web3State.connectorName] : null
+interface ReRenderers {
+  accountReRenderer   : number
+  forceAccountReRender: Function
+  networkReRenderer   : number
+  forceNetworkReRender: Function
+}
 
-  // flag to keep track of whether any successful initialization has occurred, which invalidates all automatic logic
-  const automaticHalted = useRef(false)
-  useEffect(() => {
-    if (web3Initialized && !automaticHalted.current) automaticHalted.current = true
-  }, [web3Initialized, automaticHalted.current])
+export interface Web3Manager {
+  web3State         : Web3State
+  activeConnector  ?: Connector
+  inAutomaticPhase  : boolean
+  web3Initialized   : boolean
+  activate          : Function
+  activateAccount   : Function
+  setActiveConnector: Function
+  resetConnectors   : Function
+  reRenderers       : ReRenderers,
+}
 
-  // flag for whether the automatic phase is active
-  const inAutomaticPhase = !(
-    automaticHalted.current ||
-    automaticConnectors.current.length === 0 ? true :
-      Object.keys(automaticState.current).every(x => automaticState.current[x])
+const initialWeb3State: Web3State = {
+  active       : false,
+  connectorName: undefined,
+  library      : undefined,
+  networkId    : undefined,
+  account      : undefined,
+  error        : null
+}
+
+function web3StateReducer (state: any, action: any): Web3State {
+  switch (action.type) {
+    case 'ACTIVATE':
+      return { ...initialWeb3State, active: true }
+    case 'UPDATE_CONNECTOR_VALUES': {
+      const { connectorName, library, networkId, account } = action.payload
+      return { active: true, connectorName, library, networkId, account, error: null }
+    }
+    case 'UPDATE_NETWORK_ID':
+      return { ...state, networkId: action.payload }
+    case 'UPDATE_ACCOUNT':
+      return { ...state, account: action.payload }
+    case 'UPDATE_ERROR':
+      return { ...state, error: action.payload }
+    case 'UPDATE_ERROR_WITH_NAME': {
+      const { error, connectorName } = action.payload
+      console.log(connectorName)
+      return { ...state, error, connectorName }
+    }
+    case 'RESET':
+      return { ...initialWeb3State, active: action.payload }
+    default:
+      throw Error('No default case.')
+  }
+}
+
+export default function useWeb3Manager (
+  connectors: Connectors, passive: boolean, libraryName: LibraryName
+): Web3Manager {
+  // all connectors that should be tried automatically.
+  const automaticConnectors: React.MutableRefObject<string[]> = useRef(
+    Object.keys(connectors)
+      .filter(k => connectors[k].automaticPriority)
+      .sort(k => connectors[k].automaticPriority || 0)
   )
 
-  function setActiveConnector (connectorName: string, skipSettingAutomaticHalted: boolean = false) {
-    if (!skipSettingAutomaticHalted && !automaticHalted.current) automaticHalted.current = true
-    if (!Object.keys(connectors).includes(connectorName))
-      throw Error(`Passed 'connectorName' parameter ${connectorName} is not recognized.`)
-    if (connectorName === web3State.connectorName) {
-      console.error('Calling setActiveConnector for the currently initialized connector is a no-op.')
-      return
-    }
+  // flag for whether the automatic phase is active
+  const inAutomaticPhase: React.MutableRefObject<boolean> = useRef(!passive && automaticConnectors.current.length > 0)
 
-    dispatchWeb3State({ type: 'UPDATE_CONNECTOR_NAME', payload: connectorName })
+  // keep track of web3 state
+  const [web3State, dispatchWeb3State] = useReducer(web3StateReducer, initialWeb3State)
+  const web3Initialized: boolean = isValidWeb3State(web3State)
+
+  // keep track of active connector
+  const activeConnector: Connector | undefined =
+    web3State.connectorName ? connectors[web3State.connectorName] : undefined
+
+  // effect to handle first-time initialization when passive is false
+  useEffect(() => { if (!passive) activate() }, [])
+
+  // function to activate the manager
+  function activate (resetAutomaticInitialization: boolean = true): void {
+    if (web3State.active)
+      return console.error('Calling this function while in an already-activated state is a no-op.')
+
+    if (resetAutomaticInitialization && automaticConnectors.current.length === 0)
+      return console.error(
+        `Calling this function with 'resetAutomaticInitialization' as true but no automatic connectors is a no-op.`
+      )
+
+    if (resetAutomaticInitialization) {
+      if (!inAutomaticPhase.current) inAutomaticPhase.current = true
+      if (inAutomaticPhase.current) initializeConnectorValues(automaticConnectors.current[0])
+    } else
+      dispatchWeb3State({ type: 'ACTIVATE'})
   }
 
-  function unsetActiveConnector (deactivate: boolean = true, skipSettingAutomaticHalted: boolean = false) {
-    if (!skipSettingAutomaticHalted && !automaticHalted.current) automaticHalted.current = true
+  function setActiveConnector (connectorName: string): void {
+    if (!Object.keys(connectors).includes(connectorName))
+      return console.error(`The passed 'connectorName' parameter ${connectorName} is not recognized.`)
+
+    if (connectorName === web3State.connectorName)
+      return console.error(`The ${connectorName} connector is already active.`)
+
+    initializeConnectorValues(connectorName)
+  }
+
+  function resetConnectors (deactivate: boolean = false): void {
+    if (deactivate && !passive)
+      return console.error(`Calling this function with 'deactivate' as true and 'passive' as false is a no-op.`)
+
     dispatchWeb3State({ type: 'RESET', payload: !deactivate })
   }
 
-  function handleError(error: Error) {
-    if (inAutomaticPhase) {
+  // handle errors
+  function handleError(error: Error, connectorName?: string): void {
+    const dispatch: Function = () => {
+      connectorName ?
+        dispatchWeb3State({ type: 'UPDATE_ERROR_WITH_NAME', payload: { error, connectorName } }) :
+        dispatchWeb3State({ type: 'UPDATE_ERROR', payload: error })
+    }
+
+    if (!inAutomaticPhase) {
+      dispatch()
+    } else {
       // if the error is an unsupported network error, throw it
       if (error.code === Connector.errorCodes.UNSUPPORTED_NETWORK) {
-        if (!automaticHalted.current) automaticHalted.current = true
-        dispatchWeb3State({ type: 'UPDATE_ERROR', payload: error })
+        if (inAutomaticPhase.current) inAutomaticPhase.current = false
+        dispatch()
       }
 
       // else, figure out what to do
-      const indexOfCurrentAutomaticConnector = automaticConnectors.current
-        .findIndex(e => e === web3State.connectorName)
+      const indexOfCurrentAutomaticConnector = automaticConnectors.current.findIndex(e => e === web3State.connectorName)
       const nextAutomaticCandidate = automaticConnectors.current[indexOfCurrentAutomaticConnector + 1]
       if (nextAutomaticCandidate)
-        setActiveConnector(nextAutomaticCandidate, true)
-      else
-        unsetActiveConnector(false, true)
-    } else {
-      if (!automaticHalted.current) automaticHalted.current = true
-      dispatchWeb3State({ type: 'UPDATE_ERROR', payload: error })
-    }
-  }
-
-  // run one-time-per-connector initialization
-  async function initializeConnectorValues () {
-    if (!activeConnector) throw Error('No active connector')
-
-    return activeConnector.getLibrary(libraryName)
-      .then(async (library: Library) => {
-        const networkIdPromise = () => activeConnector.getNetworkId(library)
-        const accountPromise = activeConnector.activateAccountAutomatically ?
-          () => activeConnector.getAccount(library) :
-          () => null
-
-        return Promise.all([networkIdPromise(), accountPromise()])
-          .then(([networkId, account]) => {
-            dispatchWeb3State({ type: 'UPDATE_CONNECTOR_VALUES', payload: { library, networkId, account } })
-          })
-      })
-  }
-
-  useEffect(() => {
-    if (web3State.connectorName) {
-      if (!automaticHalted.current) automaticState.current = { ...automaticState.current, activeConnectorName: true }
-      if (activeConnector) {
-        activeConnector.onActivation()
-          .then(() => initializeConnectorValues())
-          .catch(error => handleError(error))
-
-        return () => activeConnector.onDeactivation()
+        initializeConnectorValues(nextAutomaticCandidate)
+      else {
+        if (inAutomaticPhase.current) inAutomaticPhase.current = false
+        // TODO: think if this is the right thing to happen in this scenario.
+        if (passive)
+          dispatch()
+        else
+          resetConnectors(false)
       }
     }
-  }, [web3State.connectorName])
+  }
+
+  // run connector initialization
+  async function initializeConnectorValues (connectorName: string): Promise<void> {
+    const connector: Connector = connectors[connectorName]
+    try {
+      await connector.onActivation()
+
+      const library: Library = await connector.getLibrary(libraryName)
+
+      const networkIdPromise = () => connector.getNetworkId(library)
+      const accountPromise = connector.activateAccountAutomatically ? () => connector.getAccount(library) : () => null
+
+      await Promise.all([networkIdPromise(), accountPromise()])
+        .then(([networkId, account]): void  => {
+          if (inAutomaticPhase.current) inAutomaticPhase.current = false
+          dispatchWeb3State(
+            { type: 'UPDATE_CONNECTOR_VALUES', payload: { connectorName, library, networkId, account } }
+          )
+        })
+    } catch (error) {
+      handleError(error, connectorName)
+    }
+  }
+
+  // ensure that connectors are cleaned up whenever they're changed
+  useEffect(() => { if (activeConnector) return () => activeConnector.onDeactivation() }, [activeConnector])
 
   // change listeners
-  function networkChangedListenerHandler(networkId: number) {
+  function networkChangedListenerHandler(networkId: number): void {
     dispatchWeb3State({ type: 'UPDATE_NETWORK_ID', payload: networkId })
   }
-
-  function accountsChangedListenerHandler(accounts: string[]) {
+  function accountsChangedListenerHandler(accounts: string[]): void {
     dispatchWeb3State({ type: 'UPDATE_ACCOUNT', payload: accounts[0] })
   }
-
   useEffect(() => {
     if (web3Initialized && activeConnector && activeConnector.listenForNetworkChanges) {
       const { ethereum } = window
@@ -193,9 +220,7 @@ export default function useWeb3Manager (connectors: Connectors, passive: boolean
         return () => ethereum.removeListener('networkChanged', networkChangedListenerHandler)
       }
     }
-  }, [web3Initialized, web3State.connectorName])
-
-  // run account listener
+  }, [web3Initialized, activeConnector, web3State.connectorName])
   useEffect(() => {
     if (web3Initialized && activeConnector && activeConnector.listenForAccountChanges) {
       const { ethereum } = window
@@ -204,46 +229,33 @@ export default function useWeb3Manager (connectors: Connectors, passive: boolean
         return () => ethereum.removeListener('accountsChanged', accountsChangedListenerHandler)
       }
     }
-  }, [web3Initialized, web3State.connectorName])
+  }, [web3Initialized, activeConnector, web3State.connectorName])
 
   // export function to manually trigger an account update
-  function activateAccount() {
-    if (!web3Initialized) {
-      // eslint-disable-next-line no-console
-      console.error('Calling activateAccount in an uninitialized state is a no-op.')
-      return
-    }
+  function activateAccount(): void {
+    if (!web3Initialized)
+      return console.error('Calling this function in an uninitialized state is a no-op.')
 
-    if (web3State.account !== null) {
-      // eslint-disable-next-line no-console
-      console.error('Calling activateAccount while an account is active is a no-op.')
-      return
-    }
+    if (web3State.account !== null)
+      return console.error('Calling this function while an account is active is a no-op.')
 
-    if (activeConnector)
+    if (activeConnector && web3State.library)
       activeConnector.getAccount(web3State.library)
         .then(account => dispatchWeb3State({ type: 'UPDATE_ACCOUNT', payload: account }))
         .catch(error => handleError(error))
   }
 
-  // account reRenderer
-  const [accountReRenderer, setAccountReRenderer] = useState(0)
-  function forceAccountReRender () {
-    setAccountReRenderer(accountReRenderer + 1)
-  }
+  // re renderers
+  const [networkReRenderer, setNetworkReRenderer]: [number, Function] = useState(0)
+  const [accountReRenderer, setAccountReRenderer]: [number, Function] = useState(0)
+  function forceNetworkReRender () { setNetworkReRenderer(networkReRenderer + 1) }
+  function forceAccountReRender () { setAccountReRenderer(accountReRenderer + 1) }
 
-  // network reRenderer
-  const [networkReRenderer, setNetworkReRenderer] = useState(0)
-  function forceNetworkReRender () {
-    setNetworkReRenderer(networkReRenderer + 1)
+  return {
+    web3State, activeConnector,
+    inAutomaticPhase: inAutomaticPhase.current, web3Initialized,
+    activate, activateAccount,
+    setActiveConnector, resetConnectors,
+    reRenderers: { accountReRenderer, forceAccountReRender, networkReRenderer, forceNetworkReRender }
   }
-
-  return [
-      web3State, activeConnector,
-      inAutomaticPhase, web3Initialized,
-      activate, activateAccount,
-      (connectorName: string): void => setActiveConnector(connectorName),
-      (deactivate: boolean): void => unsetActiveConnector(deactivate),
-      { accountReRenderer, forceAccountReRender, networkReRenderer, forceNetworkReRender }
-    ]
 }

@@ -10,7 +10,7 @@ import {
   isWeb3
 } from './libraries'
 
-import { Library } from './web3-react'
+import { Library } from './types'
 
 interface NetworkId {
   name: string

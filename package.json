@@ -25,14 +25,16 @@
     "url": "https://github.com/NoahZinsmeister/web3-react/issues"
   },
   "browser": "./dist/provider.js",
-  "types": "./dist/web3-react.d.ts",
+  "types": "./dist/types.d.ts",
   "scripts": {
     "postinstall": "rm -f node_modules/web3/index.d.ts",
     "lint": "eslint src/",
     "test": "ava",
     "coverage": "rm -rf .nyc_output && nyc ava",
     "copy-files": "cp -r ./src/defaultScreens/assets ./dist/defaultScreens/",
-    "build": "rm -rf dist/ && tsc && npm run copy-files",
+    "prebuild": "rm -rf dist/",
+    "postbuild": "npm run copy-files",
+    "build": "tsc",
     "watch": "npm run build && tsc --watch"
   },
   "dependencies": {

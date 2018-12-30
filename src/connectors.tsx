@@ -3,7 +3,7 @@ import WalletConnect from 'walletconnect'
 
 import { getNewProvider, getNetworkId, getAccounts } from './libraries'
 
-import { Library, LibraryName } from './web3-react'
+import { Library, LibraryName } from './types'
 
 interface ErrorCodes {
   [propName: string]: string
@@ -222,10 +222,10 @@ export class WalletConnectConnector extends NetworkOnlyConnector {
       const accounts = this.webConnector.accounts
       return accounts[0]
     } else {
-      if (!this.webConnectorSession)
-        this.webConnectorSession = this.webConnector.initSession()
+      if (!this.webConnectorSession) this.webConnectorSession = this.webConnector.initSession()
       await this.webConnectorSession
 
+      console.log('emitting URI')
       this.emit('URIAvailable', this.webConnector.uri)
 
       return this.webConnector.listenSessionStatus()

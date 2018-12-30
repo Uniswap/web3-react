@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import Modal from 'react-modal'
@@ -7,7 +7,7 @@ import QRCode from 'qrcode.react'
 import Loader from './loader'
 import { Connector, MetaMaskConnector, InfuraConnector, WalletConnectConnector, TrustWalletRedirectConnector } from '../connectors'
 import Common, { Button, ButtonLink, Text, Link } from './common'
-import { Connectors } from '../web3-react'
+import { Connectors } from '../types'
 
 import metamaskLogo from './assets/metamask.svg';
 import infuraLogo from './assets/infura.svg';
@@ -215,31 +215,49 @@ const walletConnectModalStyles = {content: {
 
 interface URIState { available: boolean, uri: undefined | string }
 const initialURIState: URIState = { available: false, uri: undefined }
-export default function InitializingWeb3 (
-  { inAutomaticPhase, connectors, connector, setConnector, unsetConnector }:
-  { inAutomaticPhase: boolean, connectors: Connectors, connector: Connector, setConnector: Function, unsetConnector: Function }) {
+
+interface InitializingWeb3Interface {
+  connectors: Connectors
+  setConnector: Function
+}
+
+export default function InitializingWeb3 ({ connectors, setConnector }: InitializingWeb3Interface) {
+  const [showLoader, setShowLoader] = useState(false)
   const [URIState, setURIState] = useState(initialURIState)
 
-  function URIAvailableHandler (URI: string) {
-    setURIState({ available: true, uri: URI })
+  const activeTimeouts: React.MutableRefObject<Array<number>> = useRef([])
+
+  useEffect(() => () => activeTimeouts.current.forEach(t => window.clearTimeout(t)), [])
+
+  function ActivatedHandler () {
+    activeTimeouts.current = activeTimeouts.current.slice().concat([window.setTimeout(() => setShowLoader(true), 150)])
   }
+  function URIAvailableHandler (URI: string) { setURIState({ available: true, uri: URI }) }
+  function toggleURIVisibility () { setURIState({ available: !URIState.available, uri: URIState.uri }) }
 
   useEffect(() => {
-    if (connector instanceof WalletConnectConnector) {
-      connector.on('URIAvailable', URIAvailableHandler)
-      return () => connector.removeListener('URIAvailable', URIAvailableHandler)
+    const cleanup: Array<Function> = []
+    for (const connector of Object.keys(connectors).map(k => connectors[k])) {
+      if (connector instanceof MetaMaskConnector || connector instanceof InfuraConnector) {
+        connector.on('Activated', ActivatedHandler)
+        cleanup.push(() => connector.removeListener('Activated', ActivatedHandler))
+      }
+      else if (connector instanceof WalletConnectConnector) {
+        connector.on('URIAvailable', URIAvailableHandler)
+        cleanup.push(() => connector.removeListener('URIAvailable', URIAvailableHandler))
+      }
     }
-  }, [connector])
-  if (inAutomaticPhase)
-    return <Loader />
+    if (cleanup.length > 0) return () => cleanup.forEach(c => c())
+  }, [])
 
-  if (connector && !(connector instanceof WalletConnectConnector))
-    return <Loader />
+  function handleClick (connectorName: string) {
+    if (connectors[connectorName] instanceof WalletConnectConnector && URIState.uri)
+      toggleURIVisibility()
+    else
+      setConnector(connectorName)
+  }
 
-  if (connector instanceof WalletConnectConnector && connector.webConnector.isConnected)
-     return <Loader />
-
-  return (
+  return showLoader ? <Loader /> :
     <Common>
       <Container>
         {Object.keys(connectors).map(c => {
@@ -260,7 +278,7 @@ export default function InitializingWeb3 (
                     {connectorDetails.buttonText}
                   </ConnectorButtonLink>
                   :
-                  <ConnectorButton onClick={() => setConnector(c)}>{connectorDetails.buttonText}</ConnectorButton>
+                  <ConnectorButton onClick={() => handleClick(c)}>{connectorDetails.buttonText}</ConnectorButton>
                 }
               </ConnectorSection>
             </ConnectorWrapper>
@@ -268,21 +286,22 @@ export default function InitializingWeb3 (
         })}
       </Container>
 
-      <Modal
-        isOpen={URIState.available}
-        style={walletConnectModalStyles}
-        ariaHideApp={false}
-        contentLabel="WalletConnect Modal"
-      >
-        <QRWrapper>
-          <ModalTitleText>WalletConnect</ModalTitleText>
-          {URIState.uri && <QRCode value={URIState.uri} level='L' size={250} />}
-          <br />
-          <WalletConnectButton onClick={() => unsetConnector()}>Close</WalletConnectButton>
-        </QRWrapper>
-      </Modal>
+      {URIState.available &&
+        <Modal
+          isOpen={true}
+          style={walletConnectModalStyles}
+          ariaHideApp={false}
+          contentLabel="WalletConnect Modal"
+        >
+          <QRWrapper>
+            <ModalTitleText>WalletConnect</ModalTitleText>
+            <QRCode value={URIState.uri as string} level='L' size={250} />
+            <br />
+            <WalletConnectButton onClick={toggleURIVisibility}>Close</WalletConnectButton>
+          </QRWrapper>
+        </Modal>
+      }
     </Common>
-  )
 }
 
 InitializingWeb3.propTypes = {

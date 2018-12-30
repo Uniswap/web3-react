@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 
 import Web3Context from './context'
 import useWeb3Manager from './manager'
-import { Web3ContextInterface, Connectors, LibraryName } from './web3-react'
+import { Web3ContextInterface, Connectors, LibraryName } from './types'
 
 import Loader from './defaultScreens/loader'
 
@@ -26,38 +26,44 @@ function Web3Provider({ connectors, passive, screens, libraryName, children }: W
   )
   const { InitializingWeb3, Web3Error } = filledScreens.current
 
-  const [
+  const {
     web3State, activeConnector,
     inAutomaticPhase, web3Initialized,
     activate, activateAccount,
-    setConnector, unsetConnector,
+    setActiveConnector: setConnector, resetConnectors,
     reRenderers
-  ] = useWeb3Manager(connectors, passive, libraryName)
+  } = useWeb3Manager(connectors, passive, libraryName)
 
-  const { active, connectorName, error, ...rest } = web3State
+  const { active, connectorName, error } = web3State
 
   const Body = () => {
-    if (active && error)
+    if (error)
       return <Web3Error
-        error={error}
-        connectorName={connectorName} connector={activeConnector}
-        setConnector={setConnector} unsetConnector={unsetConnector}
+        error={error} connectors={connectors} connectorName={connectorName} connector={activeConnector}
+        activate={activate} setConnector={setConnector} resetConnectors={resetConnectors}
       />
+
+    if (inAutomaticPhase)
+      return <Loader />
 
     if (active && !web3Initialized)
-      return <InitializingWeb3
-        inAutomaticPhase={inAutomaticPhase}
-        connectors={connectors} connectorName={connectorName} connector={activeConnector}
-        setConnector={setConnector} unsetConnector={unsetConnector}
-      />
+      return <InitializingWeb3 connectors={connectors} setConnector={setConnector} resetConnectors={resetConnectors} />
 
-    return (
-      <Web3Context.Provider
-        value={{...rest, ...reRenderers, connectorName, activate, activateAccount, setConnector, unsetConnector}}
-      >
-        {children}
-      </Web3Context.Provider>
-    )
+    else {
+      const { library, networkId, account } = web3State
+
+      const context: Web3ContextInterface = {
+        library, networkId, account,
+        ...reRenderers,
+        connectorName, activate, activateAccount, setConnector, resetConnectors
+      }
+
+      return (
+        <Web3Context.Provider value={context}>
+          {children}
+        </Web3Context.Provider>
+      )
+    }
   }
 
   return (
