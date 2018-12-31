@@ -29,8 +29,8 @@
   "scripts": {
     "postinstall": "rm -f node_modules/web3/index.d.ts",
     "lint": "eslint src/",
-    "test": "ava",
-    "coverage": "rm -rf .nyc_output && nyc ava",
+    "test": "jest",
+    "coverage": "jest --coverage --coverageReporters=text-lcov",
     "copy-files": "cp -r ./src/defaultScreens/assets ./dist/defaultScreens/",
     "prebuild": "rm -rf dist/",
     "postbuild": "npm run copy-files",
@@ -49,7 +49,7 @@
   },
   "devDependencies": {
     "@babel/cli": "^7.1.5",
-    "@babel/core": "^7.1.5",
+    "@babel/core": "^7.2.2",
     "@babel/plugin-syntax-dynamic-import": "^7.0.0",
     "@babel/polyfill": "^7.0.0",
     "@babel/preset-env": "^7.1.5",
@@ -63,19 +63,21 @@
     "@types/react-modal": "^3.6.0",
     "@types/styled-components": "^4.1.4",
     "@types/web3": "^1.0.14",
-    "ava": "^1.0.0-rc.2",
+    "babel-core": "^7.0.0-bridge.0",
     "babel-eslint": "^10.0.1",
+    "babel-jest": "^23.6.0",
     "babel-plugin-module-resolver": "^3.1.1",
     "coveralls": "^3.0.2",
     "eslint": "^5.9.0",
-    "eslint-plugin-ava": "^5.1.1",
     "eslint-plugin-react": "^7.11.1",
     "eslint-plugin-react-hooks": "0.0.0",
     "ignore-styles": "^5.0.1",
-    "nyc": "^13.1.0",
+    "jest": "^23.6.0",
+    "jest-dom": "^3.0.0",
     "react": "^16.7.0-alpha.2",
     "react-dom": "^16.7.0-alpha.2",
-    "react-test-renderer": "^16.7.0-alpha.2",
+    "react-testing-library": "^5.4.2",
+    "regenerator-runtime": "^0.13.1",
     "typescript": "^3.2.2"
   },
   "peerDependencies": {
@@ -85,19 +87,18 @@
   "eslintConfig": {
     "plugins": [
       "react",
-      "react-hooks",
-      "ava"
+      "react-hooks"
     ],
     "env": {
       "es6": true,
       "node": true,
-      "browser": true
+      "browser": true,
+      "jest": true
     },
     "parser": "babel-eslint",
     "extends": [
       "eslint:recommended",
-      "plugin:react/recommended",
-      "plugin:ava/recommended"
+      "plugin:react/recommended"
     ],
     "rules": {
       "react-hooks/rules-of-hooks": "error"
@@ -107,15 +108,6 @@
         "version": "16.7.0-alpha.2"
       }
     }
-  },
-  "ava": {
-    "require": [
-      "ignore-styles",
-      "@babel/register",
-      "@babel/polyfill",
-      "./__tests__/helpers/setup-browser-env.js"
-    ],
-    "verbose": true
   },
   "babel": {
     "presets": [

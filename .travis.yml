@@ -13,4 +13,4 @@ script:
   - npm run build
   - npm run test
 after_script:
-  - npm run coverage && nyc report --reporter=text-lcov | coveralls
+  - npm run coverage | coveralls
