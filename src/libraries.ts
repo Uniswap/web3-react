@@ -21,8 +21,6 @@ function getNewHttpProvider(libraryName: LibraryName, providerURL: string) {
       return new Web3(new Web3.providers.HttpProvider(providerURL))
     case 'ethers.js':
       return new ethers.providers.JsonRpcProvider(providerURL)
-    default:
-      throw Error(`Unrecognized libraryName ${libraryName}.`)
   }
 }
 
@@ -37,16 +35,19 @@ function getNewInjectedProvider(libraryName: LibraryName, provider: any) {
 
 export async function getNetworkId (library: Library): Promise<number> {
   if (isWeb3(library))
-    return (library as Web3).eth.net.getId()
+    return library.eth.net.getId()
   else
-    return (library as ethers.providers.Provider).getNetwork().then(network => network.chainId)
+    return library.getNetwork().then(network => network.chainId)
 }
 
 export function getAccounts (library: Library): Promise<string[]> {
   if (isWeb3(library))
-    return (library as Web3).eth.getAccounts()
-  else
-    return (library as ethers.providers.JsonRpcProvider).listAccounts()
+    return library.eth.getAccounts()
+  else {
+    if (!(library instanceof ethers.providers.JsonRpcProvider))
+      throw Error('This function can only be called with a JsonRpcProvider.')
+    return library.listAccounts()
+  }
 }
 
 export async function getAccountBalance (library: Library, address: string, format: any): Promise<string> {

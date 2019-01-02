@@ -6,6 +6,7 @@ import { Connector, InjectedConnector } from '../connectors'
 import error from './assets/error.svg';
 import Common, { Text, Button } from './common'
 import { getNetworkName } from '../utilities'
+import { Connectors } from '../types'
 
 const Logo = styled.div`
   margin: 1em;
@@ -41,8 +42,8 @@ const ErrorText = styled(Text)`
 `
 
 export default function Web3Error (
-  { error, connectorName, connector, resetConnectors }:
-  { error: Error, connectorName: string, connector: Connector, resetConnectors: Function }
+  { error, connectors, connectorName, resetConnectors }:
+  { error: Error, connectors: Connectors, connectorName: string, resetConnectors: Function }
 ) {
   console.error(`The '${connectorName}' connector threw an error.`) // eslint-disable-line no-console
   console.error(error) // eslint-disable-line no-console
@@ -57,7 +58,7 @@ export default function Web3Error (
     if (error.code === InjectedConnector.errorCodes.UNLOCK_REQUIRED)
       return 'Unlock your Ethereum Account.'
     if (error.code === Connector.errorCodes.UNSUPPORTED_NETWORK) {
-      const supportedNetworkNames = connector.supportedNetworks!.map((networkId: number) => getNetworkName(networkId))
+      const supportedNetworkNames = connectors[connectorName].supportedNetworks!.map((networkId: number) => getNetworkName(networkId))
       const message = supportedNetworkNames.length === 1 ?
         `the '${supportedNetworkNames[0]}' network` :
         `one of the following networks: '${supportedNetworkNames.join("', '")}'`

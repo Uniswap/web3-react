@@ -1,65 +1,65 @@
-# Web3 React
+# `web3-react`
 
 [![npm version](https://badge.fury.io/js/web3-react.svg)](https://www.npmjs.com/package/web3-react)
 [![npm downloads](https://img.shields.io/npm/dm/web3-react.svg)](https://www.npmjs.com/package/web3-react)
 [![Build Status](https://travis-ci.org/NoahZinsmeister/web3-react.svg?branch=master)](https://travis-ci.org/NoahZinsmeister/web3-react)
 [![Coverage Status](https://coveralls.io/repos/github/NoahZinsmeister/web3-react/badge.svg?branch=master)](https://coveralls.io/github/NoahZinsmeister/web3-react?branch=master)
 
-Web3 React is a drop in solution for building Ethereum dApps in React. Yes, it uses [Hooks](https://reactjs.org/docs/hooks-intro.html)!
-
-[![Edit web3-react-demo](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/3x9mvl51yq)
-
 ![Example GIF](./_assets/example.gif)
 
-The marquee features of Web3 React are:
+## Resources
+- **Documentation for `web3-react` is [available on Gitbook](https://noahzinsmeister.gitbook.io/web3-react/).**
+- **A live demo of `web3-react` is [available on CodeSandbox](https://codesandbox.io/s/3x9mvl51yq).**
 
-- A large and fully extensible collection of _Connectors_, which manage connectivity with the Ethereum blockchain and user account(s). Connectors make your dApp compatible with [MetaMask](https://metamask.io/), [WalletConnect](https://walletconnect.org/), [Infura](https://infura.io/), [Trust](https://trustwalletapp.com/), and more.
+## Introduction
 
-- A robust management framework for web3. The framework exposes the current account, the current network ID, and an instantiated [web3.js](https://web3js.readthedocs.io/en/1.0/) instance via a [React Context](https://reactjs.org/docs/context.html).
+`web3-react` is a drop in solution for building Ethereum dApps in React. Its marquee features are:
 
-- A collection of [React Hooks](https://reactjs.org/docs/hooks-intro.html) that can be used to display ETH and ERC20 balances, sign messages, and more.
+- A large and fully extensible collection of Connectors, which manage connectivity with the Ethereum blockchain and user account(s). Connectors can make your dApp compatible with [MetaMask](https://metamask.io/), [WalletConnect](https://walletconnect.org/), [Infura](https://infura.io/), [Trust](https://trustwalletapp.com/), and more.
 
-- A number of utility functions that format [Etherscan](https://etherscan.io/) links, convert token balances, and more.
+- A robust web3 management framework which exposes the current account, the current network ID, and an instantiated [ethers.js](https://github.com/ethers-io/ethers.js/) or [web3.js](https://web3js.readthedocs.io/en/1.0/) instance to your dapp via a [React Context](https://reactjs.org/docs/context.html).
 
-- A complete solution for sending transactions that abstracts away from common annoyances like estimating gas usage, setting a gas price, and checking for transaction errors.
+- A collection of [React Hooks](https://reactjs.org/docs/hooks-intro.html) that can be used to display ETH and ERC-20 balances, sign messages, send transactions, etc.
 
-## Sample Implementations
-Many of the patterns and APIs described below are shown in this CodeSandbox demo:
+- A number of utility functions to format [Etherscan](https://etherscan.io/) links, convert token balances, etc.
 
-[![Edit web3-react-demo](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/3x9mvl51yq)
+## Implementations
 
-Current projects using Web3 React include:
-1. https://github.com/NoahHydro/snowflake-dashboard
-2. https://conlan.github.io/compound-liquidator/
-3. https://uniswap.info
+Projects using `web3-react` include:
+- https://github.com/NoahHydro/snowflake-dashboard
+- https://conlan.github.io/compound-liquidator/
+- https://uniswap.info
 
 Open a PR to add your project to the list!
 
 ## Quickstart
 
-### 1. Install
+If you want to cut straight to the chase, check out the CodeSandbox demo!
 
-First, get the npm package:
+[![Edit web3-react-demo](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/3x9mvl51yq)
+
+### Install
+
+Since `web3-react` uses [Hooks](https://reactjs.org/docs/hooks-intro.html), make sure that your project relies on the correct alpha builds of `react` and `react-dom`:
+
+```bash
+npm install react@16.7.0-alpha.2 react-dom@16.7.0-alpha.2
+```
+
+Then, get the npm package:
 
 ```bash
 npm install web3-react
 ```
 
-### 2. Connectors
-Next, decide how you want users to interact with your dApp. This could be as simple as . Pick your connectors
+### Connectors
+Now, decide how you want users to interact with your dApp. For details, see [Connectors.md](./Connectors.md).
 
-Connect
-
+### Set up `Web3Provider`
 Web3 React exports 3 objects:
 
 1. `Web3Provider` (default export)
   - A Component wrapping the `Web3Context` Provider that ensure children can access the `Web3Context`. `Web3Provider` takes [4 optional props](#1-web3provider-props).
-
-1. `Web3Consumer` (named export)
-  - A Component wrapping the `Web3Context` Consumer that enables children to access the `Web3Context` via a render prop. `Web3Consumer` takes [2 optional props](#2-web3consumer-props).
-
-1. `withWeb3` (named export)
-  - This [HOC](https://reactjs.org/docs/context.html#consuming-context-with-a-hoc) gives passed Components access to the `Web3Context` via an injected `web3` prop. `withWeb3` takes [1 optional argument](#3-withWeb3-arguments).
 
 ### Using Web3 React: Starter Code
 
@@ -130,6 +130,10 @@ function MyComponent () {
 ```
 
 ### Using Web3 React: Render Props - *Conditionally Recommended*
+
+1. `Web3Consumer` (named export)
+  - A Component wrapping the `Web3Context` Consumer that enables children to access the `Web3Context` via a render prop. `Web3Consumer` takes [2 optional props](#2-web3consumer-props).
+
 To access the `Web3Context` with a render prop, wrap Components in a `Web3Consumer`.
 
 ```javascript
@@ -155,6 +159,10 @@ function MyComponent () {
 Note: This pattern will work for arbitrarily deeply nested components. This means that the `Web3Consumer` doesn't necessarily need to be at the top level of your app. There also won't be performance concerns if you choose to use multiple `Web3Consumer`s at different nesting levels.
 
 ### Using Web3 React: HOCs - *Not Recommended*
+
+1. `withWeb3` (named export)
+  - This [HOC](https://reactjs.org/docs/context.html#consuming-context-with-a-hoc) gives passed Components access to the `Web3Context` via an injected `web3` prop. `withWeb3` takes [1 optional argument](#3-withWeb3-arguments).
+
 
 If you really have to, you can give Components access to the `Web3Context` via a `web3` prop by wrapping them with `withWeb3`.
 

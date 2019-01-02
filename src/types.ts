@@ -3,9 +3,16 @@ import { ethers } from 'ethers'
 
 import { Connector } from './connectors'
 
-export type LibraryName = "web3.js" | "ethers.js"
-export type Library =
+export type LibraryName = 'web3.js' | 'ethers.js'
+export type Library = (
   Web3 | ethers.providers.Provider | ethers.providers.Web3Provider | ethers.providers.JsonRpcProvider
+)
+
+export interface ConnectorArguments {
+  readonly activateAccountAutomatically?: boolean
+  readonly supportedNetworks           ?: ReadonlyArray<number>
+  readonly automaticPriority           ?: number
+}
 
 interface ValidWeb3ContextInterface {
   library             : Library

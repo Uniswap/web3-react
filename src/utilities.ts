@@ -97,8 +97,10 @@ export async function signPersonal (library: Library, address: string, message: 
     })
 }
 
-export async function sendTransaction(library: Library, address: string, method: string | Function, handlers: any = {}, transactionOptions: any = {}): Promise<void> {
-  if (!isWeb3(library)) throw Error('Not Implemented: sendTransaction only works for web3.js')
+export async function sendTransaction(
+  library: Library, address: string, method: string | Function, handlers: any = {}, transactionOptions: any = {}
+): Promise<void> {
+  if (!isWeb3(library)) throw Error('Not Implemented: sendTransaction currently only works for web3.js')
 
   // sanitize transactionOptions
   const allowedOptions = ['gasPrice', 'gas', 'value']

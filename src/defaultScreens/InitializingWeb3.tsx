@@ -5,19 +5,16 @@ import Modal from 'react-modal'
 import QRCode from 'qrcode.react'
 
 import Loader from './loader'
-import { Connector, MetaMaskConnector, InfuraConnector, WalletConnectConnector, TrustWalletRedirectConnector } from '../connectors'
+import { Connector, MetaMaskConnector, InfuraConnector, WalletConnectConnector } from '../connectors'
 import Common, { Button, ButtonLink, Text, Link } from './common'
 import { Connectors } from '../types'
 
-import metamaskLogo from './assets/metamask.svg';
-import infuraLogo from './assets/infura.svg';
-import walletConnectLogo from './assets/walletConnect.svg';
-import trustWalletLogo from './assets/trust.svg';
+import metamaskLogo from './assets/metamask.svg'
+import infuraLogo from './assets/infura.svg'
+import walletConnectLogo from './assets/walletConnect.svg'
 
 Modal.defaultStyles!.overlay!.backgroundColor = 'rgba(0, 0, 0, .3)';
-
 const greyTextColor = '#a3a5a8'
-
 const mobilePixelCutoff = '600px'
 
 const Container = styled.div`
@@ -134,10 +131,6 @@ const WalletConnectLogo = styled(Logo)`
   background-image: url(${walletConnectLogo});
 `
 
-const TrustWalletLogo = styled(Logo)`
-  background-image: url(${trustWalletLogo});
-`
-
 const QRWrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -174,32 +167,20 @@ function getDetails(connector: Connector): connectorDetails {
       ),
       buttonText: 'View'
     }
-  if (connector instanceof WalletConnectConnector)
-    return {
-      logo: <WalletConnectLogo />,
-      text: (
-        <>
-          Use{' '}
-          <Link href='https://walletconnect.org/' target='_blank' rel='noopener noreferrer'>WalletConnect</Link>
-          .
-        </>
-      ),
-      buttonText: 'Use WalletConnect'
-    }
 
-  if (!(connector instanceof TrustWalletRedirectConnector))
-    throw Error('Unrecognized connector.')
+  if (!(connector instanceof WalletConnectConnector))
+    throw Error('Unsupported connector.')
 
   return {
-    logo: <TrustWalletLogo />,
+    logo: <WalletConnectLogo />,
     text: (
       <>
-        Open in {' '}
-        <Link href='https://trustwallet.com/' target='_blank' rel='noopener noreferrer'>Trust</Link>
+        Use{' '}
+        <Link href='https://walletconnect.org/' target='_blank' rel='noopener noreferrer'>WalletConnect</Link>
         .
       </>
     ),
-    buttonText: 'Open in Trust'
+    buttonText: 'Use WalletConnect'
   }
 }
 
@@ -217,11 +198,12 @@ interface URIState { available: boolean, uri: undefined | string }
 const initialURIState: URIState = { available: false, uri: undefined }
 
 interface InitializingWeb3Interface {
+  inAutomaticPhase: boolean
   connectors: Connectors
   setConnector: Function
 }
 
-export default function InitializingWeb3 ({ connectors, setConnector }: InitializingWeb3Interface) {
+export default function InitializingWeb3 ({ inAutomaticPhase, connectors, setConnector }: InitializingWeb3Interface) {
   const [showLoader, setShowLoader] = useState(false)
   const [URIState, setURIState] = useState(initialURIState)
 
@@ -229,10 +211,17 @@ export default function InitializingWeb3 ({ connectors, setConnector }: Initiali
 
   useEffect(() => () => activeTimeouts.current.forEach(t => window.clearTimeout(t)), [])
 
+  if (inAutomaticPhase) return <Loader />
+
   function ActivatedHandler () {
     activeTimeouts.current = activeTimeouts.current.slice().concat([window.setTimeout(() => setShowLoader(true), 150)])
   }
-  function URIAvailableHandler (URI: string) { setURIState({ available: true, uri: URI }) }
+  function URIAvailableHandler (connector: Connector, URI: string) {
+    if (connector.webConnector.isConnected)
+      ActivatedHandler()
+    else
+      setURIState({ available: true, uri: URI })
+  }
   function toggleURIVisibility () { setURIState({ available: !URIState.available, uri: URIState.uri }) }
 
   useEffect(() => {
@@ -243,7 +232,7 @@ export default function InitializingWeb3 ({ connectors, setConnector }: Initiali
         cleanup.push(() => connector.removeListener('Activated', ActivatedHandler))
       }
       else if (connector instanceof WalletConnectConnector) {
-        connector.on('URIAvailable', URIAvailableHandler)
+        connector.on('URIAvailable', (URI: string) => URIAvailableHandler(connector, URI))
         cleanup.push(() => connector.removeListener('URIAvailable', URIAvailableHandler))
       }
     }

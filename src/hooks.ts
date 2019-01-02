@@ -200,7 +200,9 @@ export function useTransactionManager (
 
     sendTransaction(context.library, context.account, method, wrappedHandlers, transactionOptions)
       .catch((error: any) => {
-        const transactionErrorCode = error.code ? (TRANSACTION_ERROR_CODES.includes(error.code as string) ? error.code : undefined) : undefined
+        const transactionErrorCode = error.code ?
+          (TRANSACTION_ERROR_CODES.includes(error.code as string) ? error.code : undefined) :
+          undefined
         dispatch({ type: 'ERROR', data: { transactionError: error, transactionErrorCode: transactionErrorCode } })
         handlers.error && handlers.error(error)
       })

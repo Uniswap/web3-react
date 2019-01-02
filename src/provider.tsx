@@ -8,12 +8,13 @@ import { Web3ContextInterface, Connectors, LibraryName } from './types'
 import Loader from './defaultScreens/loader'
 
 interface Web3ProviderProps {
-  connectors: Connectors,
-  passive: boolean,
-  screens: any,
+  connectors : Connectors,
+  passive    : boolean,
+  screens    : any,
   libraryName: LibraryName,
-  children: any
+  children   : any
 }
+
 function Web3Provider({ connectors, passive, screens, libraryName, children }: Web3ProviderProps)  {
   const filledScreens: any = useRef(
     Object.keys(defaultScreens).reduce(
@@ -27,10 +28,10 @@ function Web3Provider({ connectors, passive, screens, libraryName, children }: W
   const { InitializingWeb3, Web3Error } = filledScreens.current
 
   const {
-    web3State, activeConnector,
+    web3State,
     inAutomaticPhase, web3Initialized,
     activate, activateAccount,
-    setActiveConnector: setConnector, resetConnectors,
+    setConnector, resetConnectors,
     reRenderers
   } = useWeb3Manager(connectors, passive, libraryName)
 
@@ -39,15 +40,17 @@ function Web3Provider({ connectors, passive, screens, libraryName, children }: W
   const Body = () => {
     if (error)
       return <Web3Error
-        error={error} connectors={connectors} connectorName={connectorName} connector={activeConnector}
-        activate={activate} setConnector={setConnector} resetConnectors={resetConnectors}
+        error={error}
+        connectors={connectors} connectorName={connectorName}
+        setConnector={setConnector} resetConnectors={resetConnectors}
       />
 
-    if (inAutomaticPhase)
-      return <Loader />
-
     if (active && !web3Initialized)
-      return <InitializingWeb3 connectors={connectors} setConnector={setConnector} resetConnectors={resetConnectors} />
+      return <InitializingWeb3
+        inAutomaticPhase={inAutomaticPhase}
+        connectors={connectors}
+        setConnector={setConnector} resetConnectors={resetConnectors}
+      />
 
     else {
       const { library, networkId, account } = web3State
@@ -101,17 +104,21 @@ export default Web3Provider
 
 
 // render props pattern: the consumer is exposed to give access to the web3 context via render props
+interface Web3ConsumerInterface {
+  recreateOnNetworkChange: boolean
+  recreateOnAccountChange: boolean
+  children: any
+}
 function Web3Consumer (
-  { recreateOnNetworkChange = true, recreateOnAccountChange = true, children }:
-  { recreateOnNetworkChange: boolean, recreateOnAccountChange: boolean, children: any }
+  { recreateOnNetworkChange = true, recreateOnAccountChange = true, children }: Web3ConsumerInterface
 ) {
-  const NetworkWrapper: any = ({ networkId, children }: { networkId?: number, children: any }) => (
+  const NetworkWrapper: Function = ({ networkId, children }: { networkId?: number, children: any }) => (
     (recreateOnNetworkChange && networkId) ?
       <Fragment key={networkId}>{children}</Fragment> :
       <>{children}</>
     )
 
-  const AccountWrapper: any = ({ account, children }: { account?: string | null, children: any }) => (
+  const AccountWrapper: Function = ({ account, children }: { account?: string | null, children: any }) => (
     (recreateOnAccountChange && account) ?
       <Fragment key={account}>{children}</Fragment> :
       <>{children}</>
@@ -145,7 +152,9 @@ export { Web3Consumer }
 
 
 // HOC pattern: withWeb3 is an wrapper that gives passed components access to the web3 context
-export function withWeb3(ComponentToWrap: any, { recreateOnNetworkChange = true, recreateOnAccountChange = true } = {}): any {
+export function withWeb3(
+  ComponentToWrap: any, { recreateOnNetworkChange = true, recreateOnAccountChange = true } = {}
+): any {
   class WithWeb3 extends Component {
     render() {
       return (
