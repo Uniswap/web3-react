@@ -14,10 +14,9 @@ interface ConnectorArguments {
 }
 ```
 
-- `activateAccountAutomatically` controls whether an account is automatically fetched when the connector is activated.
-- `supportedNetworks` enforces that the current network is included in an approved list of network ids.
-- `automaticPriority` controls the order in which connectors will try to be automatically initialized.
-
+- `activateAccountAutomatically`- Controls whether an account is automatically fetched when the connector is activated.
+- `supportedNetworks` - Enforces that the web3 instance is connected to a particular network. If the detected network ID is not in the passed list, the `Web3Error` screen will be shown with an error with code `UNSUPPORTED_NETWORK`. Supported network IDs are: `1` (Mainnet), `3` (Ropsten), `4` (Rinkeby), and `42` (Kovan).
+- `automaticPriority` - Controls the order in which connectors will try to be automatically initialized.
 
 ## General: InjectedConnector
 Manages connectivity to an injected web3 provider such as MetaMask or Trust Wallet.
