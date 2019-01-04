@@ -47,7 +47,7 @@ npm install react@16.7.0-alpha.2 react-dom@16.7.0-alpha.2
 Then, get the npm package:
 
 ```bash
-npm install web3-react
+npm install web3-react@next
 ```
 
 ### 2. Setup Connectors
