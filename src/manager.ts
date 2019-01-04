@@ -100,7 +100,7 @@ export default function useWeb3Manager (
     if (!firstCall && web3State.active)
       return console.warn('Calling this function while in an already-activated state is a no-op.')
 
-    if (inAutomaticPhase.current && automaticConnectors.current.length > 0)
+    if (automaticConnectors.current.length > 0)
       initializeConnectorValues(automaticConnectors.current[0])
     else
       if (!web3State.active) dispatchWeb3State({ type: 'ACTIVATE'})
