@@ -1,6 +1,7 @@
 branches:
   only:
-  - master
+  - stable
+  - next
 language: node_js
 node_js:
 - '10'
@@ -9,7 +10,7 @@ cache:
   - node_modules
 install: npm install
 script:
-  - npm run lint
+  # - npm run lint
   - npm run build
   - npm run test
 after_script:
