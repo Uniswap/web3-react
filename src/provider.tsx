@@ -5,7 +5,7 @@ import Web3Context from './context'
 import useWeb3Manager from './manager'
 import { Web3ContextInterface, Connectors, LibraryName } from './types'
 
-import Loader from './defaultScreens/loader'
+import Loader from './defaultScreens/Loader'
 
 interface Web3ProviderProps {
   connectors : Connectors,

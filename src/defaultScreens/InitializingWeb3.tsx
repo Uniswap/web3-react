@@ -4,7 +4,7 @@ import PropTypes from 'prop-types'
 import Modal from 'react-modal'
 import QRCode from 'qrcode.react'
 
-import Loader from './loader'
+import Loader from './Loader'
 import { Connector, MetaMaskConnector, InfuraConnector, WalletConnectConnector } from '../connectors'
 import Common, { Button, ButtonLink, Text, Link } from './common'
 import { Connectors } from '../types'
