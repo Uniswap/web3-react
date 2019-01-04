@@ -9,7 +9,7 @@
 
 ## Resources
 - **Documentation for `web3-react` is [available on Gitbook](https://noahzinsmeister.gitbook.io/web3-react/).**
-- **A live demo of `web3-react` is [available on CodeSandbox](https://codesandbox.io/s/3x9mvl51yq).**
+- **A live demo of `web3-react` is [available on CodeSandbox](https://codesandbox.io/s/w68nr06x77).**
 
 ## Introduction
 
@@ -36,7 +36,7 @@ Open a PR to add your project to the list!
 
 If you want to cut straight to the chase, check out the CodeSandbox demo!
 
-[![Edit web3-react-demo](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/3x9mvl51yq)
+[![Edit web3-react-demo](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/w68nr06x77)
 
 ### 1. Install
 
