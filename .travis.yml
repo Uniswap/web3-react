@@ -1,6 +1,6 @@
 branches:
   only:
-  - stable
+  - latest
   - next
 language: node_js
 node_js:
