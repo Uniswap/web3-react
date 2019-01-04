@@ -1,6 +1,6 @@
 [![npm version](https://img.shields.io/npm/v/web3-react/next.svg)](https://www.npmjs.com/package/web3-react/v/next)
 [![Build Status](https://travis-ci.org/NoahZinsmeister/web3-react.svg?branch=master)](https://travis-ci.org/NoahZinsmeister/web3-react)
-[![Coverage Status](https://coveralls.io/repos/github/NoahZinsmeister/web3-react/badge.svg?branch=master)](https://coveralls.io/github/NoahZinsmeister/web3-react?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/NoahZinsmeister/web3-react/badge.svg?branch=next)](https://coveralls.io/github/NoahZinsmeister/web3-react?branch=next)
 
 ![Example GIF](./_assets/example.gif)
 
