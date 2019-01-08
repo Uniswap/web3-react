@@ -42,18 +42,16 @@ export function ErrorCodeMixin (Base: any, errorCodes: string[]) {
 
 const ConnectorErrorCodes = ['UNSUPPORTED_NETWORK']
 export abstract class Connector extends ErrorCodeMixin(EventEmitter, ConnectorErrorCodes) {
-  readonly activateAccountAutomatically: boolean
+  readonly activateAccountImmediately: boolean
   readonly supportedNetworks: ReadonlyArray<number> | undefined
-  readonly automaticPriority: number | undefined
 
   constructor(kwargs: ConnectorArguments = {}) {
     super()
 
-    const { activateAccountAutomatically, supportedNetworks, automaticPriority } = kwargs
+    const { activateAccountImmediately, supportedNetworks } = kwargs
 
-    this.activateAccountAutomatically = activateAccountAutomatically || true
+    this.activateAccountImmediately = activateAccountImmediately === undefined ? true : activateAccountImmediately
     this.supportedNetworks = supportedNetworks
-    this.automaticPriority = automaticPriority
 
     this.active = false
   }
@@ -89,7 +87,7 @@ export class InjectedConnector extends ErrorCodeMixin(Connector, InjectedConnect
 
   constructor(kwargs: InjectedConnectorArguments = {}) {
     const { listenForNetworkChanges, listenForAccountChanges, ...rest } = kwargs
-    super({ ...rest, activateAccountAutomatically: true })
+    super({ ...rest, activateAccountImmediately: true })
 
     this.listenForNetworkChanges = listenForNetworkChanges || true
     this.listenForAccountChanges = listenForAccountChanges || true
@@ -175,9 +173,6 @@ export class WalletConnectConnector extends ErrorCodeMixin(NetworkOnlyConnector,
   webConnector: any
 
   constructor(kwargs: WalletConnectConnectorArguments) {
-    if (kwargs.automaticPriority && kwargs.activateAccountAutomatically)
-      throw Error('Not Implemented: WalletConnectConnector does not support automatic account initialization.')
-
     const { bridgeURL, dappName, ...rest } = kwargs
     super(rest)
 

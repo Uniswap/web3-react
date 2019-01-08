@@ -4,15 +4,17 @@ import { Web3ContextInterface } from './types'
 
 const defaultError = () => console.error('No Web3Provider Found.')
 const defaultContext = {
+  error               : null,
+
   networkReRenderer   : NaN,
   forceNetworkReRender: defaultError,
   accountReRenderer   : NaN,
   forceAccountReRender: defaultError,
 
-  activate            : defaultError,
-  activateAccount     : defaultError,
+  active              : false,
   setConnector        : defaultError,
-  resetConnectors     : defaultError
+  activateAccount     : defaultError,
+  unsetConnector      : defaultError
 }
 
 export default createContext<Web3ContextInterface>(defaultContext)

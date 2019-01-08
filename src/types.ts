@@ -9,43 +9,44 @@ export type Library = (
 )
 
 export interface ConnectorArguments {
-  readonly activateAccountAutomatically?: boolean
-  readonly supportedNetworks           ?: ReadonlyArray<number>
-  readonly automaticPriority           ?: number
+  readonly activateAccountImmediately?: boolean
+  readonly supportedNetworks         ?: ReadonlyArray<number>
 }
 
 interface ValidWeb3ContextInterface {
   library             : Library
   networkId           : number
   account             : string | null
+  error               : Error | null
 
   networkReRenderer   : number
   forceNetworkReRender: Function
   accountReRenderer   : number
   forceAccountReRender: Function
 
+  active              : boolean
   connectorName       : string
-  activate            : Function
-  activateAccount     : Function
   setConnector        : Function
-  resetConnectors     : Function
+  activateAccount     : Function
+  unsetConnector      : Function
 }
 
 interface UndefinedWeb3ContextInterface {
   library             ?: Library
   networkId           ?: number
   account             ?: string | null
+  error                : Error | null
 
-  accountReRenderer    : number
-  forceAccountReRender : Function
   networkReRenderer    : number
   forceNetworkReRender : Function
+  accountReRenderer    : number
+  forceAccountReRender : Function
 
+  active               : boolean
   connectorName       ?: string
-  activate             : Function
-  activateAccount      : Function
   setConnector         : Function
-  resetConnectors      : Function
+  activateAccount      : Function
+  unsetConnector       : Function
 }
 
 export type Web3ContextInterface = ValidWeb3ContextInterface | UndefinedWeb3ContextInterface

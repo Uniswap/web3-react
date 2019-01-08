@@ -7,7 +7,6 @@ import { InfuraConnector } from '../dist/connectors'
 import { useWeb3Context } from '../dist/hooks'
 
 const infura = new InfuraConnector({
-  automaticPriority: 1,
   providerURL: 'https://rinkeby.infura.io/v3/3f0fa5d9c4064d6e8427efac291d66df'
 })
 const connectors = { infura }
@@ -26,7 +25,7 @@ function MyChildComponent() {
 
   return (
     <>
-      <button data-testid='activate' onClick={() => context.activate()}></button>
+      <button data-testid='set-connector' onClick={() => context.setConnector('infura')}></button>
       {context.networkId ? <p data-testid="dynamic-networkid">{context.networkId}</p> : null}
     </>
   )
@@ -38,7 +37,7 @@ test('Rendering', async () => {
   expect(getByTestId('static-test')).toHaveTextContent('test')
   expect(queryByTestId('dynamic-networkid')).toBeNull()
 
-  fireEvent.click(getByTestId('activate'))
+  fireEvent.click(getByTestId('set-connector'))
   await waitForElement(() => getByTestId('dynamic-networkid'))
 
   expect(getByTestId('static-test')).toHaveTextContent('test')

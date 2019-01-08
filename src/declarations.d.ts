@@ -14,8 +14,3 @@ declare interface Window {
 declare interface Error {
   code?: string | number | undefined
 }
-
-declare module "*.svg" {
-  const content: any
-  export default content
-}

@@ -1,102 +1,45 @@
-import React, { useRef, Suspense, Component, Fragment } from 'react'
+import React, { Component, Fragment } from 'react'
 import PropTypes from 'prop-types'
 
 import Web3Context from './context'
 import useWeb3Manager from './manager'
 import { Web3ContextInterface, Connectors, LibraryName } from './types'
 
-import Loader from './defaultScreens/Loader'
-
 interface Web3ProviderProps {
   connectors : Connectors,
-  passive    : boolean,
-  screens    : any,
   libraryName: LibraryName,
   children   : any
 }
 
-function Web3Provider({ connectors, passive, screens, libraryName, children }: Web3ProviderProps)  {
-  const filledScreens: any = useRef(
-    Object.keys(defaultScreens).reduce(
-      (accumulator: any, currentValue: string) => {
-        accumulator[currentValue] = screens[currentValue] || defaultScreens[currentValue]
-        return accumulator
-      },
-      {}
-    )
-  )
-  const { InitializingWeb3, Web3Error } = filledScreens.current
-
+function Web3Provider({ connectors, libraryName, children }: Web3ProviderProps)  {
   const {
-    web3State,
-    inAutomaticPhase, web3Initialized,
-    activate, activateAccount,
-    setConnector, resetConnectors,
+    web3Initialized: active, web3State,
+    setConnector, activateAccount, unsetConnector,
     reRenderers
-  } = useWeb3Manager(connectors, passive, libraryName)
+  } = useWeb3Manager(connectors, libraryName)
 
-  const { active, connectorName, error } = web3State
+  const { connectorName, library, networkId, account, error } = web3State
 
-  const Body = () => {
-    if (error)
-      return <Web3Error
-        error={error}
-        connectors={connectors} connectorName={connectorName}
-        setConnector={setConnector} resetConnectors={resetConnectors}
-      />
-
-    if (active && !web3Initialized)
-      return <InitializingWeb3
-        inAutomaticPhase={inAutomaticPhase}
-        connectors={connectors}
-        setConnector={setConnector} resetConnectors={resetConnectors}
-      />
-
-    else {
-      const { library, networkId, account } = web3State
-
-      const context: Web3ContextInterface = {
-        library, networkId, account,
-        ...reRenderers,
-        connectorName, activate, activateAccount, setConnector, resetConnectors
-      }
-
-      return (
-        <Web3Context.Provider value={context}>
-          {children}
-        </Web3Context.Provider>
-      )
-    }
+  const context: Web3ContextInterface = {
+    library, networkId, account, error,
+    ...reRenderers,
+    active, connectorName, setConnector, activateAccount, unsetConnector
   }
 
   return (
-    <Suspense fallback={<Loader />}>
-      {Body()}
-    </Suspense>
+    <Web3Context.Provider value={context}>
+      {children}
+    </Web3Context.Provider>
   )
-}
-
-const screens = {
-  InitializingWeb3: PropTypes.any,
-  Web3Error:        PropTypes.any
-}
-
-const defaultScreens: any = {
-  InitializingWeb3: React.lazy(() => import('./defaultScreens/InitializingWeb3')),
-  Web3Error:        React.lazy(() => import('./defaultScreens/Web3Error'))
 }
 
 Web3Provider.propTypes = {
   connectors:  PropTypes.objectOf(PropTypes.object).isRequired,
-  passive:     PropTypes.bool.isRequired,
-  screens:     PropTypes.shape(screens).isRequired,
   libraryName: PropTypes.oneOf(['web3.js', 'ethers.js']).isRequired,
   children:    PropTypes.node.isRequired
 }
 
 Web3Provider.defaultProps = {
-  passive:     false,
-  screens:     defaultScreens,
   libraryName: 'web3.js'
 }
 
