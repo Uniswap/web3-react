@@ -135,7 +135,7 @@ export async function sendTransaction(
   }
 
   async function gasPromise (): Promise<string> {
-    return _method.estimateGas({ from: address, gas: transactionOptions.gas })
+    return _method.estimateGas({ from: address, gas: transactionOptions.gas, value: transactionOptions.value })
       .catch((error: Error) => {
         throw wrapError(error, 'FAILING_TRANSACTION')
       })

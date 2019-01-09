@@ -107,7 +107,7 @@ export default function useWeb3Manager (connectors: Connectors, libraryName: Lib
       const library: Library = await connector.getLibrary(libraryName)
 
       const networkIdPromise = () => connector.getNetworkId(library)
-      const accountPromise = connector.activateAccountAutomatically ? () => connector.getAccount(library) : () => null
+      const accountPromise = connector.activateAccountImmediately ? () => connector.getAccount(library) : () => null
 
       await Promise.all([networkIdPromise(), accountPromise()])
         .then(([networkId, account])  => {
