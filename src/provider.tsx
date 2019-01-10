@@ -10,7 +10,7 @@ interface Web3ProviderProps {
   children   : any
 }
 
-function Web3Provider({ connectors, libraryName, children }: Web3ProviderProps)  {
+function Web3Provider({ connectors, libraryName = 'web3.js', children }: Web3ProviderProps) {
   const {
     web3Initialized: active, web3State,
     setConnector, activateAccount, unsetConnector,
@@ -37,10 +37,11 @@ export default Web3Provider
 
 // render props pattern: the consumer is exposed to give access to the web3 context via render props
 interface Web3ConsumerInterface {
-  recreateOnNetworkChange: boolean
-  recreateOnAccountChange: boolean
+  recreateOnNetworkChange?: boolean
+  recreateOnAccountChange?: boolean
   children: any
 }
+
 function Web3Consumer (
   { recreateOnNetworkChange = true, recreateOnAccountChange = true, children }: Web3ConsumerInterface
 ) {
@@ -73,8 +74,15 @@ export { Web3Consumer }
 
 
 // HOC pattern: withWeb3 is an wrapper that gives passed components access to the web3 context
+interface withWeb3Interface {
+  recreateOnNetworkChange?: boolean
+  recreateOnAccountChange?: boolean
+}
+
 export function withWeb3(
-  ComponentToWrap: any, { recreateOnNetworkChange = true, recreateOnAccountChange = true } = {}
+  ComponentToWrap: any,
+  { recreateOnNetworkChange = true, recreateOnAccountChange = true }: withWeb3Interface =
+  { recreateOnNetworkChange: true, recreateOnAccountChange: true }
 ): any {
   class WithWeb3 extends Component {
     render() {
