@@ -1,5 +1,3 @@
-import { toBuffer, bufferToHex, addHexPrefix, fromRpcSig, hashPersonalMessage } from 'ethereumjs-util'
-
 import Web3 = require('web3')
 import { ethers } from 'ethers'
 
@@ -34,6 +32,13 @@ const networkDataById: { [propName: string]: NetworkId } = {
     name: 'Kovan',
     etherscanPrefix: 'kovan.'
   }
+}
+
+function ensureHexPrefix (string: string) {
+  const candidate = string.substring(0, 2) == '0x' ? string : `0x${string}`
+  if (!ethers.utils.isHexString(candidate))
+    throw Error('Passed string is not valid hex.')
+  return candidate
 }
 
 const etherscanTypes: any = {'transaction': 'tx', 'address': 'address', 'token': 'token'}
@@ -71,11 +76,11 @@ export async function signPersonal (library: Library, address: string, message: 
   // format message properly
   let encodedMessage: string
   if (Buffer.isBuffer(message)) {
-    encodedMessage = addHexPrefix(message.toString('hex'))
+    encodedMessage = ensureHexPrefix(message.toString('hex'))
   } else if (message.slice(0, 2) === '0x') {
     encodedMessage = message
   } else {
-    encodedMessage = bufferToHex(Buffer.from(message, 'utf8'))
+    encodedMessage = ensureHexPrefix(Buffer.from(message, 'utf8').toString('hex'))
   }
 
   return sendAsync(library, 'personal_sign', [encodedMessage, address], address)
@@ -84,14 +89,17 @@ export async function signPersonal (library: Library, address: string, message: 
       returnData.signature = result.result
 
       // ensure that the signature matches
-      const signature = fromRpcSig(returnData.signature)
-      const messageHash: any = hashPersonalMessage(toBuffer(encodedMessage))
+      const messageHash: string = ethers.utils.hashMessage(encodedMessage)
+      if (!ethers.utils.verifyMessage(messageHash, returnData.signature))
+        throw Error('Signature did not originate from specified address.')
 
-      returnData.r = addHexPrefix(signature.r.toString('hex'))
-      returnData.s = addHexPrefix(signature.s.toString('hex'))
+      const signature = ethers.utils.splitSignature(returnData.signature)
+      returnData.r = signature.r
+      returnData.s = signature.s
       returnData.v = signature.v
       returnData.from = address
-      returnData.messageHash = addHexPrefix(messageHash.toString('hex'))
+      returnData.message = encodedMessage
+      returnData.messageHash = messageHash
 
       return returnData
     })

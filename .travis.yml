@@ -10,7 +10,6 @@ cache:
   - node_modules
 install: npm install
 script:
-  # - npm run lint
   - npm run build
   - npm run test
 after_script:

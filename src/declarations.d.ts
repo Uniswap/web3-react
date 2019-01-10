@@ -1,4 +1,5 @@
-declare module 'walletconnect'
+declare module 'walletconnect-web3-subprovider'
+declare module 'web3-provider-engine/subproviders/rpc'
 
 interface Ethereum {
   enable: () => Promise<void>

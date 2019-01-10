@@ -6,12 +6,18 @@ import { Library, LibraryName } from './types'
 
 const ERC20_ABI = [{"constant":true,"inputs":[{"name":"_owner","type":"address"}],"name":"balanceOf","outputs":[{"name":"balance","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"decimals","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"}] // eslint-disable-line
 
-export function getNewProvider (libraryName: LibraryName, method: 'http' | 'injected', args: any) {
+export function getNewProvider (
+  libraryName: LibraryName, method: 'http' | 'injected' | 'walletconnect', args: any
+): Library {
   switch (method) {
     case 'http':
       return getNewHttpProvider(libraryName, args)
     case 'injected':
       return getNewInjectedProvider(libraryName, args)
+    case 'walletconnect':
+      return getNewWallectConnectProvider(libraryName, args)
+    default:
+      throw Error('Unrecognized case.')
   }
 }
 
@@ -25,6 +31,15 @@ function getNewHttpProvider(libraryName: LibraryName, providerURL: string) {
 }
 
 function getNewInjectedProvider(libraryName: LibraryName, provider: any) {
+  switch (libraryName) {
+    case 'web3.js':
+      return new Web3(provider)
+    case 'ethers.js':
+      return new ethers.providers.Web3Provider(provider)
+  }
+}
+
+function getNewWallectConnectProvider(libraryName: LibraryName, provider: any) {
   switch (libraryName) {
     case 'web3.js':
       return new Web3(provider)

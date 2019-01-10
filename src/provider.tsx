@@ -1,5 +1,4 @@
 import React, { Component, Fragment } from 'react'
-import PropTypes from 'prop-types'
 
 import Web3Context from './context'
 import useWeb3Manager from './manager'
@@ -31,16 +30,6 @@ function Web3Provider({ connectors, libraryName, children }: Web3ProviderProps) 
       {children}
     </Web3Context.Provider>
   )
-}
-
-Web3Provider.propTypes = {
-  connectors:  PropTypes.objectOf(PropTypes.object).isRequired,
-  libraryName: PropTypes.oneOf(['web3.js', 'ethers.js']).isRequired,
-  children:    PropTypes.node.isRequired
-}
-
-Web3Provider.defaultProps = {
-  libraryName: 'web3.js'
 }
 
 export default Web3Provider
@@ -78,17 +67,6 @@ function Web3Consumer (
       )}
     </Web3Context.Consumer>
   )
-}
-
-Web3Consumer.propTypes = {
-  recreateOnNetworkChange: PropTypes.bool,
-  recreateOnAccountChange: PropTypes.bool,
-  children:                PropTypes.func.isRequired
-}
-
-Web3Consumer.defaultProps = {
-  recreateOnAccountChange: true,
-  recreateOnNetworkChange: true
 }
 
 export { Web3Consumer }

@@ -1,5 +1,7 @@
 import EventEmitter from 'events'
-import WalletConnect from 'walletconnect'
+import ProviderEngine from 'web3-provider-engine'
+import RpcSubprovider from 'web3-provider-engine/subproviders/rpc'
+import WalletConnectSubprovider from 'walletconnect-web3-subprovider'
 
 import { getNewProvider, getNetworkId, getAccounts } from './libraries'
 
@@ -167,31 +169,60 @@ export class MetaMaskConnector extends InjectedConnector {}
 export class InfuraConnector extends NetworkOnlyConnector {}
 
 const WalletConnectConnectorErrorCodes = ['WALLETCONNECT_TIMEOUT']
-export class WalletConnectConnector extends ErrorCodeMixin(NetworkOnlyConnector, WalletConnectConnectorErrorCodes) {
+export class WalletConnectConnector extends ErrorCodeMixin(Connector, WalletConnectConnectorErrorCodes) {
   readonly bridgeURL: string
   readonly dappName: string
-  webConnector: any
+  private provider: any
+  private webConnectorSession: any
 
   constructor(kwargs: WalletConnectConnectorArguments) {
-    const { bridgeURL, dappName, ...rest } = kwargs
+    const { bridgeURL, dappName, providerURL, ...rest } = kwargs
     super(rest)
 
     this.bridgeURL = bridgeURL
     this.dappName = dappName
-    this.webConnector = new WalletConnect({ bridgeUrl: this.bridgeURL, dappName: this.dappName })
+
+    const engine = new ProviderEngine()
+
+    engine.addProvider(new WalletConnectSubprovider({
+      bridgeUrl: this.bridgeURL,
+      dappName:  this.dappName
+    }))
+
+    engine.addProvider(new RpcSubprovider({
+      rpcUrl: providerURL
+    }))
+
+    engine.start()
+
+    this.provider = engine
   }
 
-  async getAccount() {
-    if (this.webConnector.isConnected)
-      return this.webConnector.accounts[0]
+  async getLibrary (libraryName: LibraryName): Promise<Library> {
+    return getNewProvider(libraryName, 'walletconnect', this.provider)
+  }
+
+  async getNetworkId(library: Library) {
+    const networkId = await getNetworkId(library)
+    return this.validateNetworkId(networkId)
+  }
+
+  async getAccount(library: Library): Promise<string> {
+    const accounts: string[] = await getAccounts(library)
+
+    if (accounts && accounts[0])
+      return accounts[0]
     else {
-      if (!this.webConnectorSession) this.webConnectorSession = this.webConnector.initSession()
+      if (!this.webConnectorSession) this.webConnectorSession = this.provider.walletconnect.initSession()
       await this.webConnectorSession
 
-      this.emit('URIAvailable', this.webConnector.uri)
+      this.emit('URIAvailable', this.provider.walletconnect.uri)
 
-      return this.webConnector.listenSessionStatus()
-        .then(() => this.webConnector.accounts[0])
+      return this.provider.walletconnect.listenSessionStatus()
+        .then(async () => {
+          const accounts: string[] = await getAccounts(library)
+          return accounts[0]
+        })
         .catch((error: Error) => {
           if (error.message.match(/Listener\sTimeout/i))
             error.code = WalletConnectConnector.errorCodes.WALLETCONNECT_TIMEOUT
