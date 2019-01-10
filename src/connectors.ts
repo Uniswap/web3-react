@@ -210,17 +210,22 @@ export class WalletConnectConnector extends ErrorCodeMixin(Connector, WalletConn
   async getAccount(library: Library): Promise<string> {
     const accounts: string[] = await getAccounts(library)
 
-    if (accounts && accounts[0])
+    if (accounts && accounts[0]) {
+      this.isConnected = true
       return accounts[0]
+    }
     else {
       if (!this.webConnectorSession) this.webConnectorSession = this.provider.walletconnect.initSession()
       await this.webConnectorSession
 
+      this.isConnected = this.provider.walletconnect.isConnected
+      this.uri = this.provider.walletconnect.uri
       this.emit('URIAvailable', this.provider.walletconnect.uri)
 
       return this.provider.walletconnect.listenSessionStatus()
         .then(async () => {
           const accounts: string[] = await getAccounts(library)
+          this.isConnected = true
           return accounts[0]
         })
         .catch((error: Error) => {
