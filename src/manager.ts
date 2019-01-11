@@ -182,7 +182,7 @@ export default function useWeb3Manager (connectors: Connectors, libraryName: Lib
       return
     }
 
-    return activeConnector.getAccount(web3State.library)
+    return activeConnector.getAccount(web3State.library, true)
       .then(account => dispatchWeb3State({ type: 'UPDATE_ACCOUNT', payload: account }))
       .catch(error => {
         if (suppressGlobalError) throw error

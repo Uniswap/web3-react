@@ -78,7 +78,7 @@ export abstract class Connector extends ErrorCodeMixin(EventEmitter, ConnectorEr
   }
   abstract async getLibrary (libraryName: LibraryName): Promise<Library>
   abstract async getNetworkId (library: Library): Promise<number>
-  abstract async getAccount (library: Library): Promise<string | null>
+  abstract async getAccount (library: Library, fromActivateAccount?: boolean): Promise<string | null>
 }
 
 // begin general implementations
@@ -174,11 +174,14 @@ export class WalletConnectConnector extends ErrorCodeMixin(Connector, WalletConn
   readonly dappName: string
   private provider: any
   private webConnectorSession: any
+  private activateAccountImmediatelyWalletConnect: boolean
 
   constructor(kwargs: WalletConnectConnectorArguments) {
-    const { bridgeURL, dappName, providerURL, ...rest } = kwargs
-    super(rest)
+    const { bridgeURL, dappName, providerURL, activateAccountImmediately, ...rest } = kwargs
+    super({ ...rest, activateAccountImmediately: true }) // we need to call getAccount every time....
 
+    // ...and hijack the activateAccountImmediately flag to indicate whether it returns null or not
+    this.activateAccountImmediatelyWalletConnect = activateAccountImmediately ? activateAccountImmediately : true
     this.bridgeURL = bridgeURL
     this.dappName = dappName
 
@@ -198,6 +201,16 @@ export class WalletConnectConnector extends ErrorCodeMixin(Connector, WalletConn
     this.provider = engine
   }
 
+  async onActivation () {
+    await super.onActivation()
+
+    if (!this.webConnectorSession) this.webConnectorSession = this.provider.walletconnect.initSession()
+    await this.webConnectorSession
+
+    this.isConnected = this.provider.walletconnect.isConnected
+    this.uri = this.provider.walletconnect.uri
+  }
+
   async getLibrary (libraryName: LibraryName): Promise<Library> {
     return getNewProvider(libraryName, 'walletconnect', this.provider)
   }
@@ -207,32 +220,29 @@ export class WalletConnectConnector extends ErrorCodeMixin(Connector, WalletConn
     return this.validateNetworkId(networkId)
   }
 
-  async getAccount(library: Library): Promise<string> {
-    const accounts: string[] = await getAccounts(library)
-
-    if (accounts && accounts[0]) {
-      this.isConnected = true
+  async getAccount(library: Library, fromActivateAccount: boolean): Promise<string | null> {
+    async function getAccount() {
+      const accounts: string[] = await getAccounts(library)
+      if (!accounts || !accounts[0]) throw Error('No accounts found.')
       return accounts[0]
     }
-    else {
-      if (!this.webConnectorSession) this.webConnectorSession = this.provider.walletconnect.initSession()
-      await this.webConnectorSession
 
-      this.isConnected = this.provider.walletconnect.isConnected
-      this.uri = this.provider.walletconnect.uri
-      this.emit('URIAvailable', this.provider.walletconnect.uri)
-
-      return this.provider.walletconnect.listenSessionStatus()
-        .then(async () => {
-          const accounts: string[] = await getAccounts(library)
-          this.isConnected = true
-          return accounts[0]
-        })
+    function waitForAccount(provider: any) {
+      return provider.walletconnect.listenSessionStatus()
+        .then(() => getAccount())
         .catch((error: Error) => {
           if (error.message.match(/Listener\sTimeout/i))
             error.code = WalletConnectConnector.errorCodes.WALLETCONNECT_TIMEOUT
           throw error
         })
     }
+
+    if (!fromActivateAccount)
+      if (this.isConnected && this.activateAccountImmediatelyWalletConnect)
+        return getAccount()
+      else
+        return null
+    else
+      return waitForAccount(this.provider)
   }
 }
