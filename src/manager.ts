@@ -140,30 +140,33 @@ export default function useWeb3Manager (connectors: Connectors, libraryName: Lib
   useEffect(() => { if (activeConnector) return () => activeConnector.onDeactivation() }, [activeConnector])
 
   // change listeners
-  function networkChangedListenerHandler(networkId: number): void {
+  function web3ReactUpdateNetworkIdHandler(networkId: number): void {
     dispatchWeb3State({ type: 'UPDATE_NETWORK_ID', payload: networkId })
   }
-  function accountsChangedListenerHandler(accounts: string[]): void {
-    dispatchWeb3State({ type: 'UPDATE_ACCOUNT', payload: accounts[0] })
+  function web3ReactUpdateAccountHandler(account: string): void {
+    dispatchWeb3State({ type: 'UPDATE_ACCOUNT', payload: account })
   }
+  function web3ReactErrorHandler(error: Error): void {
+    processError(error)
+  }
+  function web3ReactResetHandler(): void {
+    unsetConnector()
+  }
+
   useEffect(() => {
-    if (web3Initialized && activeConnector && activeConnector.listenForNetworkChanges) {
-      const { ethereum } = window
-      if (ethereum && ethereum.on && ethereum.removeListener) {
-        ethereum.on('networkChanged', networkChangedListenerHandler)
-        return () => ethereum.removeListener('networkChanged', networkChangedListenerHandler)
+    if (activeConnector) {
+      activeConnector.on('_web3ReactUpdateNetworkId', web3ReactUpdateNetworkIdHandler)
+      activeConnector.on('_web3ReactUpdateAccount', web3ReactUpdateAccountHandler)
+      activeConnector.on('_web3ReactError', web3ReactErrorHandler)
+      activeConnector.on('_web3ReactReset', web3ReactResetHandler)
+      return () => {
+        activeConnector.removeListener('_web3ReactUpdateNetworkId', web3ReactUpdateNetworkIdHandler)
+        activeConnector.removeListener('_web3ReactUpdateAccount', web3ReactUpdateAccountHandler)
+        activeConnector.removeListener('_web3ReactError', web3ReactErrorHandler)
+        activeConnector.removeListener('_web3ReactReset', web3ReactResetHandler)
       }
     }
-  }, [web3Initialized, activeConnector, web3State.connectorName])
-  useEffect(() => {
-    if (web3Initialized && activeConnector && activeConnector.listenForAccountChanges) {
-      const { ethereum } = window
-      if (ethereum && ethereum.on && ethereum.removeListener) {
-        ethereum.on('accountsChanged', accountsChangedListenerHandler)
-        return () => ethereum.removeListener('accountsChanged', accountsChangedListenerHandler)
-      }
-    }
-  }, [web3Initialized, activeConnector, web3State.connectorName])
+  }, [activeConnector])
 
   // export function to manually trigger an account update
   async function activateAccount(suppressGlobalError: boolean = true): Promise<void> {

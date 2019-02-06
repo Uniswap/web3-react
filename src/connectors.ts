@@ -1,7 +1,7 @@
 import EventEmitter from 'events'
 import ProviderEngine from 'web3-provider-engine'
 import RpcSubprovider from 'web3-provider-engine/subproviders/rpc'
-import WalletConnectSubprovider from 'walletconnect-web3-subprovider'
+import WalletConnectSubprovider from '@walletconnect/web3-subprovider'
 
 import { getNewProvider, getNetworkId, getAccounts } from './libraries'
 
@@ -21,8 +21,7 @@ interface NetworkOnlyArguments extends ConnectorArguments {
 }
 
 interface WalletConnectConnectorArguments extends NetworkOnlyArguments {
-  readonly bridgeURL: string
-  readonly dappName: string
+  readonly bridge: string
 }
 
 export function ErrorCodeMixin (Base: any, errorCodes: string[]) {
@@ -81,11 +80,12 @@ export abstract class Connector extends ErrorCodeMixin(EventEmitter, ConnectorEr
   abstract async getAccount (library: Library, fromActivateAccount?: boolean): Promise<string | null>
 }
 
-// begin general implementations
-const InjectedConnectorErrorCodes = ['ETHEREUM_ACCESS_DENIED', 'LEGACY_PROVIDER', 'NO_WEB3', 'UNLOCK_REQUIRED']
-export class InjectedConnector extends ErrorCodeMixin(Connector, InjectedConnectorErrorCodes) {
+
+const MetaMaskConnectorErrorCodes = ['ETHEREUM_ACCESS_DENIED', 'LEGACY_PROVIDER', 'NO_WEB3', 'UNLOCK_REQUIRED']
+export class MetaMaskConnector extends ErrorCodeMixin(Connector, MetaMaskConnectorErrorCodes) {
   readonly listenForNetworkChanges: boolean
   readonly listenForAccountChanges: boolean
+  private runOnDeactivation: Function[]
 
   constructor(kwargs: InjectedConnectorArguments = {}) {
     const { listenForNetworkChanges, listenForAccountChanges, ...rest } = kwargs
@@ -93,6 +93,16 @@ export class InjectedConnector extends ErrorCodeMixin(Connector, InjectedConnect
 
     this.listenForNetworkChanges = listenForNetworkChanges || true
     this.listenForAccountChanges = listenForAccountChanges || true
+
+    this.runOnDeactivation = []
+  }
+
+  private networkChangedHandler (networkId: number) {
+    this.emit('_web3ReactUpdateNetworkId', networkId)
+  }
+
+  private accountsChangedHandler (accounts: string[]) {
+    this.emit('_web3ReactUpdateAccount', accounts[0])
   }
 
   async onActivation () {
@@ -103,18 +113,34 @@ export class InjectedConnector extends ErrorCodeMixin(Connector, InjectedConnect
       await ethereum.enable()
         .catch(e => {
           const deniedAccessError: Error = Error(`Access Denied: ${e.toString()}.`)
-          deniedAccessError.code = InjectedConnector.errorCodes.ETHEREUM_ACCESS_DENIED
+          deniedAccessError.code = MetaMaskConnector.errorCodes.ETHEREUM_ACCESS_DENIED
           throw deniedAccessError
         })
+
+      // initialize event listeners
+      if (ethereum.on && ethereum.removeListener) {
+        ethereum.on('networkChanged', this.networkChangedHandler)
+        ethereum.on('accountsChanged', this.accountsChangedHandler)
+
+        this.runOnDeactivation.push(() => {
+          ethereum.removeListener('networkChanged', this.networkChangedHandler)
+          ethereum.removeListener('accountsChanged', this.accountsChangedHandler)
+        })
+      }
     } else if (web3) {
       const legacyError: Error = Error('Your web3 provider is outdated, please upgrade to a modern provider.')
-      legacyError.code = InjectedConnector.errorCodes.LEGACY_PROVIDER
+      legacyError.code = MetaMaskConnector.errorCodes.LEGACY_PROVIDER
       throw legacyError
     } else {
       const noWeb3Error: Error = Error('Your browser is not equipped with web3 capabilities.')
-      noWeb3Error.code = InjectedConnector.errorCodes.NO_WEB3
+      noWeb3Error.code = MetaMaskConnector.errorCodes.NO_WEB3
       throw noWeb3Error
     }
+  }
+
+  onDeactivation () {
+    this.runOnDeactivation.forEach(runner => runner())
+    this.runOnDeactivation = []
   }
 
   async getLibrary (libraryName: LibraryName): Promise<Library> {
@@ -131,7 +157,7 @@ export class InjectedConnector extends ErrorCodeMixin(Connector, InjectedConnect
     const accounts: string[] = await getAccounts(library)
     if (!accounts || !accounts[0]) {
       const unlockRequiredError: Error = Error('Ethereum account locked.')
-      unlockRequiredError.code = InjectedConnector.errorCodes.UNLOCK_REQUIRED
+      unlockRequiredError.code = MetaMaskConnector.errorCodes.UNLOCK_REQUIRED
       throw unlockRequiredError
     }
 
@@ -163,33 +189,24 @@ export class NetworkOnlyConnector extends Connector {
   }
 }
 
-// begin specific implementations
-export class MetaMaskConnector extends InjectedConnector {}
-
 export class InfuraConnector extends NetworkOnlyConnector {}
 
 const WalletConnectConnectorErrorCodes = ['WALLETCONNECT_TIMEOUT']
 export class WalletConnectConnector extends ErrorCodeMixin(Connector, WalletConnectConnectorErrorCodes) {
-  readonly bridgeURL: string
-  readonly dappName: string
-  private provider: any
-  private webConnectorSession: any
-  private activateAccountImmediatelyWalletConnect: boolean
+  readonly bridge: string
+  private engine: any
+  private walletConnector: any
 
   constructor(kwargs: WalletConnectConnectorArguments) {
-    const { bridgeURL, dappName, providerURL, activateAccountImmediately, ...rest } = kwargs
+    const { bridge, providerURL, activateAccountImmediately, ...rest } = kwargs
     super({ ...rest, activateAccountImmediately: true }) // we need to call getAccount every time....
 
-    // ...and hijack the activateAccountImmediately flag to indicate whether it returns null or not
-    this.activateAccountImmediatelyWalletConnect = activateAccountImmediately ? activateAccountImmediately : true
-    this.bridgeURL = bridgeURL
-    this.dappName = dappName
+    this.bridge = bridge
 
     const engine = new ProviderEngine()
 
     engine.addProvider(new WalletConnectSubprovider({
-      bridgeUrl: this.bridgeURL,
-      dappName:  this.dappName
+      bridge: this.bridge
     }))
 
     engine.addProvider(new RpcSubprovider({
@@ -198,21 +215,52 @@ export class WalletConnectConnector extends ErrorCodeMixin(Connector, WalletConn
 
     engine.start()
 
-    this.provider = engine
+    this.engine = engine
+    this.walletConnector = this.engine._providers[0]._walletConnector
+  }
+
+  private connectAndSessionUpdateHandler (error: Error, payload: any) {
+    console.log('inside handler')
+    if (error) {
+      this.emit('_web3ReactError', error)
+    } else {
+      const { chainId, accounts } = payload.params[0]
+
+      // validate the chainId
+      try {
+        this.validateNetworkId(chainId)
+        this.emit('_web3ReactUpdateAccount', accounts[0])
+      } catch (error) {
+        this.emit('_web3ReactError', error)
+      }
+    }
+  }
+
+  private disconnectHandler (error: Error) {
+    if (error) {
+      this.emit('_web3ReactError', error)
+    } else {
+      this.emit('_web3ReactReset')
+    }
   }
 
   async onActivation () {
     await super.onActivation()
 
-    if (!this.webConnectorSession) this.webConnectorSession = this.provider.walletconnect.initSession()
-    await this.webConnectorSession
+    if (!this.walletConnector.connected) {
+      await this.walletConnector.createSession()
+    }
 
-    this.isConnected = this.provider.walletconnect.isConnected
-    this.uri = this.provider.walletconnect.uri
+    this.uri = this.walletConnector.uri
+
+    // initialize event listeners
+    this.walletConnector.on('connect', this.connectAndSessionUpdateHandler)
+    this.walletConnector.on('session_update', this.connectAndSessionUpdateHandler)
+    this.walletConnector.on('disconnect', this.disconnectHandler)
   }
 
   async getLibrary (libraryName: LibraryName): Promise<Library> {
-    return getNewProvider(libraryName, 'walletconnect', this.provider)
+    return getNewProvider(libraryName, 'walletconnect', this.engine)
   }
 
   async getNetworkId(library: Library) {
@@ -221,28 +269,22 @@ export class WalletConnectConnector extends ErrorCodeMixin(Connector, WalletConn
   }
 
   async getAccount(library: Library, fromActivateAccount: boolean): Promise<string | null> {
-    async function getAccount() {
+    window.walletConnector = this.walletConnector
+
+    if (!fromActivateAccount)
+      return null
+
+    if (this.walletConnectSubprovider.connected) {
       const accounts: string[] = await getAccounts(library)
+      console.log(accounts)
       if (!accounts || !accounts[0]) throw Error('No accounts found.')
       return accounts[0]
     }
 
-    function waitForAccount(provider: any) {
-      return provider.walletconnect.listenSessionStatus()
-        .then(() => getAccount())
-        .catch((error: Error) => {
-          if (error.message.match(/Listener\sTimeout/i))
-            error.code = WalletConnectConnector.errorCodes.WALLETCONNECT_TIMEOUT
-          throw error
-        })
-    }
+    return null
+  }
 
-    if (!fromActivateAccount)
-      if (this.isConnected && this.activateAccountImmediatelyWalletConnect)
-        return getAccount()
-      else
-        return null
-    else
-      return waitForAccount(this.provider)
+  async onDeactivation () {
+    // TODO remove listeners here once exposed in walletconnect
   }
 }
