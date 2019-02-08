@@ -24,101 +24,47 @@
   "bugs": {
     "url": "https://github.com/NoahZinsmeister/web3-react/issues"
   },
-  "browser": "./dist/provider.js",
+  "main": "./dist/provider.js",
   "types": "./dist/types.d.ts",
   "scripts": {
     "postinstall": "rm -f node_modules/web3/index.d.ts",
-    "test": "jest",
-    "coverage": "jest --coverage --coverageReporters=text-lcov",
+    "ensureLinted": "yarn tslint 'src/**/*'",
+    "ensureFormatted": "yarn prettier --check 'src/**/*'",
     "prebuild": "rm -rf dist/",
     "build": "tsc",
-    "watch": "npm run build && tsc --watch"
+    "watch": "yarn prebuild && tsc --watch",
+    "test": "jest",
+    "coverage": "jest --coverage --coverageReporters=text-lcov"
   },
   "dependencies": {
-    "ethers": "^4.0.20",
-    "walletconnect-web3-subprovider": "^0.7.28",
+    "@walletconnect/browser": "^1.0.0-beta.3",
+    "@walletconnect/web3-subprovider": "^1.0.0-beta.3",
+    "ethers": "^4.0.23",
+    "tslint-react": "^3.6.0",
     "web3": "1.0.0-beta.34",
     "web3-provider-engine": "^14.1.0"
   },
   "devDependencies": {
-    "@babel/cli": "^7.1.5",
-    "@babel/core": "^7.2.2",
-    "@babel/plugin-syntax-dynamic-import": "^7.0.0",
-    "@babel/polyfill": "^7.0.0",
-    "@babel/preset-env": "^7.1.5",
-    "@babel/preset-react": "^7.0.0",
-    "@babel/register": "^7.0.0",
-    "@types/ethereumjs-util": "^5.2.0",
-    "@types/node": "^10.12.17",
-    "@types/qrcode.react": "^0.8.1",
-    "@types/react": "^16.7.17",
-    "@types/react-dom": "^16.0.11",
-    "@types/react-modal": "^3.6.0",
-    "@types/styled-components": "^4.1.4",
+    "@types/jest": "^24.0.0",
+    "@types/node": "^10.12.21",
+    "@types/react": "^16.8.0",
+    "@types/react-dom": "^16.8.0",
     "@types/web3": "^1.0.14",
     "@types/web3-provider-engine": "^14.0.0",
-    "babel-core": "^7.0.0-bridge.0",
-    "babel-eslint": "^10.0.1",
-    "babel-jest": "^23.6.0",
-    "babel-plugin-module-resolver": "^3.1.1",
     "coveralls": "^3.0.2",
-    "eslint": "^5.9.0",
-    "eslint-plugin-react": "^7.11.1",
-    "eslint-plugin-react-hooks": "0.0.0",
-    "jest": "^23.6.0",
-    "jest-dom": "^3.0.0",
-    "react": "^16.7.0-alpha.2",
-    "react-dom": "^16.7.0-alpha.2",
-    "react-testing-library": "^5.4.2",
-    "regenerator-runtime": "^0.13.1",
-    "typescript": "^3.2.2"
+    "jest": "^23.0.0",
+    "jest-dom": "^3.0.2",
+    "prettier": "1.16.4",
+    "react": "^16.8.0",
+    "react-dom": "^16.8.0",
+    "react-testing-library": "^5.5.3",
+    "ts-jest": "^23.10.5",
+    "tslint": "^5.12.1",
+    "tslint-config-prettier": "^1.18.0",
+    "typescript": "^3.3.1"
   },
   "peerDependencies": {
-    "react": "^16.7.0-alpha.2",
-    "react-dom": "^16.7.0-alpha.2"
-  },
-  "eslintConfig": {
-    "plugins": [
-      "react",
-      "react-hooks"
-    ],
-    "env": {
-      "es6": true,
-      "node": true,
-      "browser": true,
-      "jest": true
-    },
-    "parser": "babel-eslint",
-    "extends": [
-      "eslint:recommended",
-      "plugin:react/recommended"
-    ],
-    "rules": {
-      "react-hooks/rules-of-hooks": "error"
-    },
-    "settings": {
-      "react": {
-        "version": "16.7.0-alpha.2"
-      }
-    }
-  },
-  "babel": {
-    "presets": [
-      [
-        "@babel/env",
-        {
-          "targets": [
-            ">0.2%",
-            "not dead",
-            "not ie <= 11",
-            "not op_mini all"
-          ]
-        }
-      ],
-      "@babel/react"
-    ],
-    "plugins": [
-      "@babel/plugin-syntax-dynamic-import"
-    ]
+    "react": "^16.8.0",
+    "react-dom": "^16.8.0"
   }
 }

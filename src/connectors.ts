@@ -1,52 +1,51 @@
+// tslint:disable: max-classes-per-file
+import WalletConnect from '@walletconnect/browser'
+// import WalletConnectSubprovider from '@walletconnect/web3-subprovider'
 import EventEmitter from 'events'
 import ProviderEngine from 'web3-provider-engine'
-import RpcSubprovider from 'web3-provider-engine/subproviders/rpc'
-import WalletConnectSubprovider from '@walletconnect/web3-subprovider'
+import RpcSubprovider from 'web3-provider-engine/subproviders/rpc' // tslint:disable-line: no-submodule-imports
 
-import { getNewProvider, getNetworkId, getAccounts } from './libraries'
+import { getAccounts, getNetworkId, getNewProvider } from './libraries'
 
-import { Library, LibraryName, ConnectorArguments } from './types'
+import { IConnectorArguments, Library, LibraryName } from './types'
 
-interface ErrorCodes {
+interface IErrorCodes {
   [propName: string]: string
 }
 
-interface InjectedConnectorArguments extends ConnectorArguments {
+interface InjectedConnectorArguments extends IConnectorArguments {
   readonly listenForNetworkChanges?: boolean
   readonly listenForAccountChanges?: boolean
 }
 
-interface NetworkOnlyArguments extends ConnectorArguments {
+interface INetworkOnlyArguments extends IConnectorArguments {
   readonly providerURL: string
 }
 
-interface WalletConnectConnectorArguments extends NetworkOnlyArguments {
+interface IWalletConnectConnectorArguments extends INetworkOnlyArguments {
   readonly bridge: string
 }
 
-export function ErrorCodeMixin (Base: any, errorCodes: string[]) {
+export function ErrorCodeMixin(Base: any, errorCodes: string[]) {
   return class extends Base {
-    constructor(kwargs: ConnectorArguments = {}) {
+    constructor(kwargs: IConnectorArguments = {}) {
       super(kwargs)
     }
 
-    static get errorCodes(): ErrorCodes {
-      return errorCodes.reduce(
-        (accumulator: ErrorCodes, currentValue: string) => {
-          accumulator[currentValue] = currentValue
-          return accumulator
-        }, {}
-      )
+    static get errorCodes(): IErrorCodes {
+      return errorCodes.reduce((accumulator: IErrorCodes, currentValue: string) => {
+        accumulator[currentValue] = currentValue
+        return accumulator
+      }, {})
     }
   }
 }
 
 const ConnectorErrorCodes = ['UNSUPPORTED_NETWORK']
 export abstract class Connector extends ErrorCodeMixin(EventEmitter, ConnectorErrorCodes) {
-  readonly activateAccountImmediately: boolean
-  readonly supportedNetworks: ReadonlyArray<number> | undefined
+  private readonly supportedNetworks: ReadonlyArray<number> | undefined
 
-  constructor(kwargs: ConnectorArguments = {}) {
+  constructor(kwargs: IConnectorArguments = {}) {
     super()
 
     const { activateAccountImmediately, supportedNetworks } = kwargs
@@ -57,7 +56,21 @@ export abstract class Connector extends ErrorCodeMixin(EventEmitter, ConnectorEr
     this.active = false
   }
 
-  protected validateNetworkId (networkId: number) {
+  public async onActivation(): Promise<void> {
+    this.active = true
+    this.emit('Activated')
+  }
+
+  public onDeactivation(): void {
+    this.emit('Deactivated')
+    this.active = false
+  }
+
+  public abstract async getLibrary(libraryName: LibraryName): Promise<Library>
+  public abstract async getNetworkId(library: Library): Promise<number>
+  public abstract async getAccount(library: Library, fromActivateAccount?: boolean): Promise<string | null>
+
+  protected validateNetworkId(networkId: number) {
     if (this.supportedNetworks && !this.supportedNetworks.includes(networkId)) {
       const unsupportedNetworkError = Error(`Unsupported Network: ${networkId}.`)
       unsupportedNetworkError.code = Connector.errorCodes.UNSUPPORTED_NETWORK
@@ -66,26 +79,11 @@ export abstract class Connector extends ErrorCodeMixin(EventEmitter, ConnectorEr
 
     return networkId
   }
-
-  async onActivation (): Promise<void> {
-    this.active = true
-    this.emit('Activated')
-  }
-  onDeactivation (): void {
-    this.emit('Deactivated')
-    this.active = false
-  }
-  abstract async getLibrary (libraryName: LibraryName): Promise<Library>
-  abstract async getNetworkId (library: Library): Promise<number>
-  abstract async getAccount (library: Library, fromActivateAccount?: boolean): Promise<string | null>
 }
-
 
 const MetaMaskConnectorErrorCodes = ['ETHEREUM_ACCESS_DENIED', 'LEGACY_PROVIDER', 'NO_WEB3', 'UNLOCK_REQUIRED']
 export class MetaMaskConnector extends ErrorCodeMixin(Connector, MetaMaskConnectorErrorCodes) {
-  readonly listenForNetworkChanges: boolean
-  readonly listenForAccountChanges: boolean
-  private runOnDeactivation: Function[]
+  private runOnDeactivation: Array<() => void>
 
   constructor(kwargs: InjectedConnectorArguments = {}) {
     const { listenForNetworkChanges, listenForAccountChanges, ...rest } = kwargs
@@ -97,25 +95,16 @@ export class MetaMaskConnector extends ErrorCodeMixin(Connector, MetaMaskConnect
     this.runOnDeactivation = []
   }
 
-  private networkChangedHandler (networkId: number) {
-    this.emit('_web3ReactUpdateNetworkId', networkId)
-  }
-
-  private accountsChangedHandler (accounts: string[]) {
-    this.emit('_web3ReactUpdateAccount', accounts[0])
-  }
-
-  async onActivation () {
+  public async onActivation() {
     await super.onActivation()
     const { ethereum, web3 } = window
 
     if (ethereum) {
-      await ethereum.enable()
-        .catch(e => {
-          const deniedAccessError: Error = Error(`Access Denied: ${e.toString()}.`)
-          deniedAccessError.code = MetaMaskConnector.errorCodes.ETHEREUM_ACCESS_DENIED
-          throw deniedAccessError
-        })
+      await ethereum.enable().catch(e => {
+        const deniedAccessError: Error = Error(`Access Denied: ${e.toString()}.`)
+        deniedAccessError.code = MetaMaskConnector.errorCodes.ETHEREUM_ACCESS_DENIED
+        throw deniedAccessError
+      })
 
       // initialize event listeners
       if (ethereum.on && ethereum.removeListener) {
@@ -138,22 +127,22 @@ export class MetaMaskConnector extends ErrorCodeMixin(Connector, MetaMaskConnect
     }
   }
 
-  onDeactivation () {
+  public onDeactivation() {
     this.runOnDeactivation.forEach(runner => runner())
     this.runOnDeactivation = []
   }
 
-  async getLibrary (libraryName: LibraryName): Promise<Library> {
+  public async getLibrary(libraryName: LibraryName): Promise<Library> {
     const { ethereum } = window
     return getNewProvider(libraryName, 'injected', ethereum)
   }
 
-  async getNetworkId(library: Library) {
+  public async getNetworkId(library: Library) {
     const networkId = await getNetworkId(library)
     return this.validateNetworkId(networkId)
   }
 
-  async getAccount(library: Library) {
+  public async getAccount(library: Library) {
     const accounts: string[] = await getAccounts(library)
     if (!accounts || !accounts[0]) {
       const unlockRequiredError: Error = Error('Ethereum account locked.')
@@ -163,28 +152,36 @@ export class MetaMaskConnector extends ErrorCodeMixin(Connector, MetaMaskConnect
 
     return accounts[0]
   }
+
+  private networkChangedHandler(networkId: number) {
+    this.emit('_web3ReactUpdateNetworkId', networkId)
+  }
+
+  private accountsChangedHandler(accounts: string[]) {
+    this.emit('_web3ReactUpdateAccount', accounts[0])
+  }
 }
 
 export class NetworkOnlyConnector extends Connector {
-  readonly providerURL: string
+  public readonly providerURL: string
 
-  constructor(kwargs: NetworkOnlyArguments) {
+  constructor(kwargs: INetworkOnlyArguments) {
     const { providerURL, ...rest } = kwargs
     super(rest)
 
     this.providerURL = providerURL
   }
 
-  async getLibrary (libraryName: LibraryName): Promise<Library> {
+  public async getLibrary(libraryName: LibraryName): Promise<Library> {
     return getNewProvider(libraryName, 'http', this.providerURL)
   }
 
-  async getNetworkId(library: Library): Promise<number> {
+  public async getNetworkId(library: Library): Promise<number> {
     const networkId = await getNetworkId(library)
     return this.validateNetworkId(networkId)
   }
 
-  async getAccount(): Promise<null> {
+  public async getAccount(): Promise<null> {
     return null
   }
 }
@@ -193,11 +190,10 @@ export class InfuraConnector extends NetworkOnlyConnector {}
 
 const WalletConnectConnectorErrorCodes = ['WALLETCONNECT_TIMEOUT']
 export class WalletConnectConnector extends ErrorCodeMixin(Connector, WalletConnectConnectorErrorCodes) {
-  readonly bridge: string
   private engine: any
   private walletConnector: any
 
-  constructor(kwargs: WalletConnectConnectorArguments) {
+  constructor(kwargs: IWalletConnectConnectorArguments) {
     const { bridge, providerURL, activateAccountImmediately, ...rest } = kwargs
     super({ ...rest, activateAccountImmediately: true }) // we need to call getAccount every time....
 
@@ -205,22 +201,71 @@ export class WalletConnectConnector extends ErrorCodeMixin(Connector, WalletConn
 
     const engine = new ProviderEngine()
 
-    engine.addProvider(new WalletConnectSubprovider({
-      bridge: this.bridge
-    }))
+    // engine.addProvider(new WalletConnectSubprovider({
+    //   bridge: this.bridge
+    // }))
 
-    engine.addProvider(new RpcSubprovider({
-      rpcUrl: providerURL
-    }))
+    engine.addProvider(
+      new RpcSubprovider({
+        rpcUrl: providerURL
+      })
+    )
 
     engine.start()
 
+    const walletConnector = new WalletConnect({
+      bridge: 'https://bridge.walletconnect.org'
+    })
+
     this.engine = engine
-    this.walletConnector = this.engine._providers[0]._walletConnector
+    this.walletConnector = walletConnector
   }
 
-  private connectAndSessionUpdateHandler (error: Error, payload: any) {
-    console.log('inside handler')
+  public async onActivation() {
+    await super.onActivation()
+
+    if (!this.walletConnector.connected) {
+      await this.walletConnector.createSession()
+    }
+
+    this.uri = this.walletConnector.uri
+
+    // initialize event listeners
+    this.walletConnector.on('connect', this.connectAndSessionUpdateHandler)
+    this.walletConnector.on('session_update', this.connectAndSessionUpdateHandler)
+    this.walletConnector.on('disconnect', this.disconnectHandler)
+  }
+
+  public async getLibrary(libraryName: LibraryName): Promise<Library> {
+    return getNewProvider(libraryName, 'walletconnect', this.engine)
+  }
+
+  public async getNetworkId(library: Library) {
+    const networkId = await getNetworkId(library)
+    return this.validateNetworkId(networkId)
+  }
+
+  public async getAccount(library: Library, fromActivateAccount: boolean): Promise<string | null> {
+    if (!fromActivateAccount) {
+      return null
+    }
+
+    if (this.walletConnectSubprovider.connected) {
+      const accounts: string[] = await getAccounts(library)
+      if (!accounts || !accounts[0]) {
+        throw Error('No accounts found.')
+      }
+      return accounts[0]
+    }
+
+    return null
+  }
+
+  public async onDeactivation() {
+    // TODO remove listeners here once exposed in walletconnect
+  }
+
+  private connectAndSessionUpdateHandler(error: Error, payload: any) {
     if (error) {
       this.emit('_web3ReactError', error)
     } else {
@@ -236,55 +281,11 @@ export class WalletConnectConnector extends ErrorCodeMixin(Connector, WalletConn
     }
   }
 
-  private disconnectHandler (error: Error) {
+  private disconnectHandler(error: Error) {
     if (error) {
       this.emit('_web3ReactError', error)
     } else {
       this.emit('_web3ReactReset')
     }
-  }
-
-  async onActivation () {
-    await super.onActivation()
-
-    if (!this.walletConnector.connected) {
-      await this.walletConnector.createSession()
-    }
-
-    this.uri = this.walletConnector.uri
-
-    // initialize event listeners
-    this.walletConnector.on('connect', this.connectAndSessionUpdateHandler)
-    this.walletConnector.on('session_update', this.connectAndSessionUpdateHandler)
-    this.walletConnector.on('disconnect', this.disconnectHandler)
-  }
-
-  async getLibrary (libraryName: LibraryName): Promise<Library> {
-    return getNewProvider(libraryName, 'walletconnect', this.engine)
-  }
-
-  async getNetworkId(library: Library) {
-    const networkId = await getNetworkId(library)
-    return this.validateNetworkId(networkId)
-  }
-
-  async getAccount(library: Library, fromActivateAccount: boolean): Promise<string | null> {
-    window.walletConnector = this.walletConnector
-
-    if (!fromActivateAccount)
-      return null
-
-    if (this.walletConnectSubprovider.connected) {
-      const accounts: string[] = await getAccounts(library)
-      console.log(accounts)
-      if (!accounts || !accounts[0]) throw Error('No accounts found.')
-      return accounts[0]
-    }
-
-    return null
-  }
-
-  async onDeactivation () {
-    // TODO remove listeners here once exposed in walletconnect
   }
 }

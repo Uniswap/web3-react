@@ -1,60 +1,60 @@
-import Web3 = require('web3')
 import { ethers } from 'ethers'
-
-import { Connector } from './connectors'
+import Web3 = require('web3')
 
 export type LibraryName = 'web3.js' | 'ethers.js'
-export type Library = (
-  Web3 | ethers.providers.Provider | ethers.providers.Web3Provider | ethers.providers.JsonRpcProvider
-)
+export type Library =
+  | Web3
+  | ethers.providers.Provider
+  | ethers.providers.Web3Provider
+  | ethers.providers.JsonRpcProvider
 
-export interface ConnectorArguments {
+export interface IConnectorArguments {
   readonly activateAccountImmediately?: boolean
-  readonly supportedNetworks         ?: ReadonlyArray<number>
+  readonly supportedNetworks?: ReadonlyArray<number>
 }
 
-interface ValidWeb3ContextInterface {
-  library             : Library
-  networkId           : number
-  account             : string | null
-  error               : Error | null
+interface IValidWeb3ContextInterface {
+  library: Library
+  networkId: number
+  account: string | null
+  error: Error | null
 
-  networkReRenderer   : number
-  forceNetworkReRender: Function
-  accountReRenderer   : number
-  forceAccountReRender: Function
+  networkReRenderer: number
+  forceNetworkReRender: Function // tslint:disable-line: ban-types
+  accountReRenderer: number
+  forceAccountReRender: Function // tslint:disable-line: ban-types
 
-  active              : boolean
-  connectorName       : string
-  setConnector        : Function
-  activateAccount     : Function
-  unsetConnector      : Function
+  active: boolean
+  connectorName: string
+  setConnector: Function // tslint:disable-line: ban-types
+  activateAccount: Function // tslint:disable-line: ban-types
+  unsetConnector: Function // tslint:disable-line: ban-types
 }
 
-interface UndefinedWeb3ContextInterface {
-  library             ?: Library
-  networkId           ?: number
-  account             ?: string | null
-  error                : Error | null
+interface IUndefinedWeb3ContextInterface {
+  library?: Library
+  networkId?: number
+  account?: string | null
+  error: Error | null
 
-  networkReRenderer    : number
-  forceNetworkReRender : Function
-  accountReRenderer    : number
-  forceAccountReRender : Function
+  networkReRenderer: number
+  forceNetworkReRender: Function // tslint:disable-line: ban-types
+  accountReRenderer: number
+  forceAccountReRender: Function // tslint:disable-line: ban-types
 
-  active               : boolean
-  connectorName       ?: string
-  setConnector         : Function
-  activateAccount      : Function
-  unsetConnector       : Function
+  active: boolean
+  connectorName?: string
+  setConnector: Function // tslint:disable-line: ban-types
+  activateAccount: Function // tslint:disable-line: ban-types
+  unsetConnector: Function // tslint:disable-line: ban-types
 }
 
-export type Web3ContextInterface = ValidWeb3ContextInterface | UndefinedWeb3ContextInterface
+export type IWeb3ContextInterface = IValidWeb3ContextInterface | IUndefinedWeb3ContextInterface
 
-export function isValidWeb3ContextInterface(context: Web3ContextInterface): context is ValidWeb3ContextInterface {
+export function isValidWeb3ContextInterface(context: IWeb3ContextInterface): context is IValidWeb3ContextInterface {
   return !!(context.library && context.networkId && context.account !== undefined && context.connectorName)
 }
 
-export interface Connectors {
-  [propName: string]: Connector
+export interface IConnectors {
+  [propName: string]: any
 }

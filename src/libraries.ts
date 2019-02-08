@@ -1,13 +1,34 @@
-import Web3 = require('web3')
 import { ethers } from 'ethers'
+import Web3 = require('web3')
 
-import { toDecimal } from './utilities'
 import { Library, LibraryName } from './types'
+import { toDecimal } from './utilities'
 
-const ERC20_ABI = [{"constant":true,"inputs":[{"name":"_owner","type":"address"}],"name":"balanceOf","outputs":[{"name":"balance","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"decimals","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"}] // eslint-disable-line
+const ERC20_ABI = [
+  {
+    constant: true,
+    inputs: [{ name: '_owner', type: 'address' }],
+    name: 'balanceOf',
+    outputs: [{ name: 'balance', type: 'uint256' }],
+    payable: false,
+    stateMutability: 'view',
+    type: 'function'
+  },
+  {
+    constant: true,
+    inputs: [],
+    name: 'decimals',
+    outputs: [{ name: '', type: 'uint8' }],
+    payable: false,
+    stateMutability: 'view',
+    type: 'function'
+  }
+] // eslint-disable-line
 
-export function getNewProvider (
-  libraryName: LibraryName, method: 'http' | 'injected' | 'walletconnect', args: any
+export function getNewProvider(
+  libraryName: LibraryName,
+  method: 'http' | 'injected' | 'walletconnect',
+  args: any
 ): Library {
   switch (method) {
     case 'http':
@@ -48,64 +69,74 @@ function getNewWallectConnectProvider(libraryName: LibraryName, provider: any) {
   }
 }
 
-export async function getNetworkId (library: Library): Promise<number> {
-  if (isWeb3(library))
+export async function getNetworkId(library: Library): Promise<number> {
+  if (isWeb3(library)) {
     return library.eth.net.getId()
-  else
+  } else {
     return library.getNetwork().then(network => network.chainId)
+  }
 }
 
-export function getAccounts (library: Library): Promise<string[]> {
-  if (isWeb3(library))
+export function getAccounts(library: Library): Promise<string[]> {
+  if (isWeb3(library)) {
     return library.eth.getAccounts()
-  else {
-    if (!(library instanceof ethers.providers.JsonRpcProvider))
+  } else {
+    if (!(library instanceof ethers.providers.JsonRpcProvider)) {
       throw Error('This function can only be called with a JsonRpcProvider.')
+    }
     return library.listAccounts()
   }
 }
 
-export async function getAccountBalance (library: Library, address: string, format: any): Promise<string> {
-  if (isWeb3(library))
-    return (library as Web3).eth.getBalance(address)
-      .then(balance => (library as Web3).utils.fromWei(balance, format).toString(10))
-  else
-    return (library as ethers.providers.Provider).getBalance(address)
+export async function getAccountBalance(library: Library, address: string, format: any): Promise<string> {
+  if (isWeb3(library)) {
+    return (library as Web3).eth.getBalance(address).then(balance => (library as Web3).utils.fromWei(balance, format))
+  } else {
+    return (library as ethers.providers.Provider)
+      .getBalance(address)
       .then(balance => ethers.utils.formatUnits(balance, format))
+  }
 }
 
-export async function getERC20Balance (library: Library, ERC20Address: string, address: string): Promise<string> {
+export async function getERC20Balance(library: Library, ERC20Address: string, address: string): Promise<string> {
   if (isWeb3(library)) {
     const ERC20 = new (library as Web3).eth.Contract(ERC20_ABI, ERC20Address)
 
     const decimalsPromise = () => ERC20.methods.decimals().call()
     const balancePromise = () => ERC20.methods.balanceOf(address).call()
 
-    return Promise.all([decimalsPromise(), balancePromise()])
-      .then(([decimals, balance]) => toDecimal(balance, decimals))
+    return Promise.all([decimalsPromise(), balancePromise()]).then(([decimals, balance]) =>
+      toDecimal(balance, decimals)
+    )
   } else {
-    const ERC20 = new ethers.Contract(ERC20Address, ERC20_ABI, library as ethers.providers.Provider);
+    const ERC20 = new ethers.Contract(ERC20Address, ERC20_ABI, library as ethers.providers.Provider)
 
     const decimalsPromise = () => ERC20.decimals()
     const balancePromise = () => ERC20.balanceOf(address)
 
-    return Promise.all([decimalsPromise(), balancePromise()])
-      .then(([decimals, balance]) => toDecimal(balance, decimals))
+    return Promise.all([decimalsPromise(), balancePromise()]).then(([decimals, balance]) =>
+      toDecimal(balance, decimals)
+    )
   }
 }
 
-function getProvider (library: Library): any {
-  if (isWeb3(library))
+function getProvider(library: Library): any {
+  if (isWeb3(library)) {
     return library.currentProvider
-  else
+  } else {
     return (library as ethers.providers.Web3Provider)._web3Provider
+  }
 }
 
-export function sendAsync (library: Library, method: string, params: Array<any>, from: string) {
+export function sendAsync(library: Library, method: string, params: any[], from: string) {
   return new Promise((resolve, reject) => {
     getProvider(library).sendAsync({ method, params, from }, (error: Error, result: any) => {
-      if (error) return reject(error)
-      if (result.error) return reject(result.error.message)
+      if (error) {
+        return reject(error)
+      }
+      if (result.error) {
+        return reject(result.error.message)
+      }
       return resolve(result)
     })
   })

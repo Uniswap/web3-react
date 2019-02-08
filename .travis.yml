@@ -1,16 +1,19 @@
 branches:
   only:
-  - latest
-  - next
+    - latest
+    - next
+    - unstable
 language: node_js
 node_js:
-- '10'
+  - '10'
 cache:
   directories:
-  - node_modules
+    - node_modules
 install: npm install
 script:
-  - npm run build
-  - npm run test
+  - yarn ensureLinted
+  - yarn ensureFormatted
+  - yarn test
+  - yarn build
 after_script:
-  - npm run coverage | coveralls
+  - yarn coverage | coveralls

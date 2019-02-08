@@ -1,20 +1,18 @@
 import { createContext } from 'react'
 
-import { Web3ContextInterface } from './types'
+import { IWeb3ContextInterface } from './types'
 
-const defaultError = () => console.error('No Web3Provider Found.')
+const defaultError = () => console.error('No Web3Provider Found.') // tslint:disable-line: no-console
 const defaultContext = {
-  error               : null,
-
-  networkReRenderer   : NaN,
-  forceNetworkReRender: defaultError,
-  accountReRenderer   : NaN,
+  accountReRenderer: NaN,
+  activateAccount: defaultError,
+  active: false,
+  error: null,
   forceAccountReRender: defaultError,
-
-  active              : false,
-  setConnector        : defaultError,
-  activateAccount     : defaultError,
-  unsetConnector      : defaultError
+  forceNetworkReRender: defaultError,
+  networkReRenderer: NaN,
+  setConnector: defaultError,
+  unsetConnector: defaultError
 }
 
-export default createContext<Web3ContextInterface>(defaultContext)
+export default createContext<IWeb3ContextInterface>(defaultContext)

@@ -1,22 +1,23 @@
 {
   "compilerOptions": {
-    "rootDir": "./src",
+    "rootDir": "./src/",
     "outDir": "./dist/",
-
-    "lib": ["es2016", "dom"],
+    "lib": ["dom", "es5", "scripthost", "es2016"],
     "jsx": "react",
     "strict": true,
     "noImplicitAny": true,
     "noImplicitThis": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
     "strictNullChecks": true,
     "strictFunctionTypes": true,
-
     "declaration": true,
     "forceConsistentCasingInFileNames": true,
-
     "target": "es5",
     "module": "commonjs",
     "esModuleInterop": true,
+    "sourceMap": true
   },
-  "includes": "./src/**/*"
+  "include": ["./src/**/*"],
+  "exclude": ["./__tests__/**/*"]
 }
