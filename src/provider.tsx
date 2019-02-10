@@ -6,33 +6,38 @@ import { IConnectors, IWeb3ContextInterface, LibraryName } from './types'
 
 interface IWeb3ProviderProps {
   connectors: IConnectors
-  libraryName: LibraryName
+  libraryName?: LibraryName
+  reRendererNames?: string[]
   children: any
 }
 
-function Web3Provider({ connectors, libraryName = 'web3.js', children }: IWeb3ProviderProps) {
+function Web3Provider({ connectors, libraryName = 'web3.js', reRendererNames = [], children }: IWeb3ProviderProps) {
   const {
     web3Initialized: active,
     web3State,
     setConnector,
-    activateAccount,
+    setFirstValidConnector,
     unsetConnector,
-    reRenderers
-  } = useWeb3Manager(connectors, libraryName)
+    reRenderers,
+    forceReRender
+  } = useWeb3Manager(connectors, libraryName, reRendererNames)
 
   const { connectorName, library, networkId, account, error } = web3State
 
   const context: IWeb3ContextInterface = {
-    account,
-    activateAccount,
     active,
-    error,
+    connectorName,
     library,
     networkId,
-    ...reRenderers,
-    connectorName,
+    account, // tslint:disable-line: object-literal-sort-keys
+    error,
+
     setConnector,
-    unsetConnector
+    setFirstValidConnector,
+    unsetConnector,
+
+    reRenderers,
+    forceReRender
   }
 
   return <Web3Context.Provider value={context}>{children}</Web3Context.Provider>
@@ -52,24 +57,12 @@ function Web3Consumer({
   recreateOnAccountChange = true,
   children
 }: IWeb3ConsumerInterface) {
-  // tslint:disable-next-line: ban-types
-  const NetworkWrapper: Function = ({ networkId, networkChildren }: { networkId?: number; networkChildren: any }) =>
-    recreateOnNetworkChange && networkId ? (
-      <Fragment key={networkId}>{networkChildren}</Fragment>
-    ) : (
-      <>{networkChildren}</>
-    )
-
-  // tslint:disable-next-line: ban-types
-  const AccountWrapper: Function = ({ account, accountChildren }: { account?: string | null; accountChildren: any }) =>
-    recreateOnAccountChange && account ? <Fragment key={account}>{accountChildren}</Fragment> : <>{accountChildren}</>
-
   return (
     <Web3Context.Consumer>
       {(context: IWeb3ContextInterface) => (
-        <NetworkWrapper networkId={context.networkId}>
-          <AccountWrapper account={context.account}>{children(context)}</AccountWrapper>
-        </NetworkWrapper>
+        <Fragment key={(recreateOnNetworkChange && context.networkId) || undefined}>
+          <Fragment key={(recreateOnAccountChange && context.account) || undefined}>{children(context)}</Fragment>
+        </Fragment>
       )}
     </Web3Context.Consumer>
   )
@@ -85,10 +78,7 @@ interface IWithWeb3Interface {
 
 export function withWeb3(
   ComponentToWrap: any,
-  { recreateOnNetworkChange = true, recreateOnAccountChange = true }: IWithWeb3Interface = {
-    recreateOnAccountChange: true,
-    recreateOnNetworkChange: true
-  }
+  { recreateOnNetworkChange = true, recreateOnAccountChange = true }: IWithWeb3Interface
 ): any {
   class WithWeb3 extends Component {
     public render() {

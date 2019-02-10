@@ -23,35 +23,16 @@ const ERC20_ABI = [
     stateMutability: 'view',
     type: 'function'
   }
-] // eslint-disable-line
+]
 
-export function getNewProvider(
-  libraryName: LibraryName,
-  method: 'http' | 'injected' | 'walletconnect',
-  args: any
-): Library {
-  switch (method) {
-    case 'http':
-      return getNewHttpProvider(libraryName, args)
-    case 'injected':
-      return getNewInjectedProvider(libraryName, args)
-    case 'walletconnect':
-      return getNewWallectConnectProvider(libraryName, args)
-    default:
-      throw Error('Unrecognized case.')
-  }
+// general functions to manage providers/libraries
+export function getNewLibraryFromURL(libraryName: LibraryName, providerURL: string): Library {
+  // TODO this could/should probably be refactored on a per-libraryName basis
+  const provider = new Web3.providers.HttpProvider(providerURL)
+  return getNewLibraryFromProvider(libraryName, provider)
 }
 
-function getNewHttpProvider(libraryName: LibraryName, providerURL: string) {
-  switch (libraryName) {
-    case 'web3.js':
-      return new Web3(new Web3.providers.HttpProvider(providerURL))
-    case 'ethers.js':
-      return new ethers.providers.JsonRpcProvider(providerURL)
-  }
-}
-
-function getNewInjectedProvider(libraryName: LibraryName, provider: any) {
+export function getNewLibraryFromProvider(libraryName: LibraryName, provider: any) {
   switch (libraryName) {
     case 'web3.js':
       return new Web3(provider)
@@ -60,15 +41,19 @@ function getNewInjectedProvider(libraryName: LibraryName, provider: any) {
   }
 }
 
-function getNewWallectConnectProvider(libraryName: LibraryName, provider: any) {
-  switch (libraryName) {
-    case 'web3.js':
-      return new Web3(provider)
-    case 'ethers.js':
-      return new ethers.providers.Web3Provider(provider)
+function getProviderFromLibrary(library: Library): any {
+  if (isWeb3(library)) {
+    return library.currentProvider
+  } else {
+    return (library as ethers.providers.Web3Provider)._web3Provider
   }
 }
 
+export function isWeb3(library: Library): library is Web3 {
+  return (library as Web3).version === '1.0.0-beta.34'
+}
+
+// a few specific functions that cut across libraries
 export async function getNetworkId(library: Library): Promise<number> {
   if (isWeb3(library)) {
     return library.eth.net.getId()
@@ -90,17 +75,16 @@ export function getAccounts(library: Library): Promise<string[]> {
 
 export async function getAccountBalance(library: Library, address: string, format: any): Promise<string> {
   if (isWeb3(library)) {
-    return (library as Web3).eth.getBalance(address).then(balance => (library as Web3).utils.fromWei(balance, format))
+    return library.eth.getBalance(address).then(balance => library.utils.fromWei(balance, format))
   } else {
-    return (library as ethers.providers.Provider)
-      .getBalance(address)
-      .then(balance => ethers.utils.formatUnits(balance, format))
+    return library.getBalance(address).then(balance => ethers.utils.formatUnits(balance, format))
   }
 }
 
 export async function getERC20Balance(library: Library, ERC20Address: string, address: string): Promise<string> {
+  // TODO think about refactoring this type of logic to use only one library internally via getProviderFromLibrary
   if (isWeb3(library)) {
-    const ERC20 = new (library as Web3).eth.Contract(ERC20_ABI, ERC20Address)
+    const ERC20 = new library.eth.Contract(ERC20_ABI, ERC20Address)
 
     const decimalsPromise = () => ERC20.methods.decimals().call()
     const balancePromise = () => ERC20.methods.balanceOf(address).call()
@@ -120,28 +104,17 @@ export async function getERC20Balance(library: Library, ERC20Address: string, ad
   }
 }
 
-function getProvider(library: Library): any {
-  if (isWeb3(library)) {
-    return library.currentProvider
-  } else {
-    return (library as ethers.providers.Web3Provider)._web3Provider
-  }
-}
-
+// generic handler for all other class
 export function sendAsync(library: Library, method: string, params: any[], from: string) {
   return new Promise((resolve, reject) => {
-    getProvider(library).sendAsync({ method, params, from }, (error: Error, result: any) => {
+    getProviderFromLibrary(library).sendAsync(method, params, from, (error: Error, result: any) => {
       if (error) {
-        return reject(error)
-      }
-      if (result.error) {
+        reject(error)
+      } else if (result.error) {
         return reject(result.error.message)
+      } else {
+        resolve(result)
       }
-      return resolve(result)
     })
   })
-}
-
-export function isWeb3(library: Library): library is Web3 {
-  return (library as Web3).version === '1.0.0-beta.34'
 }

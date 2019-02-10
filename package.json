@@ -37,10 +37,8 @@
     "coverage": "jest --coverage --coverageReporters=text-lcov"
   },
   "dependencies": {
-    "@walletconnect/browser": "^1.0.0-beta.3",
     "@walletconnect/web3-subprovider": "^1.0.0-beta.3",
     "ethers": "^4.0.23",
-    "tslint-react": "^3.6.0",
     "web3": "1.0.0-beta.34",
     "web3-provider-engine": "^14.1.0"
   },
@@ -61,6 +59,7 @@
     "ts-jest": "^23.10.5",
     "tslint": "^5.12.1",
     "tslint-config-prettier": "^1.18.0",
+    "tslint-react": "^3.6.0",
     "typescript": "^3.3.1"
   },
   "peerDependencies": {

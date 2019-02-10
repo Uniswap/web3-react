@@ -1,10 +1,10 @@
-import { useContext, useEffect, useReducer, useState } from 'react'
+import { useContext, useReducer } from 'react'
 
 import Web3Context from './context'
 import { isValidWeb3ContextInterface, IWeb3ContextInterface } from './types'
 import {
-  getAccountBalance,
-  getERC20Balance,
+  // getAccountBalance,
+  // getERC20Balance,
   getEtherscanLink,
   getNetworkName,
   sendTransaction,
@@ -26,65 +26,65 @@ export function useEtherscanLink(type: string, data: string, networkId?: number)
   return context.networkId ? getEtherscanLink(networkId || context.networkId, type, data) : undefined
 }
 
-export function useAccountEffect(effect: React.EffectCallback, depends?: any[]) {
-  const context = useWeb3Context()
-  const defaultReRenderers = [context.networkId, context.account, context.accountReRenderer]
-  useEffect(effect, depends ? [...depends, ...defaultReRenderers] : defaultReRenderers)
-}
+// export function useAccountEffect(effect: React.EffectCallback, depends?: any[]) {
+//   const context = useWeb3Context()
+//   const defaultReRenderers = [context.networkId, context.account, context.accountReRenderer]
+//   useEffect(effect, depends ? [...depends, ...defaultReRenderers] : defaultReRenderers)
+// }
 
-export function useNetworkEffect(effect: React.EffectCallback, depends?: any[]) {
-  const context = useWeb3Context()
-  const defaultReRenderers = [context.networkId, context.networkReRenderer]
-  useEffect(effect, depends ? [...depends, ...defaultReRenderers] : defaultReRenderers)
-}
+// export function useNetworkEffect(effect: React.EffectCallback, depends?: any[]) {
+//   const context = useWeb3Context()
+//   const defaultReRenderers = [context.networkId, context.networkReRenderer]
+//   useEffect(effect, depends ? [...depends, ...defaultReRenderers] : defaultReRenderers)
+// }
 
-export function useAccountAndNetworkEffect(effect: React.EffectCallback, depends?: any[]) {
-  const context = useWeb3Context()
-  const defaultReRenderers = [context.networkId, context.account, context.accountReRenderer, context.networkReRenderer]
-  useAccountEffect(effect, depends ? [...depends, ...defaultReRenderers] : defaultReRenderers)
-}
+// export function useAccountAndNetworkEffect(effect: React.EffectCallback, depends?: any[]) {
+//   const context = useWeb3Context()
+//   const defaultReRenderers = [context.networkId, context.account, context.accountReRenderer, context.networkReRenderer]
+//   useAccountEffect(effect, depends ? [...depends, ...defaultReRenderers] : defaultReRenderers)
+// }
 
-export function useAccountBalance({
-  address,
-  numberOfDigits = 3,
-  format
-}: { address?: string; numberOfDigits?: number; format?: string } = {}): string | undefined {
-  const context = useWeb3Context()
-  const [balance, setBalance]: [any, any] = useState(undefined)
+// export function useAccountBalance({
+//   address,
+//   numberOfDigits = 3,
+//   format
+// }: { address?: string; numberOfDigits?: number; format?: string } = {}): string | undefined {
+//   const context = useWeb3Context()
+//   const [balance, setBalance]: [any, any] = useState(undefined)
 
-  useAccountEffect(() => {
-    if (isValidWeb3ContextInterface(context)) {
-      const addressToCheck = address ? address : context.account
-      if (addressToCheck === null) {
-        throw Error('tests')
-      }
-      getAccountBalance(context.library, addressToCheck, format).then((accountBalance: string) =>
-        setBalance(Number(accountBalance).toLocaleString(undefined, { maximumFractionDigits: numberOfDigits }))
-      )
-    }
-  })
+//   useAccountEffect(() => {
+//     if (isValidWeb3ContextInterface(context)) {
+//       const addressToCheck = address ? address : context.account
+//       if (addressToCheck === null) {
+//         throw Error('tests')
+//       }
+//       getAccountBalance(context.library, addressToCheck, format).then((accountBalance: string) =>
+//         setBalance(Number(accountBalance).toLocaleString(undefined, { maximumFractionDigits: numberOfDigits }))
+//       )
+//     }
+//   })
 
-  return balance
-}
+//   return balance
+// }
 
-export function useERC20Balance(ERC20Address: string, address: string, numberOfDigits: number = 3): string | undefined {
-  const context = useWeb3Context()
-  const [ERC20Balance, setERC20Balance]: [undefined | string, any] = useState(undefined)
+// export function useERC20Balance(ERC20Address: string, address: string, numberOfDigits: number = 3): string | undefined {
+//   const context = useWeb3Context()
+//   const [ERC20Balance, setERC20Balance]: [undefined | string, any] = useState(undefined)
 
-  useAccountEffect(() => {
-    if (isValidWeb3ContextInterface(context)) {
-      const addressToCheck = address ? address : context.account
-      if (addressToCheck === null) {
-        throw Error('tests')
-      }
-      getERC20Balance(context.library, ERC20Address, context.account || address).then((erc20Balance: string) =>
-        setERC20Balance(Number(erc20Balance).toLocaleString(undefined, { maximumFractionDigits: numberOfDigits }))
-      )
-    }
-  })
+//   useAccountEffect(() => {
+//     if (isValidWeb3ContextInterface(context)) {
+//       const addressToCheck = address ? address : context.account
+//       if (addressToCheck === null) {
+//         throw Error('tests')
+//       }
+//       getERC20Balance(context.library, ERC20Address, context.account || address).then((erc20Balance: string) =>
+//         setERC20Balance(Number(erc20Balance).toLocaleString(undefined, { maximumFractionDigits: numberOfDigits }))
+//       )
+//     }
+//   })
 
-  return ERC20Balance
-}
+//   return ERC20Balance
+// }
 
 const initialSignature = {
   data: {
