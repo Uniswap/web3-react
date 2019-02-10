@@ -5,6 +5,7 @@
 ![Example GIF](./_assets/example.gif)
 
 ## Resources
+
 - Documentation for `web3-react` is [available on Gitbook](https://noahzinsmeister.gitbook.io/web3-react/v/unstable/).
 
 - A live demo of `web3-react` is [available on CodeSandbox](https://codesandbox.io/s/w68nr06x77).
@@ -24,11 +25,12 @@
 ## Implementations
 
 Projects using `web3-react` include:
+
 - https://github.com/NoahHydro/snowflake-dashboard
 - https://conlan.github.io/compound-liquidator/
 - https://uniswap.info
 
-Open a PR to add your project to the list! If you're interested in contributing, check out [Contributing-Guidelines.md](./Contributing-Guidelines.md).
+Open a PR to add your project to the list! If you're interested in contributing, check out [Contributing-Guidelines.md](./docs/Contributing-Guidelines.md).
 
 ## Quickstart
 
@@ -38,24 +40,21 @@ If you want to cut straight to the chase, check out the CodeSandbox demo!
 
 ### 1. Install
 
-Since `web3-react` uses [Hooks](https://reactjs.org/docs/hooks-intro.html), make sure that your project relies on the correct alpha builds of `react` and `react-dom`:
+Ensure you have an up-to-date `react` and `react-dom` version:
 
 ```bash
-npm install react@16.7.0-alpha.2 react-dom@16.7.0-alpha.2
+yarn add react@latest react-dom@latest
 ```
 
 Then, get the npm package:
 
 ```bash
-npm install web3-react@unstable
+yarn add web3-react@unstable
 ```
 
 ### 2. Setup Connectors
-Now, decide how you want users to interact with your dApp. For the vast majority of dApps, this will be with some combination of MetaMask/Infura/WalletConnect. For more details see [Connectors.md](./Connectors.md).
 
-If you want `web3-react` to try to automatically initialize some of your connectors, pass the optional `automaticPriority` parameter to as many of your connectors as you want to try, where `automaticPriority` is a number whose sort order determines the connector's precedence order.
-
-Your connectors should end up looking something like the following:
+Now, decide how you want users to interact with your dApp. For the vast majority of dApps, this will be with some combination of MetaMask/Infura/WalletConnect. For more details see [Connectors.md](./docs/Connectors.md).
 
 ```javascript
 import { MetaMaskConnector, InfuraConnector, WalletConnectConnector } from 'web3-react/connectors'
@@ -64,13 +63,15 @@ const connectors = {
   metamask: new MetaMaskConnector(),
   infura: new InfuraConnector({ providerURL: 'https://mainnet.infura.io/v3/<YOUR-API-KEY>' }),
   walletConnect: new WalletConnectConnector({
-    providerURL: 'https://mainnet.infura.io/v3/<YOUR-API-KEY>',
-    dappName: '<YOUR-DAPP-NAME>', bridgeURL: 'https://test-bridge.walletconnect.org'
+    bridge: 'https://bridge.walletconnect.org',
+    supportedNetworkURLs: { 1: 'https://mainnet.infura.io/v3/<YOUR-API-KEY>' },
+    defaultNetwork: 1
   })
 }
 ```
 
 ### 3. Setup `Web3Provider`
+
 The next step is to setup a `Web3Provider` at the root of your dApp. This ensures that children components are able to take advantage of the `web3-react` context variables.
 
 ```javascript
@@ -81,8 +82,8 @@ export default function App () {
   return (
     <Web3Provider
       connectors={...}
-      passive={...}
-      ...
+      libraryName={...}
+      reRendererNames={...}
     >
       ...
     </Web3Provider>
@@ -90,48 +91,38 @@ export default function App () {
 }
 ```
 
-`Web3Provider` takes 5 props:
+`Web3Provider` takes 4 props:
 
 1. `connectors` (required): An object mapping connector names to Connectors (see the previous section).
 
-1. `passive` (required): Determines whether users must have an active Connector before using your dApp. Passing `true` means that the `InitializingWeb3` screen will be (at least initially) bypassed and all `web3-react` context variables will be inactive. In order to activate the context, call [`activate` or `setConnector`](#Manager-Functions). Passing `false` means that `web3-react` will try to automatically initialize connectors if any are set, or show the `InitializingWeb3` screen.
+2. `libraryName` (optional): `web3.js` or `ethers.js`, depending on which library you wish to use in your dApp.
 
-1. `screens` (optional): React Components which will be displayed according to the user's current status. Note that these screens are lazily loaded with [React.lazy](https://reactjs.org/docs/code-splitting.html#reactlazy), and therefore are not SSR-compatible.
+3. `reRendererNames` (optional) strings which with you wish to control specific re-renders of data after, e.g. a transaction confirmation.
 
-  - `InitializingWeb3`: Shown when users are picking between Connectors, or while a Connector is being initialized. It takes props as defined in the source code (docs forthcoming).
-
-  - `Web3Error`: Shown whenever an error occurs. It takes props as defined in the source code (docs forthcoming).
-
-1. `libraryName` (optional): `web3.js` or `ethers.js`, depending on which library you wish to use in your dApp.
-
-1. `children` (required): The rest of your dApp.
+4. `children` (required): The rest of your dApp.
 
 ### 4. Using `web3-react`
+
 Finally, you're ready to use `web3-react`!
 
-#### *Recommended* - Hooks
+#### _Recommended_ - Hooks
+
 The easiest way to use `web3-react` is with Hooks.
 
 ```javascript
 import React from 'react'
-import { useWeb3Context, useAccountBalance } from 'web3-react/hooks'
+import { useWeb3Context } from 'web3-react/hooks'
 
-function MyComponent () {
+function MyComponent() {
   const context = useWeb3Context()
-  const balance = useAccountBalance()
 
-  return (
-    <>
-      <p>{context.account}</p>
-      <p>{balance}</p>
-    </>
-  )
+  return <p>{context.account}</p>
 }
 ```
 
-For more details see [Hooks.md](./Hooks.md).
+For more details see [Hooks.md](./docs/Hooks.md).
 
-#### *Conditionally Recommended* - Render Props
+#### _Conditionally Recommended_ - Render Props
 
 To use `web3-react` with render props, wrap Components in a `Web3Consumer`. It takes two props:
 
@@ -139,42 +130,33 @@ To use `web3-react` with render props, wrap Components in a `Web3Consumer`. It t
 
 1. `recreateOnAccountChange` (optional, default `true`). A flag that controls whether child components are freshly re-initialized upon account changes.
 
-Note: Re-initialization is often the desired behavior, though properly written Hooks do not require these flags to be set.
+Note: Re-initialization is often the desired behavior, though properly written Hooks may not require these flags to be set.
 
 ```javascript
 import React from 'react'
 import { Web3Consumer } from 'web3-react'
 
-function AccountComponent (props) {
-  const { account } = props
+function AccountComponent({ account }) {
   return <p>{account}</p>
 }
 
-function MyComponent () {
-  return (
-    <Web3Consumer>
-      {context =>
-        <AccountComponent account={context.account} />
-      }
-    </Web3Consumer>
-  )
+function MyComponent() {
+  return <Web3Consumer>{context => <AccountComponent account={context.account} />}</Web3Consumer>
 }
 ```
 
 Note: This pattern will work for arbitrarily deeply nested components. This means that the `Web3Consumer` doesn't necessarily need to be at the top level of your app. There also won't be performance concerns if you choose to use multiple `Web3Consumer`s at different nesting levels.
 
-#### *Not Recommended* - HOCs
-If you must, you use `web3-react` with an [HOC](https://reactjs.org/docs/context.html#consuming-context-with-a-hoc). The `withWeb3` wrapper's second argument can optionally be the recreate flags from the render props pattern.
+#### _Not Recommended_ - HOCs
 
+If you must, you use `web3-react` with an [HOC](https://reactjs.org/docs/context.html#consuming-context-with-a-hoc). The `withWeb3` wrapper's second argument can optionally be the recreate flags from the render props pattern.
 
 ```javascript
 import React from 'react'
 import { withWeb3 } from 'web3-react'
 
-function MyComponent (props) {
-  const { web3 } = props
+function MyComponent({ web3 }) {
   const { account } = web3
-
   return <p>{account}</p>
 }
 
@@ -189,57 +171,77 @@ Regardless of how you inject the context, it looks like:
 
 ```typescript
 {
-  library             : Library
-  networkId           : number
-  account             : string | null
+  active: boolean
+  connectorName?: string
+  library?: Library
+  networkId?: number
+  account?: string | null
+  error: Error | null
 
-  networkReRenderer   : number
-  forceNetworkReRender: Function
-  accountReRenderer   : number
-  forceAccountReRender: Function
+  setConnector: Function
+  setFirstValidConnector: Function
+  unsetConnector: Function
 
-  connectorName       : string
-  activate            : Function
-  activateAccount     : Function
-  setConnector        : Function
-  resetConnectors     : Function
+  reRenderers: IReRendererState
+  forceReRender: Function
 }
 ```
 
 ### Variables
+
+- `active`: A flag for whether `web3-react` has been initialized.
+- `connectorName`: The name of the currently active connector
 - `library`: A [web3.js](https://web3js.readthedocs.io/en/1.0/) or [ethers.js](https://github.com/ethers-io/ethers.js/) instance instantiated with the current web3 provider.
 - `networkId`: The current active network ID.
 - `account`: The current active account.
-
-### Renderers
-These variables/functions facilitate the re-rendering of data derived from `account` or `networkId` (such as a user's balance, which can change over time without their actual `account` changing). For how to use these reRenderers, see [src/web3Hooks.ts](./src/web3Hooks.ts). `useAccountEffect` and `useNetworkEffect` convenience wrappers for `useEffect` are available as named exports of `web3-react/hooks`; they take care of re-renders automatically.
-
-- `accountReRenderer`: Forces re-renders of account-derived data when included in `useEffect` hook depends arrays.
-- `forceAccountReRender`: A function that triggers a global re-render for Hooks depending on `accountReRenderer`.
-- `networkReRenderer`: Forces re-renders of network-derived data when included in `useEffect` hook depends arrays.
-- `forceNetworkReRender`: A function that triggers a global re-render for Hooks depending on `networkReRenderer`.
+- `error`: A global error if one exists.
 
 ### Manager Functions
-- `connectorName`: The name of the current, active connector.
-- `activate()`: Callable only when `passive` is true and `web3-react` is uninitialized, this triggers activation, which either shows the `InitializingWeb3` screen, or tries each `automaticPriority` connector and reacts accordingly.
-- `activateAccount()`: Callable only when `activateAccountAutomatically` is set to false for the active connector, and the account has not yet been loaded. Triggers a call to the `getAccount` method of the active connector.
+
 - `setConnector(connectorName)`: Activates a connector.
-- `resetConnectors(tryAutomaticAgain, deactivate)`: Resets connectors. `tryAutomaticAgain` controls whether automatic connectors are attempted, and `deactivate` controls whether the application is brought back into a `passive` state.
+- `setFirstValidConnector(connectorName)`: Tries to activate each connector in turn.
+- `unsetConnector()`: Resets the currently active connector.
+
+### Renderers
+
+These variables/functions facilitate the re-rendering of specific data. For example, a user's balance can change over time.
+
+```javascript
+import { useEffect } from 'react'
+import { useWeb3Context } from 'web3-react/hooks'
+
+const reRendererNames = ['MyReRenderer']
+// assume this array was passed to the Web3Provider...
+
+function MyComponent() {
+  const context = useWeb3Context()
+
+  useEffect(() => {
+    // run code here that should run again when calling context.forceReRender('MyReRenderer')
+  }, [context.reRenderers.MyReRenderer])
+
+  ...
+}
+```
+
+- `reRenderers`: An object, where the keys are the `reRendererNames` passed into the `Web3Provider` and the values force re-renders of specific data when included in `useEffect` hook updaters.
+- `forceReRender(reRendererName)`: A function that triggers a global re-render of the `reRendererName`.
 
 ## Utility Functions
 
-Documentation for the utility functions exported by `web3-react` can be found in [Utilities.md](./Utilities.md).
+Documentation for the utility functions exported by `web3-react` can be found in [Utilities.md](./docs/Utilities.md).
 
 ## Hooks
 
-Documentation for the hooks exported by `web3-react` can be found in [Hooks.md](./Hooks.md).
+Documentation for the hooks exported by `web3-react` can be found in [Hooks.md](./docs/Hooks.md).
 
 ## Notes
+
 Prior art for `web3-react` includes:
 
 - A pure Javascript implementation with some of the same goals: [web3-webpacked](https://github.com/NoahZinsmeister/web3-webpacked).
 
 - A non-Hooks port of [web3-webpacked](https://github.com/NoahZinsmeister/web3-webpacked) to React that had some problems:
-[web3-webpacked-react](https://github.com/NoahZinsmeister/web3-webpacked-react).
+  [web3-webpacked-react](https://github.com/NoahZinsmeister/web3-webpacked-react).
 
 - A React library with some of the same goals but that uses the deprecated React Context API and not Hooks: [react-web3](https://github.com/coopermaruyama/react-web3).

@@ -1,15 +1,13 @@
 // tslint:disable-next-line: no-implicit-dependencies no-submodule-imports
 import 'jest-dom/extend-expect'
 import React from 'react'
-import {
-  render /* fireEvent, act, waitForElement */
-} from 'react-testing-library' // tslint:disable-line: no-implicit-dependencies
+import { render /* fireEvent, act, waitForElement */ } from 'react-testing-library' // tslint:disable-line: no-implicit-dependencies
 
-import { InfuraConnector } from '../src/connectors'
+import { NetworkOnlyConnector } from '../src/connectors'
 import { useWeb3Context } from '../src/hooks'
 import Web3Provider from '../src/provider'
 
-const infura = new InfuraConnector({
+const infura = new NetworkOnlyConnector({
   providerURL: 'https://rinkeby.infura.io/v3/3f0fa5d9c4064d6e8427efac291d66df'
 })
 const connectors = { infura }
@@ -26,15 +24,14 @@ function MyComponent() {
 function MyChildComponent() {
   const context = useWeb3Context()
 
+  function setInfura() {
+    context.setConnector('infura')
+  }
+
   return (
     <>
-      <button
-        data-testid="set-connector"
-        onClick={() => context.setConnector('infura')}
-      />
-      {context.networkId ? (
-        <p data-testid="dynamic-networkid">{context.networkId}</p>
-      ) : null}
+      <button data-testid="set-connector" onClick={setInfura} />
+      {context.networkId ? <p data-testid="dynamic-networkid">{context.networkId}</p> : null}
     </>
   )
 }

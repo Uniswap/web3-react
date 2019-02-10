@@ -28,6 +28,10 @@ const networkDataById: { [propName: string]: INetworkId } = {
     etherscanPrefix: 'rinkeby.',
     name: 'Rinkeby'
   },
+  5: {
+    etherscanPrefix: 'goerli.',
+    name: 'Görli'
+  },
   42: {
     etherscanPrefix: 'kovan.',
     name: 'Kovan'

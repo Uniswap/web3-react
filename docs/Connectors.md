@@ -2,65 +2,52 @@
 
 Connectors are Javascript classes that define how your dApp will interact with the blockchain and user accounts. Connectors are _fully extensible_, meaning that if you don't like any of the options documented below, you can implement your own! `web3-react` will work just the same. For more information, see [Custom-Connectors.md](./Custom-Connectors.md)
 
-## Common Constructor Arguments
-
-All constructors take at least the following three (optional) constructor arguments.
-
-```typescript
-interface ConnectorArguments {
-  readonly activateAccountAutomatically?: boolean
-  readonly supportedNetworks           ?: ReadonlyArray<number>
-  readonly automaticPriority           ?: number
-}
-```
-
-- `activateAccountAutomatically`- Controls whether an account is automatically fetched when the connector is activated.
-- `supportedNetworks` - Enforces that the web3 instance is connected to a particular network. If the detected network ID is not in the passed list, the `Web3Error` screen will be shown with an error with code `UNSUPPORTED_NETWORK`. Supported network IDs are: `1` (Mainnet), `3` (Ropsten), `4` (Rinkeby), and `42` (Kovan).
 - `automaticPriority` - Controls the order in which connectors will try to be automatically initialized.
 
-## Generic Connectors
-### `InjectedConnector`
-Manages connectivity to an injected web3 provider, such as MetaMask or Trust Wallet.
-
-```javascript
-import { InjectedConnector } from 'web3-react/connectors'
-```
-
-### `NetworkOnlyConnector``
-Manages connectivity to a remote web3 provider such as Infura.
-
-```javascript
-import { NetworkOnlyConnector } from 'web3-react/connectors'
-```
-
-## Specific Connectors
 ### `MetaMaskConnector`
-Extends `InjectedConnector`, specifically for MetaMask.
+
+Manages connectivity to [MetaMask](https://metamask.io/).
 
 ```javascript
 import { MetaMaskConnector } from 'web3-react/connectors'
 
-const metamaskConnector = MetaMaskConnector({ ... })
+const metamaskConnector = MetaMaskConnector({ supportedNetworks: ... })
 ```
 
-### `InfuraConnector`
-Extends `NetworkOnlyConnector`, specifically for Infura. Get an [Infura API key here](https://infura.io/).
+Optional Arguments:
+
+- `supportedNetworks` - Enforces that MetaMask is connected to a particular network. Supported network IDs are: `1` (Mainnet), `3` (Ropsten), `4` (Rinkeby), `5` (Görli) and `42` (Kovan).
+
+### `NetworkOnlyConnector``
+
+Manages connectivity to a remote web3 provider such as [Infura](https://infura.io/).
 
 ```javascript
-import { InfuraConnector } from 'web3-react/connectors'
+import { NetworkOnlyConnector } from 'web3-react/connectors'
 
-const infuraConnector = InfuraConnector({ providerURL: ..., ... })
+const infuraConnector = InfuraConnector({ providerURL: ... })
 ```
 
+Required Arguments:
+
+- `providerURL` - The URL of a remote node.
+
 ### `WalletConnectConnector`
-Extends `NetworkOnlyConnector`, specifically for WalletConnect. Read [more about WalletConnect here](https://docs.walletconnect.org/).
+
+Manages connectivity to a [WalletConnect](https://docs.walletconnect.org/) wallet.
 
 ```javascript
 import { WalletConnectConnector } from 'web3-react/connectors'
 
 const walletConnectConnector = WalletConnectConnector({
-  bridgeURL: ..., dappName: ..., providerURL: ..., ...
+  bridge: ..., supportedNetworkURLs: ..., defaultNetwork: ...
 })
 ```
 
-Note: On activation, `WalletConnectConnector` emits a `URIAvailable` event with the URI as an argument, which must be scanned by the user for activation to be complete.
+Required Arguments:
+
+- `bridge` - The URL of the WalletConnect bridge.
+- `supportedNetworkURLs` - An object mapping network IDs to remote nodes.
+- `defaultNetwork` - The network ID (as a number) to use as the default provider. Must be a member of `supportedNetworkURLs`.
+
+The URI is exposed as `walletConnectConnector.uri`.
