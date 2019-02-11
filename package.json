@@ -1,6 +1,6 @@
 {
   "name": "web3-react",
-  "version": "2.0.12",
+  "version": "2.0.13",
   "description": "Drop in solution for building Ethereum dApps in React.",
   "author": "Noah Zinsmeister <noahwz@gmail.com>",
   "keywords": [
@@ -25,7 +25,6 @@
     "url": "https://github.com/NoahZinsmeister/web3-react/issues"
   },
   "main": "./dist/provider.js",
-  "types": "./dist/types.d.ts",
   "scripts": {
     "postinstall": "rm -f node_modules/web3/index.d.ts",
     "ensureLinted": "yarn tslint 'src/**/*'",
