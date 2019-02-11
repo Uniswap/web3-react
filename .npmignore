@@ -1,5 +1,5 @@
 __tests__/
 _assets/
-docs/
 src/
 .travis.yml
+*.md

@@ -189,45 +189,23 @@ export class MetaMaskConnector extends ErrorCodeMixin(Connector, MetaMaskConnect
   }
 }
 
-export class NetworkOnlyConnector extends Connector {
-  private readonly providerURL: string
-
-  constructor(kwargs: INetworkOnlyArguments) {
-    const { providerURL, ...rest } = kwargs
-    super(rest)
-
-    this.providerURL = providerURL
-  }
-
-  public async getLibrary(libraryName: LibraryName): Promise<Library> {
-    return getNewLibraryFromURL(libraryName, this.providerURL)
-  }
-
-  public async getNetworkId(library: Library): Promise<number> {
-    const networkId = await getNetworkId(library)
-    return this.validateNetworkId(networkId)
-  }
-
-  public async getAccount(): Promise<null> {
-    return null
-  }
-}
-
 export class WalletConnectConnector extends Connector {
-  private bridge: any
+  public readonly walletConnector: any
   private supportedNetworkURLs: ISupportedNetworkURLs
   private defaultNetwork: number
   private walletConnectSubprovider: any
-  private walletConnector: any
 
   constructor(kwargs: IWalletConnectConnectorArguments) {
     const { bridge, supportedNetworkURLs, defaultNetwork } = kwargs
     const supportedNetworks = Object.keys(supportedNetworkURLs).map(supportedNetworkURL => Number(supportedNetworkURL))
     super({ supportedNetworks })
 
-    this.bridge = bridge
     this.supportedNetworkURLs = supportedNetworkURLs
     this.defaultNetwork = defaultNetwork
+
+    const walletConnectSubprovider = new WalletConnectSubprovider({ bridge })
+    this.walletConnectSubprovider = walletConnectSubprovider
+    this.walletConnector = this.walletConnectSubprovider._walletConnector
 
     this.connectAndSessionUpdateHandler = this.connectAndSessionUpdateHandler.bind(this)
     this.disconnectHandler = this.disconnectHandler.bind(this)
@@ -235,11 +213,6 @@ export class WalletConnectConnector extends Connector {
 
   public async onActivation() {
     await super.onActivation()
-
-    const walletConnectSubprovider = new WalletConnectSubprovider({ bridge: this.bridge })
-
-    this.walletConnectSubprovider = walletConnectSubprovider
-    this.walletConnector = this.walletConnectSubprovider._walletConnector
 
     if (!this.walletConnector.connected) {
       await this.walletConnector.createSession()
@@ -315,5 +288,29 @@ export class WalletConnectConnector extends Connector {
     } else {
       this._web3ReactResetHandler()
     }
+  }
+}
+
+export class NetworkOnlyConnector extends Connector {
+  private readonly providerURL: string
+
+  constructor(kwargs: INetworkOnlyArguments) {
+    const { providerURL, ...rest } = kwargs
+    super(rest)
+
+    this.providerURL = providerURL
+  }
+
+  public async getLibrary(libraryName: LibraryName): Promise<Library> {
+    return getNewLibraryFromURL(libraryName, this.providerURL)
+  }
+
+  public async getNetworkId(library: Library): Promise<number> {
+    const networkId = await getNetworkId(library)
+    return this.validateNetworkId(networkId)
+  }
+
+  public async getAccount(): Promise<null> {
+    return null
   }
 }

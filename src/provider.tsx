@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react'
+import React, { Component, Fragment, useContext } from 'react'
 
 import Web3Context from './context'
 import useWeb3Manager from './manager'
@@ -11,6 +11,13 @@ interface IWeb3ProviderProps {
   children: any
 }
 
+import * as Connectors from './connectors'
+export { Connectors }
+
+export function useWeb3Context(): IWeb3ContextInterface {
+  return useContext(Web3Context)
+}
+
 function Web3Provider({ connectors, libraryName = 'web3.js', reRendererNames = [], children }: IWeb3ProviderProps) {
   const {
     web3Initialized: active,
@@ -18,6 +25,7 @@ function Web3Provider({ connectors, libraryName = 'web3.js', reRendererNames = [
     setConnector,
     setFirstValidConnector,
     unsetConnector,
+    setError,
     reRenderers,
     forceReRender
   } = useWeb3Manager(connectors, libraryName, reRendererNames)
@@ -35,6 +43,7 @@ function Web3Provider({ connectors, libraryName = 'web3.js', reRendererNames = [
     setConnector,
     setFirstValidConnector,
     unsetConnector,
+    setError,
 
     reRenderers,
     forceReRender

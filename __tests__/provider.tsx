@@ -4,9 +4,9 @@ import React from 'react'
 import { render /* fireEvent, act, waitForElement */ } from 'react-testing-library' // tslint:disable-line: no-implicit-dependencies
 
 import { NetworkOnlyConnector } from '../src/connectors'
-import { useWeb3Context } from '../src/hooks'
-import Web3Provider from '../src/provider'
+import Web3Provider, { useWeb3Context } from '../src/provider'
 
+// TODO mock this out so we're not hitting infura every times
 const infura = new NetworkOnlyConnector({
   providerURL: 'https://rinkeby.infura.io/v3/3f0fa5d9c4064d6e8427efac291d66df'
 })

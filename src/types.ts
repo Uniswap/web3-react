@@ -19,6 +19,7 @@ interface IValidWeb3ContextInterface {
   setConnector: Function // tslint:disable-line: ban-types
   setFirstValidConnector: Function // tslint:disable-line: ban-types
   unsetConnector: Function // tslint:disable-line: ban-types
+  setError: Function // tslint:disable-line: ban-types
 
   reRenderers: IReRendererState
   forceReRender: Function // tslint:disable-line: ban-types
@@ -35,6 +36,7 @@ interface IUndefinedWeb3ContextInterface {
   setConnector: Function // tslint:disable-line: ban-types
   setFirstValidConnector: Function // tslint:disable-line: ban-types
   unsetConnector: Function // tslint:disable-line: ban-types
+  setError: Function // tslint:disable-line: ban-types
 
   reRenderers: IReRendererState
   forceReRender: Function // tslint:disable-line: ban-types

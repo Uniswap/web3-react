@@ -10,9 +10,10 @@ const defaultContext = {
   setConnector: defaultError,
   setFirstValidConnector: defaultError,
   unsetConnector: defaultError,
+  setError: defaultError, // tslint:disable-line: object-literal-sort-keys
 
   reRenderers: {},
-  forceReRender: defaultError // tslint:disable-line: object-literal-sort-keys
+  forceReRender: defaultError
 }
 
 export default createContext<IWeb3ContextInterface>(defaultContext)
