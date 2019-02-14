@@ -11,6 +11,7 @@ export interface IReRendererState {
 interface IValidWeb3ContextInterface {
   active: boolean
   connectorName: string
+  connector: any
   library: Library
   networkId: number
   account: string | null
@@ -28,6 +29,7 @@ interface IValidWeb3ContextInterface {
 interface IUndefinedWeb3ContextInterface {
   active: boolean
   connectorName?: string
+  connector?: any
   library?: Library
   networkId?: number
   account?: string | null
@@ -45,7 +47,13 @@ interface IUndefinedWeb3ContextInterface {
 export type IWeb3ContextInterface = IValidWeb3ContextInterface | IUndefinedWeb3ContextInterface
 
 export function isValidWeb3ContextInterface(context: IWeb3ContextInterface): context is IValidWeb3ContextInterface {
-  return !!(context.connectorName && context.library && context.networkId && context.account !== undefined)
+  return !!(
+    context.connectorName &&
+    context.connector &&
+    context.library &&
+    context.networkId &&
+    context.account !== undefined
+  )
 }
 
 export interface IConnectors {

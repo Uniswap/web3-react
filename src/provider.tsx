@@ -22,6 +22,7 @@ function Web3Provider({ connectors, libraryName = 'web3.js', reRendererNames = [
   const {
     web3Initialized: active,
     web3State,
+    connector,
     setConnector,
     setFirstValidConnector,
     unsetConnector,
@@ -35,9 +36,10 @@ function Web3Provider({ connectors, libraryName = 'web3.js', reRendererNames = [
   const context: IWeb3ContextInterface = {
     active,
     connectorName,
+    connector, // tslint:disable-line: object-literal-sort-keys
     library,
     networkId,
-    account, // tslint:disable-line: object-literal-sort-keys
+    account,
     error,
 
     setConnector,
