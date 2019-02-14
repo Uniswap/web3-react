@@ -8,7 +8,7 @@
 
 - Documentation for `web3-react` is [available on Gitbook](https://noahzinsmeister.gitbook.io/web3-react/v/next/).
 
-- A live demo of `web3-react` is [available on CodeSandbox](https://codesandbox.io/s/r7wymqkzwn).
+- A live demo of `web3-react` is [available on CodeSandbox](https://codesandbox.io/s/jpyw6qoq9).
 
 ## Introduction
 
@@ -24,7 +24,7 @@
 
 If you want to cut straight to the chase, check out the CodeSandbox demo!
 
-[![Edit web3-react](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/r7wymqkzwn)
+[![Edit web3-react](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/jpyw6qoq9)
 
 ### 1. Install
 
@@ -37,7 +37,11 @@ yarn add react@latest react-dom@latest
 Then, get `web3-react`:
 
 ```bash
+<<<<<<< HEAD
 yarn add web3-react@next
+=======
+yarn add web3-react@latest
+>>>>>>> origin/latest
 ```
 
 ### 2. Setup Connectors

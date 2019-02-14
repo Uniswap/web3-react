@@ -15,6 +15,7 @@ const unexpectedErrorMessage = 'Unexpected Error. Please file an issue on Github
 export interface IWeb3Manager {
   web3Initialized: boolean
   web3State: IWeb3State
+  connector: any
   setConnector: Function // tslint:disable-line: ban-types
   setFirstValidConnector: Function // tslint:disable-line: ban-types
   unsetConnector: Function // tslint:disable-line: ban-types
@@ -303,7 +304,8 @@ export default function useWeb3Manager(
   return {
     web3Initialized,
     web3State,
-    setConnector, // tslint:disable-line: object-literal-sort-keys
+    connector: activeConnector, // tslint:disable-line: object-literal-sort-keys
+    setConnector,
     setFirstValidConnector,
     unsetConnector,
     setError,
