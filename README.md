@@ -1,6 +1,6 @@
 [![npm version](https://img.shields.io/npm/v/web3-react/next.svg)](https://www.npmjs.com/package/web3-react/v/next)
 [![Build Status](https://travis-ci.org/NoahZinsmeister/web3-react.svg?branch=next)](https://travis-ci.org/NoahZinsmeister/web3-react)
-[![Coverage Status](https://coveralls.io/repos/github/NoahZinsmeister/web3-react/badge.svg?branch=next)](https://coveralls.io/github/NoahZinsmeister/web3-react?branch=unstable)
+[![Coverage Status](https://coveralls.io/repos/github/NoahZinsmeister/web3-react/badge.svg?branch=next)](https://coveralls.io/github/NoahZinsmeister/web3-react?branch=next)
 
 ![Example GIF](./_assets/example.gif)
 
@@ -37,11 +37,7 @@ yarn add react@latest react-dom@latest
 Then, get `web3-react`:
 
 ```bash
-<<<<<<< HEAD
 yarn add web3-react@next
-=======
-yarn add web3-react@latest
->>>>>>> origin/latest
 ```
 
 ### 2. Setup Connectors
