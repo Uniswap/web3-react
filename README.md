@@ -221,6 +221,7 @@ function MyComponent() {
 
 Projects using `web3-react` include:
 
+- https://github.com/NoahZinsmeister/snowflake-demo-frontend
 - https://hydroblockchain.github.io/snowflake-dashboard/
 - https://conlan.github.io/compound-liquidator/
 - https://uniswap.info
