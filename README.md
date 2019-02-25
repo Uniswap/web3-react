@@ -225,6 +225,7 @@ Projects using `web3-react` include:
 - https://hydroblockchain.github.io/snowflake-dashboard/
 - https://conlan.github.io/compound-liquidator/
 - https://uniswap.info
+- https://conlan.github.io/nuo-stats/
 
 Open a PR to add your project to the list! If you're interested in contributing, check out [Contributing-Guidelines.md](./docs/Contributing-Guidelines.md).
 
