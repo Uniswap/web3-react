@@ -14,7 +14,7 @@ const connectors = { infura }
 
 function MyComponent() {
   return (
-    <Web3Provider connectors={connectors} libraryName={'ethers.js'}>
+    <Web3Provider connectors={connectors} libraryName="ethers.js">
       <p data-testid="static-test">test</p>
       <MyChildComponent />
     </Web3Provider>

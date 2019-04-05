@@ -7,7 +7,8 @@ Building your own connector is as simple as defining a class that implements a s
 First, define your connector class:
 
 ```javascript
-import { Connector } from `web3-react/connectors`
+import { Connectors } from `web3-react`
+const { Connector } = Connectors
 
 class MyConnector extends Connector {
   ...
@@ -16,21 +17,22 @@ class MyConnector extends Connector {
 
 ## Implement Required Functions
 
-For ideas on how to implement these functions, see [src/connectors.ts](./src/connectors.ts).
+For ideas on how to implement required functions, see [src/connectors/](./src/connectors/).
 
 ```typescript
-async getLibrary(libraryName: LibraryName, networkId?: number): Promise<Library>
-async getNetworkId(library: Library): Promise<number>
-async getAccount(library: Library): Promise<string | null>
+async getProvider(networkId?: number): Promise<Provider>
 ```
 
 ## Implement Optional Functions
 
-For ideas on how to implement these functions, see [src/connectors.ts](./src/connectors.ts).
+For ideas on how to implement optional functions, or for default behavior, see [src/connectors/](./src/connectors/).
 
 ```typescript
 async onActivation(): Promise<void>
 onDeactivation(): void
+
+async getNetworkId(provider: Provider): Promise<number>
+async getAccount(provider: Provider): Promise<string | null>
 ```
 
 ## Communicating From Your Connector
@@ -49,10 +51,11 @@ If your connector emits custom error codes that you want to recognize and deal w
 
 ```javascript
 import { Connectors } from `web3-react`
+const { Connector, ErrorCodeMixin } = Connectors
 
 const MyConnectorErrorCodes = ['MY_ERROR_CODE', ...]
 
-class MyConnector extends Connectors.ErrorCodeMixin(Connectors.Connector, MyConnectorErrorCodes) {
+class MyConnector extends ErrorCodeMixin(Connector, MyConnectorErrorCodes) {
   ...
 }
 ```

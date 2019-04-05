@@ -16,7 +16,8 @@
     "target": "es5",
     "module": "commonjs",
     "esModuleInterop": true,
-    "sourceMap": true
+    "sourceMap": true,
+    "typeRoots": ["node_modules/@0x/typescript-typings/types", "node_modules/@types"]
   },
   "include": ["./src/**/*"],
   "exclude": ["./__tests__/**/*"]

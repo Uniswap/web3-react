@@ -7,9 +7,11 @@ import { IConnectors, IWeb3ContextInterface, LibraryName } from './types'
 interface IWeb3ProviderProps {
   connectors: IConnectors
   libraryName?: LibraryName
-  reRendererNames?: string[]
   children: any
 }
+
+import { ethers } from 'ethers'
+import Web3 from 'web3'
 
 import * as Connectors from './connectors'
 export { Connectors }
@@ -18,7 +20,7 @@ export function useWeb3Context(): IWeb3ContextInterface {
   return useContext(Web3Context)
 }
 
-function Web3Provider({ connectors, libraryName = 'web3.js', reRendererNames = [], children }: IWeb3ProviderProps) {
+function Web3Provider({ connectors, libraryName = 'web3.js', children }: IWeb3ProviderProps) {
   const {
     web3Initialized: active,
     web3State,
@@ -26,18 +28,29 @@ function Web3Provider({ connectors, libraryName = 'web3.js', reRendererNames = [
     setConnector,
     setFirstValidConnector,
     unsetConnector,
-    setError,
-    reRenderers,
-    forceReRender
-  } = useWeb3Manager(connectors, libraryName, reRendererNames)
+    setError
+  } = useWeb3Manager(connectors)
 
-  const { connectorName, library, networkId, account, error } = web3State
+  const { connectorName, provider, networkId, account, error } = web3State
+
+  const providerToInject =
+    provider &&
+    (() => {
+      switch (libraryName) {
+        case 'ethers.js':
+          return new ethers.providers.Web3Provider(provider)
+        case 'web3.js':
+          return new Web3(provider)
+        case null:
+          return provider
+      }
+    })()
 
   const context: IWeb3ContextInterface = {
     active,
     connectorName,
     connector, // tslint:disable-line: object-literal-sort-keys
-    library,
+    library: providerToInject,
     networkId,
     account,
     error,
@@ -45,10 +58,7 @@ function Web3Provider({ connectors, libraryName = 'web3.js', reRendererNames = [
     setConnector,
     setFirstValidConnector,
     unsetConnector,
-    setError,
-
-    reRenderers,
-    forceReRender
+    setError
   }
 
   return <Web3Context.Provider value={context}>{children}</Web3Context.Provider>
