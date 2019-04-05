@@ -56,4 +56,8 @@ export default class LedgerConnector extends Connector {
       this.engine.stop()
     }
   }
+
+  public changeNetwork(networkId: number): void {
+    super._web3ReactUpdateNetworkIdHandler(networkId)
+  }
 }

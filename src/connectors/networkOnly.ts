@@ -8,18 +8,22 @@ interface INetworkOnlyConnectorArguments extends IConnectorArguments {
 }
 
 export default class NetworkOnlyConnector extends Connector {
-  private readonly engine: any
+  private engine: any
+  private readonly providerURL: any
 
   constructor(kwargs: INetworkOnlyConnectorArguments) {
     const { providerURL, ...rest } = kwargs
     super(rest)
-
-    const engine = new Web3ProviderEngine()
-    this.engine = engine
-    engine.addProvider(new RPCSubprovider(providerURL))
+    this.providerURL = providerURL
   }
 
   public async onActivation(): Promise<void> {
+    if (!this.engine) {
+      const engine = new Web3ProviderEngine()
+      this.engine = engine
+      this.engine.addProvider(new RPCSubprovider(this.providerURL))
+    }
+
     this.engine.start()
   }
 
@@ -32,6 +36,8 @@ export default class NetworkOnlyConnector extends Connector {
   }
 
   public onDeactivation(): void {
-    this.engine.stop()
+    if (this.engine) {
+      this.engine.stop()
+    }
   }
 }

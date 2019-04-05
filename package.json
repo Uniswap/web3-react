@@ -36,6 +36,7 @@
   },
   "dependencies": {
     "@0x/subproviders": "^4.0.4",
+    "@portis/web3": "^2.0.0-beta.21",
     "@walletconnect/web3-subprovider": "1.0.0-beta.6",
     "fortmatic": "^0.5.2",
     "trezor-connect": "^7.0.2"
@@ -60,9 +61,9 @@
     "typescript": "^3.4.1"
   },
   "peerDependencies": {
-    "ethers": "^4.0.27",
+    "ethers": "^4",
     "react": "^16.8",
     "react-dom": "^16.8",
-    "web3": "^1.0.0-beta.51"
+    "web3": "^1.0.0-beta.1"
   }
 }

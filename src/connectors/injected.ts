@@ -1,8 +1,8 @@
 import { Provider } from '../types'
 import Connector, { ErrorCodeMixin, IConnectorArguments } from './connector'
 
-const MetaMaskConnectorErrorCodes = ['ETHEREUM_ACCESS_DENIED', 'LEGACY_PROVIDER', 'NO_WEB3', 'UNLOCK_REQUIRED']
-export default class MetaMaskConnector extends ErrorCodeMixin(Connector, MetaMaskConnectorErrorCodes) {
+const InjectedConnectorErrorCodes = ['ETHEREUM_ACCESS_DENIED', 'LEGACY_PROVIDER', 'NO_WEB3', 'UNLOCK_REQUIRED']
+export default class InjectedConnector extends ErrorCodeMixin(Connector, InjectedConnectorErrorCodes) {
   private runOnDeactivation: Array<() => void> = []
 
   constructor(kwargs: IConnectorArguments) {
@@ -18,11 +18,9 @@ export default class MetaMaskConnector extends ErrorCodeMixin(Connector, MetaMas
     if (ethereum) {
       await ethereum.enable().catch((error: any) => {
         const deniedAccessError: Error = Error(error)
-        deniedAccessError.code = MetaMaskConnector.errorCodes.ETHEREUM_ACCESS_DENIED
+        deniedAccessError.code = InjectedConnector.errorCodes.ETHEREUM_ACCESS_DENIED
         throw deniedAccessError
       })
-
-      ethereum.autoRefreshOnNetworkChange = false
 
       // initialize event listeners
       if (ethereum.on && ethereum.removeListener) {
@@ -33,20 +31,18 @@ export default class MetaMaskConnector extends ErrorCodeMixin(Connector, MetaMas
           ethereum.removeListener('networkChanged', this.networkChangedHandler)
           ethereum.removeListener('accountsChanged', this.accountsChangedHandler)
         })
-      } else {
-        const legacyError: Error = Error(
-          "The injected 'ethereum' object does not support the appropriate listener methods."
-        )
-        legacyError.code = MetaMaskConnector.errorCodes.LEGACY_PROVIDER
-        throw legacyError
+      }
+
+      if (ethereum.isMetaMask) {
+        ethereum.autoRefreshOnNetworkChange = false
       }
     } else if (web3) {
       const legacyError: Error = Error('Your web3 provider is outdated, please upgrade to a modern provider.')
-      legacyError.code = MetaMaskConnector.errorCodes.LEGACY_PROVIDER
+      legacyError.code = InjectedConnector.errorCodes.LEGACY_PROVIDER
       throw legacyError
     } else {
       const noWeb3Error: Error = Error('Your browser is not equipped with web3 capabilities.')
-      noWeb3Error.code = MetaMaskConnector.errorCodes.NO_WEB3
+      noWeb3Error.code = InjectedConnector.errorCodes.NO_WEB3
       throw noWeb3Error
     }
   }
@@ -61,7 +57,7 @@ export default class MetaMaskConnector extends ErrorCodeMixin(Connector, MetaMas
 
     if (account === null) {
       const unlockRequiredError: Error = Error('Ethereum account locked.')
-      unlockRequiredError.code = MetaMaskConnector.errorCodes.UNLOCK_REQUIRED
+      unlockRequiredError.code = InjectedConnector.errorCodes.UNLOCK_REQUIRED
       throw unlockRequiredError
     }
 
@@ -73,8 +69,8 @@ export default class MetaMaskConnector extends ErrorCodeMixin(Connector, MetaMas
     this.runOnDeactivation = []
   }
 
-  // metamask event handlers
-  private networkChangedHandler(networkId: string): void {
+  // event handlers
+  private networkChangedHandler(networkId: string | number): void {
     super._web3ReactUpdateNetworkIdHandler(Number(networkId))
   }
 

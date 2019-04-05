@@ -1,3 +1,4 @@
+import { ethers } from 'ethers'
 import { useCallback, useEffect, useReducer } from 'react'
 
 import { Connector } from './connectors'
@@ -38,21 +39,31 @@ const initialWeb3State: IWeb3State = {
   provider: undefined
 }
 
-function web3StateReducer(state: any, action: any): IWeb3State {
+function normalizeAccount(account: string | null) {
+  return account === null ? account : ethers.utils.getAddress(account)
+}
+
+function web3StateReducer(state: IWeb3State, action: any): IWeb3State {
   switch (action.type) {
     case 'UPDATE_CONNECTOR_VALUES': {
       const { connectorName, provider, networkId, account } = action.payload
-      return { connectorName, provider, networkId, account, error: null }
+      return { connectorName, provider, networkId, account: normalizeAccount(account), error: null }
     }
     case 'UPDATE_NETWORK_ID': {
       const { provider, networkId } = action.payload
-      return { ...state, provider, networkId, error: null }
+      return { ...state, provider: provider || state.provider, networkId, error: null }
     }
     case 'UPDATE_ACCOUNT':
-      return { ...state, account: action.payload, error: null }
+      return { ...state, account: normalizeAccount(action.payload) }
     case 'UPDATE_NETWORK_ID_AND_ACCOUNT': {
       const { provider, networkId, account } = action.payload
-      return { ...state, provider, networkId, account, error: null }
+      return {
+        ...state,
+        account: normalizeAccount(account),
+        error: null,
+        networkId,
+        provider: provider || state.provider
+      }
     }
     case 'UPDATE_ERROR':
       return { ...state, error: action.payload }
@@ -172,66 +183,127 @@ export default function useWeb3Manager(connectors: IConnectors): IWeb3Manager {
     }
   }, [activeConnector])
 
-  // change listeners
-  const web3ReactSharedHandler = useCallback(
-    async (networkId: number, account?: string): Promise<void> => {
+  const web3ReactUpdateNetworkIdHandler = useCallback(
+    async (networkId?: number, bypassCheck: boolean = false): Promise<void> => {
       if (!activeConnector) {
         const error = Error(unexpectedErrorMessage)
         error.code = ManagerErrorCodes.UNEXPECTED_ERROR
         console.error(error) // tslint:disable-line: no-console
         setError(error)
       } else {
-        // if the networkId matches the currently active networkId, we bail on updating the provider and networkId
-        if (networkId === web3State.networkId) {
-          if (account) {
-            web3ReactUpdateAccountHandler(account)
-          }
+        if (networkId && bypassCheck) {
+          dispatchWeb3State({
+            payload: { networkId },
+            type: 'UPDATE_NETWORK_ID'
+          })
         } else {
           try {
             const provider: Provider = await activeConnector.getProvider(networkId)
-            // we technically don't need to call this if we trust the connector is implemented in a particular way...
-            // ...though this is required _if_ we only validate network IDs inside getNetworkId, which we kind of want
-            const networkIdPromise = activeConnector.getNetworkId(provider)
-            const accountPromise = account || activeConnector.getAccount(provider)
-            await Promise.all([networkIdPromise, accountPromise]).then(([returnedNetworkId, returnedAccount]) => {
-              // this indicates an error in the way the active connector's 'getProvider' function is implemented
-              if (networkId !== returnedNetworkId) {
-                const error = Error(unexpectedErrorMessage)
-                error.code = ManagerErrorCodes.UNEXPECTED_ERROR
-                throw error
-              } else {
-                dispatchWeb3State({
-                  payload: { provider, networkId: returnedNetworkId, account: returnedAccount },
-                  type: 'UPDATE_NETWORK_ID_AND_ACCOUNT'
-                })
-              }
-            })
+            const returnedNetworkId = await activeConnector.getNetworkId(provider)
+
+            // this indicates an error in the way the active connector's 'getProvider' function is implemented
+            if (networkId && networkId !== returnedNetworkId) {
+              const error = Error(unexpectedErrorMessage)
+              error.code = ManagerErrorCodes.UNEXPECTED_ERROR
+              throw error
+            } else {
+              dispatchWeb3State({
+                payload: { provider, networkId: returnedNetworkId },
+                type: 'UPDATE_NETWORK_ID'
+              })
+            }
           } catch (error) {
             setError(error)
           }
         }
       }
     },
-    [activeConnector, web3State.networkId]
+    [activeConnector]
   )
 
-  const web3ReactUpdateNetworkIdHandler = useCallback(
-    (networkId: number): void => {
-      web3ReactSharedHandler(networkId)
+  const web3ReactUpdateAccountHandler = useCallback(
+    async (account?: string, bypassCheck: boolean = false): Promise<void> => {
+      if (!activeConnector) {
+        const error = Error(unexpectedErrorMessage)
+        error.code = ManagerErrorCodes.UNEXPECTED_ERROR
+        console.error(error) // tslint:disable-line: no-console
+        setError(error)
+      } else {
+        if (account && bypassCheck) {
+          dispatchWeb3State({
+            payload: account,
+            type: 'UPDATE_ACCOUNT'
+          })
+        } else {
+          try {
+            const returnedAccount = await activeConnector.getAccount(web3State.provider)
+
+            // this indicates an error in the way the active connector's 'getAccount' function is implemented
+            if (account && normalizeAccount(account) !== normalizeAccount(returnedAccount)) {
+              const error = Error(unexpectedErrorMessage)
+              error.code = ManagerErrorCodes.UNEXPECTED_ERROR
+              throw error
+            } else {
+              dispatchWeb3State({
+                payload: returnedAccount,
+                type: 'UPDATE_ACCOUNT'
+              })
+            }
+          } catch (error) {
+            setError(error)
+          }
+        }
+      }
     },
-    [web3ReactSharedHandler]
+    [activeConnector, web3State.provider]
   )
-
-  // this is pure, we don't need to worry about useCallback
-  function web3ReactUpdateAccountHandler(account: string): void {
-    dispatchWeb3State({ type: 'UPDATE_ACCOUNT', payload: account })
-  }
 
   const web3ReactUpdateNetworkIdAndAccountHandler = useCallback(
-    (networkId: number, account: string): void => {
-      web3ReactSharedHandler(networkId, account)
+    async (
+      networkId?: number,
+      bypassNetworkIdCheck: boolean = false,
+      account?: string,
+      bypassAccountCheck: boolean = false
+    ): Promise<void> => {
+      if (!activeConnector) {
+        const error = Error(unexpectedErrorMessage)
+        error.code = ManagerErrorCodes.UNEXPECTED_ERROR
+        console.error(error) // tslint:disable-line: no-console
+        setError(error)
+      } else {
+        if (networkId && bypassNetworkIdCheck && account && bypassAccountCheck) {
+          dispatchWeb3State({
+            payload: { networkId, account },
+            type: 'UPDATE_NETWORK_ID_AND_ACCOUNT'
+          })
+        } else {
+          const provider: Provider = await (networkId && bypassNetworkIdCheck
+            ? web3State.provider
+            : activeConnector.getProvider(networkId))
+
+          const networkIdPromise =
+            networkId && bypassNetworkIdCheck ? networkId : activeConnector.getNetworkId(provider)
+          const accountPromise = account && bypassAccountCheck ? account : activeConnector.getAccount(provider)
+
+          await Promise.all([networkIdPromise, accountPromise]).then(([returnedNetworkId, returnedAccount]) => {
+            if (
+              (networkId && networkId !== returnedNetworkId) ||
+              (account && normalizeAccount(account) !== normalizeAccount(returnedAccount))
+            ) {
+              const error = Error(unexpectedErrorMessage)
+              error.code = ManagerErrorCodes.UNEXPECTED_ERROR
+              throw error
+            } else {
+              dispatchWeb3State({
+                payload: { provider, networkId: returnedNetworkId, account: returnedAccount },
+                type: 'UPDATE_NETWORK_ID_AND_ACCOUNT'
+              })
+            }
+          })
+        }
+      }
     },
-    [web3ReactSharedHandler]
+    [activeConnector, web3State.provider]
   )
 
   // this is pure, we don't need to worry about useCallback

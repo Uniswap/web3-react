@@ -65,18 +65,23 @@ export default abstract class Connector extends ErrorCodeMixin(EventEmitter, Con
   }
 
   // wraps emissions of _web3ReactUpdateNetworkId
-  protected _web3ReactUpdateNetworkIdHandler(networkId: number) {
-    this.emit('_web3ReactUpdateNetworkId', networkId)
+  protected _web3ReactUpdateNetworkIdHandler(networkId?: number, bypassCheck?: boolean) {
+    this.emit('_web3ReactUpdateNetworkId', networkId, bypassCheck)
   }
 
   // wraps emissions of _web3ReactUpdateAccount
-  protected _web3ReactUpdateAccountHandler(account: string) {
-    this.emit('_web3ReactUpdateAccount', account)
+  protected _web3ReactUpdateAccountHandler(account?: string, bypassCheck?: boolean) {
+    this.emit('_web3ReactUpdateAccount', account, bypassCheck)
   }
 
   // wraps emissions of _web3ReactUpdateNetworkIdAndAccount
-  protected _web3ReactUpdateNetworkIdAndAccountHandler(networkId: number, account: string) {
-    this.emit('_web3ReactUpdateNetworkIdAndAccount', networkId, account)
+  protected _web3ReactUpdateNetworkIdAndAccountHandler(
+    networkId: number,
+    bypassNetworkIdCheck?: boolean,
+    account?: string,
+    bypassAccountCheck?: boolean
+  ) {
+    this.emit('_web3ReactUpdateNetworkIdAndAccount', networkId, bypassNetworkIdCheck, account, bypassAccountCheck)
   }
 
   // wraps emissions of _web3ReactError

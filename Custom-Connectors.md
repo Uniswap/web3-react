@@ -39,9 +39,9 @@ async getAccount(provider: Provider): Promise<string | null>
 
 `Connectors` can emit one of 5 events to trigger specific functionality within `web3-react`. The way to do this is to call the appropriate wrapper function in the underlying `Connector` class:
 
-- `_web3ReactUpdateNetworkIdHandler(networkId: number)`: update the current network Id.
-- `_web3ReactUpdateAccountHandler(account: string)`: update the current account.
-- `_web3ReactUpdateNetworkIdAndAccountHandler(networkId: number, account: string)`: update the current network ID and account.
+- `_web3ReactUpdateNetworkIdHandler(networkId: number, bypassCheck: boolean = false)`: update the current network ID. Passing `bypassCheck` as `true` prevents the `.getNetworkId` method of the active connector from being called.
+- `_web3ReactUpdateAccountHandler(account: string, bypassCheck: boolean = false)`: update the current account. Passing `bypassCheck` as `true` prevents the `.getAccount` method of the active connector from being called.
+- `_web3ReactUpdateNetworkIdAndAccountHandler(networkId: number, bypassNetworkIdCheck: boolean = false, account: string bypassAccountCheck: boolean = false)`: update the current network ID and account. Passing either `bypassCheck` as `true` prevents the `.getNetworkId` or `.getAccount` methods of the active connector from being called.
 - `_web3ReactErrorHandler(error: Error)`: set an error.
 - `_web3ReactResetHandler()`: unset the connector.
 

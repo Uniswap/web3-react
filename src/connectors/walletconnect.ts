@@ -15,9 +15,10 @@ interface IWalletConnectConnectorArguments {
 }
 
 export default class WalletConnectConnector extends Connector {
-  public readonly walletConnector: any
+  public walletConnector: any
   public readonly supportedNetworkURLs: ISupportedNetworkURLs
   public readonly defaultNetwork: number
+  private readonly bridge: string
   private walletConnectSubprovider: any
   private engine: any
 
@@ -26,18 +27,21 @@ export default class WalletConnectConnector extends Connector {
     const supportedNetworks = Object.keys(supportedNetworkURLs).map(supportedNetworkURL => Number(supportedNetworkURL))
     super({ supportedNetworks })
 
+    this.bridge = bridge
     this.supportedNetworkURLs = supportedNetworkURLs
     this.defaultNetwork = defaultNetwork
-
-    const walletConnectSubprovider = new WalletConnectSubprovider({ bridge })
-    this.walletConnectSubprovider = walletConnectSubprovider
-    this.walletConnector = this.walletConnectSubprovider._walletConnector
 
     this.connectAndSessionUpdateHandler = this.connectAndSessionUpdateHandler.bind(this)
     this.disconnectHandler = this.disconnectHandler.bind(this)
   }
 
   public async onActivation(): Promise<void> {
+    if (!this.walletConnectSubprovider && !this.walletConnector) {
+      const walletConnectSubprovider = new WalletConnectSubprovider({ bridge: this.bridge })
+      this.walletConnectSubprovider = walletConnectSubprovider
+      this.walletConnector = this.walletConnectSubprovider._walletConnector
+    }
+
     if (!this.walletConnector.connected) {
       await this.walletConnector.createSession()
     }

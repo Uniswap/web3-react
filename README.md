@@ -14,7 +14,7 @@
 
 `web3-react` is a drop-in solution for building Ethereum dApps in React. Its marquee features are:
 
-- Complete support for commonly used web3 providers including [MetaMask](https://metamask.io/), [Infura](https://infura.io/), [Trezor](https://trezor.io/)/[Ledger](https://www.ledger.com/), [Fortmatic](https://fortmatic.com/), [WalletConnect](https://walletconnect.org/), and more.
+- Complete support for commonly used web3 providers including [MetaMask](https://metamask.io/)/[Trust](https://trustwallet.com/)/[Tokenary](https://tokenary.io/), [Infura](https://infura.io/), [Trezor](https://trezor.io/)/[Ledger](https://www.ledger.com/), [Fortmatic](https://fortmatic.com/)/[Portis](https://www.portis.io/), [WalletConnect](https://walletconnect.org/), and more.
 
 - A robust framework which exposes an instantiated [ethers.js](https://github.com/ethers-io/ethers.js/) or [web3.js](https://web3js.readthedocs.io/en/1.0/) instance, the current account and network id, and a variety of helper functions to your dApp via a [React Context](https://reactjs.org/docs/context.html).
 
@@ -56,9 +56,9 @@ Now, you'll need to decide how you want users to interact with your dApp. This i
 
 ```javascript
 import { Connectors } from 'web3-react'
-const { MetaMaskConnector, NetworkOnlyConnector } = Connectors
+const { InjectedConnector, NetworkOnlyConnector } = Connectors
 
-const metaMask = new MetaMaskConnector({ supportedNetworks: [1, 5] })
+const metaMask = new InjectedConnector({ supportedNetworks: [1, 5] })
 
 const infura = new NetworkOnlyConnector({
   providerURL: 'https://mainnet.infura.io/v3/...'
@@ -95,7 +95,7 @@ The `Web3Provider` takes 2 props:
 
 ### 4. Activate
 
-Now, you need to decide how/when you would like to activate your Connectors. For all options, please see [the manager functions](#manager-functions) section. The example code below attempts to automatically activate metamask, and falls back to infura.
+Now, you need to decide how/when you would like to activate your Connectors. For all options, please see [the manager functions](#manager-functions) section. The example code below attempts to automatically activate MetaMask, and falls back to infura.
 
 ```javascript
 import React, { useEffect } from 'react'

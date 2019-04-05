@@ -4,29 +4,29 @@ Connectors are Javascript classes that define how your dApp will interact with t
 
 Note: Some Connectors throw specific errors that can be identified and handled appropriately by your dApp. In general, these error codes are available in the `.errorCodes` property of any Connector.
 
-### `MetaMaskConnector`
+### `InjectedConnector`
 
-Manages connectivity to [MetaMask](https://metamask.io/).
+Manages connectivity to injected web3 providers such as [MetaMask](https://metamask.io/) (or [Trust](https://trustwallet.com/)/[Tokenary](https://tokenary.io/)/etc.).
 
 ```javascript
 import { Connectors } from 'web3-react'
 
-const metaMaskConnector = Connectors.MetaMaskConnector({
+const metaMaskConnector = Connectors.InjectedConnector({
   supportedNetworks: [...]
 })
 ```
 
 Arguments:
 
-- `supportedNetworks: number[]` (optional): Enforces that MetaMask is connected to a particular network, throwing an error if not.
+- `supportedNetworks: number[]` (optional): Enforces that the injected connector is connected to a particular network, throwing an error if not.
 
 Throws:
 
 - `Connector.UNSUPPORTED_NETWORK`: Thrown if a `supportedNetworks` array is provided, and the user is not on one of those networks.
-- `MetaMaskConnector.ETHEREUM_ACCESS_DENIED`: Thrown when a user denies permission for your dApp to access their account.
-- `MetaMaskConnector.LEGACY_PROVIDER`: Thrown when no global `ethereum` object is available, only the deprecated `web3` object.
-- `MetaMaskConnector.NO_WEB3`: Thrown when visiting from a non-web3 browser.
-- `MetaMaskConnector.UNLOCK_REQUIRED`: Thrown when a user's account is locked.
+- `InjectedConnector.ETHEREUM_ACCESS_DENIED`: Thrown when a user denies permission for your dApp to access their account.
+- `InjectedConnector.LEGACY_PROVIDER`: Thrown when no global `ethereum` object is available, only the deprecated `web3` object.
+- `InjectedConnector.NO_WEB3`: Thrown when visiting from a non-web3 browser.
+- `InjectedConnector.UNLOCK_REQUIRED`: Thrown when a user's account is locked.
 
 ### `NetworkOnlyConnector``
 
@@ -52,7 +52,7 @@ Throws:
 
 ### `TrezorConnector` _EXPERIMENTAL_
 
-Manages connectivity to a [Trezor](https://trezor.io/) device.
+Manages connectivity to a [Trezor](https://trezor.io/) device. Note: Currently, only the first account is exported/made accessible. If this limits your dApp's functionality, please file an issue.
 
 ```javascript
 import { Connectors } from 'web3-react'
@@ -72,9 +72,12 @@ Arguments:
 - `manifestEmail: string` - [Manifest email](https://github.com/trezor/connect/blob/develop/docs/index.md)
 - `manifestAppUrl: string` - [Manifest email](https://github.com/trezor/connect/blob/develop/docs/index.md)
 
+Methods:
+- `changeNetwork(networkId: number)` - Changes to a different network in `supportedNetworkURLs`.
+
 ### `LedgerConnector` _EXPERIMENTAL_
 
-Manages connectivity to a [Ledger](https://www.ledger.com/) device.
+Manages connectivity to a [Ledger](https://www.ledger.com/) device. Note: Currently, only the first account is exported/made accessible. If this limits your dApp's functionality, please file an issue.
 
 ```javascript
 import { Connectors } from 'web3-react'
@@ -89,6 +92,9 @@ Arguments:
 
 - `supportedNetworkURLs: any` - An object whose keys are network IDs, and values are remote nodes connected to that network ID.
 - `defaultNetwork: number` - The network ID that the connector will use by default.
+
+Methods:
+- `changeNetwork(networkId: number)` - Changes to a different network in `supportedNetworkURLs`.
 
 ### `FortmaticConnector` _EXPERIMENTAL_
 
@@ -107,6 +113,29 @@ Arguments:
 
 - `apiKey: string` - Fortmatic API key.
 - `logoutOnDeactivation: boolean` - Whether to log the user out or not when the connector is unset, `false` by default.
+- 
+### `PortisConnector` _EXPERIMENTAL_
+
+Manages connectivity to [Portis](https://www.portis.io/).
+
+```javascript
+import { Connectors } from 'web3-react'
+
+const portisConnector = Connectors.PortisConnector({
+  dAppId: ...,
+  network: ...,
+  options: ...
+})
+```
+
+Arguments:
+
+- `dAppId: string` - Fortmatic API key.
+- `network: any` - The network you wish to connect to.
+- `options: any` (optional) - Portis SDK initialization object.
+
+Methods:
+- `changeNetwork(networkId: string)` - Changes to a different network.
 
 ### `WalletConnectConnector` _EXPERIMENTAL_
 

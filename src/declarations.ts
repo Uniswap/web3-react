@@ -6,6 +6,7 @@ declare module 'lodash' // TODO change when TrezorSubprovider officially gets ad
 // tslint:disable-next-line: interface-name
 interface Ethereum {
   autoRefreshOnNetworkChange?: boolean
+  isMetaMask?: boolean
   enable: () => Promise<void>
   on: (eventName: string, listener: Function) => void // tslint:disable-line: ban-types
   removeListener: (eventName: string, listener: Function) => void // tslint:disable-line: ban-types

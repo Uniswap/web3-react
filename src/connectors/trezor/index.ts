@@ -36,15 +36,17 @@ export default class TrezorConnector extends Connector {
     this.manifestAppUrl = manifestAppUrl
   }
 
-  public async getProvider(networkId?: number): Promise<Provider> {
-    // we have to validate here because networkId might not be a key of supportedNetworkURLs
-    const networkIdToUse = networkId || this.defaultNetwork
-    super._validateNetworkId(networkIdToUse)
-
+  public async onActivation(): Promise<void> {
     TrezorConnect.manifest({
       appUrl: this.manifestAppUrl,
       email: this.manifestEmail
     })
+  }
+
+  public async getProvider(networkId?: number): Promise<Provider> {
+    // we have to validate here because networkId might not be a key of supportedNetworkURLs
+    const networkIdToUse = networkId || this.defaultNetwork
+    super._validateNetworkId(networkIdToUse)
 
     const trezorSubprovider = new TrezorSubprovider({
       accountFetchingConfigs: { numAddressesToReturn: 1 },
@@ -65,5 +67,9 @@ export default class TrezorConnector extends Connector {
     if (this.engine) {
       this.engine.stop()
     }
+  }
+
+  public changeNetwork(networkId: number): void {
+    super._web3ReactUpdateNetworkIdHandler(networkId)
   }
 }
