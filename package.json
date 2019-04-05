@@ -1,6 +1,6 @@
 {
   "name": "web3-react",
-  "version": "3.1.0",
+  "version": "3.1.1",
   "description": "Drop in solution for building Ethereum dApps in React.",
   "author": "Noah Zinsmeister <noahwz@gmail.com>",
   "keywords": [
@@ -53,7 +53,7 @@
     "prettier": "^1.16.4",
     "react": "^16.8",
     "react-dom": "^16.8",
-    "react-testing-library": "^6.0.4",
+    "react-testing-library": "^6.1.2",
     "ts-jest": "^24.0.1",
     "tslint": "^5.15.0",
     "tslint-config-prettier": "^1.18.0",

@@ -1,7 +1,7 @@
 // tslint:disable-next-line: no-implicit-dependencies no-submodule-imports
 import 'jest-dom/extend-expect'
 import React from 'react'
-import { render /* fireEvent, act, waitForElement */ } from 'react-testing-library' // tslint:disable-line: no-implicit-dependencies
+import { fireEvent, render, waitForElement } from 'react-testing-library' // tslint:disable-line: no-implicit-dependencies
 
 import { NetworkOnlyConnector } from '../src/connectors'
 import Web3Provider, { useWeb3Context } from '../src/provider'
@@ -36,19 +36,35 @@ function MyChildComponent() {
   )
 }
 
+// TODO remove after updating react and react-dom per https://github.com/kentcdodds/react-testing-library/issues/281
+const originalError = console.error // tslint:disable-line:no-console
+beforeAll(() => {
+  // tslint:disable-next-line:no-console
+  console.error = (...args: any[]) => {
+    if (/Warning.*not wrapped in act/.test(args[0])) {
+      return
+    }
+    originalError.call(console, ...args)
+  }
+})
+
+afterAll(() => {
+  console.error = originalError // tslint:disable-line:no-console
+})
+
 test('Rendering', async () => {
   const { getByTestId, queryByTestId } = render(<MyComponent />)
 
   expect(getByTestId('static-test')).toHaveTextContent('test')
   expect(queryByTestId('dynamic-networkid')).toBeNull()
 
-  // the below tests are commented out until the following issues witbh act() are resolved:
+  // the below tests are commented out until the following issues with act() are resolved:
   // https://github.com/kentcdodds/react-testing-library/issues/281
   // https://github.com/facebook/react/issues/14769
 
-  // fireEvent.click(getByTestId('set-connector'))
-  // await waitForElement(() => getByTestId('dynamic-networkid'))
+  fireEvent.click(getByTestId('set-connector'))
+  await waitForElement(() => getByTestId('dynamic-networkid'))
 
-  // expect(getByTestId('static-test')).toHaveTextContent('test')
-  // expect(getByTestId('dynamic-networkid')).toHaveTextContent('4')
+  expect(getByTestId('static-test')).toHaveTextContent('test')
+  expect(getByTestId('dynamic-networkid')).toHaveTextContent('4')
 })
