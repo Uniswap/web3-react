@@ -14,11 +14,11 @@
 
 `web3-react` is a drop-in solution for building Ethereum dApps in React. Its marquee features are:
 
-- Robust support for commonly used web3 providers such as [MetaMask](https://metamask.io/), [WalletConnect](https://walletconnect.org/), [Infura](https://infura.io/), [Trust](https://trustwalletapp.com/), and more.
+- Complete support for commonly used web3 providers including [MetaMask](https://metamask.io/)/[Trust](https://trustwallet.com/)/[Tokenary](https://tokenary.io/), [Infura](https://infura.io/), [Trezor](https://trezor.io/)/[Ledger](https://www.ledger.com/), [Fortmatic](https://fortmatic.com/)/[Portis](https://www.portis.io/), [WalletConnect](https://walletconnect.org/), and more.
 
-- A robust framework which exposes an [ethers.js](https://github.com/ethers-io/ethers.js/) or [web3.js](https://web3js.readthedocs.io/en/1.0/) instance, the current account and network id, and a variety of helper functions to your dApp via a [React Context](https://reactjs.org/docs/context.html).
+- A robust framework which exposes an instantiated [ethers.js](https://github.com/ethers-io/ethers.js/) or [web3.js](https://web3js.readthedocs.io/en/1.0/) instance, the current account and network id, and a variety of helper functions to your dApp via a [React Context](https://reactjs.org/docs/context.html).
 
-- The ability to write fully featured, custom Connectors to manage every aspect of your dApps connectivity with the Ethereum blockchain and user account(s), if you need it.
+- The ability to write custom, fully featured _Connectors_ to manage every aspect of your dApp's connectivity with the Ethereum blockchain and user account(s).
 
 ## Quickstart
 
@@ -28,13 +28,23 @@ If you want to cut straight to the chase, check out the CodeSandbox demo!
 
 ### 1. Install
 
-Ensure you're using the latest `react` and `react-dom` versions:
+Ensure you're using the latest `react` and `react-dom` versions (or anything `^18`):
 
 ```bash
 yarn add react@latest react-dom@latest
 ```
 
-Then, get `web3-react`:
+Next, install either [ethers.js](https://github.com/ethers-io/ethers.js/) or [web3.js](https://web3js.readthedocs.io/en/1.0/), depending on your preference:
+
+```bash
+yarn add ethers
+```
+
+```bash
+yarn add web3
+```
+
+Finally you're ready to use `web3-react`:
 
 ```bash
 yarn add web3-react@next
@@ -42,30 +52,24 @@ yarn add web3-react@next
 
 ### 2. Setup Connectors
 
-Now, you'll need to decide how you want users to interact with your dApp. For the vast majority of dApps, this will be with some combination of MetaMask, WalletConnect, or Infura. For more details on each of these options, see [Connectors.md](./Connectors.md).
+Now, you'll need to decide how you want users to interact with your dApp. This is almost always with some combination of MetaMask, Infura, Trezor/Ledger, WalletConnect, etc. For more details on each of these options, see [Connectors.md](./Connectors.md).
 
 ```javascript
 import { Connectors } from 'web3-react'
-const { MetaMaskConnector, WalletConnectConnector, NetworkOnlyConnector } = Connectors
+const { InjectedConnector, NetworkOnlyConnector } = Connectors
 
-const metaMask = new MetaMaskConnector({ supportedNetworks: 1 })
-
-const walletConnect = new WalletConnectConnector({
-  bridge: 'https://bridge.walletconnect.org',
-  supportedNetworkURLs: { 1: 'https://mainnet.infura.io/v3/...' },
-  defaultNetwork: 1
-})
+const metaMask = new InjectedConnector({ supportedNetworks: [1, 5] })
 
 const infura = new NetworkOnlyConnector({
   providerURL: 'https://mainnet.infura.io/v3/...'
 })
 
-const connectors = { metaMask, walletConnect, infura }
+const connectors = { metaMask, infura }
 ```
 
 ### 3. Setup `Web3Provider`
 
-The next step is to setup a `Web3Provider` at the root of your dApp. This ensures that children components are able to take advantage of the `web3-react` context variables.
+The next step is to setup a `Web3Provider` at the root of your dApp. This ensures that children components are able to take advantage of the `web3-react` context.
 
 ```javascript
 import React from 'react'
@@ -75,8 +79,7 @@ export default function App () {
   return (
     <Web3Provider
       connectors={...}
-      libraryName={...}
-      reRendererNames={...}
+      libraryName={'ethers.js'|'web3.js'}
     >
       ...
     </Web3Provider>
@@ -84,15 +87,42 @@ export default function App () {
 }
 ```
 
-The `Web3Provider` takes 3 props:
+The `Web3Provider` takes 2 props:
 
-1. `connectors: any` (required): An object mapping arbitrary `string` connector names to Connector classes (see [the previous section](#2-setup-connectors) for more detail).
+1. `connectors: any` (required): An object mapping arbitrary `string` connector names to Connector objects (see [the previous section](#2-setup-connectors) for more detail).
 
-2. `libraryName: string` (optional): `web3.js` or `ethers.js`, depending on which library you wish to use in your dApp.
+2. `libraryName: string` (optional): `ethers.js` or `web3.js`, depending on which library you wish to use in your dApp. Passing `null` will expose the low-level provider object.
 
-3. `reRendererNames: string[]` (optional): An array of arbitrary `string` names which can be used to control targeted global data re-rendering. For more information, see [the section on re-renderers](#re-renderers).
+### 4. Activate
 
-### 4. Using `web3-react`
+Now, you need to decide how/when you would like to activate your Connectors. For all options, please see [the manager functions](#manager-functions) section. The example code below attempts to automatically activate MetaMask, and falls back to infura.
+
+```javascript
+import React, { useEffect } from 'react'
+import { useWeb3Context } from 'web3-react'
+
+// This component must be a child of <App> to have access to the appropriate context
+export default function MyComponent () {
+  const context = useWeb3Context()
+
+  useEffect(() => {
+    context.setFirstValidConnector(['metaMask', 'infura'])
+  }, [])
+
+  if (!context.active && !context.error) {
+    // loading
+    return ...
+  } else if (context.error) {
+    //error
+    return ...
+  } else {
+    // success
+    return ...
+  }
+}
+```
+
+### 5. Using `web3-react`
 
 Finally, you're ready to use `web3-react`!
 
@@ -110,8 +140,6 @@ function MyComponent() {
   return <p>{context.account}</p>
 }
 ```
-
-Note: The Component which includes your `Web3Provider` Component **cannot** use `useWeb3Context`.
 
 #### _Conditionally Recommended_ - Render Props
 
@@ -132,11 +160,9 @@ The component takes 2 props:
 
 2. `recreateOnAccountChange: boolean` (optional, default `true`). A flag that controls whether child components are completely re-initialized upon account changes.
 
-Note: This pattern will work for arbitrarily deeply nested components. This means that the `Web3Consumer` doesn't necessarily need to be at the top level of your app. There also won't be performance concerns if you choose to use multiple `Web3Consumer`s at different nesting levels.
-
 #### _Not Recommended_ - HOCs
 
-If you must, you use `web3-react` with an [HOC](https://reactjs.org/docs/context.html#consuming-context-with-a-hoc).
+If you must, you can use `web3-react` with an [HOC](https://reactjs.org/docs/context.html#consuming-context-with-a-hoc).
 
 ```javascript
 import React from 'react'
@@ -144,6 +170,7 @@ import { withWeb3 } from 'web3-react'
 
 function MyComponent({ web3 }) {
   const { account } = web3
+
   return <p>{account}</p>
 }
 
@@ -162,60 +189,35 @@ Regardless of how you access the `web3-react` context, it will look like:
 {
   active: boolean
   connectorName?: string
-  library?: Library
+  connector?: any
+  library?: any
   networkId?: number
   account?: string | null
   error: Error | null
 
-  setConnector: Function
-  setFirstValidConnector: Function
-  unsetConnector: Function
-  setError: Function
-
-  reRenderers: IReRendererState
-  forceReRender: Function
+  setConnector: (connectorName: string, suppressAndThrowErrors?: boolean) => Promise<void>
+  setFirstValidConnector: (connectorNames: string[], suppressAndThrowErrors?: boolean) => Promise<void>
+  unsetConnector: () => void
+  setError: (error: Error, connectorName?: string) => void
 }
 ```
 
 ### Variables
 
-- `active`: A flag indicating whether `web3-react` has been initialized.
+- `active`: A flag indicating whether `web3-react` currently has an connector set.
 - `connectorName`: The name of the currently active connector.
-- `library`: An [ethers.js](https://github.com/ethers-io/ethers.js/) or [web3.js](https://web3js.readthedocs.io/en/1.0/) instance, instantiated with the current web3 provider.
+- `connector`: The instance of the currently active connector.
+- `library`: An instantiated [ethers.js](https://github.com/ethers-io/ethers.js/) or [web3.js](https://web3js.readthedocs.io/en/1.0/) instance.
 - `networkId`: The current active network ID.
 - `account`: The current active account if one exists.
 - `error`: The current active error if one exists.
 
 ### Manager Functions
 
-- `setConnector(connectorName: string)`: Activates a connector.
-- `setFirstValidConnector(connectorNames: string[])`: Tries to activate each connector in turn.
+- `setConnector(connectorName: string, suppressAndThrowErrors?: boolean)`: Activates a connector by name. The second argument is a flag (`false` by default) that controls whether errors, instead of bubbling up to `context.error`, are instead thrown by this function.
+- `setFirstValidConnector(connectorNames: string[], suppressAndThrowErrors: boolean = false)`: Tries to activate each connector in turn by name. The second argument is a flag (`false` by default) that controls whether errors, instead of bubbling up to `context.error`, are instead thrown by this function.
 - `unsetConnector()`: Unsets the currently active connector.
-- `setError()`: Sets an error.
-
-### Re-Renderers
-
-- `reRenderers`: An object, where the keys are the `reRendererNames` passed into the `Web3Provider` and the values can be used to force re-renders of specific data, e.g. when included in the `useEffect` hook dependencies array.
-- `forceReRender(reRendererName)`: A function that triggers a global re-render for the `reRendererName`.
-
-It's possible that a dApp may wish to re-calculate certain values after certain events, perhaps without monitoring the chain to do so. One flavor of this imperative updating is updating an account balance after every transaction. To achieve such a patter,
-
-```javascript
-import { useEffect } from 'react'
-import { useWeb3Context } from 'web3-react/hooks'
-
-const reRendererNames = ['MyReRenderer'] // assume this array was passed to the Web3Provider...
-
-function MyComponent() {
-  const context = useWeb3Context()
-
-  useEffect(() => {
-    // code here will run again every time context.forceReRender('MyReRenderer') is called
-  }, [context.reRenderers.MyReRenderer])
-
-  ...
-}
-```
+- `setError(error: Error, connectorName?: string)`: Sets `context.error`, with an optional connector name.
 
 ## Implementations
 
