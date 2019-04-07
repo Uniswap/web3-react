@@ -1116,7 +1116,7 @@
   resolved "https://registry.yarnpkg.com/@types/yargs/-/yargs-12.0.11.tgz#a090d88e1f40a910e6443c95493c1c035c76ebdc"
   integrity sha512-IsU1TD+8cQCyG76ZqxP0cVFnofvfzT8p/wO8ENT4jbN/KKN3grsHFgHNl/U+08s33ayX4LwI85cEhYXCOlOkMw==
 
-"@walletconnect/browser@^1.0.0-beta.6":
+"@walletconnect/browser@^1.0.0-beta.10":
   version "1.0.0-beta.10"
   resolved "https://registry.yarnpkg.com/@walletconnect/browser/-/browser-1.0.0-beta.10.tgz#f17dc22a6a47d7700ed01a7e6ace51e5baf461a6"
   integrity sha512-P78Cdr6XkfHb7DzV3Go6huH9YXWoo2IueZBkPYLOHv/OtnzOlp4DBmpJDKBq9mS3mrdUuHz/e+X9e8Z3qkGbEg==
@@ -1133,12 +1133,20 @@
     "@walletconnect/types" "^1.0.0-beta.10"
     "@walletconnect/utils" "^1.0.0-beta.10"
 
-"@walletconnect/types@^1.0.0-beta.10", "@walletconnect/types@^1.0.0-beta.6":
+"@walletconnect/qrcode-modal@^1.0.0-beta.10":
+  version "1.0.0-beta.10"
+  resolved "https://registry.yarnpkg.com/@walletconnect/qrcode-modal/-/qrcode-modal-1.0.0-beta.10.tgz#5c93e0945493034b65d3f7997c35840db35d327f"
+  integrity sha512-MdT4NUaJgWvcYpPMtSuZrNLQNplc1YkPc6f26u0KulCPwdOZchzYDy6oaFS0lM6rXCS1UWdPLg+VpdOmMOCC3Q==
+  dependencies:
+    "@walletconnect/types" "^1.0.0-beta.10"
+    qr-image "^3.2.0"
+
+"@walletconnect/types@^1.0.0-beta.10":
   version "1.0.0-beta.10"
   resolved "https://registry.yarnpkg.com/@walletconnect/types/-/types-1.0.0-beta.10.tgz#5376564679bece0b6441296cc8654b3eff885128"
   integrity sha512-iU7++kGTSHC9eoePuHNFUsLjulpjszp6SkUWG4ZFb0hiN3mJois4b8MbdFoUfuAEegqFxU3CRi/OlhEg8ghUoA==
 
-"@walletconnect/utils@^1.0.0-beta.10", "@walletconnect/utils@^1.0.0-beta.6":
+"@walletconnect/utils@^1.0.0-beta.10":
   version "1.0.0-beta.10"
   resolved "https://registry.yarnpkg.com/@walletconnect/utils/-/utils-1.0.0-beta.10.tgz#48fd93fe21210448aecedd5b2971bf5288c0fd37"
   integrity sha512-3szB12+strzgminADFAZxreM2fpgG6j7pmLc0o5Euj+4TjRPI0cbj9HUDxkoHHHQPmnJaqdMdJ1+4e9bCE2+mw==
@@ -1146,14 +1154,16 @@
     "@walletconnect/types" "^1.0.0-beta.10"
     lodash.isnumber "^3.0.3"
 
-"@walletconnect/web3-subprovider@1.0.0-beta.6":
-  version "1.0.0-beta.6"
-  resolved "https://registry.yarnpkg.com/@walletconnect/web3-subprovider/-/web3-subprovider-1.0.0-beta.6.tgz#6036f49332819e9341d48d8ef571bd5dda26f2dd"
-  integrity sha512-I4gIpsdK1/QycohxLuJPQK9I78ltBYzUgrMj6zcgVKCKShDgJavwXpTBCsseIxHX/JSeWsO+PahxC6N5v3G7ow==
+"@walletconnect/web3-subprovider@^1.0.0-beta.10":
+  version "1.0.0-beta.10"
+  resolved "https://registry.yarnpkg.com/@walletconnect/web3-subprovider/-/web3-subprovider-1.0.0-beta.10.tgz#09e0bbffa56afdeafd1cd3e37f3eccb851880859"
+  integrity sha512-FqGIdulz3ThycUieANF593YO+7bWTn1qclPxl2eZ2hy/Xh3VbIcwDdzqvYtbkfbDuPh3IIsL4h5GOZemN8iDTg==
   dependencies:
-    "@walletconnect/browser" "^1.0.0-beta.6"
-    "@walletconnect/types" "^1.0.0-beta.6"
-    "@walletconnect/utils" "^1.0.0-beta.6"
+    "@walletconnect/browser" "^1.0.0-beta.10"
+    "@walletconnect/qrcode-modal" "^1.0.0-beta.10"
+    "@walletconnect/types" "^1.0.0-beta.10"
+    "@walletconnect/utils" "^1.0.0-beta.10"
+    web3-provider-engine "^15.0.0"
 
 abab@^2.0.0:
   version "2.0.0"
@@ -3364,7 +3374,7 @@ eth-json-rpc-middleware@^1.5.0:
     promise-to-callback "^1.0.0"
     tape "^4.6.3"
 
-eth-json-rpc-middleware@^4.0.0, "eth-json-rpc-middleware@github:radotzki/eth-json-rpc-middleware#patch-1":
+eth-json-rpc-middleware@^4.0.0, eth-json-rpc-middleware@^4.1.1, "eth-json-rpc-middleware@github:radotzki/eth-json-rpc-middleware#patch-1":
   version "4.1.2"
   resolved "https://codeload.github.com/radotzki/eth-json-rpc-middleware/tar.gz/8acc43df4a8c0c7f6d212af9163d379211dad4c7"
   dependencies:
@@ -6700,6 +6710,11 @@ punycode@^2.1.0, punycode@^2.1.1:
   resolved "https://registry.yarnpkg.com/punycode/-/punycode-2.1.1.tgz#b58b010ac40c22c5657616c8d2c2c02c7bf479ec"
   integrity sha512-XRsRjdf+j5ml+y/6GKHPZbrF/8p2Yga0JPtdqTIY2Xe5ohJPD9saDJJLPvp9+NSBprVvevdXZybnj2cv8OEd0A==
 
+qr-image@^3.2.0:
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/qr-image/-/qr-image-3.2.0.tgz#9fa8295beae50c4a149cf9f909a1db464a8672e8"
+  integrity sha1-n6gpW+rlDEoUnPn5CaHbRkqGcug=
+
 qs@6.5.2, qs@~6.5.2:
   version "6.5.2"
   resolved "https://registry.yarnpkg.com/qs/-/qs-6.5.2.tgz#cb3ae806e8740444584ef154ce8ee98d403f3e36"
@@ -8465,6 +8480,34 @@ web3-provider-engine@14.1.0:
     cross-fetch "^2.1.0"
     eth-block-tracker "^3.0.0"
     eth-json-rpc-infura "^3.1.0"
+    eth-sig-util "^1.4.2"
+    ethereumjs-block "^1.2.2"
+    ethereumjs-tx "^1.2.0"
+    ethereumjs-util "^5.1.5"
+    ethereumjs-vm "^2.3.4"
+    json-rpc-error "^2.0.0"
+    json-stable-stringify "^1.0.1"
+    promise-to-callback "^1.0.0"
+    readable-stream "^2.2.9"
+    request "^2.85.0"
+    semaphore "^1.0.3"
+    ws "^5.1.1"
+    xhr "^2.2.0"
+    xtend "^4.0.1"
+
+web3-provider-engine@^15.0.0:
+  version "15.0.0"
+  resolved "https://registry.yarnpkg.com/web3-provider-engine/-/web3-provider-engine-15.0.0.tgz#3331ab0b46af936e4071ea233ec33049936b4c4d"
+  integrity sha512-T39JS4Wgh2+J5W4KztmuHd7QdElhvfxTxLI1WUb3M0IIzqio2WR89AN8YLz40Ssv6T4mW1QuiFbopQJGeUrvJg==
+  dependencies:
+    async "^2.5.0"
+    backoff "^2.5.0"
+    clone "^2.0.0"
+    cross-fetch "^2.1.0"
+    eth-block-tracker "^4.2.0"
+    eth-json-rpc-filters "^4.0.2"
+    eth-json-rpc-infura "^3.1.0"
+    eth-json-rpc-middleware "^4.1.1"
     eth-sig-util "^1.4.2"
     ethereumjs-block "^1.2.2"
     ethereumjs-tx "^1.2.0"

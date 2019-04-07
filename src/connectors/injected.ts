@@ -23,13 +23,15 @@ export default class InjectedConnector extends ErrorCodeMixin(Connector, Injecte
       })
 
       // initialize event listeners
-      if (ethereum.on && ethereum.removeListener) {
+      if (ethereum.on) {
         ethereum.on('networkChanged', this.networkChangedHandler)
         ethereum.on('accountsChanged', this.accountsChangedHandler)
 
         this.runOnDeactivation.push(() => {
-          ethereum.removeListener('networkChanged', this.networkChangedHandler)
-          ethereum.removeListener('accountsChanged', this.accountsChangedHandler)
+          if (ethereum.removeListener) {
+            ethereum.removeListener('networkChanged', this.networkChangedHandler)
+            ethereum.removeListener('accountsChanged', this.accountsChangedHandler)
+          }
         })
       }
 

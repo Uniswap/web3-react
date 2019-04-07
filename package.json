@@ -37,7 +37,7 @@
   "dependencies": {
     "@0x/subproviders": "^4.0.4",
     "@portis/web3": "^2.0.0-beta.21",
-    "@walletconnect/web3-subprovider": "1.0.0-beta.6",
+    "@walletconnect/web3-subprovider": "^1.0.0-beta.10",
     "fortmatic": "^0.5.2",
     "trezor-connect": "^7.0.2"
   },

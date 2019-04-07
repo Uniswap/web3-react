@@ -20,7 +20,7 @@ export function useWeb3Context(): IWeb3ContextInterface {
   return useContext(Web3Context)
 }
 
-function Web3Provider({ connectors, libraryName = 'web3.js', children }: IWeb3ProviderProps) {
+function Web3Provider({ connectors, libraryName, children }: IWeb3ProviderProps) {
   const {
     web3Initialized: active,
     web3State,
@@ -99,7 +99,7 @@ interface IWithWeb3Interface {
 
 export function withWeb3(
   ComponentToWrap: any,
-  { recreateOnNetworkChange = true, recreateOnAccountChange = true }: IWithWeb3Interface
+  { recreateOnNetworkChange = true, recreateOnAccountChange = true }: IWithWeb3Interface = {}
 ): any {
   class WithWeb3 extends Component {
     public render() {
