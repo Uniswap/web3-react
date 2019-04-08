@@ -79,7 +79,7 @@ export default function App () {
   return (
     <Web3Provider
       connectors={...}
-      libraryName={'ethers.js'|'web3.js'}
+      libraryName={'ethers.js'|'web3.js'|null}
     >
       ...
     </Web3Provider>
@@ -91,7 +91,7 @@ The `Web3Provider` takes 2 props:
 
 1. `connectors: any` (required): An object mapping arbitrary `string` connector names to Connector objects (see [the previous section](#2-setup-connectors) for more detail).
 
-2. `libraryName: string` (optional): `ethers.js` or `web3.js`, depending on which library you wish to use in your dApp. Passing `null` will expose the low-level provider object.
+2. `libraryName: string`: `ethers.js` or `web3.js`, depending on which library you wish to use in your dApp. Passing `null` will expose the low-level provider object.
 
 ### 4. Activate
 
