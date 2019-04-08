@@ -1,14 +1,14 @@
-[![npm version](https://img.shields.io/npm/v/web3-react/next.svg)](https://www.npmjs.com/package/web3-react/v/next)
-[![Build Status](https://travis-ci.org/NoahZinsmeister/web3-react.svg?branch=next)](https://travis-ci.org/NoahZinsmeister/web3-react)
-[![Coverage Status](https://coveralls.io/repos/github/NoahZinsmeister/web3-react/badge.svg?branch=next)](https://coveralls.io/github/NoahZinsmeister/web3-react?branch=next)
+[![npm version](https://img.shields.io/npm/v/web3-react/unstable.svg)](https://www.npmjs.com/package/web3-react/v/unstable)
+[![Build Status](https://travis-ci.org/NoahZinsmeister/web3-react.svg?branch=unstable)](https://travis-ci.org/NoahZinsmeister/web3-react)
+[![Coverage Status](https://coveralls.io/repos/github/NoahZinsmeister/web3-react/badge.svg?branch=unstable)](https://coveralls.io/github/NoahZinsmeister/web3-react?branch=unstable)
 
 ![Example GIF](./_assets/example.gif)
 
 ## Resources
 
-- Documentation for `web3-react` is [available on Gitbook](https://noahzinsmeister.gitbook.io/web3-react/v/next/).
+- Documentation for `web3-react` is [available on Gitbook](https://noahzinsmeister.gitbook.io/web3-react/v/unstable/).
 
-- A live demo of `web3-react` is [available on CodeSandbox](https://codesandbox.io/s/jpyw6qoq9).
+- A live demo of `web3-react` is [available on CodeSandbox](https://codesandbox.io/s/r7wymqkzwn).
 
 ## Introduction
 
@@ -24,7 +24,7 @@
 
 If you want to cut straight to the chase, check out the CodeSandbox demo!
 
-[![Edit web3-react](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/jpyw6qoq9)
+[![Edit web3-react](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/r7wymqkzwn)
 
 ### 1. Install
 
@@ -47,7 +47,7 @@ yarn add web3
 Finally you're ready to use `web3-react`:
 
 ```bash
-yarn add web3-react@next
+yarn add web3-react@unstable
 ```
 
 ### 2. Setup Connectors
