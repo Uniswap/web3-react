@@ -22,9 +22,11 @@ export default class WalletConnectConnector extends Connector {
   private walletConnectSubprovider: any
   private engine: any
 
-  constructor(kwargs: IWalletConnectConnectorArguments) {
+  public constructor(kwargs: IWalletConnectConnectorArguments) {
     const { bridge, supportedNetworkURLs, defaultNetwork } = kwargs
-    const supportedNetworks = Object.keys(supportedNetworkURLs).map(supportedNetworkURL => Number(supportedNetworkURL))
+    const supportedNetworks = Object.keys(supportedNetworkURLs).map(
+      (supportedNetworkURL): number => Number(supportedNetworkURL)
+    )
     super({ supportedNetworks })
 
     this.bridge = bridge

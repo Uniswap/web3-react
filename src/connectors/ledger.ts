@@ -22,9 +22,11 @@ export default class LedgerConnector extends Connector {
   public readonly defaultNetwork: number
   private engine: any
 
-  constructor(kwargs: ILedgerConnectorArguments) {
+  public constructor(kwargs: ILedgerConnectorArguments) {
     const { supportedNetworkURLs, defaultNetwork } = kwargs
-    const supportedNetworks = Object.keys(supportedNetworkURLs).map(supportedNetworkURL => Number(supportedNetworkURL))
+    const supportedNetworks = Object.keys(supportedNetworkURLs).map(
+      (supportedNetworkURL): number => Number(supportedNetworkURL)
+    )
     super({ supportedNetworks })
 
     this.supportedNetworkURLs = supportedNetworkURLs

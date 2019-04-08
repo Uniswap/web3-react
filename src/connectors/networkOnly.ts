@@ -11,7 +11,7 @@ export default class NetworkOnlyConnector extends Connector {
   private engine: any
   private readonly providerURL: any
 
-  constructor(kwargs: INetworkOnlyConnectorArguments) {
+  public constructor(kwargs: INetworkOnlyConnectorArguments) {
     const { providerURL, ...rest } = kwargs
     super(rest)
     this.providerURL = providerURL

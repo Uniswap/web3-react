@@ -2,12 +2,12 @@ import { createContext } from 'react'
 
 import { IWeb3ContextInterface } from './types'
 
-function defaultError() {
-  console.error('No <Web3Provider ...> Found.') // tslint:disable-line: no-console
+function defaultError(): void {
+  console.error('No <Web3Provider ...> Found.') // eslint-disable-line no-console
 }
 
-async function defaultErrorAsync() {
-  console.error('No <Web3Provider ...> Found.') // tslint:disable-line: no-console
+async function defaultErrorAsync(): Promise<void> {
+  console.error('No <Web3Provider ...> Found.') // eslint-disable-line no-console
 }
 
 const defaultContext = {

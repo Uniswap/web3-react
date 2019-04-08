@@ -74,7 +74,7 @@ export default class TrezorSubprovider extends BaseWalletSubprovider {
    * @param TrezorSubprovider config object containing trezor-connect API
    * @return TrezorSubprovider instance
    */
-  constructor(config: TrezorSubproviderConfig) {
+  public constructor(config: TrezorSubproviderConfig) {
     super()
     this._privateKeyPath = PRIVATE_KEY_PATH
     this._trezorConnectClientApi = config.trezorConnectClientApi
@@ -94,7 +94,7 @@ export default class TrezorSubprovider extends BaseWalletSubprovider {
   public async getAccountsAsync(numberOfAccounts: number = DEFAULT_NUM_ADDRESSES_TO_FETCH): Promise<string[]> {
     const initialDerivedKeyInfo = await this._initialDerivedKeyInfoAsync()
     const derivedKeyInfos = walletUtils.calculateDerivedHDKeyInfos(initialDerivedKeyInfo, numberOfAccounts)
-    const accounts = _.map(derivedKeyInfos, (k: any) => k.address)
+    const accounts = _.map(derivedKeyInfos, (k: any): any => k.address)
     return accounts
   }
   /**
@@ -137,15 +137,21 @@ export default class TrezorSubprovider extends BaseWalletSubprovider {
 
       // Set the EIP155 bits
       const vIndex = 6
+      // eslint-disable-next-line
       tx.raw[vIndex] = Buffer.from([1]) // v
       const rIndex = 7
+      // eslint-disable-next-line
       tx.raw[rIndex] = Buffer.from([]) // r
       const sIndex = 8
+      // eslint-disable-next-line
       tx.raw[sIndex] = Buffer.from([]) // s
 
       // slice off leading 0x
+      // eslint-disable-next-line
       tx.v = Buffer.from(payload.v.slice(2), 'hex')
+      // eslint-disable-next-line
       tx.r = Buffer.from(payload.r.slice(2), 'hex')
+      // eslint-disable-next-line
       tx.s = Buffer.from(payload.s.slice(2), 'hex')
 
       return `0x${tx.serialize().toString('hex')}`
@@ -196,7 +202,7 @@ export default class TrezorSubprovider extends BaseWalletSubprovider {
    * @return Signature hex string (order: rsv)
    */
   // tslint:disable-next-line:prefer-function-over-method
-  public async signTypedDataAsync(_address: string, _typedData: any): Promise<string> {
+  public async signTypedDataAsync(): Promise<string> {
     throw new Error(WalletSubproviderErrors.MethodNotSupported)
   }
   private async _initialDerivedKeyInfoAsync(): Promise<DerivedHDKeyInfo> {
@@ -212,7 +218,9 @@ export default class TrezorSubprovider extends BaseWalletSubprovider {
       if (response.success) {
         const payload: TrezorGetPublicKeyResponsePayload = response.payload
         const hdKey = new HDNode()
+        // eslint-disable-next-line
         hdKey.publicKey = new Buffer(payload.publicKey, 'hex')
+        // eslint-disable-next-line
         hdKey.chainCode = new Buffer(payload.chainCode, 'hex')
         const address = walletUtils.addressOfHDKey(hdKey)
         const initialDerivedKeyInfo = {

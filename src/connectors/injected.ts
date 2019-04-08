@@ -3,9 +3,9 @@ import Connector, { ErrorCodeMixin, IConnectorArguments } from './connector'
 
 const InjectedConnectorErrorCodes = ['ETHEREUM_ACCESS_DENIED', 'LEGACY_PROVIDER', 'NO_WEB3', 'UNLOCK_REQUIRED']
 export default class InjectedConnector extends ErrorCodeMixin(Connector, InjectedConnectorErrorCodes) {
-  private runOnDeactivation: Array<() => void> = []
+  private runOnDeactivation: (() => void)[] = []
 
-  constructor(kwargs: IConnectorArguments) {
+  public constructor(kwargs: IConnectorArguments) {
     super(kwargs)
 
     this.networkChangedHandler = this.networkChangedHandler.bind(this)
@@ -16,23 +16,27 @@ export default class InjectedConnector extends ErrorCodeMixin(Connector, Injecte
     const { ethereum, web3 } = window
 
     if (ethereum) {
-      await ethereum.enable().catch((error: any) => {
-        const deniedAccessError: Error = Error(error)
-        deniedAccessError.code = InjectedConnector.errorCodes.ETHEREUM_ACCESS_DENIED
-        throw deniedAccessError
-      })
+      await ethereum.enable().catch(
+        (error: any): any => {
+          const deniedAccessError: Error = Error(error)
+          deniedAccessError.code = InjectedConnector.errorCodes.ETHEREUM_ACCESS_DENIED
+          throw deniedAccessError
+        }
+      )
 
       // initialize event listeners
       if (ethereum.on) {
         ethereum.on('networkChanged', this.networkChangedHandler)
         ethereum.on('accountsChanged', this.accountsChangedHandler)
 
-        this.runOnDeactivation.push(() => {
-          if (ethereum.removeListener) {
-            ethereum.removeListener('networkChanged', this.networkChangedHandler)
-            ethereum.removeListener('accountsChanged', this.accountsChangedHandler)
+        this.runOnDeactivation.push(
+          (): void => {
+            if (ethereum.removeListener) {
+              ethereum.removeListener('networkChanged', this.networkChangedHandler)
+              ethereum.removeListener('accountsChanged', this.accountsChangedHandler)
+            }
           }
-        })
+        )
       }
 
       if (ethereum.isMetaMask) {
@@ -67,7 +71,7 @@ export default class InjectedConnector extends ErrorCodeMixin(Connector, Injecte
   }
 
   public onDeactivation(): void {
-    this.runOnDeactivation.forEach(runner => runner())
+    this.runOnDeactivation.forEach((runner): void => runner())
     this.runOnDeactivation = []
   }
 

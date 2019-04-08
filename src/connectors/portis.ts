@@ -15,7 +15,7 @@ export default class PortisConnector extends Connector {
   private readonly network: any
   private readonly options: any
 
-  constructor(kwargs: IPortisConnectorArguments) {
+  public constructor(kwargs: IPortisConnectorArguments) {
     const { dAppId, network, options, ...rest } = kwargs
     super(rest)
 
