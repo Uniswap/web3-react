@@ -1,7 +1,7 @@
 {
   "name": "web3-react",
   "version": "3.1.3",
-  "description": "Drop in solution for building Ethereum dApps in React.",
+  "description": "A simple, powerful framework for building modern Ethereum dApps using React.",
   "author": "Noah Zinsmeister <noahwz@gmail.com>",
   "keywords": [
     "react",
@@ -13,7 +13,17 @@
     "web3",
     "context",
     "frontend",
-    "dapp"
+    "dapp",
+    "metamask",
+    "trust-wallet",
+    "tokenary",
+    "trezor",
+    "ledger",
+    "infura",
+    "quiknode",
+    "walletconnect",
+    "formatic",
+    "portis"
   ],
   "license": "GPL-3.0-or-later",
   "repository": {
@@ -24,10 +34,10 @@
   "bugs": {
     "url": "https://github.com/NoahZinsmeister/web3-react/issues"
   },
-  "main": "./dist/provider.js",
+  "main": "./dist/index.js",
   "scripts": {
-    "ensureLinted": "yarn eslint ./src/**/* --ext .ts,.tsx,.js,.jsx",
-    "ensureFormatted": "yarn prettier --check 'src/**/*'",
+    "ensureLinted": "yarn eslint ./src/**/* ./__tests__/**/* --ext .ts,.tsx,.js,.jsx",
+    "ensureFormatted": "yarn prettier --check './src/**/*' './__tests__/**/*'",
     "prebuild": "rm -rf dist/",
     "build": "tsc",
     "watch": "yarn prebuild && tsc --watch",
@@ -35,10 +45,10 @@
     "coverage": "jest --coverage --coverageReporters=text-lcov"
   },
   "dependencies": {
-    "@0x/subproviders": "^4.0.4",
-    "@portis/web3": "^2.0.0-beta.21",
+    "@0x/subproviders": "^4.0.5",
+    "@portis/web3": "^2.0.0-beta.23",
     "@walletconnect/web3-subprovider": "^1.0.0-beta.10",
-    "fortmatic": "^0.5.2",
+    "fortmatic": "^0.7.0",
     "trezor-connect": "^7.0.2"
   },
   "devDependencies": {

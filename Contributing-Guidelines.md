@@ -4,7 +4,7 @@ I welcome any and all questions/suggestions/PRs/etc.! If you're interested in he
 
 - The project is written in Typescript, all source files are in the [`src/`](./src/) directory.
 
-- All files are linted with [TSlint](https://palantir.github.io/tslint/), and formatted with [Prettier](https://prettier.io/). You can run `yarn ensureLinted` and `yarn ensureFormatted` to check this.
+- All files are linted with [ESLint](https://eslint.org/), and formatted with [Prettier](https://prettier.io/). You can run `yarn ensureLinted` and `yarn ensureFormatted` to check that your code is conformant.
 
 - To build/watch for changes, run `yarn {build,watch}`.
 

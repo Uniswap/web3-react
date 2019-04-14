@@ -1,18 +1,18 @@
-// tslint:disable-next-line: no-implicit-dependencies no-submodule-imports
 import 'jest-dom/extend-expect'
 import React from 'react'
-import { fireEvent, render, waitForElement } from 'react-testing-library' // tslint:disable-line: no-implicit-dependencies
+import { fireEvent, render, waitForElement } from 'react-testing-library'
 
-import { NetworkOnlyConnector } from '../src/connectors'
-import Web3Provider, { useWeb3Context } from '../src/provider'
+import Web3Provider, { useWeb3Context, Connectors } from '../src'
+
+const { NetworkOnlyConnector } = Connectors
 
 // TODO mock this out so we're not hitting infura every times
-const infura = new NetworkOnlyConnector({
+const Infura = new NetworkOnlyConnector({
   providerURL: 'https://rinkeby.infura.io/v3/3f0fa5d9c4064d6e8427efac291d66df'
 })
-const connectors = { infura }
+const connectors = { Infura }
 
-function MyComponent() {
+function MyComponent(): any {
   return (
     <Web3Provider connectors={connectors} libraryName="ethers.js">
       <p data-testid="static-test">test</p>
@@ -21,11 +21,11 @@ function MyComponent() {
   )
 }
 
-function MyChildComponent() {
+function MyChildComponent(): any {
   const context = useWeb3Context()
 
-  function setInfura() {
-    context.setConnector('infura')
+  function setInfura(): void {
+    context.setConnector('Infura')
   }
 
   return (
@@ -36,34 +36,34 @@ function MyChildComponent() {
   )
 }
 
-// TODO remove after updating react and react-dom per https://github.com/kentcdodds/react-testing-library/issues/281
-const originalError = console.error // tslint:disable-line:no-console
-beforeAll(() => {
-  // tslint:disable-next-line:no-console
-  console.error = (...args: any[]) => {
-    if (/Warning.*not wrapped in act/.test(args[0])) {
-      return
+// TODO remove once https://github.com/kentcdodds/react-testing-library/issues/281 is resolved
+const originalError = console.error // eslint-disable-line no-console
+beforeAll(
+  (): void => {
+    // eslint-disable-next-line no-console
+    console.error = (...args: any[]): void => {
+      if (/Warning.*not wrapped in act/.test(args[0])) {
+        return
+      }
+      originalError.call(console, ...args)
     }
-    originalError.call(console, ...args)
   }
-})
+)
 
-afterAll(() => {
-  console.error = originalError // tslint:disable-line:no-console
-})
+afterAll(
+  (): void => {
+    console.error = originalError // eslint-disable-line no-console
+  }
+)
 
-test('Rendering', async () => {
+test('Rendering', async (): Promise<void> => {
   const { getByTestId, queryByTestId } = render(<MyComponent />)
 
   expect(getByTestId('static-test')).toHaveTextContent('test')
   expect(queryByTestId('dynamic-networkid')).toBeNull()
 
-  // the below tests are commented out until the following issues with act() are resolved:
-  // https://github.com/kentcdodds/react-testing-library/issues/281
-  // https://github.com/facebook/react/issues/14769
-
   fireEvent.click(getByTestId('set-connector'))
-  await waitForElement(() => getByTestId('dynamic-networkid'))
+  await waitForElement((): any => getByTestId('dynamic-networkid'))
 
   expect(getByTestId('static-test')).toHaveTextContent('test')
   expect(getByTestId('dynamic-networkid')).toHaveTextContent('4')

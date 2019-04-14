@@ -1,9 +1,9 @@
 import { RPCSubprovider, Web3ProviderEngine } from '@0x/subproviders'
 
-import { Provider } from '../types'
-import Connector, { IConnectorArguments } from './connector'
+import { Provider } from '../manager'
+import Connector, { ConnectorArguments } from './connector'
 
-interface INetworkOnlyConnectorArguments extends IConnectorArguments {
+interface NetworkOnlyConnectorArguments extends ConnectorArguments {
   readonly providerURL: string
 }
 
@@ -11,7 +11,7 @@ export default class NetworkOnlyConnector extends Connector {
   private engine: any
   private readonly providerURL: any
 
-  public constructor(kwargs: INetworkOnlyConnectorArguments) {
+  public constructor(kwargs: NetworkOnlyConnectorArguments) {
     const { providerURL, ...rest } = kwargs
     super(rest)
     this.providerURL = providerURL

@@ -1,14 +1,14 @@
-// tslint:disable: max-classes-per-file
 import { ethers } from 'ethers'
 import EventEmitter from 'events'
 
-import { Provider } from '../types'
+import { Web3ReactUpdateHandlerOptions } from '../manager'
+import { Provider } from '../manager'
 
-export interface IErrorCodes {
+export interface ErrorCodes {
   [propName: string]: string
 }
 
-export interface IConnectorArguments {
+export interface ConnectorArguments {
   readonly supportedNetworks?: ReadonlyArray<number>
 }
 
@@ -18,8 +18,8 @@ export function ErrorCodeMixin(Base: any, errorCodes: string[]): any {
       super(kwargs)
     }
 
-    public static get errorCodes(): IErrorCodes {
-      return errorCodes.reduce((accumulator: IErrorCodes, currentValue: string): IErrorCodes => {
+    public static get errorCodes(): ErrorCodes {
+      return errorCodes.reduce((accumulator: ErrorCodes, currentValue: string): ErrorCodes => {
         accumulator[currentValue] = currentValue
         return accumulator
       }, {})
@@ -31,14 +31,14 @@ const ConnectorErrorCodes = ['UNSUPPORTED_NETWORK']
 export default abstract class Connector extends ErrorCodeMixin(EventEmitter, ConnectorErrorCodes) {
   public readonly supportedNetworks: ReadonlyArray<number> | undefined
 
-  public constructor(kwargs: IConnectorArguments = {}) {
+  public constructor(kwargs: ConnectorArguments = {}) {
     super()
     const { supportedNetworks } = kwargs
     this.supportedNetworks = supportedNetworks
   }
 
-  public async onActivation(): Promise<void> {} // tslint:disable-line:no-empty
-  public onDeactivation(): void {} // tslint:disable-line:no-empty
+  public async onActivation(): Promise<void> {}
+  public onDeactivation(): void {}
 
   public abstract async getProvider(networkId?: number): Promise<Provider>
 
@@ -64,29 +64,14 @@ export default abstract class Connector extends ErrorCodeMixin(EventEmitter, Con
     return networkId
   }
 
-  // wraps emissions of _web3ReactUpdateNetworkId
-  protected _web3ReactUpdateNetworkIdHandler(networkId?: number, bypassCheck?: boolean): void {
-    this.emit('_web3ReactUpdateNetworkId', networkId, bypassCheck)
-  }
-
-  // wraps emissions of _web3ReactUpdateAccount
-  protected _web3ReactUpdateAccountHandler(account?: string, bypassCheck?: boolean): void {
-    this.emit('_web3ReactUpdateAccount', account, bypassCheck)
-  }
-
-  // wraps emissions of _web3ReactUpdateNetworkIdAndAccount
-  protected _web3ReactUpdateNetworkIdAndAccountHandler(
-    networkId: number,
-    bypassNetworkIdCheck?: boolean,
-    account?: string,
-    bypassAccountCheck?: boolean
-  ): void {
-    this.emit('_web3ReactUpdateNetworkIdAndAccount', networkId, bypassNetworkIdCheck, account, bypassAccountCheck)
+  // wraps emissions of _web3ReactUpdate
+  protected _web3ReactUpdateHandler(options: Web3ReactUpdateHandlerOptions): void {
+    this.emit('_web3ReactUpdate', options)
   }
 
   // wraps emissions of _web3ReactError
-  protected _web3ReactErrorHandler(error: Error): void {
-    this.emit('_web3ReactError', error)
+  protected _web3ReactErrorHandler(error: Error, clearConnector?: boolean): void {
+    this.emit('_web3ReactError', error, clearConnector)
   }
 
   // wraps emissions of _web3ReactError

@@ -1,31 +1,31 @@
-// TODO change when TrezorSubprovider officially gets added to 0x/subproviders
-// TODO add event listeners per https://github.com/trezor/connect/blob/develop/docs/events.md
-// TODO add multiple network support?
+// lightly adapted from https://github.com/0xProject/0x-monorepo/pull/1431
+// TODO replace with offical implementation when TrezorSubprovider gets added to 0x/subproviders
+// TODO add event listeners per https://github.com/trezor/connect/blob/develop/docs/events.md ?
 import { RPCSubprovider, Web3ProviderEngine } from '@0x/subproviders'
 import TrezorConnect from 'trezor-connect'
 
-import { Provider } from '../../types'
+import { Provider } from '../../manager'
 import Connector from '../connector'
 import TrezorSubprovider from './subprovider'
 
-interface ISupportedNetworkURLs {
+interface SupportedNetworkURLs {
   readonly [propName: string]: string
 }
 
-interface ITrezorConnectorArguments {
-  readonly supportedNetworkURLs: ISupportedNetworkURLs
+interface TrezorConnectorArguments {
+  readonly supportedNetworkURLs: SupportedNetworkURLs
   readonly defaultNetwork: number
   readonly manifestEmail: string
   readonly manifestAppUrl: string
 }
 
 export default class TrezorConnector extends Connector {
-  private supportedNetworkURLs: ISupportedNetworkURLs
+  private supportedNetworkURLs: SupportedNetworkURLs
   private defaultNetwork: number
   private readonly manifestEmail: string
   private readonly manifestAppUrl: string
 
-  public constructor(kwargs: ITrezorConnectorArguments) {
+  public constructor(kwargs: TrezorConnectorArguments) {
     const { supportedNetworkURLs, defaultNetwork, manifestEmail, manifestAppUrl } = kwargs
     const supportedNetworks = Object.keys(supportedNetworkURLs).map(
       (supportedNetworkURL): number => Number(supportedNetworkURL)
@@ -72,6 +72,6 @@ export default class TrezorConnector extends Connector {
   }
 
   public changeNetwork(networkId: number): void {
-    super._web3ReactUpdateNetworkIdHandler(networkId)
+    super._web3ReactUpdateHandler({ updateNetworkId: true, networkId })
   }
 }

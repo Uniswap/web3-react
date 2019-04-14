@@ -1,6 +1,6 @@
 # Custom Connectors
 
-Building your own connector is as simple as defining a class that implements a specific interface.
+Building your own connector is as simple as defining a class that implements a specific interface!
 
 ## Extending the Abstract `Connector` Class
 
@@ -35,14 +35,20 @@ async getNetworkId(provider: Provider): Promise<number>
 async getAccount(provider: Provider): Promise<string | null>
 ```
 
+## Using `@0x/subproviders` / `web3-provider-engine`
+
+It's likely that if you're writing a custom connector, you'll want to use the convenience classes exported by [`@0x/subproviders`](https://github.com/0xProject/0x-monorepo/tree/development/packages/subproviders) (which in turn relies on [web3-provider-engine](https://github.com/MetaMask/web3-provider-engine)), as most of the default connectors do. To facilitate this, all exports of `@0x/subproviders` are provided under the named `subproviders` export of this package.
+
+```javascript
+import { subproviders } from 'web3-react'
+```
+
 ## Communicating From Your Connector
 
-`Connectors` can emit one of 5 events to trigger specific functionality within `web3-react`. The way to do this is to call the appropriate wrapper function in the underlying `Connector` class:
+`Connectors` can emit one of 3 events to trigger specific functionality within `web3-react`. The way to do this is to call the appropriate wrapper function in the underlying `Connector` class:
 
-- `_web3ReactUpdateNetworkIdHandler(networkId: number, bypassCheck: boolean = false)`: update the current network ID. Passing `bypassCheck` as `true` prevents the `.getNetworkId` method of the active connector from being called.
-- `_web3ReactUpdateAccountHandler(account: string, bypassCheck: boolean = false)`: update the current account. Passing `bypassCheck` as `true` prevents the `.getAccount` method of the active connector from being called.
-- `_web3ReactUpdateNetworkIdAndAccountHandler(networkId: number, bypassNetworkIdCheck: boolean = false, account: string bypassAccountCheck: boolean = false)`: update the current network ID and account. Passing either `bypassCheck` as `true` prevents the `.getNetworkId` or `.getAccount` methods of the active connector from being called.
-- `_web3ReactErrorHandler(error: Error)`: set an error.
+- `_web3ReactUpdateHandler({ updateNetworkId?: boolean, updateAccount?: boolean, overrideNetworkIdCheck?: boolean, overrideAccountCheck?: boolean, networkId?: number, account?: string})`: update the current network ID and/or account. One/Both of `updateNetworkId`/`updateAccount` must be passed. `networkId`/`account` are optional arguments that indicate the new network id account (if not passed, these values are fetched using `.getNetworkId`/`.getAccount`). `overrideNetworkIdCheck`/`overrideAccountCheck` control whether, if `networkId`/`account` are passed, whether to override calling the `.getNetworkId`/`.getAccount` methods of the active connector.
+- `_web3ReactErrorHandler(error: Error, clearConnector?: boolean)`: set an error, optionally clearing the current active connector.
 - `_web3ReactResetHandler()`: unset the connector.
 
 ## Using `ErrorCodeMixin`
@@ -63,6 +69,5 @@ class MyConnector extends ErrorCodeMixin(Connector, MyConnectorErrorCodes) {
 This ensures that a static `.errorCodes` property will exist on your connector, which will contain an object with keys and values equal to the passed error code strings.
 
 ```javascript
-console.log(MyConnector.errorCodes)
-// { MY_ERROR_CODE: 'MY_ERROR_CODE', ... }
+console.log(MyConnector.errorCodes) // { MY_ERROR_CODE: 'MY_ERROR_CODE', ... }
 ```

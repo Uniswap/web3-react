@@ -1,5 +1,4 @@
 // copied from https://github.com/0xProject/0x-monorepo/pull/1431
-// tslint:disable
 import { assert } from '@0x/assert'
 import { addressUtils } from '@0x/utils'
 import EthereumTx = require('ethereumjs-tx')
@@ -201,7 +200,6 @@ export default class TrezorSubprovider extends BaseWalletSubprovider {
    * @param data the typed data object
    * @return Signature hex string (order: rsv)
    */
-  // tslint:disable-next-line:prefer-function-over-method
   public async signTypedDataAsync(): Promise<string> {
     throw new Error(WalletSubproviderErrors.MethodNotSupported)
   }
