@@ -1,6 +1,6 @@
 {
   "name": "web3-react",
-  "version": "3.1.3",
+  "version": "4.0.0",
   "description": "A simple, powerful framework for building modern Ethereum dApps using React.",
   "author": "Noah Zinsmeister <noahwz@gmail.com>",
   "keywords": [
