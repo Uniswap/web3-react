@@ -1,24 +1,27 @@
 import React, { Component, Fragment, useContext } from 'react'
+import { ethers } from 'ethers'
+import Web3 from 'web3'
 
-import Web3Context from './context'
+import _Web3Context, { Library, Web3Context } from './context'
 import useWeb3Manager from './manager'
-import { IConnectors, IWeb3ContextInterface, LibraryName } from './types'
 
-interface IWeb3ProviderProps {
-  connectors: IConnectors
+export interface Connectors {
+  [propName: string]: any
+}
+
+export type LibraryName = 'web3.js' | 'ethers.js' | null
+
+export function useWeb3Context(): Web3Context {
+  return useContext(_Web3Context)
+}
+
+interface Web3ProviderProps {
+  connectors: Connectors
   libraryName?: LibraryName
-  reRendererNames?: string[]
   children: any
 }
 
-import * as Connectors from './connectors'
-export { Connectors }
-
-export function useWeb3Context(): IWeb3ContextInterface {
-  return useContext(Web3Context)
-}
-
-function Web3Provider({ connectors, libraryName = 'web3.js', reRendererNames = [], children }: IWeb3ProviderProps) {
+function Web3Provider({ connectors, libraryName, children }: Web3ProviderProps): any {
   const {
     web3Initialized: active,
     web3State,
@@ -26,18 +29,29 @@ function Web3Provider({ connectors, libraryName = 'web3.js', reRendererNames = [
     setConnector,
     setFirstValidConnector,
     unsetConnector,
-    setError,
-    reRenderers,
-    forceReRender
-  } = useWeb3Manager(connectors, libraryName, reRendererNames)
+    setError
+  } = useWeb3Manager(connectors)
 
-  const { connectorName, library, networkId, account, error } = web3State
+  const { connectorName, provider, networkId, account, error } = web3State
 
-  const context: IWeb3ContextInterface = {
+  const providerToInject =
+    provider &&
+    ((): Library => {
+      switch (libraryName) {
+        case 'ethers.js':
+          return new ethers.providers.Web3Provider(provider)
+        case 'web3.js':
+          return new Web3(provider)
+        case null:
+          return provider
+      }
+    })()
+
+  const context: Web3Context = {
     active,
     connectorName,
-    connector, // tslint:disable-line: object-literal-sort-keys
-    library,
+    connector,
+    library: providerToInject,
     networkId,
     account,
     error,
@@ -45,19 +59,16 @@ function Web3Provider({ connectors, libraryName = 'web3.js', reRendererNames = [
     setConnector,
     setFirstValidConnector,
     unsetConnector,
-    setError,
-
-    reRenderers,
-    forceReRender
+    setError
   }
 
-  return <Web3Context.Provider value={context}>{children}</Web3Context.Provider>
+  return <_Web3Context.Provider value={context}>{children}</_Web3Context.Provider>
 }
 
 export default Web3Provider
 
 // render props pattern: the consumer is exposed to give access to the web3 context via render props
-interface IWeb3ConsumerInterface {
+interface Web3ConsumerProps {
   recreateOnNetworkChange?: boolean
   recreateOnAccountChange?: boolean
   children: any
@@ -67,38 +78,38 @@ function Web3Consumer({
   recreateOnNetworkChange = true,
   recreateOnAccountChange = true,
   children
-}: IWeb3ConsumerInterface) {
+}: Web3ConsumerProps): any {
   return (
-    <Web3Context.Consumer>
-      {(context: IWeb3ContextInterface) => (
+    <_Web3Context.Consumer>
+      {(context: Web3Context): any => (
         <Fragment key={(recreateOnNetworkChange && context.networkId) || undefined}>
           <Fragment key={(recreateOnAccountChange && context.account) || undefined}>{children(context)}</Fragment>
         </Fragment>
       )}
-    </Web3Context.Consumer>
+    </_Web3Context.Consumer>
   )
 }
 
 export { Web3Consumer }
 
 // HOC pattern: withWeb3 is an wrapper that gives passed components access to the web3 context
-interface IWithWeb3Interface {
+interface WithWeb3Props {
   recreateOnNetworkChange?: boolean
   recreateOnAccountChange?: boolean
 }
 
 export function withWeb3(
   ComponentToWrap: any,
-  { recreateOnNetworkChange = true, recreateOnAccountChange = true }: IWithWeb3Interface
+  { recreateOnNetworkChange = true, recreateOnAccountChange = true }: WithWeb3Props = {}
 ): any {
   class WithWeb3 extends Component {
-    public render() {
+    public render(): any {
       return (
         <Web3Consumer
           recreateOnNetworkChange={recreateOnNetworkChange}
           recreateOnAccountChange={recreateOnAccountChange}
         >
-          {(context: IWeb3ContextInterface) => <ComponentToWrap {...this.props} web3={context} />}
+          {(context: Web3Context): any => <ComponentToWrap {...this.props} web3={context} />}
         </Web3Consumer>
       )
     }

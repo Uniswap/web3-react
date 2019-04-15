@@ -1,19 +1,35 @@
 import { createContext } from 'react'
 
-import { IWeb3ContextInterface } from './types'
+import { ManagerFunctions } from './manager'
 
-const defaultError = () => console.error('No Web3Provider Found.') // tslint:disable-line: no-console
+export type Library = any
+
+export interface Web3Context extends ManagerFunctions {
+  active: boolean
+  connectorName?: string
+  connector?: any
+  library?: Library
+  networkId?: number
+  account?: string | null
+  error: Error | null
+}
+
+function defaultError(): void {
+  console.error('No <Web3Provider ...> Found.') // eslint-disable-line no-console
+}
+
+async function defaultErrorAsync(): Promise<void> {
+  console.error('No <Web3Provider ...> Found.') // eslint-disable-line no-console
+}
+
 const defaultContext = {
   active: false,
   error: null,
 
-  setConnector: defaultError,
-  setFirstValidConnector: defaultError,
+  setConnector: defaultErrorAsync,
+  setFirstValidConnector: defaultErrorAsync,
   unsetConnector: defaultError,
-  setError: defaultError, // tslint:disable-line: object-literal-sort-keys
-
-  reRenderers: {},
-  forceReRender: defaultError
+  setError: defaultError
 }
 
-export default createContext<IWeb3ContextInterface>(defaultContext)
+export default createContext<Web3Context>(defaultContext)

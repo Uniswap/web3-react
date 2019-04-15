@@ -9,7 +9,7 @@ node_js:
 cache:
   directories:
     - node_modules
-install: npm install
+install: yarn
 script:
   - yarn ensureLinted
   - yarn ensureFormatted

@@ -1,159 +1,230 @@
-import { useCallback, useEffect, useReducer } from 'react'
+import { ethers } from 'ethers'
+import { MutableRefObject, useCallback, useEffect, useReducer, useRef } from 'react'
 
 import { Connector } from './connectors'
-import { IConnectors, IReRendererState, Library, LibraryName } from './types'
+import { Connectors } from './provider'
+
+export type Provider = any
 
 export const ManagerErrorCodes = ['UNEXPECTED_ERROR', 'ALL_CONNECTORS_INVALID'].reduce(
-  (accumulator: any, currentValue: string) => {
+  (accumulator: any, currentValue: string): any => {
     accumulator[currentValue] = currentValue
     return accumulator
   },
   {}
 )
-const unexpectedErrorMessage = 'Unexpected Error. Please file an issue on Github.'
 
-export interface IWeb3Manager {
-  web3Initialized: boolean
-  web3State: IWeb3State
-  connector: any
-  setConnector: Function // tslint:disable-line: ban-types
-  setFirstValidConnector: Function // tslint:disable-line: ban-types
-  unsetConnector: Function // tslint:disable-line: ban-types
-  setError: Function // tslint:disable-line: ban-types
-  reRenderers: IReRendererState
-  forceReRender: Function // tslint:disable-line: ban-types
+const unexpectedErrorMessage = 'web3-react encountered an unexpected internal error. See the console for details.'
+const unexpectedError = Error(unexpectedErrorMessage)
+unexpectedError.code = ManagerErrorCodes.UNEXPECTED_ERROR
+
+interface SetConnectorOptions {
+  suppressAndThrowErrors?: boolean
+  networkId?: number
 }
 
-interface IWeb3State {
+interface SetFirstValidConnectorOptions {
+  suppressAndThrowErrors?: boolean
+  networkIds?: number[]
+}
+
+export interface Web3ReactUpdateHandlerOptions {
+  updateNetworkId?: boolean
+  updateAccount?: boolean
+  overrideNetworkIdCheck?: boolean
+  overrideAccountCheck?: boolean
+  networkId?: number
+  account?: string
+}
+
+interface Web3State {
   connectorName?: string
-  library?: Library
+  provider?: Provider
   networkId?: number
   account?: string | null
   error: Error | null
 }
 
-const initialWeb3State: IWeb3State = {
+export interface ManagerFunctions {
+  setConnector: (connectorName: string, options?: SetConnectorOptions) => Promise<void>
+  setFirstValidConnector: (connectorNames: string[], options?: SetFirstValidConnectorOptions) => Promise<void>
+  unsetConnector: () => void
+  setError: (error: Error, connectorName?: string) => void
+}
+
+interface Web3Manager extends ManagerFunctions {
+  web3Initialized: boolean
+  web3State: Web3State
+  connector: any
+}
+
+const initialWeb3State: Web3State = {
   account: undefined,
   connectorName: undefined,
   error: null,
-  library: undefined,
-  networkId: undefined
+  networkId: undefined,
+  provider: undefined
 }
 
-function reRendererReducer(state: any, action: any): IReRendererState {
-  switch (action.type) {
-    case 'RERENDER':
-      return { ...state, [action.payload]: state[action.payload] + 1 }
-    default: {
-      const error = Error(unexpectedErrorMessage)
-      console.error(error, state, action) // tslint:disable-line: no-console
-      throw error
-    }
+function normalizeAccount(account: string | null): string | null {
+  return account === null ? account : ethers.utils.getAddress(account)
+}
+
+function useRefId(): [MutableRefObject<number>, () => void] {
+  const refId: MutableRefObject<number> = useRef(0)
+
+  function increment(): void {
+    refId.current += 1
   }
+
+  return [refId, increment]
 }
 
-function web3StateReducer(state: any, action: any): IWeb3State {
+function web3StateReducer(state: Web3State, action: any): Web3State {
   switch (action.type) {
     case 'UPDATE_CONNECTOR_VALUES': {
-      const { connectorName, library, networkId, account } = action.payload
-      return { connectorName, library, networkId, account, error: null }
+      const { connectorName, provider, networkId, account } = action.payload
+      return { connectorName, provider, networkId, account: normalizeAccount(account), error: null }
     }
     case 'UPDATE_NETWORK_ID': {
-      const { library, networkId } = action.payload
-      return { ...state, library, networkId, error: null }
+      const { provider, networkId } = action.payload
+      return { ...state, provider: provider || state.provider, networkId, error: null }
     }
-    case 'UPDATE_ACCOUNT':
-      return { ...state, account: action.payload, error: null }
+    case 'UPDATE_ACCOUNT': {
+      const { provider, account } = action.payload
+      return { ...state, provider: provider || state.provider, account: normalizeAccount(account), error: null }
+    }
     case 'UPDATE_NETWORK_ID_AND_ACCOUNT': {
-      const { library, networkId, account } = action.payload
-      return { ...state, library, networkId, account, error: null }
+      const { provider, networkId, account } = action.payload
+      return {
+        ...state,
+        provider: provider || state.provider,
+        account: normalizeAccount(account),
+        error: null,
+        networkId
+      }
     }
     case 'UPDATE_ERROR':
-      return { ...state, error: action.payload }
+      return { ...state, provider: undefined, networkId: undefined, account: undefined, error: action.payload }
     case 'UPDATE_ERROR_WITH_NAME': {
       const { error, connectorName } = action.payload
-      return { ...state, error, connectorName }
+      return { ...state, provider: undefined, networkId: undefined, account: undefined, error, connectorName }
     }
     case 'RESET':
       return initialWeb3State
     default: {
-      const error = Error(unexpectedErrorMessage)
-      console.error(error, state, action) // tslint:disable-line: no-console
-      throw error
+      // eslint-disable-next-line no-console
+      console.warn('Default case encountered in web3StateReducer. Please file an issue on Github.')
+      return { ...state, provider: undefined, networkId: undefined, account: undefined, error: unexpectedError }
     }
   }
 }
 
-export default function useWeb3Manager(
-  connectors: IConnectors,
-  libraryName: LibraryName,
-  reRendererNames: string[]
-): IWeb3Manager {
+export default function useWeb3Manager(connectors: Connectors): Web3Manager {
+  const [refId, incrementRefId] = useRefId()
+
   // keep track of web3 state
   const [web3State, dispatchWeb3State] = useReducer(web3StateReducer, initialWeb3State)
   const web3Initialized: boolean = !!(
     web3State.account !== undefined &&
     web3State.connectorName &&
     !web3State.error &&
-    web3State.library &&
+    web3State.provider &&
     web3State.networkId
   )
 
-  // TODO consider exposing this in context?
   // keep track of active connector
   const activeConnector: Connector | undefined = web3State.connectorName
     ? connectors[web3State.connectorName]
     : undefined
 
+  // function to set the error state.
+  function setError(error: Error, connectorName?: string | null): void {
+    if (connectorName !== undefined) {
+      dispatchWeb3State({
+        type: 'UPDATE_ERROR_WITH_NAME',
+        payload: { error, connectorName: connectorName || undefined }
+      })
+    } else {
+      dispatchWeb3State({ type: 'UPDATE_ERROR', payload: error })
+    }
+  }
+
   // function to set a connector
-  async function setConnector(connectorName: string, suppressAndThrowErrors: boolean = false): Promise<void> {
-    const validConnectorNames = Object.keys(connectors)
-    try {
+  const setConnector = useCallback(
+    async (
+      connectorName: string,
+      { suppressAndThrowErrors = false, networkId }: SetConnectorOptions = {}
+    ): Promise<void> => {
+      const callingTimeRefId = refId.current
+      incrementRefId()
+
+      const validConnectorNames = Object.keys(connectors)
+      const connector: Connector = connectors[connectorName]
+
       if (!validConnectorNames.includes(connectorName)) {
-        const error = Error(
-          `'${connectorName}' is not a valid name. Valid names are: ${validConnectorNames.join(', ')}`
-        )
-        error.code = ManagerErrorCodes.UNEXPECTED_ERROR
-        console.error(error) // tslint:disable-line: no-console
-        throw error
+        // eslint-disable-next-line no-console
+        console.warn(`'${connectorName}' is not a valid name, please pass one of: ${validConnectorNames.join(', ')}.`)
+        return
       }
 
       if (connectorName === web3State.connectorName) {
-        const error = Error(`'${connectorName}' is already set.`)
-        error.code = ManagerErrorCodes.UNEXPECTED_ERROR
-        console.error(error) // tslint:disable-line: no-console
-        throw error
+        // eslint-disable-next-line no-console
+        console.warn(
+          `'${connectorName}' is already set. Calling 'setConnector' for a connector while it is active is a no-op.'`
+        )
+        return
       }
 
       // at this point, begin initializing the connector
-      const connector: Connector = connectors[connectorName]
-      await connector.onActivation()
-      const library: Library = await connector.getLibrary(libraryName)
-      const networkIdPromise = connector.getNetworkId(library)
-      const accountPromise = connector.getAccount(library)
-      await Promise.all([networkIdPromise, accountPromise]).then(([networkId, account]) => {
-        dispatchWeb3State({
-          payload: { connectorName, library, networkId, account },
-          type: 'UPDATE_CONNECTOR_VALUES'
-        })
-      })
-    } catch (error) {
-      if (suppressAndThrowErrors) {
-        throw error
-      } else {
+      try {
+        await connector.onActivation()
+        const provider = await connector.getProvider(networkId)
+        const networkIdPromise = connector.getNetworkId(provider)
+        const accountPromise = connector.getAccount(provider)
+        await Promise.all([networkIdPromise, accountPromise]).then(
+          ([networkId, account]): void => {
+            if (refId.current !== callingTimeRefId + 1) {
+              // eslint-disable-next-line no-console
+              console.warn(`Silently suppressing status update from stale connector '${connectorName}'.`)
+              return
+            }
+
+            dispatchWeb3State({
+              payload: { connectorName, provider, networkId, account },
+              type: 'UPDATE_CONNECTOR_VALUES'
+            })
+          }
+        )
+      } catch (error) {
+        // if the componenet has re-rendered since this function was called, eat the error
+        if (refId.current !== callingTimeRefId + 1) {
+          // eslint-disable-next-line no-console
+          console.warn(`Silently handling error from '${connectorName}': ${error.toString()}`)
+          return
+        }
+
+        if (suppressAndThrowErrors) {
+          throw error
+        }
+
         setError(error, connectorName)
       }
-    }
-  }
+    },
+    [refId, incrementRefId, connectors, web3State.connectorName]
+  )
 
   // expose a wrapper to set the first valid connector in a list
   async function setFirstValidConnector(
     connectorNames: string[],
-    suppressAndThrowErrors: boolean = true
+    { suppressAndThrowErrors = false, networkIds = [] }: SetFirstValidConnectorOptions = {}
   ): Promise<void> {
     for (const connectorName of connectorNames) {
       try {
-        await setConnector(connectorName, true)
+        await setConnector(connectorName, {
+          suppressAndThrowErrors: true,
+          networkId: networkIds[connectorNames.indexOf(connectorName)]
+        })
         break
       } catch (error) {
         if (connectorName === connectorNames[connectorNames.length - 1]) {
@@ -174,142 +245,167 @@ export default function useWeb3Manager(
     dispatchWeb3State({ type: 'RESET' })
   }
 
-  // function to set the error state. consider adding a (global?) flag to clear state on error?
-  function setError(error: Error, connectorName?: string): void {
-    if (connectorName) {
-      dispatchWeb3State({ type: 'UPDATE_ERROR_WITH_NAME', payload: { error, connectorName } })
-    } else {
-      dispatchWeb3State({ type: 'UPDATE_ERROR', payload: error })
-    }
-  }
-
   // ensure that connectors are cleaned up whenever they're changed
-  useEffect(() => {
-    if (activeConnector) {
-      return () => activeConnector.onDeactivation()
+  useEffect((): (() => void) => {
+    return (): void => {
+      if (activeConnector) {
+        activeConnector.onDeactivation()
+      }
     }
   }, [activeConnector])
 
-  // change listeners
-  const web3ReactSharedHandler = useCallback(
-    async (networkId: number, account?: string): Promise<void> => {
+  const web3ReactUpdateHandler = useCallback(
+    async ({
+      updateNetworkId = false,
+      updateAccount = false,
+      overrideNetworkIdCheck = false,
+      overrideAccountCheck = false,
+      networkId,
+      account
+    }: Web3ReactUpdateHandlerOptions = {}): Promise<void> => {
       if (!activeConnector) {
-        const error = Error(unexpectedErrorMessage)
-        error.code = ManagerErrorCodes.UNEXPECTED_ERROR
-        console.error(error) // tslint:disable-line: no-console
-        setError(error)
-      } else {
-        // if the networkId matches the currently active networkId, we bail on updating the library and networkId
-        if (networkId === web3State.networkId) {
-          if (account) {
-            web3ReactUpdateAccountHandler(account)
-          }
-        } else {
-          try {
-            const library: Library = await activeConnector.getLibrary(libraryName, networkId)
-            // we technically don't need to call this if we trust the connector is implemented in a particular way...
-            // ...though this is required _if_ we only validate network IDs inside getNetworkId, which we kind of want
-            const returnedNetworkId = await activeConnector.getNetworkId(library)
-            // also, we _could_ call .getAccount(), but that seems pretty redundant, so we just take it for granted...
-            // ...that the new account is correct!
+        // eslint-disable-next-line no-console
+        console.warn('No active connector in web3ReactUpdateHandler call. Please file an issue on Github.')
+        setError(unexpectedError)
 
-            // this indicates an error in the way the active connector's 'getLibrary' function is implemented
-            if (networkId !== returnedNetworkId) {
-              const error = Error(unexpectedErrorMessage)
-              error.code = ManagerErrorCodes.UNEXPECTED_ERROR
-              console.error(error) // tslint:disable-line: no-console
-              setError(error)
-            } else {
-              if (account) {
-                dispatchWeb3State({ type: 'UPDATE_NETWORK_ID_AND_ACCOUNT', payload: { library, networkId, account } })
-              } else {
-                dispatchWeb3State({ type: 'UPDATE_NETWORK_ID', payload: { library, networkId } })
-              }
+        return
+      }
+
+      if (
+        (!updateNetworkId && !updateAccount) ||
+        (updateNetworkId && overrideNetworkIdCheck && !networkId) ||
+        (updateAccount && overrideAccountCheck && !account)
+      ) {
+        console.warn('Malformed parameters passed to web3ReactUpdateHandler.') // eslint-disable-line no-console
+        setError(unexpectedError)
+
+        return
+      }
+
+      // no checks required
+      if (
+        (!updateNetworkId || (updateNetworkId && overrideNetworkIdCheck)) &&
+        (!updateAccount || (updateAccount && overrideAccountCheck))
+      ) {
+        if (updateNetworkId && !updateAccount) {
+          dispatchWeb3State({
+            payload: { networkId },
+            type: 'UPDATE_NETWORK_ID'
+          })
+        } else if (!updateNetworkId && updateAccount) {
+          dispatchWeb3State({
+            payload: { account },
+            type: 'UPDATE_ACCOUNT'
+          })
+        } else {
+          dispatchWeb3State({
+            payload: { networkId, account },
+            type: 'UPDATE_NETWORK_ID_AND_ACCOUNT'
+          })
+        }
+
+        return
+      }
+
+      // one or more checks required
+      const fetchNewProvider = !web3State.provider || (updateNetworkId && !overrideNetworkIdCheck)
+      const provider = await (fetchNewProvider ? activeConnector.getProvider(networkId) : web3State.provider)
+
+      const fetchNewNetworkId = web3State.networkId === undefined || (updateNetworkId && !overrideNetworkIdCheck)
+      const networkIdPromise =
+        web3State.networkId === undefined || fetchNewNetworkId
+          ? activeConnector.getNetworkId(provider)
+          : web3State.networkId
+
+      const fetchNewAccount = web3State.account === undefined || (updateAccount && !overrideAccountCheck)
+      const accountPromise =
+        web3State.account === undefined || fetchNewAccount ? activeConnector.getAccount(provider) : web3State.account
+
+      await Promise.all([networkIdPromise, accountPromise])
+        .then(
+          ([returnedNetworkId, returnedAccount]): void => {
+            if (updateNetworkId && networkId && networkId !== returnedNetworkId) {
+              // eslint-disable-next-line no-console
+              console.warn(`Mismatched networkIds in web3ReactUpdateHandler: ${networkId} and ${returnedNetworkId}.`)
+              setError(unexpectedError)
+
+              return
             }
-          } catch (error) {
+
+            if (updateAccount && account && normalizeAccount(account) !== normalizeAccount(returnedAccount)) {
+              // eslint-disable-next-line no-console
+              console.warn(
+                `Mismatched accounts in web3ReactUpdateHandler: ${normalizeAccount(account)} and ${normalizeAccount(
+                  returnedAccount
+                )}.`
+              )
+              setError(unexpectedError)
+
+              return
+            }
+
+            if (fetchNewNetworkId && !fetchNewAccount) {
+              dispatchWeb3State({
+                payload: { provider: fetchNewProvider ? provider : undefined, networkId: returnedNetworkId },
+                type: 'UPDATE_NETWORK_ID'
+              })
+            } else if (!fetchNewNetworkId && fetchNewAccount) {
+              dispatchWeb3State({
+                payload: { provider: fetchNewProvider ? provider : undefined, account: returnedAccount },
+                type: 'UPDATE_ACCOUNT'
+              })
+            } else {
+              dispatchWeb3State({
+                payload: {
+                  provider: fetchNewProvider ? provider : undefined,
+                  networkId: returnedNetworkId,
+                  account: returnedAccount
+                },
+                type: 'UPDATE_NETWORK_ID_AND_ACCOUNT'
+              })
+            }
+          }
+        )
+        .catch(
+          (error: Error): void => {
             setError(error)
           }
-        }
-      }
+        )
     },
-    [activeConnector, web3State.networkId]
+    [activeConnector, web3State.provider, web3State.networkId, web3State.account]
   )
 
-  const web3ReactUpdateNetworkIdHandler = useCallback(
-    (networkId: number): void => {
-      web3ReactSharedHandler(networkId)
-    },
-    [web3ReactSharedHandler]
-  )
+  const web3ReactErrorHandler = useCallback((error: Error, clearConnector?: boolean): void => {
+    setError(error, clearConnector ? null : undefined)
+  }, [])
 
-  // this is pure, we don't need to worry about useCallback
-  function web3ReactUpdateAccountHandler(account: string): void {
-    dispatchWeb3State({ type: 'UPDATE_ACCOUNT', payload: account })
-  }
-
-  const web3ReactUpdateNetworkIdAndAccountHandler = useCallback(
-    (networkId: number, account: string): void => {
-      web3ReactSharedHandler(networkId, account)
-    },
-    [web3ReactSharedHandler]
-  )
-
-  // this is pure, we don't need to worry about useCallback
-  function web3ReactErrorHandler(error: Error): void {
-    setError(error)
-  }
-
-  // this is pure, we don't need to worry about useCallback
-  function web3ReactResetHandler(): void {
+  const web3ReactResetHandler = useCallback((): void => {
     unsetConnector()
-  }
+  }, [])
 
-  useEffect(() => {
+  useEffect((): (() => void) => {
     if (activeConnector) {
-      activeConnector.on('_web3ReactUpdateNetworkId', web3ReactUpdateNetworkIdHandler)
-      activeConnector.on('_web3ReactUpdateAccount', web3ReactUpdateAccountHandler)
-      activeConnector.on('_web3ReactUpdateNetworkIdAndAccount', web3ReactUpdateNetworkIdAndAccountHandler)
+      activeConnector.on('_web3ReactUpdate', web3ReactUpdateHandler)
       activeConnector.on('_web3ReactError', web3ReactErrorHandler)
       activeConnector.on('_web3ReactReset', web3ReactResetHandler)
-      return () => {
-        activeConnector.removeListener('_web3ReactUpdateNetworkId', web3ReactUpdateNetworkIdHandler)
-        activeConnector.removeListener('_web3ReactUpdateAccount', web3ReactUpdateAccountHandler)
-        activeConnector.removeListener('_web3ReactUpdateNetworkIdAndAccount', web3ReactUpdateNetworkIdAndAccountHandler)
+    }
+
+    return (): void => {
+      if (activeConnector) {
+        activeConnector.removeListener('_web3ReactUpdate', web3ReactUpdateHandler)
         activeConnector.removeListener('_web3ReactError', web3ReactErrorHandler)
         activeConnector.removeListener('_web3ReactReset', web3ReactResetHandler)
       }
     }
-  }, [activeConnector, web3ReactUpdateNetworkIdHandler, web3ReactUpdateNetworkIdAndAccountHandler])
-
-  // re renderers
-  const [reRenderers, dispatchReRender] = useReducer(
-    reRendererReducer,
-    reRendererNames.reduce((accumulator: IReRendererState, currentValue: string) => {
-      accumulator[currentValue] = 0
-      return accumulator
-    }, {})
-  )
-
-  function forceReRender(reRenderer: string) {
-    const validReRendererNames = Object.keys(reRenderers)
-    if (!validReRendererNames.includes(reRenderer)) {
-      const error = Error(`'${reRenderer}' is not a valid name. Valid values are: ${validReRendererNames.join(', ')}`)
-      error.code = ManagerErrorCodes.UNEXPECTED_ERROR
-      console.error(error) // tslint:disable-line: no-console
-      setError(error)
-    }
-    dispatchReRender({ type: 'RERENDER', payload: reRenderer })
-  }
+  }, [activeConnector, web3ReactUpdateHandler, web3ReactErrorHandler, web3ReactResetHandler])
 
   return {
     web3Initialized,
     web3State,
-    connector: activeConnector, // tslint:disable-line: object-literal-sort-keys
+    connector: activeConnector,
     setConnector,
     setFirstValidConnector,
     unsetConnector,
-    setError,
-    reRenderers,
-    forceReRender
+    setError
   }
 }
