@@ -156,7 +156,7 @@ The component takes 2 props:
 
 1. `recreateOnNetworkChange: boolean` (optional, default `true`). A flag that controls whether child components are completely re-initialized upon network changes.
 
-2. `recreateOnAccountChange: boolean` (optional, default `true`). A flag that controls whether child components are completely re-initialized upon account changes.
+1. `recreateOnAccountChange: boolean` (optional, default `true`). A flag that controls whether child components are completely re-initialized upon account changes.
 
 #### _Not Recommended_ - HOCs
 
