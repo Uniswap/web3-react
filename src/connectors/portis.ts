@@ -1,9 +1,9 @@
 import Portis from '@portis/web3'
 
-import { Provider } from '../types'
-import Connector, { IConnectorArguments } from './connector'
+import { Provider } from '../manager'
+import Connector, { ConnectorArguments } from './connector'
 
-interface IPortisConnectorArguments extends IConnectorArguments {
+interface PortisConnectorArguments extends ConnectorArguments {
   readonly dAppId: string
   readonly network: any
   readonly options?: any
@@ -15,7 +15,7 @@ export default class PortisConnector extends Connector {
   private readonly network: any
   private readonly options: any
 
-  public constructor(kwargs: IPortisConnectorArguments) {
+  public constructor(kwargs: PortisConnectorArguments) {
     const { dAppId, network, options, ...rest } = kwargs
     super(rest)
 
@@ -36,6 +36,6 @@ export default class PortisConnector extends Connector {
 
   public changeNetwork(network: string): void {
     this.portis.changeNetwork(network)
-    super._web3ReactUpdateNetworkIdHandler()
+    super._web3ReactUpdateHandler({ updateNetworkId: true })
   }
 }

@@ -1,28 +1,28 @@
 import { RPCSubprovider, Web3ProviderEngine } from '@0x/subproviders'
 import WalletConnectSubprovider from '@walletconnect/web3-subprovider'
 
-import { Provider } from '../types'
+import { Provider } from '../manager'
 import Connector from './connector'
 
-interface ISupportedNetworkURLs {
+interface SupportedNetworkURLs {
   readonly [propName: string]: string
 }
 
-interface IWalletConnectConnectorArguments {
+interface WalletConnectConnectorArguments {
   readonly bridge: string
-  readonly supportedNetworkURLs: ISupportedNetworkURLs
+  readonly supportedNetworkURLs: SupportedNetworkURLs
   readonly defaultNetwork: number
 }
 
 export default class WalletConnectConnector extends Connector {
   public walletConnector: any
-  public readonly supportedNetworkURLs: ISupportedNetworkURLs
+  public readonly supportedNetworkURLs: SupportedNetworkURLs
   public readonly defaultNetwork: number
   private readonly bridge: string
   private walletConnectSubprovider: any
   private engine: any
 
-  public constructor(kwargs: IWalletConnectConnectorArguments) {
+  public constructor(kwargs: WalletConnectConnectorArguments) {
     const { bridge, supportedNetworkURLs, defaultNetwork } = kwargs
     const supportedNetworks = Object.keys(supportedNetworkURLs).map(
       (supportedNetworkURL): number => Number(supportedNetworkURL)
@@ -94,7 +94,12 @@ export default class WalletConnectConnector extends Connector {
       super._web3ReactErrorHandler(error)
     } else {
       const { chainId, accounts } = payload.params[0]
-      super._web3ReactUpdateNetworkIdAndAccountHandler(chainId, accounts[0])
+      super._web3ReactUpdateHandler({
+        updateNetworkId: true,
+        updateAccount: true,
+        networkId: chainId,
+        account: accounts[0]
+      })
     }
   }
 

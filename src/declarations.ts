@@ -8,13 +8,13 @@ interface Ethereum {
   autoRefreshOnNetworkChange?: boolean
   isMetaMask?: boolean
   enable: () => Promise<void>
-  on?: (eventName: string, listener: Function) => void // tslint:disable-line: ban-types
-  removeListener?: (eventName: string, listener: Function) => void // tslint:disable-line: ban-types
+  on?: (eventName: string, listener: Function) => void
+  removeListener?: (eventName: string, listener: Function) => void
 }
 
 declare interface Window {
   ethereum?: Ethereum
-  web3?: object
+  web3?: any
 }
 
 declare interface Error {

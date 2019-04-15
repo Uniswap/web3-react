@@ -5,24 +5,24 @@ import {
   Web3ProviderEngine
 } from '@0x/subproviders'
 
-import { Provider } from '../types'
+import { Provider } from '../manager'
 import Connector from './connector'
 
-interface ISupportedNetworkURLs {
+interface SupportedNetworkURLs {
   readonly [propName: string]: string
 }
 
-interface ILedgerConnectorArguments {
-  readonly supportedNetworkURLs: ISupportedNetworkURLs
+interface LedgerConnectorArguments {
+  readonly supportedNetworkURLs: SupportedNetworkURLs
   readonly defaultNetwork: number
 }
 
 export default class LedgerConnector extends Connector {
-  public readonly supportedNetworkURLs: ISupportedNetworkURLs
+  public readonly supportedNetworkURLs: SupportedNetworkURLs
   public readonly defaultNetwork: number
   private engine: any
 
-  public constructor(kwargs: ILedgerConnectorArguments) {
+  public constructor(kwargs: LedgerConnectorArguments) {
     const { supportedNetworkURLs, defaultNetwork } = kwargs
     const supportedNetworks = Object.keys(supportedNetworkURLs).map(
       (supportedNetworkURL): number => Number(supportedNetworkURL)
@@ -60,6 +60,6 @@ export default class LedgerConnector extends Connector {
   }
 
   public changeNetwork(networkId: number): void {
-    super._web3ReactUpdateNetworkIdHandler(networkId)
+    super._web3ReactUpdateHandler({ updateNetworkId: true, networkId })
   }
 }

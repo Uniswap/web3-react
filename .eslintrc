@@ -2,8 +2,8 @@
   "parser": "@typescript-eslint/parser",
   "env": {
     "es6": true,
-    "shared-node-browser": true,
-    "browser": true
+    "browser": true,
+    "jest": true
   },
   "parserOptions": {
     "useJSXTextNode": true,
@@ -18,8 +18,7 @@
   "rules": {
     "react-hooks/rules-of-hooks": "error",
     "react-hooks/exhaustive-deps": "warn",
-    "@typescript-eslint/no-explicit-any": "off",
-    "@typescript-eslint/interface-name-prefix": "off"
+    "@typescript-eslint/no-explicit-any": "off"
   },
   "extends": [
     "plugin:react/recommended",

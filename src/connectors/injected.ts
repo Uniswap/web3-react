@@ -1,12 +1,18 @@
-import { Provider } from '../types'
-import Connector, { ErrorCodeMixin, IConnectorArguments } from './connector'
+import { Provider } from '../manager'
+import Connector, { ErrorCodeMixin, ConnectorArguments } from './connector'
+
+interface InjectedConnectorArguments extends ConnectorArguments {
+  readonly requireAccount?: boolean
+}
 
 const InjectedConnectorErrorCodes = ['ETHEREUM_ACCESS_DENIED', 'LEGACY_PROVIDER', 'NO_WEB3', 'UNLOCK_REQUIRED']
 export default class InjectedConnector extends ErrorCodeMixin(Connector, InjectedConnectorErrorCodes) {
   private runOnDeactivation: (() => void)[] = []
+  private readonly requireAccount: boolean
 
-  public constructor(kwargs: IConnectorArguments) {
-    super(kwargs)
+  public constructor({ requireAccount = true, ...rest }: InjectedConnectorArguments = {}) {
+    super(rest)
+    this.requireAccount = requireAccount
 
     this.networkChangedHandler = this.networkChangedHandler.bind(this)
     this.accountsChangedHandler = this.accountsChangedHandler.bind(this)
@@ -61,7 +67,7 @@ export default class InjectedConnector extends ErrorCodeMixin(Connector, Injecte
   public async getAccount(provider: Provider): Promise<string> {
     const account = super.getAccount(provider)
 
-    if (account === null) {
+    if (this.requireAccount && account === null) {
       const unlockRequiredError: Error = Error('Ethereum account locked.')
       unlockRequiredError.code = InjectedConnector.errorCodes.UNLOCK_REQUIRED
       throw unlockRequiredError
@@ -77,10 +83,22 @@ export default class InjectedConnector extends ErrorCodeMixin(Connector, Injecte
 
   // event handlers
   private networkChangedHandler(networkId: string | number): void {
-    super._web3ReactUpdateNetworkIdHandler(Number(networkId))
+    super._web3ReactUpdateHandler({
+      updateNetworkId: true,
+      networkId: Number(networkId)
+    })
   }
 
   private accountsChangedHandler(accounts: string[]): void {
-    super._web3ReactUpdateAccountHandler(accounts[0])
+    if (this.requireAccount && !accounts[0]) {
+      const unlockRequiredError: Error = Error('Ethereum account locked.')
+      unlockRequiredError.code = InjectedConnector.errorCodes.UNLOCK_REQUIRED
+      super._web3ReactErrorHandler(unlockRequiredError, true)
+    } else {
+      super._web3ReactUpdateHandler({
+        updateAccount: true,
+        account: accounts[0]
+      })
+    }
   }
 }

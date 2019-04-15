@@ -1,10 +1,11 @@
 import Fortmatic from 'fortmatic'
 
-import { Provider } from '../types'
-import Connector, { ErrorCodeMixin, IConnectorArguments } from './connector'
+import { Provider } from '../manager'
+import Connector, { ErrorCodeMixin, ConnectorArguments } from './connector'
 
-interface IFortmaticConnectorArguments extends IConnectorArguments {
+interface FortmaticConnectorArguments extends ConnectorArguments {
   readonly apiKey: string
+  readonly testNetwork?: string
   readonly logoutOnDeactivation?: boolean
 }
 
@@ -13,12 +14,12 @@ export default class FortmaticConnector extends ErrorCodeMixin(Connector, Fortma
   public readonly fortmatic: any
   private logoutOnDeactivation: boolean
 
-  public constructor(kwargs: IFortmaticConnectorArguments) {
-    const { apiKey, logoutOnDeactivation, ...rest } = kwargs
+  public constructor(kwargs: FortmaticConnectorArguments) {
+    const { apiKey, testNetwork, logoutOnDeactivation = false, ...rest } = kwargs
     super(rest)
 
-    this.fortmatic = new Fortmatic(apiKey)
-    this.logoutOnDeactivation = logoutOnDeactivation || false
+    this.fortmatic = new Fortmatic(apiKey, testNetwork)
+    this.logoutOnDeactivation = logoutOnDeactivation
   }
 
   public async onActivation(): Promise<void> {
