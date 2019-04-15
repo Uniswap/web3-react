@@ -89,7 +89,7 @@ The `Web3Provider` takes 2 props:
 
 1. `connectors: any` (required): An object mapping arbitrary `string` connector names to Connector objects (see [the previous section](#2-setup-connectors) for more detail).
 
-2. `libraryName: string`: `ethers.js`|`web3.js`|`null`, depending on which library you wish to use in your dApp. Passing `null` will expose the low-level provider object (you probably don't want this).
+1. `libraryName: string`: `ethers.js`|`web3.js`|`null`, depending on which library you wish to use in your dApp. Passing `null` will expose the low-level provider object (you probably don't want this).
 
 ### 4. Activate
 
