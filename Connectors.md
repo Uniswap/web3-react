@@ -54,6 +54,12 @@ Throws:
 
 ## `TrezorConnector`
 
+### IMPORTANT: You must install the Trezor SDK for TrezorConnector to work
+
+```bash
+yarn add trezor-connect@^7
+```
+
 Manages connectivity to a [Trezor](https://trezor.io/) device. Note: Currently, only the first account is exported/made accessible. If this limits your dApp's functionality, please [file an issue](https://github.com/NoahZinsmeister/web3-react/issues).
 
 ```javascript
@@ -106,6 +112,12 @@ Methods:
 
 ## `WalletConnectConnector`
 
+### IMPORTANT: You must install the WalletConnect SDK for WalletConnectConnector to work
+
+```bash
+yarn add @walletconnect/web3-subprovider@^1.0.0-beta.1
+```
+
 Manages connectivity to a [WalletConnect](https://walletconnect.org/) wallet.
 
 ```javascript
@@ -128,6 +140,12 @@ Arguments:
 
 ## `FortmaticConnector`
 
+### IMPORTANT: You must install the Fortmatic SDK for FortmaticConnector to work
+
+```bash
+yarn add fortmatic@^0.7
+```
+
 Manages connectivity to [Fortmatic](https://fortmatic.com/).
 
 ```javascript
@@ -149,6 +167,12 @@ Arguments:
 - `testNetwork: string` (optional) - A network to initialize the Formatic SDK with.
 
 ## `PortisConnector`
+
+### IMPORTANT: You must install the Portis SDK for PortisConnector to work
+
+```bash
+yarn add @portis/web3@^2.0.0-beta.1
+```
 
 Manages connectivity to [Portis](https://www.portis.io/).
 

@@ -192,7 +192,7 @@ Regardless of how you access the `web3-react` context, it will look like:
   setConnector: (connectorName: string, options?: SetConnectorOptions) => Promise<void>
   setFirstValidConnector: (connectorNames: string[], options?: SetFirstValidConnectorOptions) => Promise<void>
   unsetConnector: () => void
-  setError: (error: Error, connectorName?: string) => void
+setError: (error: Error, preserveConnector?: boolean) => void
 }
 ```
 
@@ -211,7 +211,7 @@ Regardless of how you access the `web3-react` context, it will look like:
 - `setConnector(connectorName: string, { suppressAndThrowErrors?: boolean, networkId?: number })`: Activates a connector by name. The optional second argument has two keys: `suppressAndThrowErrors` (`false` by default) that controls whether errors, instead of bubbling up to `context.error`, are instead thrown by this function, and `networkId`, an optional manual network id passed to the `getProvider` method of the connector.
 - `setFirstValidConnector(connectorNames: string[], { suppressAndThrowErrors?: boolean, networkIds?: number[] })`: Tries to activate each connector in turn by name. The optional second argument has two keys: `suppressAndThrowErrors` (`false` by default) that controls whether errors, instead of bubbling up to `context.error`, are instead thrown by this function, and `networkIds`, optional manual network ids passed to the `getProvider` method of the connector in turn.
 - `unsetConnector()`: Unsets the currently active connector.
-- `setError(error: Error, connectorName?: string | null)`: Sets `context.error`, with an optional connector name, or `null` to unset the current connector.
+- `setError: (error: Error, preserveConnector?: boolean) => void`: Sets `context.error`, optionally preserving the current connector if `preserveConnector` is `true` (default `false`).
 
 ## Implementations
 
