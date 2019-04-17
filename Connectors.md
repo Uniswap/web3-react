@@ -54,8 +54,6 @@ Throws:
 
 ## `TrezorConnector`
 
-### IMPORTANT: You must install the Trezor SDK for TrezorConnector to work
-
 ```bash
 yarn add trezor-connect@^7
 ```
@@ -112,8 +110,6 @@ Methods:
 
 ## `WalletConnectConnector`
 
-### IMPORTANT: You must install the WalletConnect SDK for WalletConnectConnector to work
-
 ```bash
 yarn add @walletconnect/web3-subprovider@^1.0.0-beta.1
 ```
@@ -140,8 +136,6 @@ Arguments:
 
 ## `FortmaticConnector`
 
-### IMPORTANT: You must install the Fortmatic SDK for FortmaticConnector to work
-
 ```bash
 yarn add fortmatic@^0.7
 ```
@@ -167,8 +161,6 @@ Arguments:
 - `testNetwork: string` (optional) - A network to initialize the Formatic SDK with.
 
 ## `PortisConnector`
-
-### IMPORTANT: You must install the Portis SDK for PortisConnector to work
 
 ```bash
 yarn add @portis/web3@^2.0.0-beta.1
