@@ -1067,9 +1067,9 @@
   integrity sha512-DT25xX/YgyPKiHFOpNuANIQIVvYEwCWXgK2jYYwqgaMrYE6+tq+DtmMwlD3drl6DJbUwtlIDnn0d7tIn/EbXBg==
 
 "@types/prop-types@*":
-  version "15.7.0"
-  resolved "https://registry.yarnpkg.com/@types/prop-types/-/prop-types-15.7.0.tgz#4c48fed958d6dcf9487195a0ef6456d5f6e0163a"
-  integrity sha512-eItQyV43bj4rR3JPV0Skpl1SncRCdziTEK9/v8VwXmV6d/qOUO8/EuWeHBbCZcsfSHfzI5UyMJLCSXtxxznyZg==
+  version "15.7.1"
+  resolved "https://registry.yarnpkg.com/@types/prop-types/-/prop-types-15.7.1.tgz#f1a11e7babb0c3cad68100be381d1e064c68f1f6"
+  integrity sha512-CFzn9idOEpHrgdw8JsoTkaDDyRWk1jrzIV8djzcgpq0y9tG4B4lFT+Nxh52DVpDXV+n4+NPNv7M1Dj5uMp6XFg==
 
 "@types/react-dom@^16.8.3":
   version "16.8.4"
@@ -3132,9 +3132,9 @@ doctrine@^3.0.0:
     esutils "^2.0.2"
 
 dom-testing-library@^3.19.0:
-  version "3.19.1"
-  resolved "https://registry.yarnpkg.com/dom-testing-library/-/dom-testing-library-3.19.1.tgz#ccde9044cacd6d95e5e5629b9cdd2f4de3ea5e1d"
-  integrity sha512-cv5k+OiDhmdjHimDcal5Yz6yHv6nXwhzW3wyXrFeIGk7jSdqqFxqzhjriPvYMrV8XNNZHUDwp0dTu6SeCtO/4w==
+  version "3.19.3"
+  resolved "https://registry.yarnpkg.com/dom-testing-library/-/dom-testing-library-3.19.3.tgz#fba399987be1bdd57b07c4bc3ef46c3c084b26d9"
+  integrity sha512-oiI+oq91iO/Vpp+pt8PqfqLfBK074FH0eprhoFNvBCvJOk7vL4ozbe/yj/kEEGR6kiT4F3MAam19AX1fdGFjrA==
   dependencies:
     "@babel/runtime" "^7.3.4"
     "@sheerun/mutationobserver-shim" "^0.3.2"

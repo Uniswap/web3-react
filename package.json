@@ -46,7 +46,11 @@
     "coverage": "jest --coverage --coverageReporters=text-lcov"
   },
   "dependencies": {
-    "@0x/subproviders": "^4.0.5"
+    "@0x/subproviders": "^4.0.5",
+    "@portis/web3": "^2.0.0-beta.1",
+    "@walletconnect/web3-subprovider": "^1.0.0-beta.1",
+    "trezor-connect": "^7",
+    "fortmatic": "^0.7"
   },
   "devDependencies": {
     "@portis/web3": "^2.0.0-beta.1",
@@ -76,13 +80,9 @@
     "typescript": "^3.4.1"
   },
   "peerDependencies": {
-    "@portis/web3": "^2.0.0-beta.1",
-    "@walletconnect/web3-subprovider": "^1.0.0-beta.1",
     "ethers": "^4",
-    "fortmatic": "^0.7",
     "react": "^16.8",
     "react-dom": "^16.8",
-    "trezor-connect": "^7",
     "web3": "^1.0.0-beta.1"
   }
 }

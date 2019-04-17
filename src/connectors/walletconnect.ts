@@ -1,11 +1,5 @@
 import { RPCSubprovider, Web3ProviderEngine } from '@0x/subproviders'
-
-let WalletConnectSubprovider: any
-try {
-  WalletConnectSubprovider = require('@walletconnect/web3-subprovider').default
-} catch (error) {
-  WalletConnectSubprovider = null
-}
+import WalletConnectSubprovider from '@walletconnect/web3-subprovider'
 
 import { Provider } from '../manager'
 import Connector from './connector'
