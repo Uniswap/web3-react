@@ -2,7 +2,12 @@
 // TODO replace with offical implementation when TrezorSubprovider gets added to 0x/subproviders
 // TODO add event listeners per https://github.com/trezor/connect/blob/develop/docs/events.md ?
 import { RPCSubprovider, Web3ProviderEngine } from '@0x/subproviders'
-import TrezorConnect from 'trezor-connect'
+let TrezorConnect: any
+try {
+  TrezorConnect = require('trezor-connect').default
+} catch (error) {
+  TrezorConnect = null
+}
 
 import { Provider } from '../../manager'
 import Connector from '../connector'
@@ -26,6 +31,10 @@ export default class TrezorConnector extends Connector {
   private readonly manifestAppUrl: string
 
   public constructor(kwargs: TrezorConnectorArguments) {
+    if (TrezorConnect === null) {
+      throw Error('Please install the Trezor SDK: yarn add trezor-connect@^7')
+    }
+
     const { supportedNetworkURLs, defaultNetwork, manifestEmail, manifestAppUrl } = kwargs
     const supportedNetworks = Object.keys(supportedNetworkURLs).map(
       (supportedNetworkURL): number => Number(supportedNetworkURL)

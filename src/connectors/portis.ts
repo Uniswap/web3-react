@@ -1,4 +1,9 @@
-import Portis from '@portis/web3'
+let Portis: any
+try {
+  Portis = require('@portis/web3')
+} catch (error) {
+  Portis = null
+}
 
 import { Provider } from '../manager'
 import Connector, { ConnectorArguments } from './connector'
@@ -16,6 +21,10 @@ export default class PortisConnector extends Connector {
   private readonly options: any
 
   public constructor(kwargs: PortisConnectorArguments) {
+    if (Portis === null) {
+      throw Error('Please install the Portis SDK: yarn add @portis/web3@^2.0.0-beta.1')
+    }
+
     const { dAppId, network, options, ...rest } = kwargs
     super(rest)
 

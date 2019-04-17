@@ -1,4 +1,9 @@
-import Fortmatic from 'fortmatic'
+let Fortmatic: any
+try {
+  Fortmatic = require('fortmatic')
+} catch (error) {
+  Fortmatic = null
+}
 
 import { Provider } from '../manager'
 import Connector, { ErrorCodeMixin, ConnectorArguments } from './connector'
@@ -15,6 +20,10 @@ export default class FortmaticConnector extends ErrorCodeMixin(Connector, Fortma
   private logoutOnDeactivation: boolean
 
   public constructor(kwargs: FortmaticConnectorArguments) {
+    if (Fortmatic === null) {
+      throw Error('Please install the Fortmatic SDK: yarn add fortmatic@^0.7')
+    }
+
     const { apiKey, testNetwork, logoutOnDeactivation = false, ...rest } = kwargs
     super(rest)
 

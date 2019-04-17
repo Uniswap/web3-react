@@ -1,5 +1,11 @@
 import { RPCSubprovider, Web3ProviderEngine } from '@0x/subproviders'
-import WalletConnectSubprovider from '@walletconnect/web3-subprovider'
+
+let WalletConnectSubprovider: any
+try {
+  WalletConnectSubprovider = require('@walletconnect/web3-subprovider').default
+} catch (error) {
+  WalletConnectSubprovider = null
+}
 
 import { Provider } from '../manager'
 import Connector from './connector'
@@ -23,6 +29,10 @@ export default class WalletConnectConnector extends Connector {
   private engine: any
 
   public constructor(kwargs: WalletConnectConnectorArguments) {
+    if (WalletConnectSubprovider === null) {
+      throw Error('Please install the WalletConnect SDK: yarn add @walletconnect/web3-subprovider@^1.0.0-beta.1')
+    }
+
     const { bridge, supportedNetworkURLs, defaultNetwork } = kwargs
     const supportedNetworks = Object.keys(supportedNetworkURLs).map(
       (supportedNetworkURL): number => Number(supportedNetworkURL)
