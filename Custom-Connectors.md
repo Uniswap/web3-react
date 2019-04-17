@@ -29,7 +29,7 @@ For ideas on how to implement optional functions, or for default behavior, see [
 
 ```typescript
 async onActivation(): Promise<void>
-onDeactivation(): void
+onDeactivation(Error | null): void
 
 async getNetworkId(provider: Provider): Promise<number>
 async getAccount(provider: Provider): Promise<string | null>

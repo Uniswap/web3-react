@@ -38,7 +38,7 @@ export default abstract class Connector extends ErrorCodeMixin(EventEmitter, Con
   }
 
   public async onActivation(): Promise<void> {}
-  public onDeactivation(): void {}
+  public onDeactivation(_error: null | Error): void {} // eslint-disable-line @typescript-eslint/no-unused-vars
 
   public abstract async getProvider(networkId?: number): Promise<Provider>
 
@@ -70,8 +70,8 @@ export default abstract class Connector extends ErrorCodeMixin(EventEmitter, Con
   }
 
   // wraps emissions of _web3ReactError
-  protected _web3ReactErrorHandler(error: Error, clearConnector?: boolean): void {
-    this.emit('_web3ReactError', error, clearConnector)
+  protected _web3ReactErrorHandler(error: Error, preserveConnector?: boolean): void {
+    this.emit('_web3ReactError', error, preserveConnector)
   }
 
   // wraps emissions of _web3ReactError

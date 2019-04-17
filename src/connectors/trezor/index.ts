@@ -72,6 +72,13 @@ export default class TrezorConnector extends Connector {
   }
 
   public changeNetwork(networkId: number): void {
-    super._web3ReactUpdateHandler({ updateNetworkId: true, networkId })
+    // proactively handle wrong network errors
+    try {
+      super._validateNetworkId(networkId)
+
+      super._web3ReactUpdateHandler({ updateNetworkId: true, networkId })
+    } catch (error) {
+      super._web3ReactErrorHandler(error)
+    }
   }
 }

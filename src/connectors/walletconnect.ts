@@ -94,12 +94,20 @@ export default class WalletConnectConnector extends Connector {
       super._web3ReactErrorHandler(error)
     } else {
       const { chainId, accounts } = payload.params[0]
-      super._web3ReactUpdateHandler({
-        updateNetworkId: true,
-        updateAccount: true,
-        networkId: chainId,
-        account: accounts[0]
-      })
+
+      // proactively handle wrong network errors
+      try {
+        super._validateNetworkId(chainId)
+
+        super._web3ReactUpdateHandler({
+          updateNetworkId: true,
+          updateAccount: true,
+          networkId: chainId,
+          account: accounts[0]
+        })
+      } catch (error) {
+        super._web3ReactErrorHandler(error)
+      }
     }
   }
 

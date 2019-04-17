@@ -11,8 +11,7 @@ cache:
     - node_modules
 install: yarn
 script:
-  - yarn ensureLinted
-  - yarn ensureFormatted
+  - yarn check:all
   - yarn test
   - yarn build
 after_script:
