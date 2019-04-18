@@ -17,7 +17,7 @@ class MyConnector extends Connector {
 
 ## Implement Required Functions
 
-For ideas on how to implement required functions, see [src/connectors/](./src/connectors/).
+For ideas on how to implement required functions, see [src/connectors/](./src/connectors/), or the [web3-react-connectors](https://github.com/NoahZinsmeister/web3-react-connectors) repo.
 
 ```typescript
 async getProvider(networkId?: number): Promise<Provider>
@@ -25,7 +25,7 @@ async getProvider(networkId?: number): Promise<Provider>
 
 ## Implement Optional Functions
 
-For ideas on how to implement optional functions, or for default behavior, see [src/connectors/](./src/connectors/).
+For ideas on how to implement optional functions, or for default behavior, see [src/connectors/](./src/connectors/), or the [web3-react-connectors](https://github.com/NoahZinsmeister/web3-react-connectors) repo.
 
 ```typescript
 async onActivation(): Promise<void>

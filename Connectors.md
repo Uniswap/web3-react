@@ -54,16 +54,18 @@ Throws:
 
 ## `TrezorConnector`
 
+### IMPORTANT: TrezorConnector is managed seperately from web3-react because it requires installing a 3rd-party SDK. See installation instructions:
+
 ```bash
-yarn add trezor-connect@^7
+yarn add @web3-react/trezor
 ```
 
-Manages connectivity to a [Trezor](https://trezor.io/) device. Note: Currently, only the first account is exported/made accessible. If this limits your dApp's functionality, please [file an issue](https://github.com/NoahZinsmeister/web3-react/issues).
+Manages connectivity to a [Trezor](https://trezor.io/) device. Note: Currently, only the first account is exported/made accessible. If this limits your dApp's functionality, please [file an issue](https://github.com/NoahZinsmeister/web3-react-connectors/issues).
 
 ```javascript
-import { Connectors } from 'web3-react'
+import TrezorConnector from '@web3-react/trezor'
 
-const Trezor = Connectors.TrezorConnector({
+const Trezor = TrezorConnector({
   supportedNetworkURLs: { ... },
   defaultNetwork: ...,
   manifestEmail: ...,
@@ -110,16 +112,18 @@ Methods:
 
 ## `WalletConnectConnector`
 
+### IMPORTANT: WalletConnectConnector is managed seperately from web3-react because it requires installing a 3rd-party SDK. See installation instructions:
+
 ```bash
-yarn add @walletconnect/web3-subprovider@^1.0.0-beta.1
+yarn add @web3-react/walletconnect
 ```
 
 Manages connectivity to a [WalletConnect](https://walletconnect.org/) wallet.
 
 ```javascript
-import { Connectors } from 'web3-react'
+import WalletConnectConnector from '@web3-react/walletconnect'
 
-const WalletConnect = Connectors.WalletConnectConnector({
+const WalletConnect = WalletConnectConnector({
   bridge: ...,
   supportedNetworkURLs: ...,
   defaultNetwork: ...
@@ -136,16 +140,18 @@ Arguments:
 
 ## `FortmaticConnector`
 
+### IMPORTANT: FortmaticConnector is managed seperately from web3-react because it requires installing a 3rd-party SDK. See installation instructions:
+
 ```bash
-yarn add fortmatic@^0.7
+yarn add @web3-react/fortmatic
 ```
 
 Manages connectivity to [Fortmatic](https://fortmatic.com/).
 
 ```javascript
-import { Connectors } from 'web3-react'
+import FortmaticConnector from '@web3-react/fortmatic'
 
-const Fortmatic = Connectors.FortmaticConnector({
+const Fortmatic = FortmaticConnector({
   apiKey: ...,
   logoutOnDeactivation: ...,
   testNetwork: ...
@@ -162,16 +168,18 @@ Arguments:
 
 ## `PortisConnector`
 
+### IMPORTANT: PortisConnector is managed seperately from web3-react because it requires installing a 3rd-party SDK. See installation instructions:
+
 ```bash
-yarn add @portis/web3@^2.0.0-beta.1
+yarn add @web3-react/portis
 ```
 
 Manages connectivity to [Portis](https://www.portis.io/).
 
 ```javascript
-import { Connectors } from 'web3-react'
+import PortisConnector from '@web3-react/portis'
 
-const Portis = Connectors.PortisConnector({
+const Portis = PortisConnector({
   dAppId: ...,
   network: ...,
   options: ...
