@@ -1,10 +1,10 @@
 __tests__/
 _assets/
 src/
-.babelrc
 .prettierrc
 .travis.yml
 *.md
 jest.config.js
 tsconfig.json
 .eslintrc
+.vscode/

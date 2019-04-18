@@ -1,10 +1,5 @@
 export { default as Connector } from './connector'
 export * from './connector'
-export { default as FortmaticConnector } from './fortmatic'
 export { default as LedgerConnector } from './ledger'
 export { default as InjectedConnector } from './injected'
-export { default as MetaMaskConnector } from './injected' // to preserve backwards compatibility until the next release
 export { default as NetworkOnlyConnector } from './networkOnly'
-export { default as PortisConnector } from './portis'
-export { default as TrezorConnector } from './trezor'
-export { default as WalletConnectConnector } from './walletconnect'
