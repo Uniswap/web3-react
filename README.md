@@ -34,11 +34,12 @@ Ensure you're using the latest `react` and `react-dom` versions (or anything `^1
 yarn add react@latest react-dom@latest
 ```
 
-Next, install your favorite web3 library - either [ethers.js](https://github.com/ethers-io/ethers.js/) or [web3.js](https://web3js.readthedocs.io/en/1.0/):
+Next, you'll have to install [ethers.js](https://github.com/ethers-io/ethers.js/). If you'd like to use [web3.js](https://web3js.readthedocs.io/en/1.0/) instead, you can _additionally_ install it (note that ethers.js is still required, as it's an internal dependency to the library).
 
 ```bash
+# required
 yarn add ethers
-# or
+# optional
 yarn add web3
 ```
 
@@ -89,7 +90,7 @@ The `Web3Provider` takes 2 props:
 
 1. `connectors: any` (required): An object mapping arbitrary `string` connector names to Connector objects (see [the previous section](#2-setup-connectors) for more detail).
 
-1. `libraryName: string`: `ethers.js`|`web3.js`|`null`, depending on which library you wish to use in your dApp. Passing `null` will expose the low-level provider object (you probably don't want this).
+2. `libraryName: string`: `ethers.js`|`web3.js`|`null`, depending on which library you wish to use in your dApp. Passing `null` will expose the low-level provider object (you probably don't want this).
 
 ### 4. Activate
 
