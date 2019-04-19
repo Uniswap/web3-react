@@ -154,7 +154,7 @@ export default function useWeb3Manager(connectors: Connectors): Web3Manager {
     : undefined
 
   // function to set the error state.
-  function setError(error: Error, { preserveConnector = true, connectorName }: SetErrorOptions = {}): void {
+  function setError(error: Error, { preserveConnector = false, connectorName }: SetErrorOptions = {}): void {
     if (connectorName && preserveConnector) {
       // eslint-disable-next-line no-console
       console.warn("When passing a 'connectorName', 'preserveConnector' must be false.")
@@ -227,9 +227,9 @@ export default function useWeb3Manager(connectors: Connectors): Web3Manager {
 
       if (suppressAndThrowErrors) {
         throw error
+      } else {
+        setError(error, { connectorName })
       }
-
-      setError(error, { preserveConnector: false, connectorName }) // TODO should fail
     }
   }
 
@@ -249,6 +249,7 @@ export default function useWeb3Manager(connectors: Connectors): Web3Manager {
         if (connectorName === connectorNames[connectorNames.length - 1]) {
           const error = Error('Unable to set any valid connector.')
           error.code = ManagerErrorCodes.ALL_CONNECTORS_INVALID
+
           if (suppressAndThrowErrors) {
             throw error
           } else {
@@ -294,6 +295,7 @@ export default function useWeb3Manager(connectors: Connectors): Web3Manager {
     ) {
       console.warn('Malformed parameters passed to web3ReactUpdateHandler.') // eslint-disable-line no-console
       setError(unexpectedError)
+
       return
     }
 
@@ -382,7 +384,7 @@ export default function useWeb3Manager(connectors: Connectors): Web3Manager {
     }
   }
 
-  function web3ReactErrorHandler(error: Error, preserveConnector?: boolean): void {
+  function web3ReactErrorHandler(error: Error, preserveConnector: boolean = false): void {
     setError(error, { preserveConnector })
   }
 
