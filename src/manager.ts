@@ -121,7 +121,7 @@ function web3StateReducer(state: Web3State, action: any): Web3State {
     }
     case 'SET_ERROR': {
       const { error, connectorName } = action.payload
-      return { ...initialWeb3State, error, connectorName: connectorName || state.connectorName }
+      return { ...initialWeb3State, error, connectorName: connectorName }
     }
     case 'SET_ERROR_PRESERVE_CONNECTOR_NAME':
       return { ...initialWeb3State, connectorName: state.connectorName, error: action.payload }
