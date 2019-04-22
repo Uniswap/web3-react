@@ -28,6 +28,11 @@ interface SetFirstValidConnectorOptions {
   networkIds?: number[]
 }
 
+interface SetErrorOptions {
+  preserveConnector?: boolean
+  connectorName?: string
+}
+
 export interface Web3ReactUpdateHandlerOptions {
   updateNetworkId?: boolean
   updateAccount?: boolean
@@ -49,7 +54,7 @@ export interface ManagerFunctions {
   setConnector: (connectorName: string, options?: SetConnectorOptions) => Promise<void>
   setFirstValidConnector: (connectorNames: string[], options?: SetFirstValidConnectorOptions) => Promise<void>
   unsetConnector: () => void
-  setError: (error: Error, preserveConnector?: boolean) => void
+  setError: (error: Error, options?: SetErrorOptions) => void
 }
 
 interface Web3Manager extends ManagerFunctions {
@@ -114,8 +119,10 @@ function web3StateReducer(state: Web3State, action: any): Web3State {
         networkId
       }
     }
-    case 'SET_ERROR':
-      return { ...initialWeb3State, error: action.payload }
+    case 'SET_ERROR': {
+      const { error, connectorName } = action.payload
+      return { ...initialWeb3State, error, connectorName: connectorName }
+    }
     case 'SET_ERROR_PRESERVE_CONNECTOR_NAME':
       return { ...initialWeb3State, connectorName: state.connectorName, error: action.payload }
     case 'RESET':
@@ -147,11 +154,22 @@ export default function useWeb3Manager(connectors: Connectors): Web3Manager {
     : undefined
 
   // function to set the error state.
-  function setError(error: Error, preserveConnector = false): void {
-    dispatchWeb3State({
-      type: preserveConnector ? 'SET_ERROR_PRESERVE_CONNECTOR_NAME' : 'SET_ERROR',
-      payload: error
-    })
+  function setError(error: Error, { preserveConnector = false, connectorName }: SetErrorOptions = {}): void {
+    if (connectorName && preserveConnector) {
+      // eslint-disable-next-line no-console
+      console.warn("When passing a 'connectorName', 'preserveConnector' must be false.")
+    }
+    if (preserveConnector) {
+      dispatchWeb3State({
+        type: 'SET_ERROR_PRESERVE_CONNECTOR_NAME',
+        payload: error
+      })
+    } else {
+      dispatchWeb3State({
+        type: 'SET_ERROR',
+        payload: { error, connectorName }
+      })
+    }
   }
 
   // function to set a connector
@@ -209,9 +227,9 @@ export default function useWeb3Manager(connectors: Connectors): Web3Manager {
 
       if (suppressAndThrowErrors) {
         throw error
+      } else {
+        setError(error, { connectorName })
       }
-
-      setError(error)
     }
   }
 
@@ -231,6 +249,7 @@ export default function useWeb3Manager(connectors: Connectors): Web3Manager {
         if (connectorName === connectorNames[connectorNames.length - 1]) {
           const error = Error('Unable to set any valid connector.')
           error.code = ManagerErrorCodes.ALL_CONNECTORS_INVALID
+
           if (suppressAndThrowErrors) {
             throw error
           } else {
@@ -276,6 +295,7 @@ export default function useWeb3Manager(connectors: Connectors): Web3Manager {
     ) {
       console.warn('Malformed parameters passed to web3ReactUpdateHandler.') // eslint-disable-line no-console
       setError(unexpectedError)
+
       return
     }
 
@@ -324,9 +344,7 @@ export default function useWeb3Manager(connectors: Connectors): Web3Manager {
           if (updateNetworkId && networkId && networkId !== returnedNetworkId) {
             // eslint-disable-next-line no-console
             console.warn(`Mismatched networkIds in web3ReactUpdateHandler: ${networkId} and ${returnedNetworkId}.`)
-            setError(unexpectedError)
-
-            return
+            throw unexpectedError
           }
 
           if (updateAccount && account && normalizeAccount(account) !== normalizeAccount(returnedAccount)) {
@@ -336,9 +354,7 @@ export default function useWeb3Manager(connectors: Connectors): Web3Manager {
                 returnedAccount
               )}.`
             )
-            setError(unexpectedError)
-
-            return
+            throw unexpectedError
           }
 
           if (fetchNewNetworkId && !fetchNewAccount) {
@@ -368,8 +384,8 @@ export default function useWeb3Manager(connectors: Connectors): Web3Manager {
     }
   }
 
-  function web3ReactErrorHandler(error: Error, preserveConnector?: boolean): void {
-    setError(error, preserveConnector)
+  function web3ReactErrorHandler(error: Error, preserveConnector: boolean = false): void {
+    setError(error, { preserveConnector })
   }
 
   function web3ReactResetHandler(): void {
