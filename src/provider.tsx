@@ -1,6 +1,5 @@
 import React, { Component, Fragment, useContext } from 'react'
 import { ethers } from 'ethers'
-import Web3 from 'web3'
 
 import _Web3Context, { Library, Web3Context } from './context'
 import useWeb3Manager from './manager'
@@ -18,10 +17,11 @@ export function useWeb3Context(): Web3Context {
 interface Web3ProviderProps {
   connectors: Connectors
   libraryName?: LibraryName
+  web3Api?: any
   children: any
 }
 
-function Web3Provider({ connectors, libraryName, children }: Web3ProviderProps): any {
+function Web3Provider({ connectors, libraryName, web3Api: Web3, children }: Web3ProviderProps): any {
   const {
     web3Initialized: active,
     web3State,

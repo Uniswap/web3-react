@@ -54,18 +54,20 @@ Throws:
 
 ## `TrezorConnector`
 
-### IMPORTANT: TrezorConnector is managed seperately from web3-react because it requires installing a 3rd-party SDK. See installation instructions:
+### IMPORTANT: To use TrezorConnector, you must install the SDK:
 
 ```bash
-yarn add @web3-react/trezor
+yarn add trezor-connect@^7
 ```
 
 Manages connectivity to a [Trezor](https://trezor.io/) device. Note: Currently, only the first account is exported/made accessible. If this limits your dApp's functionality, please [file an issue](https://github.com/NoahZinsmeister/web3-react-connectors/issues).
 
 ```javascript
-import TrezorConnector from '@web3-react/trezor'
+import { Connectors } from 'web3-react'
+import TrezorApi from 'trezor-connect'
 
-const Trezor = TrezorConnector({
+const Trezor = Connectors.TrezorConnector({
+  api: TrezorApi,
   supportedNetworkURLs: { ... },
   defaultNetwork: ...,
   manifestEmail: ...,
@@ -74,6 +76,8 @@ const Trezor = TrezorConnector({
 ```
 
 Arguments:
+
+- `api: any` - An instance of the [`trezor-connect`](https://github.com/trezor/connect) API, version `^7`.
 
 - `supportedNetworkURLs: any` - An object whose keys are network IDs, and values are remote nodes connected to that network ID.
 
@@ -112,18 +116,20 @@ Methods:
 
 ## `WalletConnectConnector`
 
-### IMPORTANT: WalletConnectConnector is managed seperately from web3-react because it requires installing a 3rd-party SDK. See installation instructions:
+### IMPORTANT: To use WalletConnectConnector, you must install the SDK:
 
 ```bash
-yarn add @web3-react/walletconnect
+yarn add @walletconnect/web3-subprovider@^1.0.0-beta.1
 ```
 
 Manages connectivity to a [WalletConnect](https://walletconnect.org/) wallet.
 
 ```javascript
-import WalletConnectConnector from '@web3-react/walletconnect'
+import { Connectors } from 'web3-react'
+import WalletConnectApi from '@walletconnect/web3-subprovider'
 
-const WalletConnect = WalletConnectConnector({
+const WalletConnect = Connectors.WalletConnectConnector({
+  api: WalletConnectApi,
   bridge: ...,
   supportedNetworkURLs: ...,
   defaultNetwork: ...
@@ -131,6 +137,8 @@ const WalletConnect = WalletConnectConnector({
 ```
 
 Arguments:
+
+- `api: any` - An instance of the [`@walletconnect/web3-subprovider`](https://github.com/WalletConnect/walletconnect-monorepo) API, version `^1.0.0-beta.1`.
 
 - `bridge: string` - The URL of the WalletConnect bridge.
 
@@ -140,18 +148,20 @@ Arguments:
 
 ## `FortmaticConnector`
 
-### IMPORTANT: FortmaticConnector is managed seperately from web3-react because it requires installing a 3rd-party SDK. See installation instructions:
+### IMPORTANT: To use FortmaticConnector, you must install the SDK:
 
 ```bash
-yarn add @web3-react/fortmatic
+yarn add fortmatic@^0.7
 ```
 
 Manages connectivity to [Fortmatic](https://fortmatic.com/).
 
 ```javascript
-import FortmaticConnector from '@web3-react/fortmatic'
+import { Connectors } from 'web3-react'
+import FortmaticApi from 'fortmatic'
 
-const Fortmatic = FortmaticConnector({
+const Fortmatic = Connectors.FortmaticConnector({
+  api: FortmaticApi,
   apiKey: ...,
   logoutOnDeactivation: ...,
   testNetwork: ...
@@ -159,6 +169,8 @@ const Fortmatic = FortmaticConnector({
 ```
 
 Arguments:
+
+- `api: any` - An instance of the [`fortmatic`](https://developers.fortmatic.com/docs) API, version `^0.7`.
 
 - `apiKey: string` - Fortmatic API key.
 
@@ -168,18 +180,20 @@ Arguments:
 
 ## `PortisConnector`
 
-### IMPORTANT: PortisConnector is managed seperately from web3-react because it requires installing a 3rd-party SDK. See installation instructions:
+### IMPORTANT: To use PortisConnector, you must install the SDK:
 
 ```bash
-yarn add @web3-react/portis
+yarn add @portis/web3@^2.0.0-beta.1
 ```
 
 Manages connectivity to [Portis](https://www.portis.io/).
 
 ```javascript
-import PortisConnector from '@web3-react/portis'
+import { Connectors } from 'web3-react'
+import PortisApi from '@portis/web3'
 
-const Portis = PortisConnector({
+const Portis = Connectors.PortisConnector({
+  api: PortisApi,
   dAppId: ...,
   network: ...,
   options: ...
@@ -188,7 +202,9 @@ const Portis = PortisConnector({
 
 Arguments:
 
-- `dAppId: string` - Fortmatic API key.
+- `api: any` - An instance of the [`@portis/web3`](https://github.com/portis-project/web-sdk) API, version `^2.0.0-beta.1`.
+
+- `dAppId: string` - Portis API key.
 
 - `network: any` - The network you wish to connect to.
 
