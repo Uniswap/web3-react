@@ -30,6 +30,7 @@ interface SetFirstValidConnectorOptions {
 
 interface SetErrorOptions {
   preserveConnector?: boolean
+  connectorName?: string
 }
 
 export interface Web3ReactUpdateHandlerOptions {
@@ -122,6 +123,10 @@ function web3StateReducer(state: Web3State, action: any): Web3State {
       return { ...initialWeb3State, error: action.payload }
     case 'SET_ERROR_PRESERVE_CONNECTOR_NAME':
       return { ...initialWeb3State, connectorName: state.connectorName, error: action.payload }
+    case 'SET_ERROR_WITH_CONNECTOR_NAME': {
+      const { connectorName, error } = action.payload
+      return { ...initialWeb3State, connectorName, error }
+    }
     case 'RESET':
       return initialWeb3State
     default: {
@@ -151,7 +156,13 @@ export default function useWeb3Manager(connectors: Connectors): Web3Manager {
     : undefined
 
   // function to set the error state.
-  function setError(error: Error, { preserveConnector = true }: SetErrorOptions = {}): void {
+  function setError(error: Error, { preserveConnector = true, connectorName }: SetErrorOptions = {}): void {
+    if (connectorName) {
+      dispatchWeb3State({
+        type: 'SET_ERROR_WITH_CONNECTOR_NAME',
+        payload: { error, connectorName }
+      })
+    }
     if (preserveConnector) {
       dispatchWeb3State({
         type: 'SET_ERROR_PRESERVE_CONNECTOR_NAME',
@@ -221,7 +232,7 @@ export default function useWeb3Manager(connectors: Connectors): Web3Manager {
       if (suppressAndThrowErrors) {
         throw error
       } else {
-        setError(error)
+        setError(error, { connectorName })
       }
     }
   }
