@@ -108,7 +108,7 @@ export default class WalletConnectConnector extends Connector {
           account: accounts[0]
         })
       } catch (error) {
-        super._web3ReactErrorHandler(error, false)
+        super._web3ReactErrorHandler(error)
       }
     }
   }

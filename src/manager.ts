@@ -119,12 +119,14 @@ function web3StateReducer(state: Web3State, action: any): Web3State {
         networkId
       }
     }
-    case 'SET_ERROR': {
-      const { error, connectorName } = action.payload
-      return { ...initialWeb3State, error, connectorName: connectorName }
-    }
+    case 'SET_ERROR':
+      return { ...initialWeb3State, error: action.payload }
     case 'SET_ERROR_PRESERVE_CONNECTOR_NAME':
       return { ...initialWeb3State, connectorName: state.connectorName, error: action.payload }
+    case 'SET_ERROR_WITH_CONNECTOR_NAME': {
+      const { connectorName, error } = action.payload
+      return { ...initialWeb3State, connectorName, error }
+    }
     case 'RESET':
       return initialWeb3State
     default: {
@@ -154,10 +156,12 @@ export default function useWeb3Manager(connectors: Connectors): Web3Manager {
     : undefined
 
   // function to set the error state.
-  function setError(error: Error, { preserveConnector = false, connectorName }: SetErrorOptions = {}): void {
-    if (connectorName && preserveConnector) {
-      // eslint-disable-next-line no-console
-      console.warn("When passing a 'connectorName', 'preserveConnector' must be false.")
+  function setError(error: Error, { preserveConnector = true, connectorName }: SetErrorOptions = {}): void {
+    if (connectorName) {
+      dispatchWeb3State({
+        type: 'SET_ERROR_WITH_CONNECTOR_NAME',
+        payload: { error, connectorName }
+      })
     }
     if (preserveConnector) {
       dispatchWeb3State({
@@ -167,7 +171,7 @@ export default function useWeb3Manager(connectors: Connectors): Web3Manager {
     } else {
       dispatchWeb3State({
         type: 'SET_ERROR',
-        payload: { error, connectorName }
+        payload: error
       })
     }
   }
@@ -384,7 +388,7 @@ export default function useWeb3Manager(connectors: Connectors): Web3Manager {
     }
   }
 
-  function web3ReactErrorHandler(error: Error, preserveConnector: boolean = false): void {
+  function web3ReactErrorHandler(error: Error, preserveConnector: boolean = true): void {
     setError(error, { preserveConnector })
   }
 
