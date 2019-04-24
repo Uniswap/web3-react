@@ -212,7 +212,7 @@ Regardless of how you access the `web3-react` context, it will look like:
 - `setConnector(connectorName: string, { suppressAndThrowErrors?: boolean, networkId?: number })`: Activates a connector by name. The optional second argument has two keys: `suppressAndThrowErrors` (`false` by default) that controls whether errors, instead of bubbling up to `context.error`, are instead thrown by this function, and `networkId`, an optional manual network id passed to the `getProvider` method of the connector.
 - `setFirstValidConnector(connectorNames: string[], { suppressAndThrowErrors?: boolean, networkIds?: number[] })`: Tries to activate each connector in turn by name. The optional second argument has two keys: `suppressAndThrowErrors` (`false` by default) that controls whether errors, instead of bubbling up to `context.error`, are instead thrown by this function, and `networkIds`, optional manual network ids passed to the `getProvider` method of the connector in turn.
 - `unsetConnector()`: Unsets the currently active connector.
-- `setError: (error: Error, { preserveConnector?: boolean, connectorName?: string }) => void`: Sets `context.error`, optionally preserving the current connector if `preserveConnector` is `true` (default `false`), or setting a `connectorName` (note that if you're doing this, `preserveConnector` must be `false`).
+- `setError: (error: Error, { preserveConnector?: boolean, connectorName?: string }) => void`: Sets `context.error`, optionally preserving the current connector if `preserveConnector` is `true` (default `true`), or setting a `connectorName` (note that if you're doing this, `preserveConnector` is ignored).
 
 ## Implementations
 

@@ -70,7 +70,7 @@ export default abstract class Connector extends ErrorCodeMixin(EventEmitter, Con
   }
 
   // wraps emissions of _web3ReactError
-  protected _web3ReactErrorHandler(error: Error, preserveConnector: boolean = false): void {
+  protected _web3ReactErrorHandler(error: Error, preserveConnector: boolean = true): void {
     this.emit('_web3ReactError', error, preserveConnector)
   }
 

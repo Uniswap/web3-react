@@ -87,7 +87,7 @@ export default class InjectedConnector extends ErrorCodeMixin(Connector, Injecte
         networkId: networkIdNumber
       })
     } catch (error) {
-      super._web3ReactErrorHandler(error, true)
+      super._web3ReactErrorHandler(error)
     }
   }
 
