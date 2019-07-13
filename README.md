@@ -224,6 +224,7 @@ Projects using `web3-react` include:
 - [Snowflake Dashboard](https://github.com/HydroBlockchain/snowflake-dashboard)
 - [SnowMo](https://github.com/NoahZinsmeister/snowflake-demo-frontend)
 - [Compound Liquidator](https://github.com/conlan/compound-liquidator)
+- [Uniswap](https://github.com/Uniswap/uniswap-frontend)
 - [Uniswap Info](https://github.com/Uniswap/uniswap-info)
 
 Open a PR to add your project to the list! If you're interested in contributing, check out [Contributing-Guidelines.md](./docs/Contributing-Guidelines.md).
