@@ -25,11 +25,12 @@ export default class TrezorConnector extends Connector {
   private defaultNetwork: number
   private readonly manifestEmail: string
   private readonly manifestAppUrl: string
+  private engine: any
 
   public constructor(kwargs: TrezorConnectorArguments) {
     const { api: TrezorConnect, supportedNetworkURLs, defaultNetwork, manifestEmail, manifestAppUrl } = kwargs
-    const supportedNetworks = Object.keys(supportedNetworkURLs).map(
-      (supportedNetworkURL): number => Number(supportedNetworkURL)
+    const supportedNetworks = Object.keys(supportedNetworkURLs).map((supportedNetworkURL): number =>
+      Number(supportedNetworkURL)
     )
     super({ supportedNetworks })
 
