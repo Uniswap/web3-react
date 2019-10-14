@@ -213,3 +213,36 @@ Arguments:
 Methods:
 
 - `changeNetwork(networkId: string)` - Changes to a different network.
+
+
+## `SquarelinkConnector`
+
+### IMPORTANT: To use SquarelinkConnector, you must install the SDK:
+
+```bash
+npm install squarelink
+```
+
+Manages connectivity to [Squarelink](https://squarelink.com/).
+
+```javascript
+import { Connectors } from 'web3-react'
+import Squarelink from 'squarelink'
+
+const squarelink = Connectors.SquarelinkConnector({
+  api: Squarelink,
+  clientId: ...,
+  network: ...,
+  options: ...
+})
+```
+
+Arguments:
+
+- `api: any` - An instance of the [`squarelink`](https://github.com/Squarelink-Inc/Squarelink-Web3) provider, version `^1.1.2`.
+
+- `clientId: string` - Squarelink Client ID.
+
+- `network: any` - The network you're connecting to.
+
+- `options: any` (optional) - Squarelink SDK custom options.

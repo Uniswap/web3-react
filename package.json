@@ -23,7 +23,8 @@
     "quiknode",
     "walletconnect",
     "formatic",
-    "portis"
+    "portis",
+    "squarelink"
   ],
   "license": "GPL-3.0-or-later",
   "repository": {

@@ -14,7 +14,7 @@
 
 `web3-react` is a simple, powerful framework for building modern Ethereum dApps using React. Its marquee features are:
 
-- Full support for commonly used web3 providers, including [MetaMask](https://metamask.io/)/[Trust](https://trustwallet.com/)/[Tokenary](https://tokenary.io/), [Infura](https://infura.io/)/[QuikNode](https://quiknode.io/), [Trezor](https://trezor.io/)/[Ledger](https://www.ledger.com/), [WalletConnect](https://walletconnect.org/), [Fortmatic](https://fortmatic.com/)/[Portis](https://www.portis.io/), and more.
+- Full support for commonly used web3 providers, including [MetaMask](https://metamask.io/)/[Trust](https://trustwallet.com/)/[Tokenary](https://tokenary.io/), [Infura](https://infura.io/)/[QuikNode](https://quiknode.io/), [Trezor](https://trezor.io/)/[Ledger](https://www.ledger.com/), [WalletConnect](https://walletconnect.org/), [Fortmatic](https://fortmatic.com/)/[Portis](https://www.portis.io/), [Squarelink](https://squarelink.com), and more.
 
 - A dev-friendly context containing an instantiated [ethers.js](https://github.com/ethers-io/ethers.js/) or [web3.js](https://web3js.readthedocs.io/en/1.0/) instance, the current account and network id, and more, available globally throughout your dApp via a [React Context](https://reactjs.org/docs/context.html).
 
@@ -51,7 +51,7 @@ yarn add web3-react@latest
 
 ### 2. Setup Connectors
 
-Now, you'll need to decide how you want users to interact with your dApp. This is almost always with some combination of MetaMask, Infura, Trezor/Ledger, WalletConnect, Fortmatic/Portis, etc. For more details on each of these options, see [Connectors.md](./Connectors.md).
+Now, you'll need to decide how you want users to interact with your dApp. This is almost always with some combination of MetaMask, Infura, Trezor/Ledger, WalletConnect, Fortmatic/Portis/Squarelink, etc. For more details on each of these options, see [Connectors.md](./Connectors.md).
 
 ```javascript
 import { Connectors } from 'web3-react'
