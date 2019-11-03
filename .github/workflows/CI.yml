@@ -12,22 +12,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
-      - uses: borales/actions-yarn@v2.0.0
+      - uses: actions/setup-node@v1
         with:
-          cmd: install # `yarn install`
-      - uses: borales/actions-yarn@v2.0.0
-        with:
-          cmd: bootstrap # `yarn bootstrap`
-  test:
-    name: Test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: borales/actions-yarn@v2.0.0
-        with:
-          cmd: lint # `yarn lint`
-      - uses: borales/actions-yarn@v2.0.0
-        with:
-          cmd: build # `yarn build`
-      - uses: borales/actions-yarn@v2.0.0
-        with:
-          cmd: test # `yarn test`
+          node-version: 10.x
+      - run: npm install -g yarn
+      - run: yarn
+      - run: yarn bootstrap
+      - run: yarn lint
+      - run: yarn build
+      - run: yarn test
