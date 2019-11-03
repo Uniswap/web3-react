@@ -1,0 +1,23 @@
+on:
+  pull_request:
+    branches:
+      - v6
+  push:
+    branches:
+      - v6
+name: CI
+jobs:
+  install:
+    name: Install
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 10.x
+      - run: npm install -g yarn
+      - run: yarn
+      - run: yarn bootstrap
+      - run: yarn lint
+      - run: yarn build
+      - run: yarn test

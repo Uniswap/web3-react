@@ -1,5 +1,10 @@
 {
-  "author": "Noah Zinsmeister",
+  "name": "web3-react",
+  "author": "Noah Zinsmeister <noahwz@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NoahZinsmeister/web3-react.git"
+  },
   "scripts": {
     "bootstrap": "lerna bootstrap",
     "publish": "lerna publish",
@@ -12,7 +17,6 @@
     "@types/jest": "^24.0.21",
     "@types/react": "^16.9.11",
     "@types/react-dom": "^16.9.3",
-    "husky": "^3.0.9",
     "lerna": "^3.18.3",
     "react": "^16.11.0",
     "react-dom": "^16.11.0",
@@ -23,15 +27,13 @@
   "peerDependencies": {
     "react": ">=16.8"
   },
+  "engines": {
+    "node": "^10"
+  },
   "license": "GPL-3.0-or-later",
   "prettier": {
     "printWidth": 120,
     "semi": false,
     "singleQuote": true
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lerna run lint"
-    }
   }
 }
