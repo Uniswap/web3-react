@@ -15,3 +15,5 @@
 
 * Build and begin watching for local changes\
 `yarn start`
+
+test
