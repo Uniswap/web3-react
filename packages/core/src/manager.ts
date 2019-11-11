@@ -241,9 +241,11 @@ export default function Web3ReactManager(): Web3ReactManagerReturn {
           break
         }
         await activate(connector, onError, true)
+          // eslint-disable-next-line no-loop-func
           .then((): void => {
             success = true
           })
+          // eslint-disable-next-line no-loop-func
           .catch((): void => {
             if (__DEV__) {
               console.info('Suppressed failed connector activation', connector)
@@ -255,7 +257,7 @@ export default function Web3ReactManager(): Web3ReactManagerReturn {
         await activate(connectors.slice(-1)[0], onError, throwErrors)
       }
     },
-    []
+    [activate]
   )
 
   const setError = useCallback((error: Error): void => {
