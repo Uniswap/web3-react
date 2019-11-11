@@ -1,6 +1,5 @@
 import { useReducer, useEffect, useCallback, useRef } from 'react'
-import { ConnectorUpdate, ConnectorEvent } from '@web3-react/types'
-import { AbstractConnector } from '@web3-react/abstract-connector'
+import { AbstractConnectorInterface, ConnectorUpdate, ConnectorEvent } from '@web3-react/types'
 
 import { Web3ReactManagerReturn } from './types'
 
@@ -11,17 +10,15 @@ class StaleConnectorError extends Error {
   }
 }
 
-interface State {
-  connector?: AbstractConnector
+interface Web3ReactManagerState {
+  connector?: AbstractConnectorInterface
   provider?: any
   chainId?: number
   account?: null | string
-  error?: Error
-  onError?: (error: Error) => void
-}
 
-function initializer(): State {
-  return {}
+  onError?: (error: Error) => void
+
+  error?: Error
 }
 
 enum ActionType {
@@ -38,7 +35,11 @@ interface Action {
   payload?: any
 }
 
-function reducer(state: State, { type, payload }: Action): State {
+function initializer(): Web3ReactManagerState {
+  return {}
+}
+
+function reducer(state: Web3ReactManagerState, { type, payload }: Action): Web3ReactManagerState {
   switch (type) {
     case ActionType.ACTIVATE_CONNECTOR: {
       const { connector, provider, chainId, account, onError } = payload
@@ -104,11 +105,17 @@ export default function Web3ReactManager(): Web3ReactManagerReturn {
 
         try {
           const provider =
-            update.provider === undefined ? await (connector as AbstractConnector).getProvider() : update.provider
+            update.provider === undefined
+              ? await (connector as AbstractConnectorInterface).getProvider()
+              : update.provider
           const chainId =
-            update.chainId === undefined ? await (connector as AbstractConnector).getChainId(provider) : update.chainId
+            update.chainId === undefined
+              ? await (connector as AbstractConnectorInterface).getChainId(provider)
+              : update.chainId
           const account =
-            update.account === undefined ? await (connector as AbstractConnector).getAccount(provider) : update.account
+            update.account === undefined
+              ? await (connector as AbstractConnectorInterface).getAccount(provider)
+              : update.account
 
           if (renderId.current !== renderIdInitial) {
             throw new StaleConnectorError()
@@ -171,47 +178,85 @@ export default function Web3ReactManager(): Web3ReactManagerReturn {
     }
   }, [connector, handleUpdate, handleError, handleDeactivate])
 
-  const activate = useCallback(async (connector: AbstractConnector, onError?: (error: Error) => void): Promise<
-    void
-  > => {
-    let activated = false
+  const activate = useCallback(
+    async (
+      connector: AbstractConnectorInterface,
+      onError?: (error: Error) => void,
+      throwErrors: boolean = false
+    ): Promise<void> => {
+      let activated = false
 
-    try {
-      const renderIdInitial = renderId.current
+      try {
+        const renderIdInitial = renderId.current
 
-      const update = await connector.activate().then(
-        (update: ConnectorUpdate): ConnectorUpdate => {
-          activated = true
-          return update
+        const update = await connector.activate().then(
+          (update: ConnectorUpdate): ConnectorUpdate => {
+            activated = true
+            return update
+          }
+        )
+        const provider = update.provider === undefined ? await connector.getProvider() : update.provider
+        const chainId = update.chainId === undefined ? await connector.getChainId(provider) : update.chainId
+        const account = update.account === undefined ? await connector.getAccount(provider) : update.account
+
+        if (renderId.current !== renderIdInitial) {
+          throw new StaleConnectorError()
         }
-      )
-      const provider = update.provider === undefined ? await connector.getProvider() : update.provider
-      const chainId = update.chainId === undefined ? await connector.getChainId(provider) : update.chainId
-      const account = update.account === undefined ? await connector.getAccount(provider) : update.account
 
-      if (renderId.current !== renderIdInitial) {
-        throw new StaleConnectorError()
-      }
-
-      dispatch({ type: ActionType.ACTIVATE_CONNECTOR, payload: { connector, provider, chainId, account, onError } })
-    } catch (error) {
-      if (activated) {
-        connector.deactivate()
-      }
-
-      if (error instanceof StaleConnectorError) {
-        if (__DEV__) {
-          console.warn('Suppressed stale connector activation', connector)
+        dispatch({ type: ActionType.ACTIVATE_CONNECTOR, payload: { connector, provider, chainId, account, onError } })
+      } catch (error) {
+        if (activated) {
+          connector.deactivate()
         }
-      } else {
-        if (onError) {
-          onError(error)
+
+        if (error instanceof StaleConnectorError) {
+          if (__DEV__) {
+            console.warn('Suppressed stale connector activation', connector)
+          }
         } else {
-          dispatch({ type: ActionType.ERROR_FROM_ACTIVATION, payload: { connector, onError, error } })
+          if (throwErrors) {
+            throw error
+          } else {
+            if (onError) {
+              onError(error)
+            } else {
+              dispatch({ type: ActionType.ERROR_FROM_ACTIVATION, payload: { connector, onError, error } })
+            }
+          }
         }
       }
-    }
-  }, [])
+    },
+    []
+  )
+
+  const activateFirst = useCallback(
+    async (
+      connectors: AbstractConnectorInterface[],
+      onError?: (error: Error) => void,
+      throwErrors: boolean = false
+    ): Promise<void> => {
+      let success = false
+      for (let connector of connectors.slice(0, -1)) {
+        if (success) {
+          break
+        }
+        await activate(connector, onError, true)
+          .then((): void => {
+            success = true
+          })
+          .catch((): void => {
+            if (__DEV__) {
+              console.info('Suppressed failed connector activation', connector)
+            }
+          })
+      }
+
+      if (!success) {
+        await activate(connectors.slice(-1)[0], onError, throwErrors)
+      }
+    },
+    []
+  )
 
   const setError = useCallback((error: Error): void => {
     dispatch({ type: ActionType.ERROR, payload: { error } })
@@ -221,5 +266,5 @@ export default function Web3ReactManager(): Web3ReactManagerReturn {
     dispatch({ type: ActionType.DEACTIVATE_CONNECTOR })
   }, [])
 
-  return { connector, provider, chainId, account, activate, setError, deactivate }
+  return { connector, provider, chainId, account, activate, activateFirst, setError, deactivate }
 }

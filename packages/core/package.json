@@ -14,7 +14,7 @@
     "lint": "tsdx lint src test"
   },
   "dependencies": {
-    "@web3-react/abstract-connector": "^0.0.1",
+    "@ethersproject/address": "^5.0.0-beta.131",
     "@web3-react/types": "^0.0.1"
   },
   "peerDependencies": {

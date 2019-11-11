@@ -1,28 +1,48 @@
-import React, { useContext } from 'react'
+import React, { useMemo } from 'react'
+import { getAddress } from '@ethersproject/address'
 
-import Web3ReactContext from './context'
+import { Web3ReactContextInterface } from './types'
+import { Web3ReactContext } from './context'
 import useWeb3ReactManager from './manager'
-
-export function useWeb3React() {
-  return useContext(Web3ReactContext)
-}
 
 interface Web3ReactProviderArguments {
   getLibrary: (provider?: any) => any
   children: any
 }
 
-export default function Web3ReactProvider({ getLibrary, children }: Web3ReactProviderArguments): JSX.Element {
-  const { connector, provider, chainId, account, activate, setError, deactivate, error } = useWeb3ReactManager()
+export function Web3ReactProvider({ getLibrary, children }: Web3ReactProviderArguments): JSX.Element {
+  const {
+    connector,
+    provider,
+    chainId,
+    account: _account,
+
+    activate,
+    activateFirst,
+    setError,
+    deactivate,
+
+    error
+  } = useWeb3ReactManager()
+  const account = useMemo(() => (typeof _account === 'string' ? getAddress(_account) : _account), [_account])
 
   const active = connector !== undefined && chainId !== undefined && account !== undefined && !!!error
-  const library = active ? getLibrary(provider) : undefined
+  const library = useMemo(() => (active ? getLibrary(provider) : undefined), [active, getLibrary, provider])
 
-  return (
-    <Web3ReactContext.Provider
-      value={{ connector, library, chainId, account, activate, setError, deactivate, active, error }}
-    >
-      {children}
-    </Web3ReactContext.Provider>
-  )
+  const web3ReactContext: Web3ReactContextInterface = {
+    connector,
+    library,
+    chainId,
+    account,
+
+    activate,
+    activateFirst,
+    setError,
+    deactivate,
+
+    active,
+    error
+  }
+
+  return <Web3ReactContext.Provider value={web3ReactContext}>{children}</Web3ReactContext.Provider>
 }

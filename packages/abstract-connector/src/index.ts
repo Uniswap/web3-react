@@ -1,5 +1,10 @@
-import EventEmitter from 'events'
-import { AbstractConnectorArguments, ConnectorUpdate, ConnectorEvent } from '@web3-react/types'
+import { EventEmitter } from 'events'
+import {
+  AbstractConnectorInterface,
+  AbstractConnectorArguments,
+  ConnectorUpdate,
+  ConnectorEvent
+} from '@web3-react/types'
 
 export class UnsupportedChainIdError extends Error {
   public constructor(unsupportedChainId: number, supportedChainIds?: readonly number[]) {
@@ -9,7 +14,7 @@ export class UnsupportedChainIdError extends Error {
   }
 }
 
-export abstract class AbstractConnector extends EventEmitter {
+export abstract class AbstractConnector extends EventEmitter implements AbstractConnectorInterface {
   public readonly supportedChainIds: undefined | ReadonlyArray<number>
 
   constructor({ supportedChainIds }: AbstractConnectorArguments = {}) {

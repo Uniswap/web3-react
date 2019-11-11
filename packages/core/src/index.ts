@@ -1,1 +1,2 @@
-export { default as Web3ReactProvider, useWeb3React } from './provider'
+export { Web3ReactProvider } from './provider'
+export { useWeb3React } from './context'

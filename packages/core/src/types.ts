@@ -1,24 +1,35 @@
-import { AbstractConnector } from '@web3-react/abstract-connector'
+import { AbstractConnectorInterface } from '@web3-react/abstract-connector'
 
-export interface Web3ReactContext {
-  connector?: AbstractConnector
-  library?: any
-  chainId?: number
-  account?: null | string
-  activate: (connector: AbstractConnector, onError?: (error: Error) => void) => Promise<void>
+export interface Web3ReactManagerFunctions {
+  activate: (
+    connector: AbstractConnectorInterface,
+    onError?: (error: Error) => void,
+    throwErrors?: boolean
+  ) => Promise<void>
+  activateFirst: (
+    connectors: AbstractConnectorInterface[],
+    onError?: (error: Error) => void,
+    throwErrors?: boolean
+  ) => Promise<void>
   setError: (error: Error) => void
   deactivate: () => void
-  active: boolean
-  error?: Error
 }
 
-export interface Web3ReactManagerReturn {
-  connector?: AbstractConnector
+export interface Web3ReactManagerReturn extends Web3ReactManagerFunctions {
+  connector?: AbstractConnectorInterface
   provider?: any
   chainId?: number
   account?: null | string
-  activate: (connector: AbstractConnector) => Promise<void>
-  setError: (error: Error) => void
-  deactivate: () => void
+
+  error?: Error
+}
+
+export interface Web3ReactContextInterface extends Web3ReactManagerFunctions {
+  connector?: AbstractConnectorInterface
+  library?: any
+  chainId?: number
+  account?: null | string
+
+  active: boolean
   error?: Error
 }

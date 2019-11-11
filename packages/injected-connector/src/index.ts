@@ -1,4 +1,5 @@
 import { ConnectorUpdate } from '@web3-react/types'
+import { AbstractConnectorArguments } from '@web3-react/types'
 import { AbstractConnector } from '@web3-react/abstract-connector'
 
 export class NoEthereumProviderError extends Error {
@@ -9,17 +10,25 @@ export class NoEthereumProviderError extends Error {
   }
 }
 
-export class InjectedConnector extends AbstractConnector {
-  constructor(kwargs?: any) {
-    super(kwargs)
+export class UserRejectedRequestError extends Error {
+  public constructor() {
+    super()
+    this.name = this.constructor.name
+    this.message = 'The user rejected the request.'
+  }
+}
 
-    this.getChainId = this.getChainId.bind(this)
+export class InjectedConnector extends AbstractConnector {
+  constructor(kwargs: AbstractConnectorArguments = {}) {
+    super(kwargs)
 
     this.handleConnect = this.handleConnect.bind(this)
     this.handleNetworkChanged = this.handleNetworkChanged.bind(this)
     this.handleChainChanged = this.handleChainChanged.bind(this)
     this.handleAccountsChanged = this.handleAccountsChanged.bind(this)
     this.handleClose = this.handleClose.bind(this)
+
+    this.getChainId = this.getChainId.bind(this)
   }
 
   private handleConnect(): void {
@@ -83,8 +92,15 @@ export class InjectedConnector extends AbstractConnector {
     window.ethereum.on('accountsChanged', this.handleAccountsChanged)
     window.ethereum.on('close', this.handleClose)
 
-    const accounts = await window.ethereum.send('eth_requestAccounts')
-    return { account: accounts[0] }
+    const accounts = await window.ethereum.send('eth_requestAccounts').catch((error: Error): void => {
+      if ((error as any).code === 4001) {
+        throw new UserRejectedRequestError()
+      }
+
+      throw error
+    })
+
+    return { provider: window.ethereum, account: accounts[0] }
   }
 
   public async getProvider(): Promise<any> {
