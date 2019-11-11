@@ -4,11 +4,14 @@
     "build": "parcel build index.html"
   },
   "dependencies": {
+    "@ethersproject/providers": "^5.0.0-beta.144",
     "react-app-polyfill": "^1.0.0"
   },
   "alias": {
     "@types/react": "../node_modules/@types/react",
     "@types/react-dom": "../node_modules/@types/react-dom",
+    "@web3-react/core": "../packages/core",
+    "@web3-react/injected-connector": "../packages/injected-connector",
     "react": "../node_modules/react",
     "react-dom": "../node_modules/react-dom/profiling",
     "scheduler/tracing": "../node_modules/scheduler/tracing-profiling",

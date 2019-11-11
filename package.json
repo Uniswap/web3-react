@@ -1,39 +1,39 @@
 {
   "name": "web3-react",
+  "private": true,
   "author": "Noah Zinsmeister <noahwz@gmail.com>",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/NoahZinsmeister/web3-react.git"
   },
-  "scripts": {
-    "bootstrap": "lerna bootstrap",
-    "publish": "lerna publish",
-    "start": "lerna run start",
-    "build": "lerna run build",
-    "test": "lerna run test",
-    "lint": "lerna run lint"
-  },
-  "devDependencies": {
-    "@types/jest": "^24.0.21",
-    "@types/react": "^16.9.11",
-    "@types/react-dom": "^16.9.3",
-    "lerna": "^3.18.3",
-    "react": "^16.11.0",
-    "react-dom": "^16.11.0",
-    "tsdx": "^0.11.0",
-    "tslib": "^1.10.0",
-    "typescript": "^3.6.4"
-  },
-  "peerDependencies": {
-    "react": ">=16.8"
-  },
   "engines": {
     "node": "^10"
   },
+  "scripts": {
+    "bootstrap": "lerna bootstrap",
+    "publish": "lerna publish",
+    "start": "yarn build && lerna run --parallel --no-bail start -- --noClean",
+    "build": "lerna run build",
+    "clean": "lerna clean --yes && lerna exec -- rm -rf dist/ .rts2_cache_{cjs,esm}/",
+    "test": "lerna run test",
+    "lint": "lerna run lint"
+  },
+  "workspaces": [
+    "packages/*"
+  ],
+  "devDependencies": {
+    "@types/jest": "^24.0.21",
+    "@types/react": "^16.9.11",
+    "@types/react-dom": "^16.9.4",
+    "lerna": "^3.18.3",
+    "react": ">=16.8",
+    "react-dom": ">=16.8",
+    "tsdx": "^0.11.0"
+  },
   "license": "GPL-3.0-or-later",
   "prettier": {
-    "printWidth": 120,
     "semi": false,
-    "singleQuote": true
+    "singleQuote": true,
+    "printWidth": 120
   }
 }

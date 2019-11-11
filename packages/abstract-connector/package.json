@@ -1,5 +1,5 @@
 {
-  "name": "@web3-react/core",
+  "name": "@web3-react/abstract-connector",
   "version": "0.0.1",
   "main": "dist/index.js",
   "module": "dist/core.esm.js",
@@ -10,14 +10,9 @@
   "scripts": {
     "start": "tsdx watch",
     "build": "tsdx build",
-    "test": "tsdx test --env=jsdom",
-    "lint": "tsdx lint src test"
+    "lint": "tsdx lint src"
   },
   "dependencies": {
-    "@web3-react/abstract-connector": "^0.0.1",
     "@web3-react/types": "^0.0.1"
-  },
-  "peerDependencies": {
-    "react": ">=16.8"
   }
 }
