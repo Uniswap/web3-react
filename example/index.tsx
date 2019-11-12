@@ -2,10 +2,29 @@ import 'react-app-polyfill/ie11'
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
 import { Web3ReactProvider, useWeb3React } from '@web3-react/core'
-import { InjectedConnector } from '@web3-react/injected-connector'
+import {
+  NoEthereumProviderError,
+  UnsupportedChainIdError,
+  UserRejectedRequestError
+} from '@web3-react/injected-connector'
 import { Web3Provider } from '@ethersproject/providers'
+import { formatEther } from '@ethersproject/units'
 
-const injectedConnector = new InjectedConnector({ supportedChainIds: [1, 4] })
+import { injected } from './connectors'
+import { useEagerConnect, useInactiveListener } from './hooks'
+
+function getErrorMessage(error: Error) {
+  if (error instanceof NoEthereumProviderError) {
+    return 'No Ethereum browser extension detected, install Metamask on desktop or visit from a dApp browser on mobile.'
+  } else if (error instanceof UnsupportedChainIdError) {
+    return "You're connected to the wrong network, please switch to Rinkeby, Görli, or Mainnet!"
+  } else if (error instanceof UserRejectedRequestError) {
+    return 'Please authorize this website in your Ethereum browser extension.'
+  } else {
+    console.error(error)
+    return 'An unknown error occurred. Check the console for more details.'
+  }
+}
 
 function getLibrary(provider: any) {
   return new Web3Provider(provider)
@@ -21,26 +40,69 @@ function App() {
 
 function MyComponent() {
   const context = useWeb3React()
+  const { library, chainId, account, activate, deactivate, active, error } = context
+
+  const [clickedActivate, setClickedActivate] = React.useState(false)
+  const [ethBalance, setEthBalance] = React.useState()
+
+  const activating = clickedActivate && !active && !!!error
+
+  const triedEager = useEagerConnect(context, injected)
+  useInactiveListener(context, injected, !triedEager || activating)
+
+  React.useEffect(() => {
+    if (!active && !error) {
+      setClickedActivate(false)
+    }
+  }, [active, error])
+
+  React.useEffect((): any => {
+    if (account) {
+      library
+        .getBalance(account)
+        .then(setEthBalance)
+        .catch(() => {
+          setEthBalance(null)
+        })
+
+      return () => {
+        setEthBalance(undefined)
+      }
+    }
+  }, [chainId, account])
 
   return (
     <>
-      {!!context.error && <p>Error</p>}
+      <h3>{active ? '🟢' : error ? '🔴' : '🟠'}</h3>
+      <h3>Chain Id ⛓: {chainId === undefined ? '...' : chainId}</h3>
+      <h3>Account 🤖: {account === undefined ? '...' : account === null ? 'None' : account}</h3>
+      <h3>
+        Balance 💰:{' '}
+        {ethBalance === undefined
+          ? '...'
+          : ethBalance === null
+          ? 'Error'
+          : `${parseFloat(formatEther(ethBalance)).toPrecision(4)} ETH`}
+      </h3>
 
-      <p>{context.active ? 'active' : 'inactive'}</p>
-
-      {context.active && (
-        <>
-          <p>chain id: {context.chainId}</p>
-          <p>account: {context.account === null ? 'None' : context.account}</p>
-        </>
-      )}
       <button
+        disabled={!triedEager || !!error}
         onClick={
-          context.active ? () => (context as any).deactivate() : () => (context as any).activate(injectedConnector)
+          !active
+            ? () => {
+                setClickedActivate(true)
+                activate(injected)
+              }
+            : () => {
+                deactivate()
+              }
         }
       >
-        {context.active ? 'deactivate' : 'activate'}
+        {!active ? 'activate' : 'deactivate'}
       </button>
+
+      {activating && <h3>Connecting...</h3>}
+      {!!error && <h3>{getErrorMessage(error)}</h3>}
     </>
   )
 }

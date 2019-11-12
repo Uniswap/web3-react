@@ -1,6 +1,8 @@
 import { ConnectorUpdate } from '@web3-react/types'
 import { AbstractConnectorArguments } from '@web3-react/types'
-import { AbstractConnector } from '@web3-react/abstract-connector'
+import { AbstractConnector, UnsupportedChainIdError } from '@web3-react/abstract-connector'
+
+export { UnsupportedChainIdError }
 
 export class NoEthereumProviderError extends Error {
   public constructor() {
@@ -33,7 +35,7 @@ export class InjectedConnector extends AbstractConnector {
 
   private handleConnect(): void {
     if (__DEV__) {
-      console.log('Handling connect event')
+      console.log('Logging connect event')
     }
   }
 
@@ -52,15 +54,15 @@ export class InjectedConnector extends AbstractConnector {
 
   private handleChainChanged(_chainId: string): void {
     if (__DEV__) {
-      console.log('Handling chainChanged event with payload', _chainId)
+      console.log('Logging chainChanged event with payload', _chainId)
     }
-    const chainId = parseInt(_chainId, 16)
-    try {
-      this.validateChainId(chainId)
-      this.emitUpdate({ chainId })
-    } catch (error) {
-      this.emitError(error)
-    }
+    // const chainId = parseInt(_chainId, 16)
+    // try {
+    //   this.validateChainId(chainId)
+    //   this.emitUpdate({ chainId })
+    // } catch (error) {
+    //   this.emitError(error)
+    // }
   }
 
   private handleAccountsChanged(accounts: string[]): void {
@@ -76,9 +78,9 @@ export class InjectedConnector extends AbstractConnector {
 
   private handleClose(code: number, reason: string): void {
     if (__DEV__) {
-      console.log('Handling close event with payload', code, reason)
+      console.log('Logging close event with payload', code, reason)
     }
-    this.emitDeactivate()
+    // this.emitDeactivate()
   }
 
   public async activate(): Promise<ConnectorUpdate> {

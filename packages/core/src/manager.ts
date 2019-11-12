@@ -128,7 +128,6 @@ export default function Web3ReactManager(): Web3ReactManagerReturn {
               console.warn('Suppressed stale connector update from error state', connector, update)
             }
           } else {
-            dispatch({ type: ActionType.UPDATE, payload: update })
             if (__DEV__) {
               console.warn('Failed to fully update from error state', connector, update, error)
             }
@@ -205,19 +204,24 @@ export default function Web3ReactManager(): Web3ReactManagerReturn {
 
         dispatch({ type: ActionType.ACTIVATE_CONNECTOR, payload: { connector, provider, chainId, account, onError } })
       } catch (error) {
-        if (activated) {
-          connector.deactivate()
-        }
-
         if (error instanceof StaleConnectorError) {
+          if (activated) {
+            connector.deactivate()
+          }
           if (__DEV__) {
             console.warn('Suppressed stale connector activation', connector)
           }
         } else {
           if (throwErrors) {
+            if (activated) {
+              connector.deactivate()
+            }
             throw error
           } else {
             if (onError) {
+              if (activated) {
+                connector.deactivate()
+              }
               onError(error)
             } else {
               dispatch({ type: ActionType.ERROR_FROM_ACTIVATION, payload: { connector, onError, error } })
@@ -268,5 +272,5 @@ export default function Web3ReactManager(): Web3ReactManagerReturn {
     dispatch({ type: ActionType.DEACTIVATE_CONNECTOR })
   }, [])
 
-  return { connector, provider, chainId, account, activate, activateFirst, setError, deactivate }
+  return { connector, provider, chainId, account, activate, activateFirst, setError, deactivate, error }
 }

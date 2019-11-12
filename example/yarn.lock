@@ -870,6 +870,15 @@
     "@ethersproject/rlp" ">=5.0.0-beta.126"
     "@ethersproject/signing-key" ">=5.0.0-beta.129"
 
+"@ethersproject/units@^5.0.0-beta.130":
+  version "5.0.0-beta.130"
+  resolved "https://registry.yarnpkg.com/@ethersproject/units/-/units-5.0.0-beta.130.tgz#20d392b2774c8d73eb5330ed057df107ffb278af"
+  integrity sha512-KkOBL3gjvnwbMSO8ex6cpzu4tMMEsW5g/JkUR/4QIElbjBjAW88iLY3t9m61LJPOkKsI2Pt0RZqWb3jDR4u4Ew==
+  dependencies:
+    "@ethersproject/bignumber" ">=5.0.0-beta.130"
+    "@ethersproject/constants" ">=5.0.0-beta.128"
+    "@ethersproject/logger" ">=5.0.0-beta.129"
+
 "@ethersproject/web@>=5.0.0-beta.129":
   version "5.0.0-beta.132"
   resolved "https://registry.yarnpkg.com/@ethersproject/web/-/web-5.0.0-beta.132.tgz#547f29a9e4c3403b4d0155f9656d0f9117a76788"
