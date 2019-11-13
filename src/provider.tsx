@@ -16,7 +16,7 @@ export function useWeb3Context(): Web3Context {
 
 interface Web3ProviderProps {
   connectors: Connectors
-  libraryName?: LibraryName
+  libraryName?: LibraryName | null | ((provider: any) => any)
   web3Api?: any
   children: any
 }
@@ -37,13 +37,20 @@ function Web3Provider({ connectors, libraryName, web3Api: Web3, children }: Web3
   const providerToInject =
     provider &&
     ((): Library => {
-      switch (libraryName) {
-        case 'ethers.js':
-          return new ethers.providers.Web3Provider(provider)
-        case 'web3.js':
-          return new Web3(provider)
-        case null:
-          return provider
+      if (ethers.providers.Provider.isProvider(provider)) {
+        return provider
+      } else {
+        switch (libraryName) {
+          case 'ethers.js':
+            return new ethers.providers.Web3Provider(provider)
+          case 'web3.js':
+            return new Web3(provider)
+          case undefined:
+          case null:
+            return provider
+          default:
+            return libraryName(provider)
+        }
       }
     })()
 
