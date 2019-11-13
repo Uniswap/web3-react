@@ -1,4 +1,4 @@
-# web3-react
+# `@web3-react` 🧰
 
 *A simple, maximally extensible, minimal-dependency framework for building modern Ethereum dApps in React.*
 
