@@ -12,7 +12,7 @@
   },
   "scripts": {
     "bootstrap": "lerna bootstrap",
-    "publish": "lerna publish",
+    "publish:lerna": "lerna publish",
     "clean": "lerna clean --yes && lerna exec -- rm -rf dist/ .rts2_cache_{cjs,esm}/",
     "build": "lerna run build --parallel",
     "start": "yarn build && lerna run --parallel --no-bail start -- --noClean",
