@@ -77,5 +77,5 @@ export function useInactiveListener(context: any, connector: any, suppress: bool
     }
 
     return () => {}
-  }, [active, error, activate, connector])
+  }, [active, error, suppress, activate, connector])
 }

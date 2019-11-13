@@ -18,7 +18,6 @@ import { formatEther } from '@ethersproject/units'
 
 import { injected, walletconnect } from './connectors'
 import { useEagerConnect, useInactiveListener } from './hooks'
-import { BigNumber } from '@ethersproject/bignumber'
 
 const connectors = {
   Injected: injected,
@@ -110,7 +109,7 @@ function MyComponent() {
 
       library
         .getBalance(account)
-        .then((balance: BigNumber) => {
+        .then((balance: any) => {
           if (!stale) {
             setEthBalance(balance)
           }
@@ -153,25 +152,33 @@ function MyComponent() {
         }}
       >
         <span>Chain Id</span>
-        <span>⛓</span>
+        <span role="img" aria-label="chain">
+          ⛓
+        </span>
         <span>{chainId === undefined ? '...' : chainId}</span>
 
         <span>Block Number</span>
-        <span>🔢</span>
+        <span role="img" aria-label="numbers">
+          🔢
+        </span>
         <span>{blockNumber === undefined ? '...' : blockNumber === null ? 'Error' : blockNumber.toLocaleString()}</span>
 
         <span>Account</span>
-        <span>🤖</span>
+        <span role="img" aria-label="robot">
+          🤖
+        </span>
         <span>{account === undefined ? '...' : account === null ? 'None' : account}</span>
 
         <span>Balance</span>
-        <span>💰</span>
+        <span role="img" aria-label="gold">
+          💰
+        </span>
         <span>
           {ethBalance === undefined
             ? '...'
             : ethBalance === null
             ? 'Error'
-            : `${parseFloat(formatEther(ethBalance)).toPrecision(4)} ETH`}
+            : `Ξ${parseFloat(formatEther(ethBalance)).toPrecision(4)}`}
         </span>
       </h3>
 

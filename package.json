@@ -2,6 +2,20 @@
   "private": true,
   "name": "web3-react",
   "description": "A simple, maximally extensible, minimal-dependency framework for building modern Ethereum dApps in React.",
+  "keywords": [
+    "react",
+    "react-hooks",
+    "hooks",
+    "ethereum",
+    "javascript",
+    "typescript",
+    "web3",
+    "context",
+    "frontend",
+    "dapp",
+    "metamask",
+    "walletconnect"
+  ],
   "author": "Noah Zinsmeister <noahwz@gmail.com>",
   "repository": {
     "type": "git",
@@ -15,7 +29,7 @@
     "publish:lerna": "lerna publish",
     "clean": "lerna clean --yes && lerna exec -- rm -rf dist/ .rts2_cache_{cjs,esm}/",
     "build": "lerna run build",
-    "start": "yarn build && lerna run --parallel --no-bail start -- --noClean",
+    "start": "lerna run --parallel --no-bail start -- --noClean",
     "lint": "lerna run lint --parallel",
     "test": "lerna run test --parallel"
   },
