@@ -1,6 +1,7 @@
 {
   "private": true,
   "name": "web3-react",
+  "description": "A simple, maximally extensible, minimal-dependency framework for building modern Ethereum dApps in React.",
   "author": "Noah Zinsmeister <noahwz@gmail.com>",
   "repository": {
     "type": "git",

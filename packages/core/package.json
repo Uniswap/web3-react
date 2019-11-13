@@ -1,6 +1,11 @@
 {
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://npm.pkg.github.com/"
+  },
   "name": "@web3-react/core",
   "version": "0.0.1",
+  "description": "A simple, maximally extensible, minimal-dependency framework for building modern Ethereum dApps in React.",
   "author": "Noah Zinsmeister <noahwz@gmail.com>",
   "repository": {
     "type": "git",
