@@ -1,5 +1,5 @@
 {
-  "name": "@web3-react/types",
+  "name": "@web3-react/walletconnect-connector",
   "author": "Noah Zinsmeister <noahwz@gmail.com>",
   "repository": {
     "type": "git",
@@ -19,6 +19,11 @@
     "start": "tsdx watch",
     "build": "tsdx build",
     "lint": "tsdx lint src"
+  },
+  "dependencies": {
+    "@walletconnect/web3-provider": "^1.0.0-beta.38",
+    "@web3-react/abstract-connector": "^0.0.1",
+    "@web3-react/types": "^0.0.1"
   },
   "license": "GPL-3.0-or-later"
 }

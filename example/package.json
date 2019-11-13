@@ -14,6 +14,7 @@
     "@types/react-dom": "../node_modules/@types/react-dom",
     "@web3-react/core": "../packages/core",
     "@web3-react/injected-connector": "../packages/injected-connector",
+    "@web3-react/walletconnect-connector": "../packages/walletconnect-connector",
     "react": "../node_modules/react",
     "react-dom": "../node_modules/react-dom/profiling",
     "scheduler/tracing": "../node_modules/scheduler/tracing-profiling",

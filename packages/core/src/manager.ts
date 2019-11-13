@@ -109,13 +109,9 @@ export default function Web3ReactManager(): Web3ReactManagerReturn {
               ? await (connector as AbstractConnectorInterface).getProvider()
               : update.provider
           const chainId =
-            update.chainId === undefined
-              ? await (connector as AbstractConnectorInterface).getChainId(provider)
-              : update.chainId
+            update.chainId === undefined ? await (connector as AbstractConnectorInterface).getChainId() : update.chainId
           const account =
-            update.account === undefined
-              ? await (connector as AbstractConnectorInterface).getAccount(provider)
-              : update.account
+            update.account === undefined ? await (connector as AbstractConnectorInterface).getAccount() : update.account
 
           if (renderId.current !== renderIdInitial) {
             throw new StaleConnectorError()
@@ -195,8 +191,8 @@ export default function Web3ReactManager(): Web3ReactManagerReturn {
           }
         )
         const provider = update.provider === undefined ? await connector.getProvider() : update.provider
-        const chainId = update.chainId === undefined ? await connector.getChainId(provider) : update.chainId
-        const account = update.account === undefined ? await connector.getAccount(provider) : update.account
+        const chainId = update.chainId === undefined ? await connector.getChainId() : update.chainId
+        const account = update.account === undefined ? await connector.getAccount() : update.account
 
         if (renderId.current !== renderIdInitial) {
           throw new StaleConnectorError()

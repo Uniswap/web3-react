@@ -1,9 +1,9 @@
 import { EventEmitter } from 'events'
 import {
-  AbstractConnectorInterface,
   AbstractConnectorArguments,
   ConnectorUpdate,
-  ConnectorEvent
+  ConnectorEvent,
+  AbstractConnectorInterface
 } from '@web3-react/types'
 
 export class UnsupportedChainIdError extends Error {
@@ -27,8 +27,8 @@ export abstract class AbstractConnector extends EventEmitter implements Abstract
 
   public abstract async activate(): Promise<ConnectorUpdate>
   public abstract async getProvider(): Promise<any>
-  public abstract async getChainId(provider: any): Promise<number>
-  public abstract async getAccount(provider: any): Promise<null | string>
+  public abstract async getChainId(): Promise<number>
+  public abstract async getAccount(): Promise<null | string>
   public abstract deactivate(): void
 
   protected validateChainId(chainId: number) {

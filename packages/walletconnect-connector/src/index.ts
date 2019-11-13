@@ -1,14 +1,9 @@
-import { AbstractConnectorArguments, ConnectorUpdate } from '@web3-react/types'
+import { ConnectorUpdate } from '@web3-react/types'
 import { AbstractConnector, UnsupportedChainIdError } from '@web3-react/abstract-connector'
+import WalletConnectProvider from '@walletconnect/web3-provider'
 export { UnsupportedChainIdError }
 
-export class NoEthereumProviderError extends Error {
-  public constructor() {
-    super()
-    this.name = this.constructor.name
-    this.message = 'No Ethereum provider was found on window.ethereum.'
-  }
-}
+export const URI_AVAILABLE = 'URI_AVAILABLE'
 
 export class UserRejectedRequestError extends Error {
   public constructor() {
@@ -18,11 +13,28 @@ export class UserRejectedRequestError extends Error {
   }
 }
 
-export class InjectedConnector extends AbstractConnector {
-  private provider: any
+export interface WalletConnectConnectorArguments {
+  rpc?: { [chainId: number]: string }
+  infuraId?: string
+  bridge?: string
+  qrcode?: boolean
+}
 
-  constructor(kwargs: AbstractConnectorArguments = {}) {
-    super(kwargs)
+export class WalletConnectConnector extends AbstractConnector {
+  private rpc?: { [chainId: number]: string }
+  private infuraId?: string
+  private bridge?: string
+  private qrcode?: boolean
+  private provider: any
+  public walletConnector: any
+
+  constructor({ rpc, infuraId, bridge, qrcode }: WalletConnectConnectorArguments) {
+    super(rpc ? { supportedChainIds: Object.keys(rpc).map(k => Number(k)) } : {})
+
+    this.rpc = rpc
+    this.infuraId = infuraId
+    this.bridge = bridge
+    this.qrcode = qrcode
 
     this.handleConnect = this.handleConnect.bind(this)
     this.handleNetworkChanged = this.handleNetworkChanged.bind(this)
@@ -41,26 +53,25 @@ export class InjectedConnector extends AbstractConnector {
     if (__DEV__) {
       console.log('Handling networkChanged event with payload', networkId)
     }
-    const chainId = parseInt(networkId)
-    try {
-      this.validateChainId(chainId)
-      this.emitUpdate({ chainId })
-    } catch (error) {
-      this.emitError(error)
-    }
-  }
-
-  private handleChainChanged(_chainId: string): void {
-    if (__DEV__) {
-      console.log('Logging chainChanged event with payload', _chainId)
-    }
-    // const chainId = parseInt(_chainId, 16)
+    // const chainId = parseInt(networkId)
     // try {
     //   this.validateChainId(chainId)
     //   this.emitUpdate({ chainId })
     // } catch (error) {
     //   this.emitError(error)
     // }
+  }
+
+  private handleChainChanged(chainId: number): void {
+    if (__DEV__) {
+      console.log('Logging chainChanged event with payload', chainId)
+    }
+    try {
+      this.validateChainId(chainId)
+      this.emitUpdate({ chainId })
+    } catch (error) {
+      this.emitError(error)
+    }
   }
 
   private handleAccountsChanged(accounts: string[]): void {
@@ -82,12 +93,15 @@ export class InjectedConnector extends AbstractConnector {
   }
 
   public async activate(): Promise<ConnectorUpdate> {
-    const { ethereum } = window
-    if (!ethereum) {
-      throw new NoEthereumProviderError()
-    }
-    this.provider = ethereum
+    this.provider = new WalletConnectProvider({
+      bridge: this.bridge,
+      rpc: this.rpc === undefined ? undefined : this.rpc,
+      infuraId: this.infuraId,
+      qrcode: this.qrcode
+    })
     const { provider } = this
+    this.walletConnector = provider.wc
+    const { walletConnector } = this
 
     provider.on('connect', this.handleConnect)
     provider.on('networkChanged', this.handleNetworkChanged)
@@ -95,8 +109,15 @@ export class InjectedConnector extends AbstractConnector {
     provider.on('accountsChanged', this.handleAccountsChanged)
     provider.on('close', this.handleClose)
 
-    const accounts = await provider.send('eth_requestAccounts').catch((error: Error): void => {
-      if ((error as any).code === 4001) {
+    // ensure that the uri is going to be available and emit an event
+    if (!walletConnector.connected) {
+      await walletConnector.createSession({ chainId: provider.chainId })
+      this.emit(URI_AVAILABLE, walletConnector.uri)
+    }
+
+    const accounts = await provider.enable().catch((error: Error): void => {
+      // TODO ideally this would be a better check
+      if (error.message === 'User closed WalletConnect modal') {
         throw new UserRejectedRequestError()
       }
 
@@ -111,23 +132,30 @@ export class InjectedConnector extends AbstractConnector {
   }
 
   public async getChainId(): Promise<number> {
-    const chainId = await this.provider.send('eth_chainId').then(({ result }: any): number => parseInt(result, 16))
+    const chainId = await this.provider.send('eth_chainId')
     this.validateChainId(chainId)
     return chainId
   }
 
   public async getAccount(): Promise<null | string> {
-    const accounts: string[] = await this.provider.send('eth_accounts').then(({ result }: any): string[] => result)
+    const accounts: string[] = await this.provider.send('eth_accounts')
     return accounts[0]
   }
 
   public deactivate() {
     const { provider } = this
+    provider.stop()
     provider.removeListener('connect', this.handleConnect)
     provider.removeListener('networkChanged', this.handleNetworkChanged)
     provider.removeListener('chainChanged', this.handleChainChanged)
     provider.removeListener('accountsChanged', this.handleAccountsChanged)
     provider.removeListener('close', this.handleClose)
+    this.walletConnector = undefined
     this.provider = undefined
+  }
+
+  public async close() {
+    await this.walletConnector.killSession()
+    this.emitDeactivate()
   }
 }

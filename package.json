@@ -1,6 +1,6 @@
 {
-  "name": "web3-react",
   "private": true,
+  "name": "web3-react",
   "author": "Noah Zinsmeister <noahwz@gmail.com>",
   "repository": {
     "type": "git",
@@ -12,11 +12,11 @@
   "scripts": {
     "bootstrap": "lerna bootstrap",
     "publish": "lerna publish",
-    "start": "yarn build && lerna run --parallel --no-bail start -- --noClean",
-    "build": "lerna run build",
     "clean": "lerna clean --yes && lerna exec -- rm -rf dist/ .rts2_cache_{cjs,esm}/",
-    "test": "lerna run test",
-    "lint": "lerna run lint"
+    "build": "lerna run build --parallel",
+    "start": "yarn build && lerna run --parallel --no-bail start -- --noClean",
+    "lint": "lerna run lint --parallel",
+    "test": "lerna run test --parallel"
   },
   "workspaces": [
     "packages/*"

@@ -1,6 +1,14 @@
 {
   "name": "@web3-react/abstract-connector",
   "version": "0.0.1",
+  "author": "Noah Zinsmeister <noahwz@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NoahZinsmeister/web3-react.git"
+  },
+  "engines": {
+    "node": "^10"
+  },
   "main": "dist/index.js",
   "module": "dist/core.esm.js",
   "typings": "dist/index.d.ts",
@@ -14,5 +22,6 @@
   },
   "dependencies": {
     "@web3-react/types": "^0.0.1"
-  }
+  },
+  "license": "GPL-3.0-or-later"
 }
