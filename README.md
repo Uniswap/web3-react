@@ -2,7 +2,6 @@
 
 [![npm version](https://img.shields.io/npm/v/web3-react/latest.svg)](https://www.npmjs.com/package/web3-react/v/latest)
 [![Build Status](https://travis-ci.org/NoahZinsmeister/web3-react.svg?branch=latest)](https://travis-ci.org/NoahZinsmeister/web3-react)
-[![Coverage Status](https://coveralls.io/repos/github/NoahZinsmeister/web3-react/badge.svg?branch=latest)](https://coveralls.io/github/NoahZinsmeister/web3-react?branch=latest)
 
 ## Resources
 
@@ -91,9 +90,9 @@ The `Web3Provider` takes 3 props:
 
 1. `connectors: any` (required): An object mapping arbitrary `string` connector names to Connector objects (see [the previous section](#2-setup-connectors) for more detail).
 
-1. `libraryName: string` (required): `ethers.js`|`web3.js`|`null` depending on which library you wish to use in your dApp. Passing `null` will expose the low-level provider object (you probably don't want this).
+2. `libraryName: string` (required): `ethers.js`|`web3.js`|`null` depending on which library you wish to use in your dApp. Passing `null` will expose the low-level provider object (you probably don't want this).
 
-1. `web3Api: any` (optional): If you use `web3.js`, this prop must be defined, with the value of the default export of `web3` (e.g. `import Web3 from 'web3'`).
+3. `web3Api: any` (optional): If you use `web3.js`, this prop must be defined, with the value of the default export of `web3` (e.g. `import Web3 from 'web3'`).
 
 ### 4. Activate
 
