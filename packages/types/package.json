@@ -1,7 +1,4 @@
 {
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com"
-  },
   "name": "@web3-react/types",
   "version": "6.0.0-beta.2",
   "description": "A simple, maximally extensible, minimal-dependency framework for building modern Ethereum dApps in React.",
