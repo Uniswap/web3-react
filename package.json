@@ -14,7 +14,7 @@
     "bootstrap": "lerna bootstrap",
     "publish:lerna": "lerna publish",
     "clean": "lerna clean --yes && lerna exec -- rm -rf dist/ .rts2_cache_{cjs,esm}/",
-    "build": "lerna run build --parallel",
+    "build": "lerna run build",
     "start": "yarn build && lerna run --parallel --no-bail start -- --noClean",
     "lint": "lerna run lint --parallel",
     "test": "lerna run test --parallel"
