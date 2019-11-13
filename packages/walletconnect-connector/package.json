@@ -1,6 +1,6 @@
 {
   "publishConfig": {
-    "access": "public"
+    "registry": "https://npm.pkg.github.com"
   },
   "name": "@web3-react/walletconnect-connector",
   "version": "6.0.0-beta.1",
@@ -8,7 +8,7 @@
   "author": "Noah Zinsmeister <noahwz@gmail.com>",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/NoahZinsmeister/web3-react.git"
+    "url": "git://github.com/NoahZinsmeister/web3-react.git"
   },
   "engines": {
     "node": "^10"

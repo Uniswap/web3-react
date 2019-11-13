@@ -4,13 +4,9 @@
   "useWorkspaces": true,
   "command": {
     "publish": {
-      "ignoreChanges": [
-        "*.md"
-      ],
-      "registry": "https://npm.pkg.github.com/"
+      "ignoreChanges": ["*.md"],
+      "registry": "https://npm.pkg.github.com"
     }
   },
-  "packages": [
-    "packages/*"
-  ]
+  "packages": ["packages/*"]
 }
