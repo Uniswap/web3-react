@@ -22,13 +22,11 @@ export default class FortmaticConnector extends ErrorCodeMixin(Connector, Fortma
   }
 
   public async onActivation(): Promise<void> {
-    await this.fortmatic.user.login().catch(
-      (error: any): void => {
-        const deniedAccessError: Error = Error(`Access Denied: ${error.toString()}.`)
-        deniedAccessError.code = FortmaticConnector.errorCodes.ETHEREUM_ACCESS_DENIED
-        throw deniedAccessError
-      }
-    )
+    await this.fortmatic.user.login().catch((error: any): void => {
+      const deniedAccessError: Error = Error(`Access Denied: ${error.toString()}.`)
+      deniedAccessError.code = FortmaticConnector.errorCodes.ETHEREUM_ACCESS_DENIED
+      throw deniedAccessError
+    })
   }
 
   public async getProvider(): Promise<Provider> {

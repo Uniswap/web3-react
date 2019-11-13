@@ -207,20 +207,18 @@ export default function useWeb3Manager(connectors: Connectors): Web3Manager {
       const provider = await connector.getProvider(networkId)
       const networkIdPromise = connector.getNetworkId(provider)
       const accountPromise = connector.getAccount(provider)
-      await Promise.all([networkIdPromise, accountPromise]).then(
-        ([networkId, account]): void => {
-          if (refId.current !== callingTimeRefId + 1) {
-            // eslint-disable-next-line no-console
-            console.warn(`Silently suppressing status update from stale connector '${connectorName}'.`)
-            return
-          }
-
-          dispatchWeb3State({
-            payload: { connectorName, provider, networkId, account },
-            type: 'UPDATE_CONNECTOR_VALUES'
-          })
+      await Promise.all([networkIdPromise, accountPromise]).then(([networkId, account]): void => {
+        if (refId.current !== callingTimeRefId + 1) {
+          // eslint-disable-next-line no-console
+          console.warn(`Silently suppressing status update from stale connector '${connectorName}'.`)
+          return
         }
-      )
+
+        dispatchWeb3State({
+          payload: { connectorName, provider, networkId, account },
+          type: 'UPDATE_CONNECTOR_VALUES'
+        })
+      })
     } catch (error) {
       // if the component has re-rendered since this function was called, eat the error
       if (refId.current !== callingTimeRefId + 1) {
@@ -343,46 +341,44 @@ export default function useWeb3Manager(connectors: Connectors): Web3Manager {
       const accountPromise =
         web3State.account === undefined || fetchNewAccount ? activeConnector.getAccount(provider) : web3State.account
 
-      await Promise.all([networkIdPromise, accountPromise]).then(
-        ([returnedNetworkId, returnedAccount]): void => {
-          if (updateNetworkId && networkId && networkId !== returnedNetworkId) {
-            // eslint-disable-next-line no-console
-            console.warn(`Mismatched networkIds in web3ReactUpdateHandler: ${networkId} and ${returnedNetworkId}.`)
-            throw unexpectedError
-          }
-
-          if (updateAccount && account && normalizeAccount(account) !== normalizeAccount(returnedAccount)) {
-            // eslint-disable-next-line no-console
-            console.warn(
-              `Mismatched accounts in web3ReactUpdateHandler: ${normalizeAccount(account)} and ${normalizeAccount(
-                returnedAccount
-              )}.`
-            )
-            throw unexpectedError
-          }
-
-          if (fetchNewNetworkId && !fetchNewAccount) {
-            dispatchWeb3State({
-              payload: { provider: fetchNewProvider ? provider : undefined, networkId: returnedNetworkId },
-              type: 'UPDATE_NETWORK_ID'
-            })
-          } else if (!fetchNewNetworkId && fetchNewAccount) {
-            dispatchWeb3State({
-              payload: { provider: fetchNewProvider ? provider : undefined, account: returnedAccount },
-              type: 'UPDATE_ACCOUNT'
-            })
-          } else {
-            dispatchWeb3State({
-              payload: {
-                provider: fetchNewProvider ? provider : undefined,
-                networkId: returnedNetworkId,
-                account: returnedAccount
-              },
-              type: 'UPDATE_NETWORK_ID_AND_ACCOUNT'
-            })
-          }
+      await Promise.all([networkIdPromise, accountPromise]).then(([returnedNetworkId, returnedAccount]): void => {
+        if (updateNetworkId && networkId && networkId !== returnedNetworkId) {
+          // eslint-disable-next-line no-console
+          console.warn(`Mismatched networkIds in web3ReactUpdateHandler: ${networkId} and ${returnedNetworkId}.`)
+          throw unexpectedError
         }
-      )
+
+        if (updateAccount && account && normalizeAccount(account) !== normalizeAccount(returnedAccount)) {
+          // eslint-disable-next-line no-console
+          console.warn(
+            `Mismatched accounts in web3ReactUpdateHandler: ${normalizeAccount(account)} and ${normalizeAccount(
+              returnedAccount
+            )}.`
+          )
+          throw unexpectedError
+        }
+
+        if (fetchNewNetworkId && !fetchNewAccount) {
+          dispatchWeb3State({
+            payload: { provider: fetchNewProvider ? provider : undefined, networkId: returnedNetworkId },
+            type: 'UPDATE_NETWORK_ID'
+          })
+        } else if (!fetchNewNetworkId && fetchNewAccount) {
+          dispatchWeb3State({
+            payload: { provider: fetchNewProvider ? provider : undefined, account: returnedAccount },
+            type: 'UPDATE_ACCOUNT'
+          })
+        } else {
+          dispatchWeb3State({
+            payload: {
+              provider: fetchNewProvider ? provider : undefined,
+              networkId: returnedNetworkId,
+              account: returnedAccount
+            },
+            type: 'UPDATE_NETWORK_ID_AND_ACCOUNT'
+          })
+        }
+      })
     } catch (error) {
       setError(error)
     }
@@ -396,23 +392,21 @@ export default function useWeb3Manager(connectors: Connectors): Web3Manager {
     unsetConnector()
   }
 
-  useEffect(
-    (): (() => void) => {
-      if (activeConnector) {
-        activeConnector.on('_web3ReactUpdate', web3ReactUpdateHandler)
-        activeConnector.on('_web3ReactError', web3ReactErrorHandler)
-        activeConnector.on('_web3ReactReset', web3ReactResetHandler)
-      }
+  useEffect((): (() => void) => {
+    if (activeConnector) {
+      activeConnector.on('_web3ReactUpdate', web3ReactUpdateHandler)
+      activeConnector.on('_web3ReactError', web3ReactErrorHandler)
+      activeConnector.on('_web3ReactReset', web3ReactResetHandler)
+    }
 
-      return (): void => {
-        if (activeConnector) {
-          activeConnector.removeListener('_web3ReactUpdate', web3ReactUpdateHandler)
-          activeConnector.removeListener('_web3ReactError', web3ReactErrorHandler)
-          activeConnector.removeListener('_web3ReactReset', web3ReactResetHandler)
-        }
+    return (): void => {
+      if (activeConnector) {
+        activeConnector.removeListener('_web3ReactUpdate', web3ReactUpdateHandler)
+        activeConnector.removeListener('_web3ReactError', web3ReactErrorHandler)
+        activeConnector.removeListener('_web3ReactReset', web3ReactResetHandler)
       }
     }
-  )
+  })
 
   return {
     web3Initialized,

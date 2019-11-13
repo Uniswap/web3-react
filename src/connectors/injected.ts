@@ -16,27 +16,23 @@ export default class InjectedConnector extends ErrorCodeMixin(Connector, Injecte
     const { ethereum, web3 } = window
 
     if (ethereum) {
-      await ethereum.enable().catch(
-        (error: any): any => {
-          const deniedAccessError: Error = Error(error)
-          deniedAccessError.code = InjectedConnector.errorCodes.ETHEREUM_ACCESS_DENIED
-          throw deniedAccessError
-        }
-      )
+      await ethereum.enable().catch((error: any): any => {
+        const deniedAccessError: Error = Error(error)
+        deniedAccessError.code = InjectedConnector.errorCodes.ETHEREUM_ACCESS_DENIED
+        throw deniedAccessError
+      })
 
       // initialize event listeners
       if (ethereum.on) {
         ethereum.on('networkChanged', this.networkChangedHandler)
         ethereum.on('accountsChanged', this.accountsChangedHandler)
 
-        this.runOnDeactivation.push(
-          (): void => {
-            if (ethereum.removeListener) {
-              ethereum.removeListener('networkChanged', this.networkChangedHandler)
-              ethereum.removeListener('accountsChanged', this.accountsChangedHandler)
-            }
+        this.runOnDeactivation.push((): void => {
+          if (ethereum.removeListener) {
+            ethereum.removeListener('networkChanged', this.networkChangedHandler)
+            ethereum.removeListener('accountsChanged', this.accountsChangedHandler)
           }
-        )
+        })
       }
 
       if (ethereum.isMetaMask) {

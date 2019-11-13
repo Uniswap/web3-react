@@ -24,8 +24,8 @@ export default class LedgerConnector extends Connector {
 
   public constructor(kwargs: LedgerConnectorArguments) {
     const { supportedNetworkURLs, defaultNetwork } = kwargs
-    const supportedNetworks = Object.keys(supportedNetworkURLs).map(
-      (supportedNetworkURL): number => Number(supportedNetworkURL)
+    const supportedNetworks = Object.keys(supportedNetworkURLs).map((supportedNetworkURL): number =>
+      Number(supportedNetworkURL)
     )
     super({ supportedNetworks })
 
