@@ -1,6 +1,6 @@
 {
   "name": "@web3-react/abstract-connector",
-  "version": "6.0.0-beta.3",
+  "version": "6.0.0-beta.4",
   "description": "A simple, maximally extensible, minimal-dependency framework for building modern Ethereum dApps in React.",
   "author": "Noah Zinsmeister <noahwz@gmail.com>",
   "repository": {
@@ -22,7 +22,7 @@
     "lint": "tsdx lint src"
   },
   "dependencies": {
-    "@web3-react/types": "^6.0.0-beta.3"
+    "@web3-react/types": "^6.0.0-beta.4"
   },
   "license": "GPL-3.0-or-later"
 }
