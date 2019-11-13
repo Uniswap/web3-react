@@ -39,19 +39,20 @@
     "check:lint": "yarn eslint ./src/**/* ./__tests__/**/* --ext .ts,.tsx,.js,.jsx",
     "check:format": "yarn prettier --check './src/**/*' './__tests__/**/*'",
     "check:all": "yarn check:lint && yarn check:format",
-    "prebuild": "rm -rf dist/",
+    "prebuild": "rm -rf dist/ && rm -f ./node_modules/ganache-core/typings/index.d.ts",
     "build": "tsc",
     "watch": "yarn prebuild && tsc --watch",
     "test": "jest",
     "coverage": "jest --coverage --coverageReporters=text-lcov"
   },
   "dependencies": {
-    "@0x/subproviders": "^4.0.5"
+    "@0x/subproviders": "^4"
   },
   "devDependencies": {
     "@types/jest": "^24.0.11",
     "@types/react": "^16.8.10",
     "@types/react-dom": "^16.8.3",
+    "@types/web3": "^1.2.2",
     "@typescript-eslint/eslint-plugin": "^1.6.0",
     "@typescript-eslint/parser": "^1.6.0",
     "coveralls": "^3.0.3",
