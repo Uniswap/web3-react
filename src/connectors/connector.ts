@@ -9,7 +9,7 @@ export interface ErrorCodes {
 }
 
 export interface ConnectorArguments {
-  readonly supportedNetworks?: ReadonlyArray<number>
+  readonly supportedNetworks?: ReadonlyArray<number> // eslint-disable-line @typescript-eslint/array-type
 }
 
 export function ErrorCodeMixin(Base: any, errorCodes: string[]): any {
@@ -29,7 +29,7 @@ export function ErrorCodeMixin(Base: any, errorCodes: string[]): any {
 
 const ConnectorErrorCodes = ['UNSUPPORTED_NETWORK']
 export default abstract class Connector extends ErrorCodeMixin(EventEmitter, ConnectorErrorCodes) {
-  public readonly supportedNetworks: ReadonlyArray<number> | undefined
+  public readonly supportedNetworks: ReadonlyArray<number> | undefined // eslint-disable-line @typescript-eslint/array-type
 
   public constructor(kwargs: ConnectorArguments = {}) {
     super()
@@ -70,7 +70,7 @@ export default abstract class Connector extends ErrorCodeMixin(EventEmitter, Con
   }
 
   // wraps emissions of _web3ReactError
-  protected _web3ReactErrorHandler(error: Error, preserveConnector: boolean = true): void {
+  protected _web3ReactErrorHandler(error: Error, preserveConnector = true): void {
     this.emit('_web3ReactError', error, preserveConnector)
   }
 
