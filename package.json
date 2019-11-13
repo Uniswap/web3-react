@@ -12,7 +12,7 @@
   },
   "scripts": {
     "bootstrap": "lerna bootstrap",
-    "publish:lerna": "lerna publish",
+    "publish:lerna": "lerna publish --registry https://npm.pkg.github.com/",
     "clean": "lerna clean --yes && lerna exec -- rm -rf dist/ .rts2_cache_{cjs,esm}/",
     "build": "lerna run build",
     "start": "yarn build && lerna run --parallel --no-bail start -- --noClean",
