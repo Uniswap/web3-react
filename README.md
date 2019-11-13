@@ -226,6 +226,7 @@ Projects using `web3-react` include:
 - [Compound Liquidator](https://github.com/conlan/compound-liquidator)
 - [Uniswap](https://github.com/Uniswap/uniswap-frontend)
 - [Uniswap Info](https://github.com/Uniswap/uniswap-info)
+- [Everest](https://github.com/metacartel/everest-web-app)
 
 Open a PR to add your project to the list! If you're interested in contributing, check out [Contributing-Guidelines.md](./docs/Contributing-Guidelines.md).
 
