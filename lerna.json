@@ -1,12 +1,16 @@
 {
-  "version": "6.0.0-beta.1",
+  "version": "6.0.0-beta.2",
   "npmClient": "yarn",
   "useWorkspaces": true,
   "command": {
     "publish": {
-      "ignoreChanges": ["*.md"],
+      "ignoreChanges": [
+        "*.md"
+      ],
       "registry": "https://npm.pkg.github.com"
     }
   },
-  "packages": ["packages/*"]
+  "packages": [
+    "packages/*"
+  ]
 }
