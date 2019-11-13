@@ -1,6 +1,6 @@
 {
   "name": "@web3-react/walletconnect-connector",
-  "version": "6.0.0-beta.4",
+  "version": "6.0.0-beta.5",
   "description": "A simple, maximally extensible, minimal-dependency framework for building modern Ethereum dApps in React.",
   "author": "Noah Zinsmeister <noahwz@gmail.com>",
   "repository": {
@@ -23,8 +23,8 @@
   },
   "dependencies": {
     "@walletconnect/web3-provider": "^1.0.0-beta.38",
-    "@web3-react/abstract-connector": "^6.0.0-beta.4",
-    "@web3-react/types": "^6.0.0-beta.4"
+    "@web3-react/abstract-connector": "^6.0.0-beta.5",
+    "@web3-react/types": "^6.0.0-beta.5"
   },
   "license": "GPL-3.0-or-later"
 }
