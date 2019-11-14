@@ -14,7 +14,9 @@
     "frontend",
     "dapp",
     "metamask",
-    "walletconnect"
+    "walletconnect",
+    "fortmatic",
+    "portis"
   ],
   "author": "Noah Zinsmeister <noahwz@gmail.com>",
   "repository": {

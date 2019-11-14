@@ -6,7 +6,7 @@ import useWeb3ReactManager from './manager'
 import { getAddress } from './address'
 
 interface Web3ReactProviderArguments {
-  getLibrary: (provider?: any) => any
+  getLibrary: (provider: any) => any
   children: any
 }
 

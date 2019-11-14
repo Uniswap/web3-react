@@ -24,9 +24,9 @@ export interface Web3ReactManagerReturn extends Web3ReactManagerFunctions {
   error?: Error
 }
 
-export interface Web3ReactContextInterface extends Web3ReactManagerFunctions {
+export interface Web3ReactContextInterface<T = any> extends Web3ReactManagerFunctions {
   connector?: AbstractConnectorInterface
-  library?: any
+  library?: T
   chainId?: number
   account?: null | string
 

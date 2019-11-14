@@ -18,6 +18,7 @@ export interface WalletConnectConnectorArguments {
   infuraId?: string
   bridge?: string
   qrcode?: boolean
+  pollingInterval?: number
 }
 
 export class WalletConnectConnector extends AbstractConnector {
@@ -25,16 +26,19 @@ export class WalletConnectConnector extends AbstractConnector {
   private infuraId?: string
   private bridge?: string
   private qrcode?: boolean
+  private pollingInterval?: number
+
   private provider: any
   public walletConnector: any
 
-  constructor({ rpc, infuraId, bridge, qrcode }: WalletConnectConnectorArguments) {
+  constructor({ rpc, infuraId, bridge, qrcode, pollingInterval }: WalletConnectConnectorArguments) {
     super(rpc ? { supportedChainIds: Object.keys(rpc).map(k => Number(k)) } : {})
 
     this.rpc = rpc
     this.infuraId = infuraId
     this.bridge = bridge
     this.qrcode = qrcode
+    this.pollingInterval = pollingInterval
 
     this.handleConnect = this.handleConnect.bind(this)
     this.handleNetworkChanged = this.handleNetworkChanged.bind(this)
@@ -89,7 +93,7 @@ export class WalletConnectConnector extends AbstractConnector {
     if (__DEV__) {
       console.log('Logging close event with payload', code, reason)
     }
-    // this.emitDeactivate()
+    this.emitDeactivate()
   }
 
   public async activate(): Promise<ConnectorUpdate> {
@@ -97,7 +101,8 @@ export class WalletConnectConnector extends AbstractConnector {
       bridge: this.bridge,
       rpc: this.rpc === undefined ? undefined : this.rpc,
       infuraId: this.infuraId,
-      qrcode: this.qrcode
+      qrcode: this.qrcode,
+      pollingInterval: this.pollingInterval
     })
     const { provider } = this
     this.walletConnector = provider.wc

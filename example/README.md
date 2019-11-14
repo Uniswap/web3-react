@@ -4,11 +4,11 @@
 
 Before starting, ensure you've completed the instructions in the top-level [README.md](../README.md#local-development).
 
-* Install dependencies\
-`yarn`
+- Install dependencies\
+  `yarn`
 
-* Add an RPC URL\
-Make a copy of `.env.example` named `.env` and change the `RPC_URL` variable to an Ethereum endpoint
+- Modify environment variables\
+  Make a copy of `.env.example` named `.env` and fill in the appropriate variables
 
-* Serve the example on localhost\
-`yarn start`
+- Serve the example on localhost\
+  `yarn start`

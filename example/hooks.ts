@@ -1,7 +1,10 @@
 import { useState, useEffect } from 'react'
+import { useWeb3React } from '@web3-react/core'
 
-export function useEagerConnect(context: any, connector: any) {
-  const { activate, active, error } = context
+import { injected } from './connectors'
+
+export function useEagerConnect() {
+  const { activate, active } = useWeb3React()
 
   const [tried, setTried] = useState(false)
 
@@ -12,7 +15,7 @@ export function useEagerConnect(context: any, connector: any) {
         .send('eth_accounts')
         .then(({ result: accounts }: any) => {
           if (accounts.length > 0) {
-            activate(connector, undefined, true).catch(() => {
+            activate(injected, undefined, true).catch(() => {
               setTried(true)
             })
           } else {
@@ -25,18 +28,18 @@ export function useEagerConnect(context: any, connector: any) {
     }
   }, []) // intentionally only running on mount (make sure it's only mounted once :))
 
-  // if we are trying to connect, wait until it's worked or there's been an error to flip the flag
+  // if we are trying to connect, wait until it's worked to flip the flag
   useEffect(() => {
-    if (active || error) {
+    if (active) {
       setTried(true)
     }
-  }, [active, error])
+  }, [active])
 
   return tried
 }
 
-export function useInactiveListener(context: any, connector: any, suppress: boolean = false) {
-  const { active, error, activate } = context
+export function useInactiveListener(suppress: boolean = false) {
+  const { active, error, activate } = useWeb3React()
 
   useEffect(() => {
     const { ethereum } = window as any
@@ -46,7 +49,7 @@ export function useInactiveListener(context: any, connector: any, suppress: bool
       }
       const handleNetworkChanged = (networkId: string) => {
         console.log('networkChanged', networkId)
-        activate(connector)
+        activate(injected)
       }
       const handleChainChanged = (_chainId: string) => {
         console.log('chainChanged', _chainId)
@@ -54,7 +57,7 @@ export function useInactiveListener(context: any, connector: any, suppress: bool
       const handleAccountsChanged = (accounts: string[]) => {
         console.log('accountsChanged', accounts)
         if (accounts.length > 0) {
-          activate(connector)
+          activate(injected)
         }
       }
       const handleClose = () => {
@@ -77,5 +80,5 @@ export function useInactiveListener(context: any, connector: any, suppress: bool
     }
 
     return () => {}
-  }, [active, error, suppress, activate, connector])
+  }, [active, error, suppress, activate])
 }

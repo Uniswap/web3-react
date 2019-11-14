@@ -19,6 +19,6 @@ export const Web3ReactContext = createContext<Web3ReactContextInterface>({
   active: false
 })
 
-export function useWeb3React() {
+export function useWeb3React<T = any>(): Web3ReactContextInterface<T> {
   return useContext(Web3ReactContext)
 }

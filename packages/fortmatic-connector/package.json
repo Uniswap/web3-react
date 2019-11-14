@@ -1,5 +1,5 @@
 {
-  "name": "@web3-react/injected-connector",
+  "name": "@web3-react/fortmatic-connector",
   "version": "6.0.0-beta.6",
   "description": "A simple, maximally extensible, dependency minimized framework for building modern Ethereum dApps",
   "keywords": [
@@ -27,7 +27,7 @@
     "node": "^10"
   },
   "main": "dist/index.js",
-  "module": "dist/injected-connector.esm.js",
+  "module": "dist/fortmatic-connector.esm.js",
   "typings": "dist/index.d.ts",
   "files": [
     "dist"
@@ -39,7 +39,8 @@
   },
   "dependencies": {
     "@web3-react/abstract-connector": "^6.0.0-beta.6",
-    "@web3-react/types": "^6.0.0-beta.6"
+    "@web3-react/types": "^6.0.0-beta.6",
+    "fortmatic": "^1.0.0"
   },
   "license": "GPL-3.0-or-later"
 }
