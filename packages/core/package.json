@@ -1,6 +1,6 @@
 {
   "name": "@web3-react/core",
-  "version": "6.0.0-beta.5",
+  "version": "6.0.0-beta.6",
   "description": "A simple, maximally extensible, dependency minimized framework for building modern Ethereum dApps",
   "keywords": [
     "react",
@@ -38,7 +38,7 @@
   },
   "dependencies": {
     "@ethersproject/keccak256": "^5.0.0-beta.130",
-    "@web3-react/types": "^6.0.0-beta.5"
+    "@web3-react/types": "^6.0.0-beta.6"
   },
   "peerDependencies": {
     "react": ">=16.8"
