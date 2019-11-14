@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "web3-react",
-  "description": "A simple, maximally extensible, minimal-dependency framework for building modern Ethereum dApps in React.",
+  "description": "A simple, maximally extensible, dependency minimized framework for building modern Ethereum dApps",
   "keywords": [
     "react",
     "react-hooks",
@@ -36,6 +36,10 @@
   "workspaces": [
     "packages/*"
   ],
+  "dependencies": {
+    "tiny-invariant": "^1.0.6",
+    "tiny-warning": "^1.0.3"
+  },
   "devDependencies": {
     "@types/jest": "^24.0.21",
     "@types/react": "^16.9.11",

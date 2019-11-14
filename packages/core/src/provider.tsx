@@ -1,9 +1,9 @@
 import React, { useMemo } from 'react'
-import { getAddress } from '@ethersproject/address'
 
 import { Web3ReactContextInterface } from './types'
 import { Web3ReactContext } from './context'
 import useWeb3ReactManager from './manager'
+import { getAddress } from './address'
 
 interface Web3ReactProviderArguments {
   getLibrary: (provider?: any) => any

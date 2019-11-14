@@ -1,4 +1,4 @@
-import { AbstractConnectorInterface } from '@web3-react/abstract-connector'
+import { AbstractConnectorInterface } from '@web3-react/types'
 
 export interface Web3ReactManagerFunctions {
   activate: (

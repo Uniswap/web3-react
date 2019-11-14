@@ -1,7 +1,7 @@
 {
   "name": "@web3-react/core",
   "version": "6.0.0-beta.5",
-  "description": "A simple, maximally extensible, minimal-dependency framework for building modern Ethereum dApps in React.",
+  "description": "A simple, maximally extensible, dependency minimized framework for building modern Ethereum dApps",
   "keywords": [
     "react",
     "react-hooks",
@@ -37,7 +37,7 @@
     "lint": "tsdx lint src test"
   },
   "dependencies": {
-    "@ethersproject/address": "^5.0.0-beta.131",
+    "@ethersproject/keccak256": "^5.0.0-beta.130",
     "@web3-react/types": "^6.0.0-beta.5"
   },
   "peerDependencies": {

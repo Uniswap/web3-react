@@ -1,7 +1,7 @@
 {
   "name": "@web3-react/injected-connector",
   "version": "6.0.0-beta.5",
-  "description": "A simple, maximally extensible, minimal-dependency framework for building modern Ethereum dApps in React.",
+  "description": "A simple, maximally extensible, dependency minimized framework for building modern Ethereum dApps",
   "keywords": [
     "react",
     "react-hooks",
@@ -25,7 +25,7 @@
     "node": "^10"
   },
   "main": "dist/index.js",
-  "module": "dist/core.esm.js",
+  "module": "dist/injected-connector.esm.js",
   "typings": "dist/index.d.ts",
   "files": [
     "dist"

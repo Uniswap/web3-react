@@ -1,5 +1,6 @@
 import { useReducer, useEffect, useCallback, useRef } from 'react'
 import { AbstractConnectorInterface, ConnectorUpdate, ConnectorEvent } from '@web3-react/types'
+import warning from 'tiny-warning'
 
 import { Web3ReactManagerReturn } from './types'
 
@@ -120,13 +121,9 @@ export default function Web3ReactManager(): Web3ReactManagerReturn {
           dispatch({ type: ActionType.UPDATE_FROM_ERROR, payload: { provider, chainId, account } })
         } catch (error) {
           if (error instanceof StaleConnectorError) {
-            if (__DEV__) {
-              console.warn('Suppressed stale connector update from error state', connector, update)
-            }
+            warning(false, `Suppressed stale connector update from error state ${connector} ${update}`)
           } else {
-            if (__DEV__) {
-              console.warn('Failed to fully update from error state', connector, update, error)
-            }
+            warning(false, `Failed to fully update from error state ${connector} ${update} ${error}`)
           }
         }
       }
@@ -204,9 +201,7 @@ export default function Web3ReactManager(): Web3ReactManagerReturn {
           if (activated) {
             connector.deactivate()
           }
-          if (__DEV__) {
-            console.warn('Suppressed stale connector activation', connector)
-          }
+          warning(false, `Suppressed stale connector activation ${connector}`)
         } else {
           if (throwErrors) {
             if (activated) {
@@ -245,11 +240,8 @@ export default function Web3ReactManager(): Web3ReactManagerReturn {
           .then((): void => {
             success = true
           })
-          // eslint-disable-next-line no-loop-func
           .catch((): void => {
-            if (__DEV__) {
-              console.info('Suppressed failed connector activation', connector)
-            }
+            warning(false, `Suppressed failed connector activation ${connector}`)
           })
       }
 
