@@ -4,6 +4,7 @@ import Fortmatic from 'fortmatic'
 export { UnsupportedChainIdError }
 
 const networkToChainId: { [network: string]: number } = {
+  mainnet: 1,
   rinkeby: 4,
   ropsten: 3,
   kovan: 42
@@ -29,7 +30,7 @@ export class FortmaticConnector extends AbstractConnector {
   }
 
   public async activate(): Promise<ConnectorUpdate> {
-    this.fortmatic = new Fortmatic(this.apiKey, this.network)
+    this.fortmatic = new Fortmatic(this.apiKey, this.network === 'mainnet' ? undefined : this.network)
     const { fortmatic } = this
     this.provider = fortmatic.getProvider()
     const { provider } = this
