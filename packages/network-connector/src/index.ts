@@ -1,6 +1,7 @@
 import { ConnectorUpdate } from '@web3-react/types'
 import { AbstractConnector } from '@web3-react/abstract-connector'
-import { Web3ProviderEngine, RPCSubprovider } from '@0x/subproviders' // use tree-shaking instead of dynamic import
+import Web3ProviderEngine from 'web3-provider-engine'
+import { RPCSubprovider } from '@0x/subproviders/lib/src/subproviders/rpc_subprovider' // https://github.com/0xProject/0x-monorepo/issues/1400
 
 export interface NetworkConnectorArguments {
   url: string
