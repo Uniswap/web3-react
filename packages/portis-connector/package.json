@@ -3,7 +3,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "version": "6.0.0-beta.9",
+  "version": "6.0.0-beta.10",
   "description": "A simple, maximally extensible, dependency minimized framework for building modern Ethereum dApps",
   "keywords": [
     "react",
@@ -42,8 +42,8 @@
   },
   "dependencies": {
     "@portis/web3": "^2.0.0-beta.54",
-    "@web3-react/abstract-connector": "^6.0.0-beta.9",
-    "@web3-react/types": "^6.0.0-beta.9",
+    "@web3-react/abstract-connector": "^6.0.0-beta.10",
+    "@web3-react/types": "^6.0.0-beta.10",
     "fortmatic": "^1.0.0",
     "tiny-invariant": "^1.0.6"
   },
