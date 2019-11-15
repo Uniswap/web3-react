@@ -1,6 +1,5 @@
 import { AbstractConnectorArguments, ConnectorUpdate } from '@web3-react/types'
-import { AbstractConnector, UnsupportedChainIdError } from '@web3-react/abstract-connector'
-export { UnsupportedChainIdError }
+import { AbstractConnector } from '@web3-react/abstract-connector'
 
 export class NoEthereumProviderError extends Error {
   public constructor() {
@@ -24,48 +23,29 @@ export class InjectedConnector extends AbstractConnector {
   constructor(kwargs: AbstractConnectorArguments = {}) {
     super(kwargs)
 
-    this.handleConnect = this.handleConnect.bind(this)
     this.handleNetworkChanged = this.handleNetworkChanged.bind(this)
     this.handleChainChanged = this.handleChainChanged.bind(this)
     this.handleAccountsChanged = this.handleAccountsChanged.bind(this)
     this.handleClose = this.handleClose.bind(this)
   }
 
-  private handleConnect(): void {
-    if (__DEV__) {
-      console.log('Logging connect event')
-    }
-  }
-
   private handleNetworkChanged(networkId: string): void {
     if (__DEV__) {
-      console.log('Handling networkChanged event with payload', networkId)
+      console.log("Handling 'networkChanged' event with payload", networkId)
     }
-    const chainId = parseInt(networkId)
-    try {
-      this.validateChainId(chainId)
-      this.emitUpdate({ chainId })
-    } catch (error) {
-      this.emitError(error)
-    }
+    this.emitUpdate({ chainId: networkId })
   }
 
-  private handleChainChanged(_chainId: string): void {
+  private handleChainChanged(chainId: string): void {
     if (__DEV__) {
-      console.log('Logging chainChanged event with payload', _chainId)
+      console.log("Handling 'chainChanged' event with payload", chainId)
     }
-    // const chainId = parseInt(_chainId, 16)
-    // try {
-    //   this.validateChainId(chainId)
-    //   this.emitUpdate({ chainId })
-    // } catch (error) {
-    //   this.emitError(error)
-    // }
+    this.emitUpdate({ chainId })
   }
 
   private handleAccountsChanged(accounts: string[]): void {
     if (__DEV__) {
-      console.log('Handling accountsChanged event with payload', accounts)
+      console.log("Handling 'accountsChanged' event with payload", accounts)
     }
     if (accounts.length === 0) {
       this.emitDeactivate()
@@ -76,58 +56,53 @@ export class InjectedConnector extends AbstractConnector {
 
   private handleClose(code: number, reason: string): void {
     if (__DEV__) {
-      console.log('Logging close event with payload', code, reason)
+      console.log("Handling 'close' event with payload", code, reason)
     }
-    // this.emitDeactivate()
+    this.emitDeactivate()
   }
 
   public async activate(): Promise<ConnectorUpdate> {
-    const { ethereum } = window
-    if (!ethereum) {
+    if (!window.ethereum) {
       throw new NoEthereumProviderError()
     }
-    this.provider = ethereum
-    const { provider } = this
+    this.provider = window.ethereum
 
-    provider.on('connect', this.handleConnect)
-    provider.on('networkChanged', this.handleNetworkChanged)
-    provider.on('chainChanged', this.handleChainChanged)
-    provider.on('accountsChanged', this.handleAccountsChanged)
-    provider.on('close', this.handleClose)
+    this.provider.on('networkChanged', this.handleNetworkChanged)
+    this.provider.on('chainChanged', this.handleChainChanged)
+    this.provider.on('accountsChanged', this.handleAccountsChanged)
+    this.provider.on('close', this.handleClose)
 
-    const accounts = await provider.send('eth_requestAccounts').catch((error: Error): void => {
-      if ((error as any).code === 4001) {
-        throw new UserRejectedRequestError()
-      }
+    const account = await this.provider
+      .send('eth_requestAccounts')
+      .catch((error: Error): void => {
+        if (error && (error as any).code === 4001) {
+          throw new UserRejectedRequestError()
+        }
 
-      throw error
-    })
+        throw error
+      })
+      .then(({ result: accounts }: any): string[] => accounts[0])
 
-    return { provider, account: accounts[0] }
+    return { provider: this.provider, account }
   }
 
   public async getProvider(): Promise<any> {
     return this.provider
   }
 
-  public async getChainId(): Promise<number> {
-    const chainId = await this.provider.send('eth_chainId').then(({ result }: any): number => parseInt(result, 16))
-    this.validateChainId(chainId)
-    return chainId
+  public async getChainId(): Promise<number | string> {
+    return this.provider.send('eth_chainId').then(({ result: chainId }: any): number | string => chainId)
   }
 
   public async getAccount(): Promise<null | string> {
-    const accounts: string[] = await this.provider.send('eth_accounts').then(({ result }: any): string[] => result)
-    return accounts[0]
+    return this.provider.send('eth_accounts').then(({ result: accounts }: any): string[] => accounts[0])
   }
 
   public deactivate() {
-    const { provider } = this
-    provider.removeListener('connect', this.handleConnect)
-    provider.removeListener('networkChanged', this.handleNetworkChanged)
-    provider.removeListener('chainChanged', this.handleChainChanged)
-    provider.removeListener('accountsChanged', this.handleAccountsChanged)
-    provider.removeListener('close', this.handleClose)
+    this.provider.removeListener('networkChanged', this.handleNetworkChanged)
+    this.provider.removeListener('chainChanged', this.handleChainChanged)
+    this.provider.removeListener('accountsChanged', this.handleAccountsChanged)
+    this.provider.removeListener('close', this.handleClose)
     this.provider = undefined
   }
 }

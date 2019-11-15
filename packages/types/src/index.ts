@@ -4,9 +4,9 @@ export interface AbstractConnectorArguments {
   readonly supportedChainIds?: ReadonlyArray<number>
 }
 
-export interface ConnectorUpdate {
+export interface ConnectorUpdate<T = number | string> {
   provider?: any
-  chainId?: number
+  chainId?: T
   account?: null | string
 }
 
@@ -18,10 +18,12 @@ export enum ConnectorEvent {
 
 export interface AbstractConnectorInterface extends EventEmitter {
   supportedChainIds?: ReadonlyArray<number>
+
   activate: () => Promise<ConnectorUpdate>
 
   getProvider: () => Promise<any>
-  getChainId: () => Promise<number>
+
+  getChainId: () => Promise<number | string>
   getAccount: () => Promise<null | string>
 
   deactivate: () => void

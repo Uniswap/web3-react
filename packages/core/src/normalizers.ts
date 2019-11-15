@@ -2,8 +2,19 @@ import { arrayify } from '@ethersproject/bytes'
 import { keccak256 } from '@ethersproject/keccak256'
 import invariant from 'tiny-invariant'
 
+export function normalizeChainId(chainId: string | number): number {
+  if (typeof chainId === 'string') {
+    const parsedChainId = Number.parseInt(chainId, chainId.trim().substring(0, 2) === '0x' ? 16 : 10)
+    invariant(!Number.isNaN(parsedChainId), `chainId ${chainId} is not an integer`)
+    return parsedChainId
+  } else {
+    invariant(Number.isInteger(chainId), `chainId ${chainId} is not an integer`)
+    return chainId
+  }
+}
+
 // https://github.com/ethers-io/ethers.js/blob/d9d438a119bb11f8516fc9cf02c534ab3816fcb3/packages/address/src.ts/index.ts
-export function getAddress(_address: string): string {
+export function normalizeAccount(_address: string): string {
   invariant(_address.match(/^(0x)?[0-9a-fA-F]{40}$/), `Invalid address ${_address}`)
 
   const address = _address.substring(0, 2) === '0x' ? _address : `0x${_address}`

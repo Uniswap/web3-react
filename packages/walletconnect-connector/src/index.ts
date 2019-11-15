@@ -1,7 +1,5 @@
 import { ConnectorUpdate } from '@web3-react/types'
-import { AbstractConnector, UnsupportedChainIdError } from '@web3-react/abstract-connector'
-import WalletConnectProvider from '@walletconnect/web3-provider'
-export { UnsupportedChainIdError }
+import { AbstractConnector } from '@web3-react/abstract-connector'
 
 export const URI_AVAILABLE = 'URI_AVAILABLE'
 
@@ -22,11 +20,11 @@ export interface WalletConnectConnectorArguments {
 }
 
 export class WalletConnectConnector extends AbstractConnector {
-  private rpc?: { [chainId: number]: string }
-  private infuraId?: string
-  private bridge?: string
-  private qrcode?: boolean
-  private pollingInterval?: number
+  private readonly rpc?: { [chainId: number]: string }
+  private readonly infuraId?: string
+  private readonly bridge?: string
+  private readonly qrcode?: boolean
+  private readonly pollingInterval?: number
 
   private provider: any
   public walletConnector: any
@@ -40,47 +38,21 @@ export class WalletConnectConnector extends AbstractConnector {
     this.qrcode = qrcode
     this.pollingInterval = pollingInterval
 
-    this.handleConnect = this.handleConnect.bind(this)
-    this.handleNetworkChanged = this.handleNetworkChanged.bind(this)
     this.handleChainChanged = this.handleChainChanged.bind(this)
     this.handleAccountsChanged = this.handleAccountsChanged.bind(this)
-    this.handleClose = this.handleClose.bind(this)
+    this.handleDisconnect = this.handleDisconnect.bind(this)
   }
 
-  private handleConnect(): void {
+  private handleChainChanged(chainId: number | string): void {
     if (__DEV__) {
-      console.log('Logging connect event')
+      console.log("Handling 'chainChanged' event with payload", chainId)
     }
-  }
-
-  private handleNetworkChanged(networkId: string): void {
-    if (__DEV__) {
-      console.log('Handling networkChanged event with payload', networkId)
-    }
-    // const chainId = parseInt(networkId)
-    // try {
-    //   this.validateChainId(chainId)
-    //   this.emitUpdate({ chainId })
-    // } catch (error) {
-    //   this.emitError(error)
-    // }
-  }
-
-  private handleChainChanged(chainId: number): void {
-    if (__DEV__) {
-      console.log('Logging chainChanged event with payload', chainId)
-    }
-    try {
-      this.validateChainId(chainId)
-      this.emitUpdate({ chainId })
-    } catch (error) {
-      this.emitError(error)
-    }
+    this.emitUpdate({ chainId })
   }
 
   private handleAccountsChanged(accounts: string[]): void {
     if (__DEV__) {
-      console.log('Handling accountsChanged event with payload', accounts)
+      console.log("Handling 'accountsChanged' event with payload", accounts)
     }
     if (accounts.length === 0) {
       this.emitDeactivate()
@@ -89,14 +61,15 @@ export class WalletConnectConnector extends AbstractConnector {
     }
   }
 
-  private handleClose(code: number, reason: string): void {
+  private handleDisconnect(): void {
     if (__DEV__) {
-      console.log('Logging close event with payload', code, reason)
+      console.log("Handling 'disconnect' event")
     }
     this.emitDeactivate()
   }
 
   public async activate(): Promise<ConnectorUpdate> {
+    const { default: WalletConnectProvider } = await import('@walletconnect/web3-provider')
     this.provider = new WalletConnectProvider({
       bridge: this.bridge,
       rpc: this.rpc === undefined ? undefined : this.rpc,
@@ -104,58 +77,50 @@ export class WalletConnectConnector extends AbstractConnector {
       qrcode: this.qrcode,
       pollingInterval: this.pollingInterval
     })
-    const { provider } = this
-    this.walletConnector = provider.wc
-    const { walletConnector } = this
+    this.provider.on('chainChanged', this.handleChainChanged)
+    this.provider.on('accountsChanged', this.handleAccountsChanged)
+    this.walletConnector = this.provider.wc
+    this.walletConnector.on('disconnect', this.handleDisconnect)
 
-    provider.on('connect', this.handleConnect)
-    provider.on('networkChanged', this.handleNetworkChanged)
-    provider.on('chainChanged', this.handleChainChanged)
-    provider.on('accountsChanged', this.handleAccountsChanged)
-    provider.on('close', this.handleClose)
-
-    // ensure that the uri is going to be available and emit an event
-    if (!walletConnector.connected) {
-      await walletConnector.createSession({ chainId: provider.chainId })
-      this.emit(URI_AVAILABLE, walletConnector.uri)
+    // ensure that the uri is going to be available, and emit an event if there's a new uri
+    if (!this.walletConnector.connected) {
+      await this.walletConnector.createSession({ chainId: this.provider.chainId })
+      this.emit(URI_AVAILABLE, this.walletConnector.uri)
     }
 
-    const accounts = await provider.enable().catch((error: Error): void => {
-      // TODO ideally this would be a better check
-      if (error.message === 'User closed WalletConnect modal') {
-        throw new UserRejectedRequestError()
-      }
+    const account = await this.provider
+      .enable()
+      .catch((error: Error): void => {
+        // TODO ideally this would be a better check
+        if (error.message === 'User closed WalletConnect modal') {
+          throw new UserRejectedRequestError()
+        }
 
-      throw error
-    })
+        throw error
+      })
+      .then((accounts: string[]): string => accounts[0])
 
-    return { provider, account: accounts[0] }
+    return { provider: this.provider, account }
   }
 
   public async getProvider(): Promise<any> {
     return this.provider
   }
 
-  public async getChainId(): Promise<number> {
-    const chainId = await this.provider.send('eth_chainId')
-    this.validateChainId(chainId)
-    return chainId
+  public async getChainId(): Promise<number | string> {
+    return this.provider.send('eth_chainId')
   }
 
   public async getAccount(): Promise<null | string> {
-    const accounts: string[] = await this.provider.send('eth_accounts')
-    return accounts[0]
+    return this.provider.send('eth_accounts').then((accounts: string[]): string => accounts[0])
   }
 
   public deactivate() {
-    const { provider } = this
-    provider.stop()
-    provider.removeListener('connect', this.handleConnect)
-    provider.removeListener('networkChanged', this.handleNetworkChanged)
-    provider.removeListener('chainChanged', this.handleChainChanged)
-    provider.removeListener('accountsChanged', this.handleAccountsChanged)
-    provider.removeListener('close', this.handleClose)
+    this.walletConnector.on('disconnect', this.handleDisconnect)
     this.walletConnector = undefined
+    this.provider.stop()
+    this.provider.removeListener('chainChanged', this.handleChainChanged)
+    this.provider.removeListener('accountsChanged', this.handleAccountsChanged)
     this.provider = undefined
   }
 

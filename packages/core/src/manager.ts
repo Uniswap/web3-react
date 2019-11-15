@@ -3,11 +3,20 @@ import { AbstractConnectorInterface, ConnectorUpdate, ConnectorEvent } from '@we
 import warning from 'tiny-warning'
 
 import { Web3ReactManagerReturn } from './types'
+import { normalizeChainId, normalizeAccount } from './normalizers'
 
 class StaleConnectorError extends Error {
   constructor() {
     super()
     this.name = this.constructor.name
+  }
+}
+
+export class UnsupportedChainIdError extends Error {
+  public constructor(unsupportedChainId: number, supportedChainIds?: readonly number[]) {
+    super()
+    this.name = this.constructor.name
+    this.message = `Unsupported chain id: ${unsupportedChainId}. Supported chain ids are: ${supportedChainIds}.`
   }
 }
 
@@ -88,6 +97,33 @@ function reducer(state: Web3ReactManagerState, { type, payload }: Action): Web3R
   }
 }
 
+function normalizeConnectorUpdate(update: ConnectorUpdate): ConnectorUpdate<number> {
+  return {
+    provider: update.provider,
+    chainId: update.chainId === undefined ? undefined : normalizeChainId(update.chainId),
+    account: typeof update.account === 'string' ? normalizeAccount(update.account) : update.account
+  }
+}
+
+async function augmentConnectorUpdate(
+  connector: AbstractConnectorInterface,
+  update: ConnectorUpdate
+): Promise<ConnectorUpdate<number>> {
+  const provider = update.provider === undefined ? await connector.getProvider() : update.provider
+  const [_chainId, _account]: any = await Promise.all([
+    update.chainId === undefined ? connector.getChainId() : update.chainId,
+    update.account === undefined ? connector.getAccount() : update.account
+  ])
+
+  const chainId = normalizeChainId(_chainId)
+  if (connector.supportedChainIds && !connector.supportedChainIds.includes(chainId)) {
+    throw new UnsupportedChainIdError(chainId, connector.supportedChainIds)
+  }
+  const account = _account === null ? _account : normalizeAccount(_account)
+
+  return { provider, chainId, account }
+}
+
 export default function Web3ReactManager(): Web3ReactManagerReturn {
   const [{ connector, provider, chainId, account, onError, error }, dispatch] = useReducer(
     reducer,
@@ -100,30 +136,23 @@ export default function Web3ReactManager(): Web3ReactManagerReturn {
   const handleUpdate = useCallback(
     async (update: ConnectorUpdate): Promise<void> => {
       if (!error) {
-        dispatch({ type: ActionType.UPDATE, payload: update })
+        dispatch({ type: ActionType.UPDATE, payload: normalizeConnectorUpdate(update) })
       } else {
         const renderIdInitial = renderId.current
 
         try {
-          const provider =
-            update.provider === undefined
-              ? await (connector as AbstractConnectorInterface).getProvider()
-              : update.provider
-          const chainId =
-            update.chainId === undefined ? await (connector as AbstractConnectorInterface).getChainId() : update.chainId
-          const account =
-            update.account === undefined ? await (connector as AbstractConnectorInterface).getAccount() : update.account
+          const augmentedUpdate = await augmentConnectorUpdate(connector as AbstractConnectorInterface, update)
 
           if (renderId.current !== renderIdInitial) {
             throw new StaleConnectorError()
           }
 
-          dispatch({ type: ActionType.UPDATE_FROM_ERROR, payload: { provider, chainId, account } })
+          dispatch({ type: ActionType.UPDATE_FROM_ERROR, payload: augmentedUpdate })
         } catch (error) {
           if (error instanceof StaleConnectorError) {
             warning(false, `Suppressed stale connector update from error state ${connector} ${update}`)
           } else {
-            warning(false, `Failed to fully update from error state ${connector} ${update} ${error}`)
+            warning(false, `Failed to update from error state because of another error ${connector} ${update} ${error}`)
           }
         }
       }
@@ -177,25 +206,23 @@ export default function Web3ReactManager(): Web3ReactManagerReturn {
       throwErrors: boolean = false
     ): Promise<void> => {
       let activated = false
+      const renderIdInitial = renderId.current
 
       try {
-        const renderIdInitial = renderId.current
-
         const update = await connector.activate().then(
           (update: ConnectorUpdate): ConnectorUpdate => {
             activated = true
             return update
           }
         )
-        const provider = update.provider === undefined ? await connector.getProvider() : update.provider
-        const chainId = update.chainId === undefined ? await connector.getChainId() : update.chainId
-        const account = update.account === undefined ? await connector.getAccount() : update.account
+
+        const augmentedUpdate = await augmentConnectorUpdate(connector, update)
 
         if (renderId.current !== renderIdInitial) {
           throw new StaleConnectorError()
         }
 
-        dispatch({ type: ActionType.ACTIVATE_CONNECTOR, payload: { connector, provider, chainId, account, onError } })
+        dispatch({ type: ActionType.ACTIVATE_CONNECTOR, payload: { connector, ...augmentedUpdate, onError } })
       } catch (error) {
         if (error instanceof StaleConnectorError) {
           if (activated) {
@@ -240,8 +267,8 @@ export default function Web3ReactManager(): Web3ReactManagerReturn {
           .then((): void => {
             success = true
           })
-          .catch((): void => {
-            warning(false, `Suppressed failed connector activation ${connector}`)
+          .catch((error: Error): void => {
+            warning(false, `Suppressed failed connector activation ${connector}, ${error}`)
           })
       }
 

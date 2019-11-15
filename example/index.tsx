@@ -2,10 +2,9 @@ import 'react-app-polyfill/ie11'
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
 import { AbstractConnectorInterface } from '@web3-react/types'
-import { Web3ReactProvider, useWeb3React } from '@web3-react/core'
+import { Web3ReactProvider, useWeb3React, UnsupportedChainIdError } from '@web3-react/core'
 import {
   NoEthereumProviderError,
-  UnsupportedChainIdError,
   UserRejectedRequestError as UserRejectedRequestErrorInjected
 } from '@web3-react/injected-connector'
 import {
@@ -15,22 +14,23 @@ import {
 import { Web3Provider } from '@ethersproject/providers'
 import { formatEther } from '@ethersproject/units'
 
-import { injected, walletconnect, fortmatic, portis } from './connectors'
+import { injected, walletconnect, network, fortmatic, portis } from './connectors'
 import { useEagerConnect, useInactiveListener } from './hooks'
 import { Spinner } from './Spinner'
 
 const connectorsByName: { [name: string]: AbstractConnectorInterface } = {
   Injected: injected,
   WalletConnect: walletconnect,
+  Network: network,
   Fortmatic: fortmatic,
   Portis: portis
 }
 
 function getErrorMessage(error: Error) {
   if (error instanceof NoEthereumProviderError) {
-    return 'No Ethereum browser extension detected, install Metamask on desktop or visit from a dApp browser on mobile.'
+    return 'No Ethereum browser extension detected, install MetaMask on desktop or visit from a dApp browser on mobile.'
   } else if (error instanceof UnsupportedChainIdError) {
-    return "You're connected to the wrong network, please switch to Rinkeby, Görli, or Mainnet!"
+    return "You're connected to an unsupported network."
   } else if (
     error instanceof UserRejectedRequestErrorInjected ||
     error instanceof UserRejectedRequestErrorWalletConnect
@@ -44,7 +44,7 @@ function getErrorMessage(error: Error) {
 
 function getLibrary(provider: any): Web3Provider {
   const library = new Web3Provider(provider)
-  library.pollingInterval = 5000
+  library.pollingInterval = 8000
   return library
 }
 
@@ -332,18 +332,34 @@ function MyComponent() {
           </button>
         )}
         {connector === portis && (
-          <button
-            style={{
-              height: '3rem',
-              borderRadius: '1rem',
-              cursor: 'pointer'
-            }}
-            onClick={() => {
-              ;(connector as any).close()
-            }}
-          >
-            Kill Portis Session
-          </button>
+          <>
+            {chainId !== undefined && (
+              <button
+                style={{
+                  height: '3rem',
+                  borderRadius: '1rem',
+                  cursor: 'pointer'
+                }}
+                onClick={() => {
+                  ;(connector as any).changeNetwork(chainId === 1 ? 100 : 1)
+                }}
+              >
+                Switch Networks
+              </button>
+            )}
+            <button
+              style={{
+                height: '3rem',
+                borderRadius: '1rem',
+                cursor: 'pointer'
+              }}
+              onClick={() => {
+                ;(connector as any).close()
+              }}
+            >
+              Kill Portis Session
+            </button>
+          </>
         )}
       </div>
     </div>
