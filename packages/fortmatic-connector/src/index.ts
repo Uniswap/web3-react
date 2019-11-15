@@ -16,7 +16,7 @@ export interface FortmaticConnectorArguments {
 
 export class FortmaticConnector extends AbstractConnector {
   private readonly apiKey: string
-  private readonly network: string
+  private readonly chainId: number
 
   public fortmatic: any
   private provider: any
@@ -26,12 +26,15 @@ export class FortmaticConnector extends AbstractConnector {
     super({ supportedChainIds: [chainId] })
 
     this.apiKey = apiKey
-    this.network = chainIdToNetwork[chainId]
+    this.chainId = chainId
   }
 
   public async activate(): Promise<ConnectorUpdate> {
     const { default: Fortmatic } = await import('fortmatic')
-    this.fortmatic = new Fortmatic(this.apiKey, this.network === chainIdToNetwork[1] ? undefined : this.network)
+    this.fortmatic = new Fortmatic(
+      this.apiKey,
+      this.chainId === 1 || this.chainId === 4 ? undefined : chainIdToNetwork[this.chainId]
+    )
     this.provider = this.fortmatic.getProvider()
 
     const account = await this.provider.enable().then((accounts: string[]): string => accounts[0])
@@ -44,7 +47,7 @@ export class FortmaticConnector extends AbstractConnector {
   }
 
   public async getChainId(): Promise<number | string> {
-    return this.provider.send('eth_chainId')
+    return this.chainId
   }
 
   public async getAccount(): Promise<null | string> {

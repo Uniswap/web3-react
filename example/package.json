@@ -6,8 +6,7 @@
   },
   "dependencies": {
     "@ethersproject/providers": "^5.0.0-beta.144",
-    "@ethersproject/units": "^5.0.0-beta.130",
-    "react-app-polyfill": "^1.0.0"
+    "@ethersproject/units": "^5.0.0-beta.130"
   },
   "alias": {
     "@types/react": "../node_modules/@types/react",
@@ -18,12 +17,15 @@
     "@web3-react/network-connector": "../packages/network-connector",
     "@web3-react/portis-connector": "../packages/portis-connector",
     "@web3-react/walletconnect-connector": "../packages/walletconnect-connector",
+    "@web3-react/walletlink-connector": "../packages/walletlink-connector",
     "react": "../node_modules/react",
     "react-dom": "../node_modules/react-dom/profiling",
     "scheduler/tracing": "../node_modules/scheduler/tracing-profiling",
     "typescript": "../node_modules/typescript"
   },
   "devDependencies": {
-    "parcel": "^1.12.4"
+    "parcel": "^1.12.4",
+    "react-app-polyfill": "^1.0.4",
+    "regenerator-runtime": "^0.13.3"
   }
 }

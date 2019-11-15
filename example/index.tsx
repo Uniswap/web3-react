@@ -1,3 +1,4 @@
+import 'regenerator-runtime/runtime'
 import 'react-app-polyfill/ie11'
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
@@ -14,13 +15,14 @@ import {
 import { Web3Provider } from '@ethersproject/providers'
 import { formatEther } from '@ethersproject/units'
 
-import { injected, walletconnect, network, fortmatic, portis } from './connectors'
+import { injected, walletconnect, walletlink, network, fortmatic, portis } from './connectors'
 import { useEagerConnect, useInactiveListener } from './hooks'
 import { Spinner } from './Spinner'
 
 const connectorsByName: { [name: string]: AbstractConnectorInterface } = {
   Injected: injected,
   WalletConnect: walletconnect,
+  WalletLink: walletlink,
   Network: network,
   Fortmatic: fortmatic,
   Portis: portis

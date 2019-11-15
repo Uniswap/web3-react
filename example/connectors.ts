@@ -1,5 +1,6 @@
 import { InjectedConnector } from '@web3-react/injected-connector'
 import { WalletConnectConnector } from '@web3-react/walletconnect-connector'
+import { WalletLinkConnector } from '@web3-react/walletlink-connector'
 import { NetworkConnector } from '@web3-react/network-connector'
 import { FortmaticConnector } from '@web3-react/fortmatic-connector'
 import { PortisConnector } from '@web3-react/portis-connector'
@@ -14,6 +15,13 @@ export const walletconnect = new WalletConnectConnector({
   pollingInterval: POLLING_INTERVAL,
   bridge: 'https://bridge.walletconnect.org',
   qrcode: true
+})
+
+export const walletlink = new WalletLinkConnector({
+  url: RPC_URL,
+  chainId: 1,
+  appName: 'web3-react example',
+  appLogoUrl: 'https://github.com/NoahZinsmeister/web3-react'
 })
 
 export const network = new NetworkConnector({ url: RPC_URL, chainId: 1, pollingInterval: POLLING_INTERVAL })
