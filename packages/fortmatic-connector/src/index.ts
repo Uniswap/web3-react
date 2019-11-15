@@ -30,7 +30,7 @@ export class FortmaticConnector extends AbstractConnector {
   }
 
   public async activate(): Promise<ConnectorUpdate> {
-    const Fortmatic = await import('fortmatic')
+    const { default: Fortmatic } = await import('fortmatic')
     this.fortmatic = new Fortmatic(this.apiKey, this.network === chainIdToNetwork[1] ? undefined : this.network)
     this.provider = this.fortmatic.getProvider()
 
