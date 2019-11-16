@@ -20,11 +20,8 @@ export interface AbstractConnectorInterface extends EventEmitter {
   supportedChainIds?: ReadonlyArray<number>
 
   activate: () => Promise<ConnectorUpdate>
-
   getProvider: () => Promise<any>
-
   getChainId: () => Promise<number | string>
   getAccount: () => Promise<null | string>
-
   deactivate: () => void
 }

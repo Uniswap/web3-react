@@ -124,7 +124,7 @@ async function augmentConnectorUpdate(
   return { provider, chainId, account }
 }
 
-export default function Web3ReactManager(): Web3ReactManagerReturn {
+export function useWeb3ReactManager(): Web3ReactManagerReturn {
   const [{ connector, provider, chainId, account, onError, error }, dispatch] = useReducer(
     reducer,
     undefined,

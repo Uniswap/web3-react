@@ -20,8 +20,7 @@ export const walletconnect = new WalletConnectConnector({
 export const walletlink = new WalletLinkConnector({
   url: RPC_URL,
   chainId: 1,
-  appName: 'web3-react example',
-  appLogoUrl: 'https://github.com/NoahZinsmeister/web3-react'
+  appName: 'web3-react example'
 })
 
 export const network = new NetworkConnector({ url: RPC_URL, chainId: 1, pollingInterval: POLLING_INTERVAL })
