@@ -19,9 +19,6 @@ export function createWeb3ReactRoot(key: string): (args: Web3ReactProviderArgume
     activate: async () => {
       invariant(false, 'No <Web3ReactProvider ... /> found.')
     },
-    activateFirst: async () => {
-      invariant(false, 'No <Web3ReactProvider ... /> found.')
-    },
     setError: () => {
       invariant(false, 'No <Web3ReactProvider ... /> found.')
     },
@@ -41,7 +38,6 @@ export function createWeb3ReactRoot(key: string): (args: Web3ReactProviderArgume
       account,
 
       activate,
-      activateFirst,
       setError,
       deactivate,
 
@@ -58,7 +54,6 @@ export function createWeb3ReactRoot(key: string): (args: Web3ReactProviderArgume
       account,
 
       activate,
-      activateFirst,
       setError,
       deactivate,
 

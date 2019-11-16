@@ -105,4 +105,23 @@ export class InjectedConnector extends AbstractConnector {
     this.provider.removeListener('close', this.handleClose)
     this.provider = undefined
   }
+
+  public async isAuthorized(): Promise<boolean> {
+    if (!window.ethereum) {
+      return false
+    }
+
+    return window.ethereum
+      .send('eth_accounts')
+      .then(({ result: accounts }: any) => {
+        if (accounts.length > 0) {
+          return true
+        } else {
+          return false
+        }
+      })
+      .catch(() => {
+        return false
+      })
+  }
 }

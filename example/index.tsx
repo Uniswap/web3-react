@@ -319,6 +319,20 @@ function MyComponent() {
             Kill WalletConnect Session
           </button>
         )}
+        {!!(connector === network && chainId) && (
+          <button
+            style={{
+              height: '3rem',
+              borderRadius: '1rem',
+              cursor: 'pointer'
+            }}
+            onClick={() => {
+              ;(connector as any).changeChainId(chainId === 1 ? 4 : 1)
+            }}
+          >
+            Switch Networks
+          </button>
+        )}
         {connector === fortmatic && (
           <button
             style={{
