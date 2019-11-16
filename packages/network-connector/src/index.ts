@@ -12,32 +12,33 @@ export interface NetworkConnectorArguments {
 }
 
 export class NetworkConnector extends AbstractConnector {
-  private readonly urls: { [chainId: number]: string }
+  private readonly providers: { [chainId: number]: any }
   private currentChainId: number
   private readonly pollingInterval?: number
   private readonly requestTimeoutMs?: number
-
-  private provider: any
 
   constructor({ urls, defaultChainId, pollingInterval, requestTimeoutMs }: NetworkConnectorArguments) {
     invariant(defaultChainId || Object.keys(urls).length === 1, 'defaultChainId is a required argument with >1 url')
     super({ supportedChainIds: Object.keys(urls).map((k): number => Number(k)) })
 
-    this.urls = urls
+    this.providers = Object.keys(urls).reduce((accumulator, chainId) => {
+      const engine = new Web3ProviderEngine({ pollingInterval: this.pollingInterval })
+      engine.addProvider(new RPCSubprovider(urls[Number(chainId)], this.requestTimeoutMs))
+      return Object.assign(accumulator, { [Number(chainId)]: engine })
+    }, {})
     this.currentChainId = defaultChainId || Number(Object.keys(urls)[0])
     this.pollingInterval = pollingInterval
     this.requestTimeoutMs = requestTimeoutMs
   }
 
   public async activate(): Promise<ConnectorUpdate> {
-    this.provider = new Web3ProviderEngine({ pollingInterval: this.pollingInterval })
-    this.provider.addProvider(new RPCSubprovider(this.urls[this.currentChainId], this.requestTimeoutMs))
-    this.provider.start()
-    return { provider: this.provider, account: null }
+    const provider = this.providers[this.currentChainId]
+    provider.start()
+    return { provider, chainId: this.currentChainId, account: null }
   }
 
   public async getProvider(): Promise<Web3ProviderEngine> {
-    return this.provider
+    return this.providers[this.currentChainId]
   }
 
   public async getChainId(): Promise<number> {
@@ -49,17 +50,15 @@ export class NetworkConnector extends AbstractConnector {
   }
 
   public deactivate() {
-    this.provider = undefined
+    this.providers[this.currentChainId].stop()
   }
 
   public changeChainId(chainId: number) {
-    invariant(Object.keys(this.urls).includes(chainId.toString()), `No url found for chainId ${chainId}`)
+    invariant(Object.keys(this.providers).includes(chainId.toString()), `No url found for chainId ${chainId}`)
+    this.providers[this.currentChainId].stop()
     this.currentChainId = chainId
-    // the below works, but there are other ways of structuring this process
-    this.provider.stop()
-    this.provider = new Web3ProviderEngine({ pollingInterval: this.pollingInterval })
-    this.provider.addProvider(new RPCSubprovider(this.urls[this.currentChainId], this.requestTimeoutMs))
-    this.provider.start()
-    this.emitUpdate({ provider: this.provider, chainId })
+    const provider = this.providers[this.currentChainId]
+    provider.start()
+    this.emitUpdate({ provider, chainId })
   }
 }
