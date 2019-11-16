@@ -1,27 +1,26 @@
 import { ConnectorUpdate } from '@web3-react/types'
 import { AbstractConnector } from '@web3-react/abstract-connector'
 
+const CHAIN_ID = 1
+
 export interface WalletLinkConnectorArguments {
   url: string
-  chainId: number
   appName: string
   appLogoUrl?: string
 }
 
 export class WalletLinkConnector extends AbstractConnector {
   private readonly url: string
-  private readonly chainId: number
   private readonly appName: string
   private readonly appLogoUrl?: string
 
   public walletLink: any
   private provider: any
 
-  constructor({ url, chainId, appName, appLogoUrl }: WalletLinkConnectorArguments) {
-    super({ supportedChainIds: [chainId] })
+  constructor({ url, appName, appLogoUrl }: WalletLinkConnectorArguments) {
+    super({ supportedChainIds: [CHAIN_ID] })
 
     this.url = url
-    this.chainId = chainId
     this.appName = appName
     this.appLogoUrl = appLogoUrl
 
@@ -45,8 +44,8 @@ export class WalletLinkConnector extends AbstractConnector {
       appName: this.appName,
       ...(this.appLogoUrl ? { appLogoUrl: this.appLogoUrl } : {})
     })
-    this.provider = this.walletLink.makeWeb3Provider(this.url, this.chainId)
 
+    this.provider = this.walletLink.makeWeb3Provider(this.url, CHAIN_ID)
     this.provider.on('accountsChanged', this.handleAccountsChanged)
 
     const account = await this.provider.send('eth_requestAccounts').then((accounts: string[]): string => accounts[0])
@@ -58,8 +57,8 @@ export class WalletLinkConnector extends AbstractConnector {
     return this.provider
   }
 
-  public async getChainId(): Promise<number | string> {
-    return this.chainId
+  public async getChainId(): Promise<number> {
+    return CHAIN_ID
   }
 
   public async getAccount(): Promise<null | string> {
