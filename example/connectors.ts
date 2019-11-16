@@ -14,7 +14,7 @@ const RPC_URLS: { [chainId: number]: string } = {
 export const injected = new InjectedConnector({ supportedChainIds: [1, 3, 4, 5, 42] })
 
 export const walletconnect = new WalletConnectConnector({
-  rpc: { 1: RPC_URLS[1], 4: RPC_URLS[4] },
+  rpc: { 1: RPC_URLS[1] },
   bridge: 'https://bridge.walletconnect.org',
   qrcode: true,
   pollingInterval: POLLING_INTERVAL
@@ -22,7 +22,6 @@ export const walletconnect = new WalletConnectConnector({
 
 export const walletlink = new WalletLinkConnector({
   url: RPC_URLS[1],
-  chainId: 1,
   appName: 'web3-react example'
 })
 

@@ -1,7 +1,7 @@
 import { EventEmitter } from 'events'
 
 export interface AbstractConnectorArguments {
-  readonly supportedChainIds?: ReadonlyArray<number>
+  supportedChainIds?: number[]
 }
 
 export interface ConnectorUpdate<T = number | string> {
@@ -17,7 +17,7 @@ export enum ConnectorEvent {
 }
 
 export interface AbstractConnectorInterface extends EventEmitter {
-  supportedChainIds?: ReadonlyArray<number>
+  readonly supportedChainIds?: number[]
 
   activate: () => Promise<ConnectorUpdate>
   getProvider: () => Promise<any>

@@ -16,6 +16,7 @@ export class NetworkConnector extends AbstractConnector {
   private currentChainId: number
   private readonly pollingInterval?: number
   private readonly requestTimeoutMs?: number
+  private active: boolean
 
   constructor({ urls, defaultChainId, pollingInterval, requestTimeoutMs }: NetworkConnectorArguments) {
     invariant(defaultChainId || Object.keys(urls).length === 1, 'defaultChainId is a required argument with >1 url')
@@ -29,12 +30,13 @@ export class NetworkConnector extends AbstractConnector {
     this.currentChainId = defaultChainId || Number(Object.keys(urls)[0])
     this.pollingInterval = pollingInterval
     this.requestTimeoutMs = requestTimeoutMs
+    this.active = false
   }
 
   public async activate(): Promise<ConnectorUpdate> {
-    const provider = this.providers[this.currentChainId]
-    provider.start()
-    return { provider, chainId: this.currentChainId, account: null }
+    this.providers[this.currentChainId].start()
+    this.active = true
+    return { provider: this.providers[this.currentChainId], chainId: this.currentChainId, account: null }
   }
 
   public async getProvider(): Promise<Web3ProviderEngine> {
@@ -51,14 +53,18 @@ export class NetworkConnector extends AbstractConnector {
 
   public deactivate() {
     this.providers[this.currentChainId].stop()
+    this.active = false
   }
 
   public changeChainId(chainId: number) {
     invariant(Object.keys(this.providers).includes(chainId.toString()), `No url found for chainId ${chainId}`)
-    this.providers[this.currentChainId].stop()
-    this.currentChainId = chainId
-    const provider = this.providers[this.currentChainId]
-    provider.start()
-    this.emitUpdate({ provider, chainId })
+    if (this.active) {
+      this.providers[this.currentChainId].stop()
+      this.currentChainId = chainId
+      this.providers[this.currentChainId].start()
+      this.emitUpdate({ provider: this.providers[this.currentChainId], chainId })
+    } else {
+      this.currentChainId = chainId
+    }
   }
 }

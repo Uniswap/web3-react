@@ -25,7 +25,6 @@ export class PortisConnector extends AbstractConnector {
   private readonly config: any
 
   public portis: any
-  private provider: any
 
   constructor({ dAppId, networks, config = {} }: PortisConnectorArguments) {
     const chainIds = networks.map((n): number => (typeof n === 'number' ? n : Number(n.chainId)))
@@ -66,37 +65,40 @@ export class PortisConnector extends AbstractConnector {
   }
 
   public async activate(): Promise<ConnectorUpdate> {
-    const { default: Portis } = await import('@portis/web3')
-    this.portis = new Portis(
-      this.dAppId,
-      typeof this.networks[0] === 'number' ? chainIdToNetwork[this.networks[0]] : (this.networks[0] as any),
-      this.config
-    )
+    if (!this.portis) {
+      const { default: Portis } = await import('@portis/web3')
+      this.portis = new Portis(
+        this.dAppId,
+        typeof this.networks[0] === 'number' ? chainIdToNetwork[this.networks[0]] : (this.networks[0] as any),
+        this.config
+      )
+    }
+
     this.portis.onLogout(this.handleOnLogout)
     this.portis.onActiveWalletChanged(this.handleOnActiveWalletChanged)
     this.portis.onError(this.handleOnError)
-    this.provider = this.portis.provider
 
-    const account = await this.provider.enable().then((accounts: string[]): string => accounts[0])
+    const account = await this.portis.provider.enable().then((accounts: string[]): string => accounts[0])
 
-    return { provider: this.provider, account }
+    return { provider: this.portis.provider, account }
   }
 
   public async getProvider(): Promise<any> {
-    return this.provider
+    return this.portis.provider
   }
 
   public async getChainId(): Promise<number | string> {
-    return this.provider.send('eth_chainId')
+    return this.portis.provider.send('eth_chainId')
   }
 
   public async getAccount(): Promise<null | string> {
-    return this.provider.send('eth_accounts').then((accounts: string[]): string => accounts[0])
+    return this.portis.provider.send('eth_accounts').then((accounts: string[]): string => accounts[0])
   }
 
   public deactivate() {
-    this.provider = undefined
-    this.portis = undefined
+    this.portis.onLogout(() => {})
+    this.portis.onActiveWalletChanged(() => {})
+    this.portis.onError(() => {})
   }
 
   public async changeNetwork(newNetwork: number | Network, isGasRelayEnabled?: boolean) {

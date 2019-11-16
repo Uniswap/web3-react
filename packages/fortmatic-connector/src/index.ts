@@ -19,7 +19,6 @@ export class FortmaticConnector extends AbstractConnector {
   private readonly chainId: number
 
   public fortmatic: any
-  private provider: any
 
   constructor({ apiKey, chainId }: FortmaticConnectorArguments) {
     invariant(Object.keys(chainIdToNetwork).includes(chainId.toString()), `Unsupported chainId ${chainId}`)
@@ -30,20 +29,24 @@ export class FortmaticConnector extends AbstractConnector {
   }
 
   public async activate(): Promise<ConnectorUpdate> {
-    const { default: Fortmatic } = await import('fortmatic')
-    this.fortmatic = new Fortmatic(
-      this.apiKey,
-      this.chainId === 1 || this.chainId === 4 ? undefined : chainIdToNetwork[this.chainId]
-    )
-    this.provider = this.fortmatic.getProvider()
+    if (!this.fortmatic) {
+      const { default: Fortmatic } = await import('fortmatic')
+      this.fortmatic = new Fortmatic(
+        this.apiKey,
+        this.chainId === 1 || this.chainId === 4 ? undefined : chainIdToNetwork[this.chainId]
+      )
+    }
 
-    const account = await this.provider.enable().then((accounts: string[]): string => accounts[0])
+    const account = await this.fortmatic
+      .getProvider()
+      .enable()
+      .then((accounts: string[]): string => accounts[0])
 
-    return { provider: this.provider, account }
+    return { provider: this.fortmatic.getProvider(), chainId: this.chainId, account }
   }
 
   public async getProvider(): Promise<any> {
-    return this.provider
+    return this.fortmatic.getProvider()
   }
 
   public async getChainId(): Promise<number | string> {
@@ -51,13 +54,13 @@ export class FortmaticConnector extends AbstractConnector {
   }
 
   public async getAccount(): Promise<null | string> {
-    return this.provider.send('eth_accounts').then((accounts: string[]): string => accounts[0])
+    return this.fortmatic
+      .getProvider()
+      .send('eth_accounts')
+      .then((accounts: string[]): string => accounts[0])
   }
 
-  public deactivate() {
-    this.provider = undefined
-    this.fortmatic = undefined
-  }
+  public deactivate() {}
 
   public async close() {
     await this.fortmatic.user.logout()

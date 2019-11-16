@@ -18,8 +18,6 @@ export class UserRejectedRequestError extends Error {
 }
 
 export class InjectedConnector extends AbstractConnector {
-  private provider: any
-
   constructor(kwargs: AbstractConnectorArguments = {}) {
     super(kwargs)
 
@@ -65,63 +63,69 @@ export class InjectedConnector extends AbstractConnector {
     if (!window.ethereum) {
       throw new NoEthereumProviderError()
     }
-    this.provider = window.ethereum
 
-    this.provider.on('networkChanged', this.handleNetworkChanged)
-    this.provider.on('chainChanged', this.handleChainChanged)
-    this.provider.on('accountsChanged', this.handleAccountsChanged)
-    this.provider.on('close', this.handleClose)
+    window.ethereum.on('networkChanged', this.handleNetworkChanged)
+    window.ethereum.on('chainChanged', this.handleChainChanged)
+    window.ethereum.on('accountsChanged', this.handleAccountsChanged)
+    window.ethereum.on('close', this.handleClose)
 
-    const account = await this.provider
+    const account = await window.ethereum
       .send('eth_requestAccounts')
       .catch((error: Error): void => {
-        if (error && (error as any).code === 4001) {
+        if (error && error.code === 4001) {
           throw new UserRejectedRequestError()
+        } else {
+          throw error
         }
-
-        throw error
       })
-      .then(({ result: accounts }: any): string[] => accounts[0])
+      .then(({ result: accounts }: any): string => accounts[0])
 
-    return { provider: this.provider, account }
+    return { provider: window.ethereum, account }
   }
 
   public async getProvider(): Promise<any> {
-    return this.provider
+    return window.ethereum
   }
 
   public async getChainId(): Promise<number | string> {
-    return this.provider.send('eth_chainId').then(({ result: chainId }: any): number | string => chainId)
+    if (!window.ethereum) {
+      throw new NoEthereumProviderError()
+    }
+    return window.ethereum.send('eth_chainId').then(({ result: chainId }: any): number | string => chainId)
   }
 
   public async getAccount(): Promise<null | string> {
-    return this.provider.send('eth_accounts').then(({ result: accounts }: any): string[] => accounts[0])
+    if (!window.ethereum) {
+      throw new NoEthereumProviderError()
+    }
+    return window.ethereum.send('eth_accounts').then(({ result: accounts }: any): string => accounts[0])
   }
 
   public deactivate() {
-    this.provider.removeListener('networkChanged', this.handleNetworkChanged)
-    this.provider.removeListener('chainChanged', this.handleChainChanged)
-    this.provider.removeListener('accountsChanged', this.handleAccountsChanged)
-    this.provider.removeListener('close', this.handleClose)
-    this.provider = undefined
+    if (window.ethereum) {
+      window.ethereum.removeListener('networkChanged', this.handleNetworkChanged)
+      window.ethereum.removeListener('chainChanged', this.handleChainChanged)
+      window.ethereum.removeListener('accountsChanged', this.handleAccountsChanged)
+      window.ethereum.removeListener('close', this.handleClose)
+    }
   }
 
   public async isAuthorized(): Promise<boolean> {
-    if (!window.ethereum) {
+    if (window.ethereum) {
+      return window.ethereum
+        .send('eth_accounts')
+        .then(({ result: accounts }: any) => {
+          if (accounts.length > 0) {
+            return true
+          } else {
+            return false
+          }
+        })
+        .catch(() => {
+          return false
+        })
+    } else {
       return false
     }
-
-    return window.ethereum
-      .send('eth_accounts')
-      .then(({ result: accounts }: any) => {
-        if (accounts.length > 0) {
-          return true
-        } else {
-          return false
-        }
-      })
-      .catch(() => {
-        return false
-      })
   }
 }

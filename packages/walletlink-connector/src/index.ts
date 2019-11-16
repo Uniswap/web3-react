@@ -31,26 +31,24 @@ export class WalletLinkConnector extends AbstractConnector {
     if (__DEV__) {
       console.log("Handling 'accountsChanged' event with payload", accounts)
     }
-    if (accounts.length === 0) {
-      this.emitDeactivate()
-    } else {
-      this.emitUpdate({ account: accounts[0] })
-    }
+    this.emitUpdate({ account: accounts[0] })
   }
 
   public async activate(): Promise<ConnectorUpdate> {
-    const { default: WalletLink } = await import('walletlink')
-    this.walletLink = new WalletLink({
-      appName: this.appName,
-      ...(this.appLogoUrl ? { appLogoUrl: this.appLogoUrl } : {})
-    })
+    if (!this.walletLink) {
+      const { default: WalletLink } = await import('walletlink')
+      this.walletLink = new WalletLink({
+        appName: this.appName,
+        ...(this.appLogoUrl ? { appLogoUrl: this.appLogoUrl } : {})
+      })
+      this.provider = this.walletLink.makeWeb3Provider(this.url, CHAIN_ID)
+    }
 
-    this.provider = this.walletLink.makeWeb3Provider(this.url, CHAIN_ID)
     this.provider.on('accountsChanged', this.handleAccountsChanged)
 
     const account = await this.provider.send('eth_requestAccounts').then((accounts: string[]): string => accounts[0])
 
-    return { provider: this.provider, account: account }
+    return { provider: this.provider, chainId: CHAIN_ID, account: account }
   }
 
   public async getProvider(): Promise<any> {
@@ -67,7 +65,5 @@ export class WalletLinkConnector extends AbstractConnector {
 
   public deactivate() {
     this.provider.removeListener('accountsChanged', this.handleAccountsChanged)
-    this.provider = undefined
-    this.walletLink = undefined
   }
 }

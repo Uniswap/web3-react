@@ -7,7 +7,7 @@ import {
 } from '@web3-react/types'
 
 export abstract class AbstractConnector extends EventEmitter implements AbstractConnectorInterface {
-  public readonly supportedChainIds?: ReadonlyArray<number>
+  public readonly supportedChainIds?: number[]
 
   constructor({ supportedChainIds }: AbstractConnectorArguments = {}) {
     super()

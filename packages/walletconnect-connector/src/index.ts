@@ -1,5 +1,6 @@
 import { ConnectorUpdate } from '@web3-react/types'
 import { AbstractConnector } from '@web3-react/abstract-connector'
+import invariant from 'tiny-invariant'
 
 export const URI_AVAILABLE = 'URI_AVAILABLE'
 
@@ -12,28 +13,25 @@ export class UserRejectedRequestError extends Error {
 }
 
 export interface WalletConnectConnectorArguments {
-  rpc?: { [chainId: number]: string }
-  infuraId?: string
+  rpc: { [chainId: number]: string }
   bridge?: string
   qrcode?: boolean
   pollingInterval?: number
 }
 
 export class WalletConnectConnector extends AbstractConnector {
-  private readonly rpc?: { [chainId: number]: string }
-  private readonly infuraId?: string
+  private readonly rpc: { [chainId: number]: string | undefined }
   private readonly bridge?: string
   private readonly qrcode?: boolean
   private readonly pollingInterval?: number
 
-  private provider: any
-  public walletConnector: any
+  public walletConnectProvider: any
 
-  constructor({ rpc, infuraId, bridge, qrcode, pollingInterval }: WalletConnectConnectorArguments) {
-    super(rpc ? { supportedChainIds: Object.keys(rpc).map(k => Number(k)) } : {})
+  constructor({ rpc, bridge, qrcode, pollingInterval }: WalletConnectConnectorArguments) {
+    invariant(Object.keys(rpc).length === 1, '@walletconnect/web3-provider is broken with >1 chainId, please use 1')
+    super({ supportedChainIds: Object.keys(rpc).map(k => Number(k)) })
 
     this.rpc = rpc
-    this.infuraId = infuraId
     this.bridge = bridge
     this.qrcode = qrcode
     this.pollingInterval = pollingInterval
@@ -54,41 +52,43 @@ export class WalletConnectConnector extends AbstractConnector {
     if (__DEV__) {
       console.log("Handling 'accountsChanged' event with payload", accounts)
     }
-    if (accounts.length === 0) {
-      this.emitDeactivate()
-    } else {
-      this.emitUpdate({ account: accounts[0] })
-    }
+    this.emitUpdate({ account: accounts[0] })
   }
 
   private handleDisconnect(): void {
     if (__DEV__) {
       console.log("Handling 'disconnect' event")
     }
+    // we have to do this because of a @walletconnect/web3-provider bug
+    this.walletConnectProvider.stop()
+    this.walletConnectProvider.removeListener('chainChanged', this.handleChainChanged)
+    this.walletConnectProvider.removeListener('accountsChanged', this.handleAccountsChanged)
     this.emitDeactivate()
   }
 
   public async activate(): Promise<ConnectorUpdate> {
-    const { default: WalletConnectProvider } = await import('@walletconnect/web3-provider')
-    this.provider = new WalletConnectProvider({
-      bridge: this.bridge,
-      rpc: this.rpc === undefined ? undefined : this.rpc,
-      infuraId: this.infuraId,
-      qrcode: this.qrcode,
-      pollingInterval: this.pollingInterval
-    })
-    this.provider.on('chainChanged', this.handleChainChanged)
-    this.provider.on('accountsChanged', this.handleAccountsChanged)
-    this.walletConnector = this.provider.wc
-    this.walletConnector.on('disconnect', this.handleDisconnect)
-
-    // ensure that the uri is going to be available, and emit an event if there's a new uri
-    if (!this.walletConnector.connected) {
-      await this.walletConnector.createSession({ chainId: this.provider.chainId })
-      this.emit(URI_AVAILABLE, this.walletConnector.uri)
+    if (!this.walletConnectProvider) {
+      const { default: WalletConnectProvider } = await import('@walletconnect/web3-provider')
+      this.walletConnectProvider = new WalletConnectProvider({
+        bridge: this.bridge,
+        rpc: this.rpc,
+        qrcode: this.qrcode,
+        pollingInterval: this.pollingInterval
+      })
+      // only doing this here because this.walletConnectProvider.wc doesn't have a removeListener function...
+      this.walletConnectProvider.wc.on('disconnect', this.handleDisconnect)
     }
 
-    const account = await this.provider
+    this.walletConnectProvider.on('chainChanged', this.handleChainChanged)
+    this.walletConnectProvider.on('accountsChanged', this.handleAccountsChanged)
+
+    // ensure that the uri is going to be available, and emit an event if there's a new uri
+    if (!this.walletConnectProvider.wc.connected) {
+      await this.walletConnectProvider.wc.createSession({ chainId: this.walletConnectProvider.chainId })
+      this.emit(URI_AVAILABLE, this.walletConnectProvider.wc.uri)
+    }
+
+    const account = await this.walletConnectProvider
       .enable()
       .catch((error: Error): void => {
         // TODO ideally this would be a better check
@@ -100,32 +100,35 @@ export class WalletConnectConnector extends AbstractConnector {
       })
       .then((accounts: string[]): string => accounts[0])
 
-    return { provider: this.provider, account }
+    return { provider: this.walletConnectProvider, account }
   }
 
   public async getProvider(): Promise<any> {
-    return this.provider
+    return this.walletConnectProvider
   }
 
   public async getChainId(): Promise<number | string> {
-    return this.provider.send('eth_chainId')
+    return this.walletConnectProvider.send('eth_chainId')
   }
 
   public async getAccount(): Promise<null | string> {
-    return this.provider.send('eth_accounts').then((accounts: string[]): string => accounts[0])
+    return this.walletConnectProvider.send('eth_accounts').then((accounts: string[]): string => accounts[0])
   }
 
   public deactivate() {
-    this.walletConnector.on('disconnect', this.handleDisconnect)
-    this.walletConnector = undefined
-    this.provider.stop()
-    this.provider.removeListener('chainChanged', this.handleChainChanged)
-    this.provider.removeListener('accountsChanged', this.handleAccountsChanged)
-    this.provider = undefined
+    if (this.walletConnectProvider) {
+      this.walletConnectProvider.stop()
+      this.walletConnectProvider.removeListener('chainChanged', this.handleChainChanged)
+      this.walletConnectProvider.removeListener('accountsChanged', this.handleAccountsChanged)
+    }
   }
 
   public async close() {
-    await this.walletConnector.killSession()
-    this.emitDeactivate()
+    // we have to do this because of a @walletconnect/web3-provider bug
+    this.walletConnectProvider.stop()
+    this.walletConnectProvider.removeListener('chainChanged', this.handleChainChanged)
+    this.walletConnectProvider.removeListener('accountsChanged', this.handleAccountsChanged)
+    await this.walletConnectProvider.wc.killSession()
+    this.walletConnectProvider = undefined
   }
 }
