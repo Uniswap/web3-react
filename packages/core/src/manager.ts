@@ -87,12 +87,11 @@ function reducer(state: Web3ReactManagerState, { type, payload }: Action): Web3R
       }
     }
     case ActionType.ERROR_FROM_ACTIVATION: {
-      const { connector, onError, error } = payload
+      const { connector, error } = payload
       return {
         updateBuster: updateBuster + 1,
         connector,
-        error,
-        onError
+        error
       }
     }
     case ActionType.DEACTIVATE_CONNECTOR: {
@@ -128,27 +127,23 @@ export function useWeb3ReactManager(): Web3ReactManagerReturn {
 
   const handleUpdate = useCallback(
     async (update: ConnectorUpdate): Promise<void> => {
-      const assertedConnector = connector as AbstractConnectorInterface
+      if (!connector) {
+        throw Error("This should never happen, it's just so Typescript stops complaining")
+      }
+
       // updates are handled differently depending on whether the connector is active vs in an error state
       if (!error) {
         const chainId = update.chainId === undefined ? undefined : normalizeChainId(update.chainId)
-        if (
-          chainId !== undefined &&
-          assertedConnector.supportedChainIds &&
-          !assertedConnector.supportedChainIds.includes(chainId)
-        ) {
-          const error = new UnsupportedChainIdError(chainId, assertedConnector.supportedChainIds)
-          // bail from setting the error if an onError function was passed
+        if (chainId !== undefined && connector.supportedChainIds && !connector.supportedChainIds.includes(chainId)) {
+          const error = new UnsupportedChainIdError(chainId, connector.supportedChainIds)
           onError ? onError(error) : dispatch({ type: ActionType.ERROR, payload: { error } })
         } else {
-          const provider = update.provider
           const account = typeof update.account === 'string' ? normalizeAccount(update.account) : update.account
-          dispatch({ type: ActionType.UPDATE, payload: { provider, chainId, account } })
+          dispatch({ type: ActionType.UPDATE, payload: { provider: update.provider, chainId, account } })
         }
       } else {
         try {
-          const augmentedUpdate = await augmentConnectorUpdate(assertedConnector, update)
-
+          const augmentedUpdate = await augmentConnectorUpdate(connector, update)
           if (updateBusterRef.current > updateBuster) {
             throw new StaleConnectorError()
           }
@@ -158,8 +153,8 @@ export function useWeb3ReactManager(): Web3ReactManagerReturn {
           if (error instanceof StaleConnectorError) {
             warning(false, `Suppressed stale connector update from error state ${connector} ${update}`)
           } else {
-            // though it's an option, we don't update the error here
-            warning(false, `Failed to update from error state because of another error ${connector} ${update} ${error}`)
+            // though we don't have to, we're re-circulating the new error
+            onError ? onError(error) : dispatch({ type: ActionType.ERROR, payload: { error } })
           }
         }
       }
@@ -168,7 +163,6 @@ export function useWeb3ReactManager(): Web3ReactManagerReturn {
   )
   const handleError = useCallback(
     (error: Error): void => {
-      // bail from setting the error if an onError function was passed
       onError ? onError(error) : dispatch({ type: ActionType.ERROR, payload: { error } })
     },
     [onError]
@@ -211,7 +205,7 @@ export function useWeb3ReactManager(): Web3ReactManagerReturn {
       onError?: (error: Error) => void,
       throwErrors: boolean = false
     ): Promise<void> => {
-      // this is a different pattern than in handleUpdate because we want activate to maintain identity
+      // this is a different pattern than in handleUpdate because we want activate to maintain its referential identity
       const updateBusterInitial = updateBusterRef.current
       let activated = false
 
@@ -224,7 +218,6 @@ export function useWeb3ReactManager(): Web3ReactManagerReturn {
         )
 
         const augmentedUpdate = await augmentConnectorUpdate(connector, update)
-
         if (updateBusterRef.current > updateBusterInitial) {
           throw new StaleConnectorError()
         }
@@ -232,26 +225,17 @@ export function useWeb3ReactManager(): Web3ReactManagerReturn {
         dispatch({ type: ActionType.ACTIVATE_CONNECTOR, payload: { connector, ...augmentedUpdate, onError } })
       } catch (error) {
         if (error instanceof StaleConnectorError) {
-          if (activated) {
-            connector.deactivate()
-          }
+          activated && connector.deactivate()
           warning(false, `Suppressed stale connector activation ${connector}`)
+        } else if (throwErrors) {
+          activated && connector.deactivate()
+          throw error
+        } else if (onError) {
+          activated && connector.deactivate()
+          onError(error)
         } else {
-          if (throwErrors) {
-            if (activated) {
-              connector.deactivate()
-            }
-            throw error
-          } else {
-            if (onError) {
-              if (activated) {
-                connector.deactivate()
-              }
-              onError(error)
-            } else {
-              dispatch({ type: ActionType.ERROR_FROM_ACTIVATION, payload: { connector, onError, error } })
-            }
-          }
+          // we don't call activated && connector.deactivate() here because it'll be handled in the useEffect
+          dispatch({ type: ActionType.ERROR_FROM_ACTIVATION, payload: { connector, error } })
         }
       }
     },
