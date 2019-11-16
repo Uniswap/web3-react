@@ -6,11 +6,6 @@ export interface Web3ReactManagerFunctions {
     onError?: (error: Error) => void,
     throwErrors?: boolean
   ) => Promise<void>
-  activateFirst: (
-    connectors: AbstractConnectorInterface[],
-    onError?: (error: Error) => void,
-    throwErrors?: boolean
-  ) => Promise<void>
   setError: (error: Error) => void
   deactivate: () => void
 }
