@@ -8,8 +8,4 @@ declare interface Window {
   ethereum?: Ethereum
 }
 
-declare interface Error {
-  code?: number
-}
-
 declare const __DEV__: boolean

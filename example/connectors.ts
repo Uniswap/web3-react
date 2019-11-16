@@ -1,6 +1,7 @@
 import { InjectedConnector } from '@web3-react/injected-connector'
 import { WalletConnectConnector } from '@web3-react/walletconnect-connector'
 import { WalletLinkConnector } from '@web3-react/walletlink-connector'
+import { FrameConnector } from '@web3-react/frame-connector'
 import { NetworkConnector } from '@web3-react/network-connector'
 import { FortmaticConnector } from '@web3-react/fortmatic-connector'
 import { PortisConnector } from '@web3-react/portis-connector'
@@ -24,6 +25,8 @@ export const walletlink = new WalletLinkConnector({
   url: RPC_URLS[1],
   appName: 'web3-react example'
 })
+
+export const frame = new FrameConnector({ supportedChainIds: [1] })
 
 export const network = new NetworkConnector({
   urls: { 1: RPC_URLS[1], 4: RPC_URLS[4] },

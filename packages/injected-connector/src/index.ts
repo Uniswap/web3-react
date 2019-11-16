@@ -71,14 +71,14 @@ export class InjectedConnector extends AbstractConnector {
 
     const account = await window.ethereum
       .send('eth_requestAccounts')
-      .catch((error: Error): void => {
-        if (error && error.code === 4001) {
+      .then(({ result: accounts }: any): string => accounts[0])
+      .catch((error: Error) => {
+        if (error && (error as any).code === 4001) {
           throw new UserRejectedRequestError()
         } else {
           throw error
         }
       })
-      .then(({ result: accounts }: any): string => accounts[0])
 
     return { provider: window.ethereum, account }
   }

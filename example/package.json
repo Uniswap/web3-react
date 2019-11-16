@@ -13,6 +13,7 @@
     "@types/react-dom": "../node_modules/@types/react-dom",
     "@web3-react/core": "../packages/core",
     "@web3-react/fortmatic-connector": "../packages/fortmatic-connector",
+    "@web3-react/frame-connector": "../packages/frame-connector",
     "@web3-react/injected-connector": "../packages/injected-connector",
     "@web3-react/network-connector": "../packages/network-connector",
     "@web3-react/portis-connector": "../packages/portis-connector",
