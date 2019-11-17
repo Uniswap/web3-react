@@ -1,5 +1,5 @@
 {
-  "name": "@web3-react/fortmatic-connector",
+  "name": "@web3-react/squarelink-connector",
   "publishConfig": {
     "access": "public"
   },
@@ -16,7 +16,7 @@
     "context",
     "frontend",
     "dapp",
-    "fortmatic"
+    "squarelink"
   ],
   "author": "Noah Zinsmeister <noahwz@gmail.com>",
   "repository": {
@@ -27,7 +27,7 @@
     "node": "^10"
   },
   "main": "dist/index.js",
-  "module": "dist/fortmatic-connector.esm.js",
+  "module": "dist/squarelink-connector.esm.js",
   "typings": "dist/index.d.ts",
   "files": [
     "dist"
@@ -40,7 +40,7 @@
   "dependencies": {
     "@web3-react/abstract-connector": "^6.0.0-beta.14",
     "@web3-react/types": "^6.0.0-beta.14",
-    "fortmatic": "^1.0.0",
+    "squarelink": "^1.1.4",
     "tiny-invariant": "^1.0.6"
   },
   "license": "GPL-3.0-or-later"

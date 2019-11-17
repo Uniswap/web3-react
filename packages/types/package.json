@@ -15,13 +15,7 @@
     "web3",
     "context",
     "frontend",
-    "dapp",
-    "metamask",
-    "walletconnect",
-    "walletlink",
-    "frame",
-    "fortmatic",
-    "portis"
+    "dapp"
   ],
   "author": "Noah Zinsmeister <noahwz@gmail.com>",
   "repository": {

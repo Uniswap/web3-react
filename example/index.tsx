@@ -13,11 +13,21 @@ import {
   UserRejectedRequestError as UserRejectedRequestErrorWalletConnect
 } from '@web3-react/walletconnect-connector'
 import { UserRejectedRequestError as UserRejectedRequestErrorFrame } from '@web3-react/frame-connector'
-
 import { Web3Provider } from '@ethersproject/providers'
 import { formatEther } from '@ethersproject/units'
 
-import { injected, walletconnect, walletlink, frame, network, fortmatic, portis } from './connectors'
+import {
+  injected,
+  walletconnect,
+  walletlink,
+  frame,
+  network,
+  fortmatic,
+  portis,
+  squarelink,
+  torus,
+  authereum
+} from './connectors'
 import { useEagerConnect, useInactiveListener } from './hooks'
 import { Spinner } from './Spinner'
 
@@ -28,7 +38,10 @@ const connectorsByName: { [name: string]: AbstractConnectorInterface } = {
   Frame: frame,
   Network: network,
   Fortmatic: fortmatic,
-  Portis: portis
+  Portis: portis,
+  Squarelink: squarelink,
+  Torus: torus,
+  Authereum: authereum
 }
 
 function getErrorMessage(error: Error) {

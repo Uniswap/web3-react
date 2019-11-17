@@ -5,6 +5,9 @@ import { FrameConnector } from '@web3-react/frame-connector'
 import { NetworkConnector } from '@web3-react/network-connector'
 import { FortmaticConnector } from '@web3-react/fortmatic-connector'
 import { PortisConnector } from '@web3-react/portis-connector'
+import { SquarelinkConnector } from '@web3-react/squarelink-connector'
+import { TorusConnector } from '@web3-react/torus-connector'
+import { AuthereumConnector } from '@web3-react/authereum-connector'
 
 const POLLING_INTERVAL = 8000
 const RPC_URLS: { [chainId: number]: string } = {
@@ -37,3 +40,12 @@ export const network = new NetworkConnector({
 export const fortmatic = new FortmaticConnector({ apiKey: process.env.FORTMATIC_API_KEY as string, chainId: 4 })
 
 export const portis = new PortisConnector({ dAppId: process.env.PORTIS_DAPP_ID as string, networks: [1, 100] })
+
+export const squarelink = new SquarelinkConnector({
+  clientId: process.env.SQUARELINK_CLIENT_ID as string,
+  networks: [1, 100]
+})
+
+export const torus = new TorusConnector({ chainId: 1 })
+
+export const authereum = new AuthereumConnector({ chainId: 42 })

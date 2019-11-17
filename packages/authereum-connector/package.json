@@ -1,5 +1,5 @@
 {
-  "name": "@web3-react/fortmatic-connector",
+  "name": "@web3-react/authereum-connector",
   "publishConfig": {
     "access": "public"
   },
@@ -16,7 +16,7 @@
     "context",
     "frontend",
     "dapp",
-    "fortmatic"
+    "authereum"
   ],
   "author": "Noah Zinsmeister <noahwz@gmail.com>",
   "repository": {
@@ -27,7 +27,7 @@
     "node": "^10"
   },
   "main": "dist/index.js",
-  "module": "dist/fortmatic-connector.esm.js",
+  "module": "dist/authereum-connector.esm.js",
   "typings": "dist/index.d.ts",
   "files": [
     "dist"
@@ -40,8 +40,7 @@
   "dependencies": {
     "@web3-react/abstract-connector": "^6.0.0-beta.14",
     "@web3-react/types": "^6.0.0-beta.14",
-    "fortmatic": "^1.0.0",
-    "tiny-invariant": "^1.0.6"
+    "authereum": "^0.0.4-beta.41"
   },
   "license": "GPL-3.0-or-later"
 }

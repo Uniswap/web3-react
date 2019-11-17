@@ -14,7 +14,14 @@
     "frontend",
     "dapp",
     "metamask",
-    "walletconnect"
+    "walletconnect",
+    "walletlink",
+    "frame",
+    "fortmatic",
+    "portis",
+    "squarelink",
+    "torus",
+    "authereum"
   ],
   "author": "Noah Zinsmeister <noahwz@gmail.com>",
   "repository": {
@@ -33,14 +40,11 @@
     "lint": "lerna run lint --parallel",
     "test": "lerna run test --parallel"
   },
-  "workspaces": [
-    "packages/*"
-  ],
   "devDependencies": {
     "@types/jest": "^24.0.21",
     "@types/react": "^16.9.11",
     "@types/react-dom": "^16.9.4",
-    "lerna": "^3.18.3",
+    "lerna": "^3.18.4",
     "react": ">=16.8",
     "react-dom": ">=16.8",
     "tsdx": "^0.11.0"
