@@ -18,30 +18,34 @@ import { formatEther } from '@ethersproject/units'
 
 import {
   injected,
+  network,
   walletconnect,
   walletlink,
+  ledger,
+  trezor,
   frame,
-  network,
+  authereum,
   fortmatic,
   portis,
   squarelink,
-  torus,
-  authereum
+  torus
 } from './connectors'
 import { useEagerConnect, useInactiveListener } from './hooks'
 import { Spinner } from './Spinner'
 
 const connectorsByName: { [name: string]: AbstractConnectorInterface } = {
   Injected: injected,
+  Network: network,
   WalletConnect: walletconnect,
   WalletLink: walletlink,
+  Ledger: ledger,
+  Trezor: trezor,
   Frame: frame,
-  Network: network,
+  Authereum: authereum,
   Fortmatic: fortmatic,
   Portis: portis,
   Squarelink: squarelink,
-  Torus: torus,
-  Authereum: authereum
+  Torus: torus
 }
 
 function getErrorMessage(error: Error) {
@@ -311,29 +315,15 @@ function MyComponent() {
               library
                 .getSigner(account)
                 .signMessage('👋')
-                .then(signature => {
+                .then((signature: any) => {
                   window.alert(`Success!\n\n${signature}`)
                 })
-                .catch(error => {
+                .catch((error: any) => {
                   window.alert('Failure!' + (error && error.message ? `\n\n${error.message}` : ''))
                 })
             }}
           >
             Sign Message
-          </button>
-        )}
-        {connector === walletconnect && (
-          <button
-            style={{
-              height: '3rem',
-              borderRadius: '1rem',
-              cursor: 'pointer'
-            }}
-            onClick={() => {
-              ;(connector as any).close()
-            }}
-          >
-            Kill WalletConnect Session
           </button>
         )}
         {!!(connector === network && chainId) && (
@@ -348,6 +338,20 @@ function MyComponent() {
             }}
           >
             Switch Networks
+          </button>
+        )}
+        {connector === walletconnect && (
+          <button
+            style={{
+              height: '3rem',
+              borderRadius: '1rem',
+              cursor: 'pointer'
+            }}
+            onClick={() => {
+              ;(connector as any).close()
+            }}
+          >
+            Kill WalletConnect Session
           </button>
         )}
         {connector === fortmatic && (

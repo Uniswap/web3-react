@@ -1,0 +1,46 @@
+{
+  "name": "@web3-react/ledger-connector",
+  "publishConfig": {
+    "access": "public"
+  },
+  "version": "6.0.0-beta.15",
+  "description": "A simple, maximally extensible, dependency minimized framework for building modern Ethereum dApps",
+  "keywords": [
+    "react",
+    "react-hooks",
+    "hooks",
+    "ethereum",
+    "javascript",
+    "typescript",
+    "web3",
+    "context",
+    "frontend",
+    "dapp",
+    "ledger"
+  ],
+  "author": "Noah Zinsmeister <noahwz@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/NoahZinsmeister/web3-react.git"
+  },
+  "engines": {
+    "node": "^10"
+  },
+  "main": "dist/index.js",
+  "module": "dist/ledger-connector.esm.js",
+  "typings": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "start": "tsdx watch",
+    "build": "tsdx build",
+    "lint": "tsdx lint src"
+  },
+  "dependencies": {
+    "@0x/subproviders": "^5.0.4",
+    "@web3-react/abstract-connector": "^6.0.0-beta.15",
+    "@web3-react/types": "^6.0.0-beta.15"
+  },
+  "license": "GPL-3.0-or-later"
+}
