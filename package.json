@@ -36,7 +36,7 @@
     "publish:lerna": "lerna publish",
     "clean": "lerna clean --yes && lerna exec -- rm -rf dist/ .rts2_cache_{cjs,esm}/",
     "build": "lerna run build",
-    "start": "lerna run --parallel --no-bail start -- --noClean",
+    "start": "lerna run --parallel --no-bail start",
     "lint": "lerna run lint --parallel",
     "test": "lerna run test --parallel"
   },

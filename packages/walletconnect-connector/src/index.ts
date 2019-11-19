@@ -63,7 +63,10 @@ export class WalletConnectConnector extends AbstractConnector {
     this.walletConnectProvider.stop()
     this.walletConnectProvider.removeListener('chainChanged', this.handleChainChanged)
     this.walletConnectProvider.removeListener('accountsChanged', this.handleAccountsChanged)
-    this.emitDeactivate()
+    this.walletConnectProvider.wc.killSession().finally(() => {
+      this.walletConnectProvider = undefined
+      this.emitDeactivate()
+    })
   }
 
   public async activate(): Promise<ConnectorUpdate> {
@@ -124,11 +127,6 @@ export class WalletConnectConnector extends AbstractConnector {
   }
 
   public async close() {
-    // we have to do this because of a @walletconnect/web3-provider bug
-    this.walletConnectProvider.stop()
-    this.walletConnectProvider.removeListener('chainChanged', this.handleChainChanged)
-    this.walletConnectProvider.removeListener('accountsChanged', this.handleAccountsChanged)
-    await this.walletConnectProvider.wc.killSession()
-    this.walletConnectProvider = undefined
+    this.walletConnectProvider.wc.killSession()
   }
 }

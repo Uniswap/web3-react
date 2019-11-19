@@ -36,11 +36,23 @@ _A simple, maximally extensible, dependency minimized framework for building mod
 
 ## Quickstart
 
+`web3-react` is a powerful framework for building best-in-class UIs for [Ethereum dApps](https://ethereum.org/beginners/).
+
 [![Edit web3-react-v6](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/web3-react-v6-8rg3h?fontsize=14&hidenavigation=1&theme=dark)
 
 ## Documentation
 
 Coming soon™️ 😁
+
+## Projects using `web3-react`
+
+_Open a PR to add your project to the list!_
+
+- [Uniswap](https://github.com/Uniswap/uniswap-frontend)
+- [Uniswap Info](https://github.com/Uniswap/uniswap-info)
+- [Compound Liquidator](https://github.com/conlan/compound-liquidator)
+- [Everest](https://github.com/metacartel/everest-web-app)
+- [SnowMo](https://github.com/NoahZinsmeister/snowflake-demo-frontend)
 
 ## Local Development
 
