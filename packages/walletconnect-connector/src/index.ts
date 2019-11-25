@@ -59,14 +59,16 @@ export class WalletConnectConnector extends AbstractConnector {
     if (__DEV__) {
       console.log("Handling 'disconnect' event")
     }
+    this.emitDeactivate()
     // we have to do this because of a @walletconnect/web3-provider bug
-    this.walletConnectProvider.stop()
-    this.walletConnectProvider.removeListener('chainChanged', this.handleChainChanged)
-    this.walletConnectProvider.removeListener('accountsChanged', this.handleAccountsChanged)
-    this.walletConnectProvider.wc.killSession().finally(() => {
+    if (this.walletConnectProvider) {
+      this.walletConnectProvider.stop()
+      this.walletConnectProvider.removeListener('chainChanged', this.handleChainChanged)
+      this.walletConnectProvider.removeListener('accountsChanged', this.handleAccountsChanged)
       this.walletConnectProvider = undefined
-      this.emitDeactivate()
-    })
+    }
+
+    this.emitDeactivate()
   }
 
   public async activate(): Promise<ConnectorUpdate> {
