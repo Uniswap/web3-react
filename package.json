@@ -28,9 +28,6 @@
     "type": "git",
     "url": "git://github.com/NoahZinsmeister/web3-react.git"
   },
-  "engines": {
-    "node": "^10"
-  },
   "scripts": {
     "bootstrap": "lerna bootstrap",
     "publish:lerna": "lerna publish",

@@ -1,3 +1,5 @@
+name: CI
+
 on:
   pull_request:
     branches:
@@ -5,27 +7,36 @@ on:
   push:
     branches:
       - v6
-name: CI
+
 jobs:
-  install:
-    name: Install
-    runs-on: ubuntu-latest
+  test:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        node: ['8.x', '10.x', '12.x']
+        os: [ubuntu-latest, windows-latest, macOS-latest]
+
     steps:
       - uses: actions/checkout@v1
       - uses: actions/setup-node@v1
         with:
-          node-version: 10.x
+          node-version: ${{ matrix.node }}
+
       - run: npm install -g yarn
+
+      - id: yarn-cache
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+
       - uses: actions/cache@v1
-        id: cache
         with:
-          path: node_modules
-          key: ${{ runner.os }}-yarn-${{ hashFiles(format('{0}{1}', github.workspace, '/yarn.lock')) }}
+          path: ${{ steps.yarn-cache.outputs.dir }}
+          key: ${{ matrix.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
-            ${{ runner.os }}-yarn-
-      - if: steps.cache.outputs.cache-hit != 'true'
-        run: yarn
+            ${{ matrix.os }}-yarn-
+      - run: yarn
       - run: yarn bootstrap
+
       - run: yarn lint
       - run: yarn build
       - run: yarn test

@@ -23,9 +23,6 @@
     "type": "git",
     "url": "git://github.com/NoahZinsmeister/web3-react.git"
   },
-  "engines": {
-    "node": "^10"
-  },
   "main": "dist/index.js",
   "module": "dist/injected-connector.esm.js",
   "typings": "dist/index.d.ts",
