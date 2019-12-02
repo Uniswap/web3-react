@@ -33,7 +33,7 @@
     "publish:lerna": "lerna publish",
     "clean": "lerna clean --yes && lerna exec -- rm -rf dist/ .rts2_cache_{cjs,esm}/",
     "build": "lerna run build",
-    "start": "lerna run --parallel --no-bail start",
+    "start": "lerna run --parallel --no-bail start -- --noClean",
     "lint": "lerna run lint --parallel",
     "test": "lerna run test --parallel"
   },
@@ -41,7 +41,7 @@
     "@types/jest": "^24.0.21",
     "@types/react": "^16.9.11",
     "@types/react-dom": "^16.9.4",
-    "lerna": "^3.18.4",
+    "lerna": "^3.19.0",
     "react": ">=16.8",
     "react-dom": ">=16.8",
     "tsdx": "^0.11.0"
