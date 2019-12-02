@@ -1,5 +1,6 @@
 import { AbstractConnectorArguments, ConnectorUpdate } from '@web3-react/types'
 import { AbstractConnector } from '@web3-react/abstract-connector'
+import warning from 'tiny-warning'
 
 export class NoEthereumProviderError extends Error {
   public constructor() {
@@ -18,27 +19,13 @@ export class UserRejectedRequestError extends Error {
 }
 
 export class InjectedConnector extends AbstractConnector {
-  constructor(kwargs: AbstractConnectorArguments = {}) {
+  constructor(kwargs: AbstractConnectorArguments) {
     super(kwargs)
 
-    this.handleConnect = this.handleConnect.bind(this)
     this.handleNetworkChanged = this.handleNetworkChanged.bind(this)
     this.handleChainChanged = this.handleChainChanged.bind(this)
     this.handleAccountsChanged = this.handleAccountsChanged.bind(this)
     this.handleClose = this.handleClose.bind(this)
-  }
-
-  private handleConnect(): void {
-    if (__DEV__) {
-      console.log("Logging 'connect' event")
-    }
-  }
-
-  private handleNetworkChanged(networkId: string | number): void {
-    if (__DEV__) {
-      console.log("Handling 'networkChanged' event with payload", networkId)
-    }
-    this.emitUpdate({ chainId: networkId })
   }
 
   private handleChainChanged(chainId: string | number): void {
@@ -66,28 +53,47 @@ export class InjectedConnector extends AbstractConnector {
     this.emitDeactivate()
   }
 
+  private handleNetworkChanged(networkId: string | number): void {
+    if (__DEV__) {
+      console.log("Handling 'networkChanged' event with payload", networkId)
+    }
+    this.emitUpdate({ chainId: networkId })
+  }
+
   public async activate(): Promise<ConnectorUpdate> {
     if (!window.ethereum) {
       throw new NoEthereumProviderError()
     }
 
-    window.ethereum.autoRefreshOnNetworkChange = false
-    window.ethereum.on('connect', this.handleConnect)
-    window.ethereum.on('chainChanged', this.handleChainChanged)
-    window.ethereum.on('networkChanged', this.handleNetworkChanged)
-    window.ethereum.on('accountsChanged', this.handleAccountsChanged)
-    window.ethereum.on('close', this.handleClose)
+    if (window.ethereum.on) {
+      window.ethereum.on('chainChanged', this.handleChainChanged)
+      window.ethereum.on('accountsChanged', this.handleAccountsChanged)
+      window.ethereum.on('close', this.handleClose)
+      window.ethereum.on('networkChanged', this.handleNetworkChanged)
+    }
 
-    const account = await window.ethereum
-      .send('eth_requestAccounts')
-      .then(({ result: accounts }: any): string => accounts[0])
-      .catch((error: Error) => {
-        if (error && (error as any).code === 4001) {
+    if (window.ethereum.isMetaMask) {
+      window.ethereum.autoRefreshOnNetworkChange = false
+    }
+
+    let account
+    try {
+      account = await window.ethereum
+        .send('eth_requestAccounts')
+        .then(({ result: accounts }: any): string => accounts[0])
+    } catch (error) {
+      if ((error as any).code === 4001) {
+        throw new UserRejectedRequestError()
+      }
+
+      warning(false, 'eth_requestAccounts was unsuccessful, falling back to enable')
+      account = await window.ethereum
+        .enable()
+        .then(accounts => accounts[0])
+        .catch(() => {
           throw new UserRejectedRequestError()
-        } else {
-          throw error
-        }
-      })
+        })
+    }
 
     return { provider: window.ethereum, account }
   }
@@ -100,19 +106,35 @@ export class InjectedConnector extends AbstractConnector {
     if (!window.ethereum) {
       throw new NoEthereumProviderError()
     }
-    return window.ethereum.send('eth_chainId').then(({ result: chainId }: any): number | string => chainId)
+
+    try {
+      return window.ethereum.send('eth_chainId').then(({ result: chainId }: any): number | string => chainId)
+    } catch {
+      warning(false, 'eth_chainId was unsuccessful, falling back to static properties')
+      return (
+        window.ethereum.chainId ||
+        window.ethereum.networkVersion ||
+        window.ethereum.netVersion ||
+        window.ethereum._chainId
+      )
+    }
   }
 
   public async getAccount(): Promise<null | string> {
     if (!window.ethereum) {
       throw new NoEthereumProviderError()
     }
-    return window.ethereum.send('eth_accounts').then(({ result: accounts }: any): string => accounts[0])
+
+    try {
+      return window.ethereum.send('eth_accounts').then(({ result: accounts }: any): string => accounts[0])
+    } catch {
+      warning(false, 'eth_accounts was unsuccessful, falling back to enable')
+      return window.ethereum.enable().then(accounts => accounts[0])
+    }
   }
 
   public deactivate() {
-    if (window.ethereum) {
-      window.ethereum.removeListener('connect', this.handleConnect)
+    if (window.ethereum && window.ethereum.removeListener) {
       window.ethereum.removeListener('chainChanged', this.handleChainChanged)
       window.ethereum.removeListener('networkChanged', this.handleNetworkChanged)
       window.ethereum.removeListener('accountsChanged', this.handleAccountsChanged)
@@ -121,21 +143,21 @@ export class InjectedConnector extends AbstractConnector {
   }
 
   public async isAuthorized(): Promise<boolean> {
-    if (window.ethereum) {
-      return window.ethereum
-        .send('eth_accounts')
-        .then(({ result: accounts }: any) => {
-          if (accounts.length > 0) {
-            return true
-          } else {
-            return false
-          }
-        })
-        .catch(() => {
-          return false
-        })
-    } else {
+    if (!window.ethereum) {
       return false
     }
+
+    return window.ethereum
+      .send('eth_accounts')
+      .then(({ result: accounts }: any) => {
+        if (accounts.length > 0) {
+          return true
+        } else {
+          return false
+        }
+      })
+      .catch(() => {
+        return false
+      })
   }
 }
