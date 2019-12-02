@@ -5,7 +5,7 @@ import { RPCSubprovider } from '@0x/subproviders/lib/src/subproviders/rpc_subpro
 import { ledgerEthereumBrowserClientFactoryAsync } from '@0x/subproviders/lib/src' // https://github.com/0xProject/0x-monorepo/issues/1400
 import { LedgerSubprovider } from '@0x/subproviders/lib/src/subproviders/ledger' // https://github.com/0xProject/0x-monorepo/issues/1400
 
-export interface LedgerConnectorArguments {
+interface LedgerConnectorArguments {
   chainId: number
   url: string
   pollingInterval?: number

@@ -3,7 +3,7 @@ import { AbstractConnector } from '@web3-react/abstract-connector'
 
 const CHAIN_ID = 1
 
-export interface WalletLinkConnectorArguments {
+interface WalletLinkConnectorArguments {
   url: string
   appName: string
   appLogoUrl?: string

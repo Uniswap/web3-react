@@ -3,7 +3,7 @@ import { AbstractConnector } from '@web3-react/abstract-connector'
 import ethProvider from 'eth-provider'
 import invariant from 'tiny-invariant'
 
-export type FrameConnectorArguments = Required<AbstractConnectorArguments>
+type FrameConnectorArguments = Required<AbstractConnectorArguments>
 
 export class UserRejectedRequestError extends Error {
   public constructor() {

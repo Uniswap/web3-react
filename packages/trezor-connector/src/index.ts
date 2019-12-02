@@ -4,7 +4,7 @@ import Web3ProviderEngine from 'web3-provider-engine'
 import { RPCSubprovider } from '@0x/subproviders/lib/src/subproviders/rpc_subprovider' // https://github.com/0xProject/0x-monorepo/issues/1400
 import { TrezorSubprovider } from '@0x/subproviders/lib/src/subproviders/trezor' // https://github.com/0xProject/0x-monorepo/issues/1400
 
-export interface TrezorConnectorArguments {
+interface TrezorConnectorArguments {
   chainId: number
   url: string
   pollingInterval?: number

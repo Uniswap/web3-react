@@ -1,7 +1,7 @@
 import { ConnectorUpdate } from '@web3-react/types'
 import { AbstractConnector } from '@web3-react/abstract-connector'
 
-export interface TorusConnectorArguments {
+interface TorusConnectorArguments {
   chainId: number
   initOptions?: any
   constructorOptions?: any

@@ -9,7 +9,7 @@ const chainIdToNetwork: { [network: number]: string } = {
   42: 'kovan'
 }
 
-export interface FortmaticConnectorArguments {
+interface FortmaticConnectorArguments {
   apiKey: string
   chainId: number
 }

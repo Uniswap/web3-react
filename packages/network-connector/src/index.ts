@@ -4,7 +4,7 @@ import Web3ProviderEngine from 'web3-provider-engine'
 import { RPCSubprovider } from '@0x/subproviders/lib/src/subproviders/rpc_subprovider' // https://github.com/0xProject/0x-monorepo/issues/1400
 import invariant from 'tiny-invariant'
 
-export interface NetworkConnectorArguments {
+interface NetworkConnectorArguments {
   urls: { [chainId: number]: string }
   defaultChainId?: number
   pollingInterval?: number

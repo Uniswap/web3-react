@@ -13,7 +13,7 @@ const chainIdToNetwork: { [network: number]: string } = {
 
 type Network = number | { chainId: string; [key: string]: any }
 
-export interface PortisConnectorArguments {
+interface PortisConnectorArguments {
   dAppId: string
   networks: Network[]
   config?: any

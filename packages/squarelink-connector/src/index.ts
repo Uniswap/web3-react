@@ -13,7 +13,7 @@ const chainIdToNetwork: { [network: number]: string } = {
 
 type Network = number | { chainId: number; [key: string]: any }
 
-export interface SquarelinkConnectorArguments {
+interface SquarelinkConnectorArguments {
   clientId: string
   networks: Network[]
   options?: any
