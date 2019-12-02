@@ -27,6 +27,7 @@ export function createWeb3ReactRoot(key: string): (args: Web3ReactProviderArgume
     },
     active: false
   })
+  CONTEXTS[key].displayName = `Web3ReactContext - ${key}`
 
   const Provider = CONTEXTS[key].Provider
 
@@ -67,7 +68,11 @@ export function createWeb3ReactRoot(key: string): (args: Web3ReactProviderArgume
 
 export const Web3ReactProvider = createWeb3ReactRoot(PRIMARY_KEY)
 
-export function useWeb3React<T = any>(key: string = PRIMARY_KEY): Web3ReactContextInterface<T> {
+export function getWeb3ReactContext<T = any>(key: string = PRIMARY_KEY): React.Context<Web3ReactContextInterface<T>> {
   invariant(Object.keys(CONTEXTS).includes(key), `Invalid key ${key}`)
-  return useContext(CONTEXTS[key])
+  return CONTEXTS[key]
+}
+
+export function useWeb3React<T = any>(key?: string): Web3ReactContextInterface<T> {
+  return useContext(getWeb3ReactContext(key))
 }
