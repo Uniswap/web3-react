@@ -1,4 +1,4 @@
-# `web3-react` Documentation - Connectors
+# `web3-react` Documentation
 
 - [Install](#install)
 - [`web3-react` Context](#web3-react-context)
@@ -22,7 +22,7 @@
 - Grab yourself a fresh copy of `react@>=16.8`\
   `yarn add react@latest`
 
-- And then load up `web3-react`\
+- And then install `web3-react`\
   `yarn add @web3-react/core@latest`
 
 ## `web3-react` Context

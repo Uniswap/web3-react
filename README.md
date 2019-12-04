@@ -40,9 +40,7 @@ _A simple, maximally extensible, dependency minimized framework for building mod
 
 [![Edit web3-react-v6](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/web3-react-v6-8rg3h?fontsize=14&hidenavigation=1&theme=dark)
 
-## Documentation
-
-Coming soon™️ 😁
+## [Documentation](docs)
 
 ## Projects using `web3-react`
 
