@@ -181,19 +181,19 @@ function MyComponent() {
         }}
       >
         <span>Chain Id</span>
-        <span role='img' aria-label='chain'>
+        <span role="img" aria-label="chain">
           ⛓
         </span>
         <span>{chainId === undefined ? '...' : chainId}</span>
 
         <span>Block Number</span>
-        <span role='img' aria-label='numbers'>
+        <span role="img" aria-label="numbers">
           🔢
         </span>
         <span>{blockNumber === undefined ? '...' : blockNumber === null ? 'Error' : blockNumber.toLocaleString()}</span>
 
         <span>Account</span>
-        <span role='img' aria-label='robot'>
+        <span role="img" aria-label="robot">
           🤖
         </span>
         <span>
@@ -205,7 +205,7 @@ function MyComponent() {
         </span>
 
         <span>Balance</span>
-        <span role='img' aria-label='gold'>
+        <span role="img" aria-label="gold">
           💰
         </span>
         <span>
@@ -262,7 +262,7 @@ function MyComponent() {
               >
                 {activating && <Spinner color={'black'} style={{ height: '25%', marginLeft: '-1rem' }} />}
                 {connected && (
-                  <span role='img' aria-label='check'>
+                  <span role="img" aria-label="check">
                     ✅
                   </span>
                 )}

@@ -78,21 +78,13 @@ export class InjectedConnector extends AbstractConnector {
 
     let account
     try {
-      account = await window.ethereum
-        .send('eth_requestAccounts')
-        .then(({ result: accounts }: any): string => accounts[0])
+      account = await window.ethereum.send('eth_requestAccounts').then((accounts: string[]): string => accounts[0])
     } catch (error) {
       if ((error as any).code === 4001) {
         throw new UserRejectedRequestError()
       }
-
       warning(false, 'eth_requestAccounts was unsuccessful, falling back to enable')
-      account = await window.ethereum
-        .enable()
-        .then(accounts => accounts[0])
-        .catch(() => {
-          throw new UserRejectedRequestError()
-        })
+      account = await window.ethereum.enable().then(accounts => accounts[0])
     }
 
     return { provider: window.ethereum, account }
@@ -108,7 +100,7 @@ export class InjectedConnector extends AbstractConnector {
     }
 
     try {
-      return window.ethereum.send('eth_chainId').then(({ result: chainId }: any): number | string => chainId)
+      return window.ethereum.send('eth_chainId')
     } catch {
       warning(false, 'eth_chainId was unsuccessful, falling back to static properties')
       return (
@@ -126,7 +118,7 @@ export class InjectedConnector extends AbstractConnector {
     }
 
     try {
-      return window.ethereum.send('eth_accounts').then(({ result: accounts }: any): string => accounts[0])
+      return window.ethereum.send('eth_accounts').then((accounts: string[]): string => accounts[0])
     } catch {
       warning(false, 'eth_accounts was unsuccessful, falling back to enable')
       return window.ethereum.enable().then(accounts => accounts[0])
@@ -136,9 +128,9 @@ export class InjectedConnector extends AbstractConnector {
   public deactivate() {
     if (window.ethereum && window.ethereum.removeListener) {
       window.ethereum.removeListener('chainChanged', this.handleChainChanged)
-      window.ethereum.removeListener('networkChanged', this.handleNetworkChanged)
       window.ethereum.removeListener('accountsChanged', this.handleAccountsChanged)
       window.ethereum.removeListener('close', this.handleClose)
+      window.ethereum.removeListener('networkChanged', this.handleNetworkChanged)
     }
   }
 
@@ -147,17 +139,16 @@ export class InjectedConnector extends AbstractConnector {
       return false
     }
 
-    return window.ethereum
-      .send('eth_accounts')
-      .then(({ result: accounts }: any) => {
+    try {
+      return window.ethereum.send('eth_accounts').then((accounts: string[]): boolean => {
         if (accounts.length > 0) {
           return true
         } else {
           return false
         }
       })
-      .catch(() => {
-        return false
-      })
+    } catch {
+      return false
+    }
   }
 }

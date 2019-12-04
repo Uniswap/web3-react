@@ -9,7 +9,7 @@ export function useEagerConnect() {
   const [tried, setTried] = useState(false)
 
   useEffect(() => {
-    injected.isAuthorized().then(isAuthorized => {
+    injected.isAuthorized().then((isAuthorized: boolean) => {
       if (isAuthorized) {
         activate(injected, undefined, true).catch(() => {
           setTried(true)
@@ -35,7 +35,7 @@ export function useInactiveListener(suppress: boolean = false) {
 
   useEffect((): any => {
     const { ethereum } = window as any
-    if (ethereum && !active && !error && !suppress) {
+    if (ethereum && ethereum.on && !active && !error && !suppress) {
       const handleConnect = () => {
         console.log("Handling 'connect' event")
         activate(injected)
@@ -44,25 +44,29 @@ export function useInactiveListener(suppress: boolean = false) {
         console.log("Handling 'chainChanged' event with payload", chainId)
         activate(injected)
       }
-      const handleNetworkChanged = (networkId: string | number) => {
-        console.log("Handling 'networkChanged' event with payload", networkId)
-        activate(injected)
-      }
       const handleAccountsChanged = (accounts: string[]) => {
         console.log("Handling 'accountsChanged' event with payload", accounts)
         if (accounts.length > 0) {
           activate(injected)
         }
       }
+      const handleNetworkChanged = (networkId: string | number) => {
+        console.log("Handling 'networkChanged' event with payload", networkId)
+        activate(injected)
+      }
 
       ethereum.on('connect', handleConnect)
       ethereum.on('chainChanged', handleChainChanged)
-      ethereum.on('networkChanged', handleNetworkChanged)
       ethereum.on('accountsChanged', handleAccountsChanged)
+      ethereum.on('networkChanged', handleNetworkChanged)
 
       return () => {
-        ethereum.removeListener('networkChanged', handleNetworkChanged)
-        ethereum.removeListener('accountsChanged', handleAccountsChanged)
+        if (ethereum.removeListener) {
+          ethereum.removeListener('connect', handleConnect)
+          ethereum.removeListener('chainChanged', handleChainChanged)
+          ethereum.removeListener('accountsChanged', handleAccountsChanged)
+          ethereum.removeListener('networkChanged', handleNetworkChanged)
+        }
       }
     }
   }, [active, error, suppress, activate])
