@@ -78,7 +78,7 @@ export class InjectedConnector extends AbstractConnector {
 
     let account
     try {
-      account = await window.ethereum.send('eth_requestAccounts').then((accounts: string[]): string => accounts[0])
+      account = await window.ethereum.send('eth_requestAccounts').then(({ result: accounts }): string => accounts[0])
     } catch (error) {
       if ((error as any).code === 4001) {
         throw new UserRejectedRequestError()
@@ -100,7 +100,7 @@ export class InjectedConnector extends AbstractConnector {
     }
 
     try {
-      return window.ethereum.send('eth_chainId')
+      return window.ethereum.send('eth_chainId').then(({ result: chainId }): string => chainId)
     } catch {
       warning(false, 'eth_chainId was unsuccessful, falling back to static properties')
       return (
@@ -118,7 +118,7 @@ export class InjectedConnector extends AbstractConnector {
     }
 
     try {
-      return window.ethereum.send('eth_accounts').then((accounts: string[]): string => accounts[0])
+      return window.ethereum.send('eth_accounts').then(({ result: accounts }): string => accounts[0])
     } catch {
       warning(false, 'eth_accounts was unsuccessful, falling back to enable')
       return window.ethereum.enable().then(accounts => accounts[0])
@@ -140,7 +140,7 @@ export class InjectedConnector extends AbstractConnector {
     }
 
     try {
-      return window.ethereum.send('eth_accounts').then((accounts: string[]): boolean => {
+      return window.ethereum.send('eth_accounts').then(({ result: accounts }) => {
         if (accounts.length > 0) {
           return true
         } else {
