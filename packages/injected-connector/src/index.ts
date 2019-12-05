@@ -2,6 +2,8 @@ import { AbstractConnectorArguments, ConnectorUpdate } from '@web3-react/types'
 import { AbstractConnector } from '@web3-react/abstract-connector'
 import warning from 'tiny-warning'
 
+import { Send, SendDeprecated } from './types'
+
 export class NoEthereumProviderError extends Error {
   public constructor() {
     super()
@@ -72,13 +74,15 @@ export class InjectedConnector extends AbstractConnector {
       window.ethereum.on('networkChanged', this.handleNetworkChanged)
     }
 
-    if (window.ethereum.isMetaMask) {
-      window.ethereum.autoRefreshOnNetworkChange = false
+    if ((window.ethereum as any).isMetaMask) {
+      ;(window.ethereum as any).autoRefreshOnNetworkChange = false
     }
 
     let account
     try {
-      account = await window.ethereum.send('eth_requestAccounts').then(({ result: accounts }): string => accounts[0])
+      account = await (window.ethereum.send as Send)('eth_requestAccounts').then(
+        ({ result: accounts }): string => accounts[0]
+      )
     } catch (error) {
       if ((error as any).code === 4001) {
         throw new UserRejectedRequestError()
@@ -100,15 +104,31 @@ export class InjectedConnector extends AbstractConnector {
     }
 
     try {
-      return window.ethereum.send('eth_chainId').then(({ result: chainId }): string => chainId)
+      return (window.ethereum.send as Send)('eth_chainId').then(({ result: chainId }): string => chainId)
     } catch {
-      warning(false, 'eth_chainId was unsuccessful, falling back to static properties')
-      return (
-        window.ethereum.chainId ||
-        window.ethereum.networkVersion ||
-        window.ethereum.netVersion ||
-        window.ethereum._chainId
-      )
+      warning(false, 'eth_chainId method 1 was unsuccessful, falling back to method 2')
+      try {
+        return new Promise((resolve, reject) => {
+          ;((window.ethereum as any).send as SendDeprecated)(
+            { method: 'eth_chainId', params: [] },
+            (error, { result: chainId }) => {
+              if (error) {
+                reject(error)
+              } else {
+                resolve(chainId)
+              }
+            }
+          )
+        })
+      } catch {
+        warning(false, 'eth_chainId method 2 was unsuccessful, falling back to static properties')
+        return (
+          (window.ethereum as any).chainId ||
+          (window.ethereum as any).networkVersion ||
+          (window.ethereum as any).netVersion ||
+          (window.ethereum as any)._chainId
+        )
+      }
     }
   }
 
@@ -118,10 +138,26 @@ export class InjectedConnector extends AbstractConnector {
     }
 
     try {
-      return window.ethereum.send('eth_accounts').then(({ result: accounts }): string => accounts[0])
+      return (window.ethereum.send as Send)('eth_accounts').then(({ result: accounts }): string => accounts[0])
     } catch {
-      warning(false, 'eth_accounts was unsuccessful, falling back to enable')
-      return window.ethereum.enable().then(accounts => accounts[0])
+      warning(false, 'eth_accounts method 1 was unsuccessful, falling back to method 2')
+      try {
+        return new Promise((resolve, reject) => {
+          ;((window.ethereum as any).send as SendDeprecated)(
+            { method: 'eth_accounts', params: [] },
+            (error, { result: accounts }) => {
+              if (error) {
+                reject(error)
+              } else {
+                resolve(accounts[0])
+              }
+            }
+          )
+        })
+      } catch {
+        warning(false, 'eth_accounts method 2 was unsuccessful, falling back to enable')
+        return window.ethereum.enable().then(accounts => accounts[0])
+      }
     }
   }
 
@@ -140,7 +176,7 @@ export class InjectedConnector extends AbstractConnector {
     }
 
     try {
-      return window.ethereum.send('eth_accounts').then(({ result: accounts }) => {
+      return (window.ethereum.send as Send)('eth_accounts').then(({ result: accounts }) => {
         if (accounts.length > 0) {
           return true
         } else {
@@ -148,7 +184,22 @@ export class InjectedConnector extends AbstractConnector {
         }
       })
     } catch {
-      return false
+      try {
+        return new Promise((resolve, reject) => {
+          ;((window.ethereum as any).send as SendDeprecated)(
+            { method: 'eth_accounts', params: [] },
+            (error, { result: accounts }) => {
+              if (error) {
+                reject(error)
+              } else {
+                resolve(accounts[0])
+              }
+            }
+          )
+        })
+      } catch {
+        return false
+      }
     }
   }
 }

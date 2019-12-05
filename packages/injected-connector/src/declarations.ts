@@ -1,15 +1,10 @@
 interface Ethereum {
-  send: (method: string, params?: any[]) => Promise<any>
+  send:
+    | ((method: string, params?: any[]) => Promise<{ result: any }>)
+    | ((payload: { method: string; params?: any[] }, callback: (error: Error, result: { result: any }) => void) => void)
   enable: () => Promise<string[]>
   on?: (method: string, listener: (...args: any[]) => void) => this
   removeListener?: (method: string, listener: (...args: any[]) => void) => this
-  isMetaMask?: boolean
-  autoRefreshOnNetworkChange?: boolean
-
-  chainId: number | string
-  networkVersion: number | string
-  _chainId: number | string
-  netVersion: number | string
 }
 
 declare interface Window {
