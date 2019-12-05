@@ -104,11 +104,11 @@ export class InjectedConnector extends AbstractConnector {
     }
 
     try {
-      return (window.ethereum.send as Send)('eth_chainId').then(({ result: chainId }): string => chainId)
+      return await (window.ethereum.send as Send)('eth_chainId').then(({ result: chainId }): string => chainId)
     } catch {
       warning(false, 'eth_chainId method 1 was unsuccessful, falling back to method 2')
       try {
-        return new Promise((resolve, reject) => {
+        return await new Promise((resolve, reject) => {
           ;((window.ethereum as any).send as SendDeprecated)(
             { method: 'eth_chainId', params: [] },
             (error, { result: chainId }) => {
@@ -140,24 +140,8 @@ export class InjectedConnector extends AbstractConnector {
     try {
       return (window.ethereum.send as Send)('eth_accounts').then(({ result: accounts }): string => accounts[0])
     } catch {
-      warning(false, 'eth_accounts method 1 was unsuccessful, falling back to method 2')
-      try {
-        return new Promise((resolve, reject) => {
-          ;((window.ethereum as any).send as SendDeprecated)(
-            { method: 'eth_accounts', params: [] },
-            (error, { result: accounts }) => {
-              if (error) {
-                reject(error)
-              } else {
-                resolve(accounts[0])
-              }
-            }
-          )
-        })
-      } catch {
-        warning(false, 'eth_accounts method 2 was unsuccessful, falling back to enable')
-        return window.ethereum.enable().then(accounts => accounts[0])
-      }
+      warning(false, 'eth_accounts was unsuccessful, falling back to enable')
+      return window.ethereum.enable().then(accounts => accounts[0])
     }
   }
 
@@ -176,7 +160,7 @@ export class InjectedConnector extends AbstractConnector {
     }
 
     try {
-      return (window.ethereum.send as Send)('eth_accounts').then(({ result: accounts }) => {
+      return await (window.ethereum.send as Send)('eth_accounts').then(({ result: accounts }) => {
         if (accounts.length > 0) {
           return true
         } else {
@@ -184,22 +168,7 @@ export class InjectedConnector extends AbstractConnector {
         }
       })
     } catch {
-      try {
-        return new Promise((resolve, reject) => {
-          ;((window.ethereum as any).send as SendDeprecated)(
-            { method: 'eth_accounts', params: [] },
-            (error, { result: accounts }) => {
-              if (error) {
-                reject(error)
-              } else {
-                resolve(accounts[0])
-              }
-            }
-          )
-        })
-      } catch {
-        return false
-      }
+      return false
     }
   }
 }
