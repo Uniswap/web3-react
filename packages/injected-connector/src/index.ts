@@ -2,7 +2,11 @@ import { AbstractConnectorArguments, ConnectorUpdate } from '@web3-react/types'
 import { AbstractConnector } from '@web3-react/abstract-connector'
 import warning from 'tiny-warning'
 
-import { Send, SendDeprecated } from './types'
+import { SendReturnResult, SendReturn, Send } from './types'
+
+function parseSendReturn(sendReturn: SendReturnResult | SendReturn): any {
+  return sendReturn.hasOwnProperty('result') ? sendReturn.result : sendReturn
+}
 
 export class NoEthereumProviderError extends Error {
   public constructor() {
@@ -81,14 +85,14 @@ export class InjectedConnector extends AbstractConnector {
     let account
     try {
       account = await (window.ethereum.send as Send)('eth_requestAccounts').then(
-        ({ result: accounts }): string => accounts[0]
+        sendReturn => parseSendReturn(sendReturn)[0]
       )
     } catch (error) {
       if ((error as any).code === 4001) {
         throw new UserRejectedRequestError()
       }
       warning(false, 'eth_requestAccounts was unsuccessful, falling back to enable')
-      account = await window.ethereum.enable().then(accounts => accounts[0])
+      account = await window.ethereum.enable().then(sendReturn => parseSendReturn(sendReturn)[0])
     }
 
     return { provider: window.ethereum, account }
@@ -104,28 +108,17 @@ export class InjectedConnector extends AbstractConnector {
     }
 
     try {
-      return await (window.ethereum.send as Send)('eth_chainId').then(({ result: chainId }): string => chainId)
+      return await (window.ethereum.send as Send)('eth_chainId').then(parseSendReturn)
     } catch {
-      warning(false, 'eth_chainId method 1 was unsuccessful, falling back to method 2')
+      warning(false, 'eth_chainId was unsuccessful, falling back to net_version')
       try {
-        return await new Promise((resolve, reject) => {
-          ;((window.ethereum as any).send as SendDeprecated)(
-            { method: 'eth_chainId', params: [] },
-            (error, { result: chainId }) => {
-              if (error) {
-                reject(error)
-              } else {
-                resolve(chainId)
-              }
-            }
-          )
-        })
+        return await (window.ethereum.send as Send)('net_version').then(parseSendReturn)
       } catch {
-        warning(false, 'eth_chainId method 2 was unsuccessful, falling back to static properties')
+        warning(false, 'net_version was unsuccessful, falling back to static properties')
         return (
           (window.ethereum as any).chainId ||
-          (window.ethereum as any).networkVersion ||
           (window.ethereum as any).netVersion ||
+          (window.ethereum as any).networkVersion ||
           (window.ethereum as any)._chainId
         )
       }
@@ -141,7 +134,7 @@ export class InjectedConnector extends AbstractConnector {
       return (window.ethereum.send as Send)('eth_accounts').then(({ result: accounts }): string => accounts[0])
     } catch {
       warning(false, 'eth_accounts was unsuccessful, falling back to enable')
-      return window.ethereum.enable().then(accounts => accounts[0])
+      return window.ethereum.enable().then(sendReturn => parseSendReturn(sendReturn)[0])
     }
   }
 
@@ -160,8 +153,8 @@ export class InjectedConnector extends AbstractConnector {
     }
 
     try {
-      return await (window.ethereum.send as Send)('eth_accounts').then(({ result: accounts }) => {
-        if (accounts.length > 0) {
+      return await (window.ethereum.send as Send)('eth_accounts').then(sendReturn => {
+        if (parseSendReturn(sendReturn).length > 0) {
           return true
         } else {
           return false

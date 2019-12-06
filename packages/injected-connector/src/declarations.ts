@@ -1,10 +1,8 @@
 interface Ethereum {
-  send:
-    | ((method: string, params?: any[]) => Promise<{ result: any }>)
-    | ((payload: { method: string; params?: any[] }, callback: (error: Error, result: { result: any }) => void) => void)
+  send: (method: string, params?: any[]) => Promise<{ result: any } | any>
   enable: () => Promise<string[]>
-  on?: (method: string, listener: (...args: any[]) => void) => this
-  removeListener?: (method: string, listener: (...args: any[]) => void) => this
+  on?: (method: string, listener: (...args: any[]) => void) => void
+  removeListener?: (method: string, listener: (...args: any[]) => void) => void
 }
 
 declare interface Window {

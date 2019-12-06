@@ -1,6 +1,4 @@
-export type Send = (method: string, params?: any[]) => Promise<{ result: any }>
+export type SendReturnResult = { result: any }
+export type SendReturn = any
 
-export type SendDeprecated = (
-  payload: { method: string; params?: any[] },
-  callback: (error: Error, result: { result: any }) => void
-) => void
+export type Send = (method: string, params?: any[]) => Promise<SendReturnResult | SendReturn>
