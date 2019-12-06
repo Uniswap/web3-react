@@ -115,12 +115,29 @@ export class InjectedConnector extends AbstractConnector {
         return await (window.ethereum.send as Send)('net_version').then(parseSendReturn)
       } catch {
         warning(false, 'net_version was unsuccessful, falling back to static properties')
-        return (
-          (window.ethereum as any).chainId ||
-          (window.ethereum as any).netVersion ||
-          (window.ethereum as any).networkVersion ||
-          (window.ethereum as any)._chainId
-        )
+        if ((window.ethereum as any).isDapper) {
+          return parseSendReturn((window.ethereum as any).cachedResults['net_version'])
+        } else if ((window.ethereum as any).isNiftyWallet) {
+          return await new Promise((resolve, reject) => {
+            ;((window.ethereum as any).send as any)(
+              { method: 'eth_chainId', params: [] },
+              (error: Error, sendReturn: SendReturnResult | SendReturn) => {
+                if (error || sendReturn.error) {
+                  reject(error || sendReturn.error)
+                } else {
+                  resolve(parseSendReturn(sendReturn))
+                }
+              }
+            )
+          })
+        } else {
+          return (
+            (window.ethereum as any).chainId ||
+            (window.ethereum as any).netVersion ||
+            (window.ethereum as any).networkVersion ||
+            (window.ethereum as any)._chainId
+          )
+        }
       }
     }
   }
