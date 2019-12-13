@@ -46,12 +46,12 @@ _A simple, maximally extensible, dependency minimized framework for building mod
 
 _Open a PR to add your project to the list!_
 
-- [Uniswap](https://github.com/Uniswap/uniswap-frontend)
-- [Uniswap Info](https://github.com/Uniswap/uniswap-info)
-- [Compound Liquidator](https://github.com/conlan/compound-liquidator)
+- [Uniswap.exchange](https://github.com/Uniswap/uniswap-frontend)
+- [Uniswap.info](https://github.com/Uniswap/uniswap-info)
+- [Terminal](https://blog.terminal.co/web3-react-integration/)
 - [Everest](https://github.com/metacartel/everest-web-app)
-- [SnowMo](https://github.com/NoahZinsmeister/snowflake-demo-frontend)
 - [NFT Scribe](https://github.com/conlan/nft-scribe)
+- [Compound Liquidator](https://github.com/conlan/compound-liquidator)
 
 ## Local Development
 
