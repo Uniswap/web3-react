@@ -67,3 +67,4 @@ export class FortmaticConnector extends AbstractConnector {
     this.emitDeactivate()
   }
 }
+export default FortmaticConnector

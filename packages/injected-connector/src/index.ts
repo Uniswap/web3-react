@@ -182,3 +182,4 @@ export class InjectedConnector extends AbstractConnector {
     }
   }
 }
+export default InjectedConnector

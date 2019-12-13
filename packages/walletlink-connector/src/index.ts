@@ -67,3 +67,4 @@ export class WalletLinkConnector extends AbstractConnector {
     this.provider.removeListener('accountsChanged', this.handleAccountsChanged)
   }
 }
+export default WalletLinkConnector
