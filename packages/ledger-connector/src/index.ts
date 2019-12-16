@@ -78,3 +78,4 @@ export class LedgerConnector extends AbstractConnector {
     this.provider.stop()
   }
 }
+export default LedgerConnector

@@ -79,3 +79,4 @@ export class TrezorConnector extends AbstractConnector {
     this.provider.stop()
   }
 }
+export default TrezorConnector

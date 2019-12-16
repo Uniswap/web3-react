@@ -48,3 +48,4 @@ export class AuthereumConnector extends AbstractConnector {
 
   public deactivate() {}
 }
+export default AuthereumConnector

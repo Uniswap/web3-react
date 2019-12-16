@@ -4,7 +4,7 @@ import invariant from 'tiny-invariant'
 import { Web3ReactContextInterface } from './types'
 import { useWeb3ReactManager } from './manager'
 
-const PRIMARY_KEY = 'primary'
+export const PRIMARY_KEY = 'primary'
 const CONTEXTS: { [key: string]: React.Context<Web3ReactContextInterface> } = {}
 
 interface Web3ReactProviderArguments {

@@ -132,3 +132,4 @@ export class WalletConnectConnector extends AbstractConnector {
     this.walletConnectProvider.wc.killSession()
   }
 }
+export default WalletConnectConnector
