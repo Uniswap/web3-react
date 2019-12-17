@@ -53,6 +53,8 @@ _Open a PR to add your project to the list!_
 - [NFT Scribe](https://github.com/conlan/nft-scribe)
 - [Compound Liquidator](https://github.com/conlan/compound-liquidator)
 
+The full list of projects on GitHub using `web3-react` are [listed here](https://github.com/NoahZinsmeister/web3-react/network/dependents?package_id=UGFja2FnZS0yMTI1NDE5NTM%3D).
+
 ## Local Development
 
 - Clone repo\
