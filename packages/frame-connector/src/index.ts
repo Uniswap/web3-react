@@ -3,8 +3,6 @@ import { AbstractConnector } from '@web3-react/abstract-connector'
 import ethProvider from 'eth-provider'
 import invariant from 'tiny-invariant'
 
-type FrameConnectorArguments = Required<AbstractConnectorArguments>
-
 export class UserRejectedRequestError extends Error {
   public constructor() {
     super()
@@ -16,7 +14,7 @@ export class UserRejectedRequestError extends Error {
 export class FrameConnector extends AbstractConnector {
   private provider: any
 
-  constructor(kwargs: FrameConnectorArguments) {
+  constructor(kwargs: Required<AbstractConnectorArguments>) {
     invariant(kwargs.supportedChainIds.length === 1, 'This connector only supports 1 chainId at the moment.')
     super(kwargs)
 
