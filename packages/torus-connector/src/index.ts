@@ -52,5 +52,6 @@ export class TorusConnector extends AbstractConnector {
 
   public async close() {
     await this.torus.cleanUp()
+    this.emitDeactivate()
   }
 }
