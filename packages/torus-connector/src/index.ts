@@ -48,10 +48,11 @@ export class TorusConnector extends AbstractConnector {
 
   public async deactivate() {
     await this.torus.cleanUp()
+    this.torus = undefined
   }
 
   public async close() {
-    await this.torus.cleanUp()
+    await this.torus.logout()
     this.emitDeactivate()
   }
 }
