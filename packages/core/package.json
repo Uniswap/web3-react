@@ -3,7 +3,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "version": "6.0.0-beta.26",
+  "version": "6.0.0",
   "description": "A simple, maximally extensible, dependency minimized framework for building modern Ethereum dApps",
   "keywords": [
     "react",
@@ -36,7 +36,7 @@
   },
   "dependencies": {
     "@ethersproject/keccak256": "^5.0.0-beta.130",
-    "@web3-react/types": "^6.0.0-beta.19",
+    "@web3-react/types": "^6.0.0",
     "tiny-invariant": "^1.0.6",
     "tiny-warning": "^1.0.3"
   },
