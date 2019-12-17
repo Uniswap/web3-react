@@ -1,4 +1,4 @@
-# `web3-react` Documentation - Fortmatic Connector
+# `web3-react` Documentation - Fortmatic
 
 - [Install](#install)
 - [Arguments](#arguments)
@@ -9,10 +9,8 @@
 
 ## Arguments
 ```typescript
-interface FortmaticConnectorArguments {
-  apiKey: string
-  chainId: number
-}
+apiKey: string
+chainId: number
 ```
 
 ## Example
@@ -21,3 +19,5 @@ import { FortmaticConnector } from '@web3-react/fortmatic-connector'
 
 const fortmatic = new FortmaticConnector({ apiKey: '...', chainId: 4 })
 ```
+
+Note: Once the connector has been activated, the Fortmatic SDK instance can be accessed under the `.fortmatic` property.

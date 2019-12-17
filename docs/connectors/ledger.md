@@ -1,4 +1,4 @@
-# `web3-react` Documentation - Ledger Connector
+# `web3-react` Documentation - Ledger
 
 - [Install](#install)
 - [Arguments](#arguments)
@@ -9,14 +9,12 @@
 
 ## Arguments
 ```typescript
-interface LedgerConnectorArguments {
-  chainId: number
-  url: string
-  pollingInterval?: number
-  requestTimeoutMs?: number
-  accountFetchingConfigs?: any
-  baseDerivationPath?: string
-}
+chainId: number
+url: string
+pollingInterval?: number
+requestTimeoutMs?: number
+accountFetchingConfigs?: any
+baseDerivationPath?: string
 ```
 
 ## Example

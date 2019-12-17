@@ -1,4 +1,4 @@
-# `web3-react` Documentation - Frame Connector
+# `web3-react` Documentation - Frame
 
 - [Install](#install)
 - [Arguments](#arguments)
@@ -12,9 +12,7 @@
 
 ## Arguments
 ```typescript
-interface FrameConnectorArguments {
-  supportedChainIds: number[]
-}
+supportedChainIds: number[]
 ```
 
 ## Example
@@ -31,7 +29,6 @@ const frame = new FrameConnector({ supportedChainIds: [1] })
 #### Example
 ```javascript
 import { UserRejectedRequestError } from '@web3-react/frame-connector'
-// ...
 
 function Component () {
   const { error } = useWeb3React()

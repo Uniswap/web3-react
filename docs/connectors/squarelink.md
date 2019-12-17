@@ -1,4 +1,4 @@
-# `web3-react` Documentation - Squarelink Connector
+# `web3-react` Documentation - Squarelink
 
 - [Install](#install)
 - [Arguments](#arguments)
@@ -9,11 +9,9 @@
 
 ## Arguments
 ```typescript
-interface SquarelinkConnectorArguments {
-  clientId: string
-  networks: (number | { chainId: number; [key: string]: any })[]
-  options?: any
-}
+clientId: string
+networks: (number | { chainId: number; [key: string]: any })[]
+options?: any
 ```
 
 ## Example
@@ -25,3 +23,5 @@ const squarelink = new SquarelinkConnector({
   networks: [1, 100]
 })
 ```
+
+Note: Once the connector has been activated, the Squarelink SDK instance can be accessed under the `.squarelink` property.

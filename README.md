@@ -1,6 +1,6 @@
 # `web3-react` 🧰
 
-_A simple, maximally extensible, dependency minimized framework for building modern Ethereum dApps_
+_A simple, maximally extensible, dependency minimized framework for building modern [Ethereum dApps]((https://ethereum.org/beginners/))_
 
 [![lerna](https://img.shields.io/badge/maintained%20with-lerna-cc00ff.svg)](https://lerna.js.org/)
 [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)
@@ -36,8 +36,6 @@ _A simple, maximally extensible, dependency minimized framework for building mod
 
 ## Quickstart
 
-`web3-react` is a powerful framework for building best-in-class UIs for [Ethereum dApps](https://ethereum.org/beginners/).
-
 [![Edit web3-react-v6](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/web3-react-v6-8rg3h?fontsize=14&hidenavigation=1&theme=dark)
 
 ## [Documentation](docs)
@@ -53,8 +51,6 @@ _Open a PR to add your project to the list!_
 - [NFT Scribe](https://github.com/conlan/nft-scribe)
 - [Compound Liquidator](https://github.com/conlan/compound-liquidator)
 
-The full list of projects on GitHub using `web3-react` are [listed here](https://github.com/NoahZinsmeister/web3-react/network/dependents?package_id=UGFja2FnZS0yMTI1NDE5NTM%3D).
-
 ## Local Development
 
 - Clone repo\
@@ -66,10 +62,7 @@ The full list of projects on GitHub using `web3-react` are [listed here](https:/
 - Install sub-dependencies\
   `yarn bootstrap`
 
-- Build\
-  `yarn build`
-
-- Watch for changes\
+- Build and watch for changes\
   `yarn start`
 
 ## Acknowledgements

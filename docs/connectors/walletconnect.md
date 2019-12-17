@@ -1,4 +1,4 @@
-# `web3-react` Documentation - WalletConnect Connector
+# `web3-react` Documentation - WalletConnect
 
 - [Install](#install)
 - [Arguments](#arguments)
@@ -15,12 +15,10 @@
 
 ## Arguments
 ```typescript
-interface WalletConnectConnectorArguments {
-  rpc: { [chainId: number]: string }
-  bridge?: string
-  qrcode?: boolean
-  pollingInterval?: number
-}
+rpc: { [chainId: number]: string }
+bridge?: string
+qrcode?: boolean
+pollingInterval?: number
 ```
 
 ## Example
@@ -37,7 +35,6 @@ const walletconnect = new WalletConnectConnector({ rpc: { 1: '...' } })
 #### Example
 ```javascript
 import { URI_AVAILABLE } from '@web3-react/injected-connector'
-// ...
 
 function Component () {
   useEffect(() => {
@@ -56,7 +53,6 @@ function Component () {
 #### Example
 ```javascript
 import { UserRejectedRequestError } from '@web3-react/walletconnect-connector'
-// ...
 
 function Component () {
   const { error } = useWeb3React()
@@ -64,3 +60,5 @@ function Component () {
   // ...
 }
 ```
+
+Note: Once the connector has been activated, the WalletConnect provider can be accessed under the `.walletConnectProvider` property.
