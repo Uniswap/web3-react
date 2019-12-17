@@ -15,7 +15,7 @@ export function normalizeChainId(chainId: string | number): number {
 
 // https://github.com/ethers-io/ethers.js/blob/d9d438a119bb11f8516fc9cf02c534ab3816fcb3/packages/address/src.ts/index.ts
 export function normalizeAccount(_address: string): string {
-  invariant(_address.match(/^(0x)?[0-9a-fA-F]{40}$/), `Invalid address ${_address}`)
+  invariant(typeof _address === 'string' && _address.match(/^(0x)?[0-9a-fA-F]{40}$/), `Invalid address ${_address}`)
 
   const address = _address.substring(0, 2) === '0x' ? _address : `0x${_address}`
   const chars = address
