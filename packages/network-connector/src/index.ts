@@ -68,4 +68,3 @@ export class NetworkConnector extends AbstractConnector {
     }
   }
 }
-export default NetworkConnector

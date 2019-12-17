@@ -99,4 +99,3 @@ export class FrameConnector extends AbstractConnector {
       .removeListener('close', this.handleClose)
   }
 }
-export default FrameConnector

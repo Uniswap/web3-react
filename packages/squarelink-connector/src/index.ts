@@ -72,4 +72,3 @@ export class SquarelinkConnector extends AbstractConnector {
 
   public deactivate() {}
 }
-export default SquarelinkConnector

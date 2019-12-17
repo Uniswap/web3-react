@@ -48,4 +48,3 @@ export class TorusConnector extends AbstractConnector {
 
   public deactivate() {}
 }
-export default TorusConnector
