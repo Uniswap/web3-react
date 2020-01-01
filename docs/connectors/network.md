@@ -1,4 +1,4 @@
-# `web3-react` Documentation - Network Connector
+# `web3-react` Documentation - Network
 
 - [Install](#install)
 - [Arguments](#arguments)
@@ -9,12 +9,10 @@
 
 ## Arguments
 ```typescript
-interface NetworkConnectorArguments {
-  urls: { [chainId: number]: string }
-  defaultChainId?: number
-  pollingInterval?: number
-  requestTimeoutMs?: number
-}
+urls: { [chainId: number]: string }
+defaultChainId?: number
+pollingInterval?: number
+requestTimeoutMs?: number
 ```
 
 ## Example

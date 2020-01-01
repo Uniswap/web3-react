@@ -1,17 +1,15 @@
-# `web3-react` Documentation - Authereum Connector
+# `web3-react` Documentation - Authereum
 
 - [Install](#install)
-- [Arguments](#arguments)
+- [Connector Arguments](#connector-arguments)
 - [Example](#example)
 
 ## Install
 `yarn add @web3-react/authereum-connector`
 
-## Arguments
+## Connector Arguments
 ```typescript
-interface AuthereumConnectorArguments {
-  chainId: number
-}
+chainId: number
 ```
 
 ## Example
@@ -20,3 +18,5 @@ import { AuthereumConnector } from '@web3-react/authereum-connector'
 
 const authereum = new AuthereumConnector({ chainId: 42 })
 ```
+
+Note: Once the connector has been activated, the Authereum SDK instance can be accessed under the `.authereum` property.

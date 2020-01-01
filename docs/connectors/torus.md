@@ -1,4 +1,4 @@
-# `web3-react` Documentation - Torus Connector
+# `web3-react` Documentation - Torus
 
 - [Install](#install)
 - [Arguments](#arguments)
@@ -9,11 +9,9 @@
 
 ## Arguments
 ```typescript
-interface TorusConnectorArguments {
-  chainId: number
-  initOptions?: any
-  constructorOptions?: any
-}
+chainId: number
+initOptions?: any
+constructorOptions?: any
 ```
 
 ## Example
@@ -22,3 +20,5 @@ import { TorusConnector } from '@web3-react/torus-connector'
 
 const torus = new TorusConnector({ chainId: 1 })
 ```
+
+Note: Once the connector has been activated, the Torus SDK instance can be accessed under the `.torus` property.

@@ -398,6 +398,20 @@ function MyComponent() {
             </button>
           </>
         )}
+        {connector === torus && (
+          <button
+            style={{
+              height: '3rem',
+              borderRadius: '1rem',
+              cursor: 'pointer'
+            }}
+            onClick={() => {
+              ;(connector as any).close()
+            }}
+          >
+            Kill Torus Session
+          </button>
+        )}
       </div>
     </div>
   )

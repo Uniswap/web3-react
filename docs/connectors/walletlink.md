@@ -1,4 +1,4 @@
-# `web3-react` Documentation - WalletLink Connector
+# `web3-react` Documentation - WalletLink
 
 - [Install](#install)
 - [Arguments](#arguments)
@@ -9,11 +9,9 @@
 
 ## Arguments
 ```typescript
-interface WalletLinkConnectorArguments {
-  url: string
-  appName: string
-  appLogoUrl?: string
-}
+url: string
+appName: string
+appLogoUrl?: string
 ```
 
 ## Example
@@ -22,3 +20,5 @@ import { WalletConnectConnector } from '@web3-react/walletconnect-connector'
 
 const walletlink = new WalletLinkConnector({ url: '...', appName: '...' })
 ```
+
+Note: Once the connector has been activated, the WalletLink SDK instance can be accessed under the `.walletLink` property.

@@ -41,4 +41,3 @@ export abstract class AbstractConnector extends EventEmitter implements Abstract
     this.emit(ConnectorEvent.Deactivate)
   }
 }
-export default AbstractConnector

@@ -117,4 +117,3 @@ export class PortisConnector extends AbstractConnector {
     this.emitDeactivate()
   }
 }
-export default PortisConnector

@@ -1,4 +1,4 @@
-# `web3-react` Documentation - Injected Connector
+# `web3-react` Documentation - Injected
 
 - [Install](#install)
 - [Arguments](#arguments)
@@ -14,9 +14,7 @@
 
 ## Arguments
 ```typescript
-interface InjectedConnectorArguments {
-  supportedChainIds?: number[]
-}
+supportedChainIds?: number[]
 ```
 
 ## Example
@@ -33,7 +31,6 @@ const injected = new InjectedConnector({ supportedChainIds: [1, 3, 4, 5, 42] })
 #### Example
 ```javascript
 import { NoEthereumProviderError } from '@web3-react/injected-connector'
-// ...
 
 function Component () {
   const { error } = useWeb3React()
@@ -47,7 +44,6 @@ function Component () {
 #### Example
 ```javascript
 import { UserRejectedRequestError } from '@web3-react/injected-connector'
-// ...
 
 function Component () {
   const { error } = useWeb3React()
