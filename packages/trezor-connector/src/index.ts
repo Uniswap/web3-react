@@ -1,8 +1,9 @@
 import { ConnectorUpdate } from '@web3-react/types'
 import { AbstractConnector } from '@web3-react/abstract-connector'
 import Web3ProviderEngine from 'web3-provider-engine'
-import { RPCSubprovider } from '@0x/subproviders/lib/src/subproviders/rpc_subprovider' // https://github.com/0xProject/0x-monorepo/issues/1400
 import { TrezorSubprovider } from '@0x/subproviders/lib/src/subproviders/trezor' // https://github.com/0xProject/0x-monorepo/issues/1400
+import CacheSubprovider from 'web3-provider-engine/subproviders/cache.js'
+import { RPCSubprovider } from '@0x/subproviders/lib/src/subproviders/rpc_subprovider' // https://github.com/0xProject/0x-monorepo/issues/1400
 
 interface TrezorConnectorArguments {
   chainId: number
@@ -54,6 +55,7 @@ export class TrezorConnector extends AbstractConnector {
       })
       const engine = new Web3ProviderEngine({ pollingInterval: this.pollingInterval })
       engine.addProvider(new TrezorSubprovider({ trezorConnectClientApi: TrezorConnect, ...this.config }))
+      engine.addProvider(new CacheSubprovider())
       engine.addProvider(new RPCSubprovider(this.url, this.requestTimeoutMs))
       this.provider = engine
     }
