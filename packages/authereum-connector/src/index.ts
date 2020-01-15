@@ -47,4 +47,9 @@ export class AuthereumConnector extends AbstractConnector {
   }
 
   public deactivate() {}
+
+  public async close() {
+    this.authereum.logout()
+    this.emitDeactivate()
+  }
 }
