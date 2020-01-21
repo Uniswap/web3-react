@@ -36,9 +36,13 @@ export class NetworkConnector extends AbstractConnector {
   }
 
   public async activate(): Promise<ConnectorUpdate> {
-    this.providers[this.currentChainId].start()
+    const provider = this.providers[this.currentChainId]
+    provider.start()
+    provider.on( "error", (err: Error) => {
+      console.error(err)
+    })
     this.active = true
-    return { provider: this.providers[this.currentChainId], chainId: this.currentChainId, account: null }
+    return { provider, chainId: this.currentChainId, account: null }
   }
 
   public async getProvider(): Promise<Web3ProviderEngine> {
@@ -61,10 +65,14 @@ export class NetworkConnector extends AbstractConnector {
   public changeChainId(chainId: number) {
     invariant(Object.keys(this.providers).includes(chainId.toString()), `No url found for chainId ${chainId}`)
     if (this.active) {
-      this.providers[this.currentChainId].stop()
+      const provider = this.providers[this.currentChainId]
+      provider.stop()
       this.currentChainId = chainId
-      this.providers[this.currentChainId].start()
-      this.emitUpdate({ provider: this.providers[this.currentChainId], chainId })
+      provider.start()
+      provider.on( "error", (err: Error) => {
+        console.error(err)
+      })
+      this.emitUpdate({ provider, chainId })
     } else {
       this.currentChainId = chainId
     }
