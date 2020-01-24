@@ -45,7 +45,7 @@ _A simple, maximally extensible, dependency minimized framework for building mod
 _Open a PR to add your project to the list!_
 
 - [Uniswap.exchange](https://github.com/Uniswap/uniswap-frontend)
-- [Uniswap.info](https://github.com/Uniswap/uniswap-info)
+- [useWallet](https://github.com/aragon/use-wallet)
 - [Terminal](https://blog.terminal.co/web3-react-integration/)
 - [Everest](https://github.com/metacartel/everest-web-app)
 - [NFT Scribe](https://github.com/conlan/nft-scribe)
