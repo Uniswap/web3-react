@@ -51,6 +51,10 @@ _Open a PR to add your project to the list!_
 - [NFT Scribe](https://github.com/conlan/nft-scribe)
 - [Compound Liquidator](https://github.com/conlan/compound-liquidator)
 
+## Related Efforts
+
+- [Web3Connect](https://github.com/web3connect/web3connect)
+
 ## Local Development
 
 - Clone repo\
