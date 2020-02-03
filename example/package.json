@@ -1,37 +1,32 @@
 {
-  "private": true,
+  "name": "web3-react-example",
   "scripts": {
-    "start": "parcel index.html",
-    "build": "parcel build index.html"
+    "dev": "next",
+    "build": "rimraf .next out && next build && next export",
+    "start": "next start"
   },
   "dependencies": {
-    "@ethersproject/providers": "^5.0.0-beta.144",
-    "@ethersproject/units": "^5.0.0-beta.130"
-  },
-  "alias": {
-    "@types/react": "../node_modules/@types/react",
-    "@types/react-dom": "../node_modules/@types/react-dom",
-    "@web3-react/core": "../packages/core",
-    "@web3-react/authereum-connector": "../packages/authereum-connector",
-    "@web3-react/fortmatic-connector": "../packages/fortmatic-connector",
-    "@web3-react/frame-connector": "../packages/frame-connector",
-    "@web3-react/injected-connector": "../packages/injected-connector",
-    "@web3-react/ledger-connector": "../packages/ledger-connector",
-    "@web3-react/network-connector": "../packages/network-connector",
-    "@web3-react/portis-connector": "../packages/portis-connector",
-    "@web3-react/squarelink-connector": "../packages/squarelink-connector",
-    "@web3-react/torus-connector": "../packages/torus-connector",
-    "@web3-react/trezor-connector": "../packages/trezor-connector",
-    "@web3-react/walletconnect-connector": "../packages/walletconnect-connector",
-    "@web3-react/walletlink-connector": "../packages/walletlink-connector",
-    "react": "../node_modules/react",
-    "react-dom": "../node_modules/react-dom/profiling",
-    "scheduler/tracing": "../node_modules/scheduler/tracing-profiling",
-    "typescript": "../node_modules/typescript"
+    "@ethersproject/providers": "^5.0.0-beta.151",
+    "@ethersproject/units": "^5.0.0-beta.132",
+    "@web3-react/core": "latest",
+    "@web3-react/abstract-connector": "latest",
+    "@web3-react/authereum-connector": "latest",
+    "@web3-react/fortmatic-connector": "latest",
+    "@web3-react/frame-connector": "latest",
+    "@web3-react/injected-connector": "latest",
+    "@web3-react/ledger-connector": "latest",
+    "@web3-react/network-connector": "latest",
+    "@web3-react/portis-connector": "latest",
+    "@web3-react/squarelink-connector": "latest",
+    "@web3-react/torus-connector": "latest",
+    "@web3-react/trezor-connector": "latest",
+    "@web3-react/walletconnect-connector": "latest",
+    "@web3-react/walletlink-connector": "latest",
+    "next": "^9.2.1",
+    "react": "^16.12.0",
+    "react-dom": "^16.12.0"
   },
   "devDependencies": {
-    "parcel": "^1.12.4",
-    "react-app-polyfill": "^1.0.4",
-    "regenerator-runtime": "^0.13.3"
+    "dotenv": "^8.2.0"
   }
 }
