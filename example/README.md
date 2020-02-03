@@ -7,8 +7,5 @@ Before starting, ensure you've completed the instructions in the top-level [READ
 - Install dependencies\
   `yarn`
 
-- Modify environment variables\
-  Make a copy of `.env.example` named `.env` and fill in the appropriate variables
-
 - Serve the example on localhost\
   `yarn dev`

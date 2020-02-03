@@ -1,16 +1,9 @@
-require('dotenv').config()
-const path = require('path')
-
 module.exports = {
   env: {
-    RPC_URL_4: process.env.RPC_URL_4,
-    RPC_URL_1: process.env.RPC_URL_1,
-    FORTMATIC_API_KEY: process.env.FORTMATIC_API_KEY,
-    PORTIS_DAPP_ID: process.env.PORTIS_DAPP_ID,
-    SQUARELINK_CLIENT_ID: process.env.SQUARELINK_CLIENT_ID
-  },
-  webpack(config) {
-    config.resolve.alias['@web3-react'] = path.join(__dirname, '..', 'packages')
-    return config
+    RPC_URL_1: 'https://mainnet.infura.io/v3/60ab76e16df54c808e50a79975b4779f',
+    RPC_URL_4: 'https://rinkeby.infura.io/v3/60ab76e16df54c808e50a79975b4779f',
+    FORTMATIC_API_KEY: 'pk_test_A6260FCBAA2EBDFB',
+    PORTIS_DAPP_ID: 'e9be171c-2b7f-4ff0-8db9-327707511ee2',
+    SQUARELINK_CLIENT_ID: '5f2a2233db82b06b24f9'
   }
 }

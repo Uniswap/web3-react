@@ -8,9 +8,9 @@
   "dependencies": {
     "@ethersproject/providers": "^5.0.0-beta.151",
     "@ethersproject/units": "^5.0.0-beta.132",
-    "@web3-react/core": "latest",
     "@web3-react/abstract-connector": "latest",
     "@web3-react/authereum-connector": "latest",
+    "@web3-react/core": "latest",
     "@web3-react/fortmatic-connector": "latest",
     "@web3-react/frame-connector": "latest",
     "@web3-react/injected-connector": "latest",
@@ -25,8 +25,5 @@
     "next": "^9.2.1",
     "react": "^16.12.0",
     "react-dom": "^16.12.0"
-  },
-  "devDependencies": {
-    "dotenv": "^8.2.0"
   }
 }
