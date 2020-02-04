@@ -3,7 +3,7 @@
   "scripts": {
     "dev": "next",
     "build": "rimraf .next out && next build && next export",
-    "start": "next start"
+    "start": "next build && next start"
   },
   "dependencies": {
     "@ethersproject/providers": "^5.0.0-beta.151",
