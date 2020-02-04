@@ -63,7 +63,6 @@ function getErrorMessage(error: Error) {
 }
 
 function getLibrary(provider: any): Web3Provider {
-  console.log('getting library')
   const library = new Web3Provider(provider)
   library.pollingInterval = 12000
   return library
@@ -99,13 +98,9 @@ function BlockNumber() {
     if (!!library) {
       let stale = false
 
-      // console.log('updating block number')
-      // console.log((window as any).ethereum)
-      // console.log(library)
       library
         .getBlockNumber()
         .then((blockNumber: number) => {
-          // console.log(blockNumber)
           if (!stale) {
             setBlockNumber(blockNumber)
           }
@@ -116,14 +111,14 @@ function BlockNumber() {
           }
         })
 
-      // const updateBlockNumber = (blockNumber: number) => {
-      //   setBlockNumber(blockNumber)
-      // }
-      // library.on('block', updateBlockNumber)
+      const updateBlockNumber = (blockNumber: number) => {
+        setBlockNumber(blockNumber)
+      }
+      library.on('block', updateBlockNumber)
 
       return () => {
         stale = true
-        // library.removeListener('block', updateBlockNumber)
+        library.removeListener('block', updateBlockNumber)
         setBlockNumber(undefined)
       }
     }
