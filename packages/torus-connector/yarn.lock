@@ -75,18 +75,6 @@
     typedarray-to-buffer "^3.1.5"
     yaeti "^0.0.6"
 
-"@web3-react/abstract-connector@^6.0.2":
-  version "6.0.2"
-  resolved "https://registry.yarnpkg.com/@web3-react/abstract-connector/-/abstract-connector-6.0.2.tgz#df4b5af805364283fdfb54e1174ced537783d790"
-  integrity sha512-0Jl+ahg0Iub/Xfnmm9aMiaNY0IO61H+gItAvHMsC76GDxmfns5gq8qSXBJSXbWGpoy/TxufACzETT8fGDtMzDQ==
-  dependencies:
-    "@web3-react/types" "^6.0.2"
-
-"@web3-react/types@^6.0.2":
-  version "6.0.2"
-  resolved "https://registry.yarnpkg.com/@web3-react/types/-/types-6.0.2.tgz#fe451383cc6fd88128c7608e3cdfe3b0c42caff3"
-  integrity sha512-zDPcjWdYONgpL6o3SQPMQE+pIDBcIsWMP/FqFRIFmPjB9h+ONHXNID74pf3h++gZGfIkl9cDtTvF8kQudn5Lew==
-
 acorn@7.1.0:
   version "7.1.0"
   resolved "https://registry.yarnpkg.com/acorn/-/acorn-7.1.0.tgz#949d36f2c292535da602283586c2477c57eb2d6c"
