@@ -2,6 +2,8 @@ import { ConnectorUpdate } from '@web3-react/types'
 import { AbstractConnector } from '@web3-react/abstract-connector'
 
 const chainIdToNetwork: { [network: number]: string } = {
+  1: 'mainnet',
+  4: 'rinkeby',
   42: 'kovan'
 }
 
