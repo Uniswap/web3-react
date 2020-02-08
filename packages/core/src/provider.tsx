@@ -46,12 +46,13 @@ export function createWeb3ReactRoot(key: string): (args: Web3ReactProviderArgume
     } = useWeb3ReactManager()
 
     const active = connector !== undefined && chainId !== undefined && account !== undefined && !!!error
-    const library = useMemo(() => (active && !!connector ? getLibrary(provider, connector) : undefined), [
-      active,
-      getLibrary,
-      provider,
-      connector
-    ])
+    const library = useMemo(
+      () =>
+        active && chainId !== undefined && Number.isInteger(chainId) && !!connector
+          ? getLibrary(provider, connector)
+          : undefined,
+      [active, getLibrary, provider, connector, chainId]
+    )
 
     const web3ReactContext: Web3ReactContextInterface = {
       connector,

@@ -31,7 +31,7 @@
   "scripts": {
     "bootstrap": "lerna bootstrap",
     "publish:lerna": "lerna publish",
-    "clean": "lerna clean --yes && lerna exec -- rm -rf dist/ .rts2_cache_{cjs,esm}/",
+    "clean": "lerna clean --yes && lerna exec -- rimraf dist/ .rts2_cache_{cjs,esm}/",
     "build": "lerna run build",
     "start": "lerna run --parallel --no-bail start -- --noClean",
     "lint": "lerna run lint --parallel",
@@ -44,6 +44,7 @@
     "lerna": "^3.19.0",
     "react": ">=16.8",
     "react-dom": ">=16.8",
+    "rimraf": "^3.0.1",
     "tsdx": "^0.11.0"
   },
   "license": "GPL-3.0-or-later",

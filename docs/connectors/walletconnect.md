@@ -34,7 +34,7 @@ const walletconnect = new WalletConnectConnector({ rpc: { 1: '...' } })
 
 #### Example
 ```javascript
-import { URI_AVAILABLE } from '@web3-react/injected-connector'
+import { URI_AVAILABLE } from '@web3-react/walletconnect-connector'
 
 function Component () {
   useEffect(() => {

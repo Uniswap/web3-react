@@ -1,6 +1,7 @@
 import { ConnectorUpdate } from '@web3-react/types'
 import { AbstractConnector } from '@web3-react/abstract-connector'
 import Web3ProviderEngine from 'web3-provider-engine'
+import CacheSubprovider from 'web3-provider-engine/subproviders/cache.js'
 import { RPCSubprovider } from '@0x/subproviders/lib/src/subproviders/rpc_subprovider' // https://github.com/0xProject/0x-monorepo/issues/1400
 import invariant from 'tiny-invariant'
 
@@ -22,14 +23,15 @@ export class NetworkConnector extends AbstractConnector {
     invariant(defaultChainId || Object.keys(urls).length === 1, 'defaultChainId is a required argument with >1 url')
     super({ supportedChainIds: Object.keys(urls).map((k): number => Number(k)) })
 
-    this.providers = Object.keys(urls).reduce((accumulator, chainId) => {
-      const engine = new Web3ProviderEngine({ pollingInterval: this.pollingInterval })
-      engine.addProvider(new RPCSubprovider(urls[Number(chainId)], this.requestTimeoutMs))
-      return Object.assign(accumulator, { [Number(chainId)]: engine })
-    }, {})
     this.currentChainId = defaultChainId || Number(Object.keys(urls)[0])
     this.pollingInterval = pollingInterval
     this.requestTimeoutMs = requestTimeoutMs
+    this.providers = Object.keys(urls).reduce((accumulator, chainId) => {
+      const engine = new Web3ProviderEngine({ pollingInterval: this.pollingInterval })
+      engine.addProvider(new CacheSubprovider())
+      engine.addProvider(new RPCSubprovider(urls[Number(chainId)], this.requestTimeoutMs))
+      return Object.assign(accumulator, { [Number(chainId)]: engine })
+    }, {})
     this.active = false
   }
 
