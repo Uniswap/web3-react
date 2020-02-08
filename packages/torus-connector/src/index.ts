@@ -4,7 +4,7 @@ import { AbstractConnector } from '@web3-react/abstract-connector'
 interface TorusConnectorArguments {
   chainId: number
   initOptions?: any
-  constructorOptions?: any,
+  constructorOptions?: any
   loginOptions?: any
 }
 
