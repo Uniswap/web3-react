@@ -4,22 +4,25 @@ import { AbstractConnector } from '@web3-react/abstract-connector'
 interface TorusConnectorArguments {
   chainId: number
   initOptions?: any
-  constructorOptions?: any
+  constructorOptions?: any,
+  loginOptions?: any
 }
 
 export class TorusConnector extends AbstractConnector {
   private readonly chainId: number
   private readonly initOptions: any
   private readonly constructorOptions: any
+  private readonly loginOptions: any
 
   public torus: any
 
-  constructor({ chainId, initOptions = {}, constructorOptions = {} }: TorusConnectorArguments) {
+  constructor({ chainId, initOptions = {}, constructorOptions = {}, loginOptions = {} }: TorusConnectorArguments) {
     super({ supportedChainIds: [chainId] })
 
     this.chainId = chainId
     this.initOptions = initOptions
     this.constructorOptions = constructorOptions
+    this.loginOptions = loginOptions
   }
 
   public async activate(): Promise<ConnectorUpdate> {
@@ -29,7 +32,7 @@ export class TorusConnector extends AbstractConnector {
       await this.torus.init(this.initOptions)
     }
 
-    const account = await this.torus.ethereum.enable().then((accounts: string[]): string => accounts[0])
+    const account = await this.torus.login(this.loginOptions).then((accounts: string[]): string => accounts[0])
 
     return { provider: this.torus.provider, account }
   }
