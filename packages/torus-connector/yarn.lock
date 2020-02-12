@@ -2,7 +2,12 @@
 # yarn lockfile v1
 
 
-"@toruslabs/fetch-node-details@^2.0.0":
+"@chaitanyapotti/random-id@^1.0.3":
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/@chaitanyapotti/random-id/-/random-id-1.0.3.tgz#f52f647cfe9f79fc7723ea2b01b0ad3889204002"
+  integrity sha512-xiVWA2vTL3jQeuZ+yebXAtwIeEbh/13RAFxvRq0YxeUc02RBOGyC9eyDKXjwlN0uxPtnEwWxsELkSwnaH5kxjg==
+
+"@toruslabs/fetch-node-details@^2.0.1":
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/@toruslabs/fetch-node-details/-/fetch-node-details-2.0.1.tgz#7caa15c54a2ace9f41fe0bb36babeb092be19d70"
   integrity sha512-1rm0tO9bMms7qtvwtY8Znz6lOhqtaXe0TEgFvcceYJjkgU8HAMcYZDriooanDiHrdZ0DDvY4GypKVDidmZSBTw==
@@ -10,13 +15,16 @@
     web3-eth-contract "^1.2.5"
     web3-utils "^1.2.5"
 
-"@toruslabs/torus-embed@^0.2.12":
-  version "0.2.12"
-  resolved "https://registry.yarnpkg.com/@toruslabs/torus-embed/-/torus-embed-0.2.12.tgz#d0a51669db7ef32051db232ba7b0cbe4ff47bbfa"
-  integrity sha512-kA1J9BLCKT+y3pCgY8u7tI7Y6yGGs1GcjGeIqQKgFkIXn86ApW0fkORe5mXYFwjQAnOst96G5bjg8mackdvoYA==
+"@toruslabs/torus-embed@^0.2.14":
+  version "0.2.14"
+  resolved "https://registry.yarnpkg.com/@toruslabs/torus-embed/-/torus-embed-0.2.14.tgz#cf2a01f5553c8e86b28f3b487da39d094f8d7266"
+  integrity sha512-c/AVy2FzvukVceNzAUcO8f500fl6wR+nfavUfD+BMq8qhka5uMKwdyxda21wVudgwdgfcIu+SDga8iDlY+W1bQ==
   dependencies:
-    "@toruslabs/fetch-node-details" "^2.0.0"
-    "@toruslabs/torus.js" "^1.0.5"
+    "@chaitanyapotti/random-id" "^1.0.3"
+    "@toruslabs/fetch-node-details" "^2.0.1"
+    "@toruslabs/torus.js" "^1.0.6"
+    eth-json-rpc-errors "^2.0.1"
+    fast-deep-equal "^3.1.1"
     json-rpc-engine "^5.1.6"
     json-rpc-middleware-stream "^2.1.1"
     loglevel "^1.6.6"
@@ -24,13 +32,13 @@
     obs-store "^4.0.3"
     post-message-stream "^3.0.0"
     pump "^3.0.0"
-    random-id "^1.0.3"
-    readable-stream "^3.4.0"
+    readable-stream "^3.5.0"
+    safe-event-emitter "^1.0.1"
     sri-toolbox "^0.2.0"
     through2 "^3.0.1"
-    web3 "0.20.7"
+    web3 "^0.20.7"
 
-"@toruslabs/torus.js@^1.0.5":
+"@toruslabs/torus.js@^1.0.6":
   version "1.0.6"
   resolved "https://registry.yarnpkg.com/@toruslabs/torus.js/-/torus.js-1.0.6.tgz#b8ad8b47c49946072695db537234811b82c70bf0"
   integrity sha512-5vC3e5Q4J1I7NvGaTpnb3i77/88i/x5dS5b1I0HYZaBYhHbixWOCHisCWie7PuHh3/oSG66qiJiiCw0Y4xyp5g==
@@ -74,6 +82,18 @@
     nan "^2.14.0"
     typedarray-to-buffer "^3.1.5"
     yaeti "^0.0.6"
+
+"@web3-react/abstract-connector@^6.0.7":
+  version "6.0.7"
+  resolved "https://registry.yarnpkg.com/@web3-react/abstract-connector/-/abstract-connector-6.0.7.tgz#401b3c045f1e0fab04256311be49d5144e9badc6"
+  integrity sha512-RhQasA4Ox8CxUC0OENc1AJJm8UTybu/oOCM61Zjg6y0iF7Z0sqv1Ai1VdhC33hrQpA8qSBgoXN9PaP8jKmtdqg==
+  dependencies:
+    "@web3-react/types" "^6.0.7"
+
+"@web3-react/types@^6.0.7":
+  version "6.0.7"
+  resolved "https://registry.yarnpkg.com/@web3-react/types/-/types-6.0.7.tgz#34a6204224467eedc6123abaf55fbb6baeb2809f"
+  integrity sha512-ofGmfDhxmNT1/P/MgVa8IKSkCStFiyvXe+U5tyZurKdrtTDFU+wJ/LxClPDtFerWpczNFPUSrKcuhfPX1sI6+A==
 
 acorn@7.1.0:
   version "7.1.0"
@@ -337,6 +357,13 @@ eth-json-rpc-errors@^2.0.0:
   dependencies:
     fast-safe-stringify "^2.0.6"
 
+eth-json-rpc-errors@^2.0.1:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/eth-json-rpc-errors/-/eth-json-rpc-errors-2.0.1.tgz#e7a4c4e3c76913dff26dbc021966c72b2822e0f2"
+  integrity sha512-ldF9fdzkdHAgTWmqh/bgHi7uH+8icAyjcEdFOBGD32zTWd7J66VDo0rBaiaQPowXitiyAcs1R23Mje1gkdIofA==
+  dependencies:
+    fast-safe-stringify "^2.0.6"
+
 eth-lib@0.2.7:
   version "0.2.7"
   resolved "https://registry.yarnpkg.com/eth-lib/-/eth-lib-0.2.7.tgz#2f93f17b1e23aec3759cd4a3fe20c1286a3fc1ca"
@@ -401,6 +428,11 @@ ext@^1.1.2:
   integrity sha512-Key5NIsUxdqKg3vIsdw9dSuXpPCQ297y6wBjL30edxwPgt2E44WcWBZey/ZvUc6sERLTxKdyCu4gZFmUbk1Q7A==
   dependencies:
     type "^2.0.0"
+
+fast-deep-equal@^3.1.1:
+  version "3.1.1"
+  resolved "https://registry.yarnpkg.com/fast-deep-equal/-/fast-deep-equal-3.1.1.tgz#545145077c501491e33b15ec408c294376e94ae4"
+  integrity sha512-8UEa58QDLauDNfpbrX55Q9jrGHThw2ZMdOky5Gl1CDtVeJDPVrG4Jxx1N8jw2gkWaff5UUuX1KJd+9zGe2B+ZA==
 
 fast-safe-stringify@^2.0.6:
   version "2.0.7"
@@ -677,11 +709,6 @@ query-string@^5.0.1:
     object-assign "^4.1.0"
     strict-uri-encode "^1.0.0"
 
-random-id@^1.0.3:
-  version "1.0.3"
-  resolved "https://registry.yarnpkg.com/random-id/-/random-id-1.0.3.tgz#e9d7183caa1759a68582f3da4230454aded0eea3"
-  integrity sha512-PbWMyIFUTeGWkqHTovth3Ww2i1zg54BubSwSTw4VVptfC2TlhMKo1CzfRUosz7ltJmfgJ/wrLEt/nyDf5Glx/Q==
-
 randombytes@^2.1.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/randombytes/-/randombytes-2.1.0.tgz#df6f84372f0270dc65cdf6291349ab7a473d4f2a"
@@ -689,7 +716,7 @@ randombytes@^2.1.0:
   dependencies:
     safe-buffer "^5.1.0"
 
-"readable-stream@2 || 3", readable-stream@^3.4.0:
+"readable-stream@2 || 3":
   version "3.4.0"
   resolved "https://registry.yarnpkg.com/readable-stream/-/readable-stream-3.4.0.tgz#a51c26754658e0a3c21dbf59163bd45ba6f447fc"
   integrity sha512-jItXPLmrSR8jmTRmRWJXCnGJsfy85mB3Wd/uINMXA65yrnFo0cPClFIUWzo2najVNSl+mx7/4W8ttlLWJe99pQ==
@@ -710,6 +737,15 @@ readable-stream@^2.1.4, readable-stream@^2.2.2, readable-stream@^2.3.3, readable
     safe-buffer "~5.1.1"
     string_decoder "~1.1.1"
     util-deprecate "~1.0.1"
+
+readable-stream@^3.5.0:
+  version "3.5.0"
+  resolved "https://registry.yarnpkg.com/readable-stream/-/readable-stream-3.5.0.tgz#465d70e6d1087f6162d079cd0b5db7fbebfd1606"
+  integrity sha512-gSz026xs2LfxBPudDuI41V1lka8cxg64E66SGe78zJlsUofOg/yqwezdIcdfwik6B4h8LFmWPA9ef9X3FiNFLA==
+  dependencies:
+    inherits "^2.0.3"
+    string_decoder "^1.1.1"
+    util-deprecate "^1.0.1"
 
 ripemd160@^2.0.0, ripemd160@^2.0.1:
   version "2.0.2"
@@ -1017,7 +1053,7 @@ web3-utils@1.2.6, web3-utils@^1.2.5:
     underscore "1.9.1"
     utf8 "3.0.0"
 
-web3@0.20.7:
+web3@^0.20.7:
   version "0.20.7"
   resolved "https://registry.yarnpkg.com/web3/-/web3-0.20.7.tgz#1605e6d81399ed6f85a471a4f3da0c8be57df2f7"
   integrity sha512-VU6/DSUX93d1fCzBz7WP/SGCQizO1rKZi4Px9j/3yRyfssHyFcZamMw2/sj4E8TlfMXONvZLoforR8B4bRoyTQ==
