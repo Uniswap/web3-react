@@ -3,7 +3,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "version": "6.0.7",
+  "version": "6.0.8",
   "description": "A simple, maximally extensible, dependency minimized framework for building modern Ethereum dApps",
   "keywords": [
     "react",
