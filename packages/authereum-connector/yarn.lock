@@ -147,10 +147,10 @@ asynckit@^0.4.0:
   resolved "https://registry.yarnpkg.com/asynckit/-/asynckit-0.4.0.tgz#c79ed97f7f34cb8f2ba1bc9790bcc366474b4b79"
   integrity sha1-x57Zf380y48robyXkLzDZkdLS3k=
 
-authereum@^0.0.4-beta.83:
-  version "0.0.4-beta.83"
-  resolved "https://registry.yarnpkg.com/authereum/-/authereum-0.0.4-beta.83.tgz#25de4efec029c6e417687c37caa93d1201ab1962"
-  integrity sha512-qhQczUY8M0h4KUnBv+pn5M1/d3nwH486sjrFsDIcc1fl9npGLFQjFSI2yeNicf3xuR3q+5THraPihouH66IUsA==
+authereum@^0.0.4-beta.93:
+  version "0.0.4-beta.96"
+  resolved "https://registry.yarnpkg.com/authereum/-/authereum-0.0.4-beta.96.tgz#4ec54a136152e41b6dba4353bd78bded638c04c8"
+  integrity sha512-Tv8UGhwuWVCLBW5Jh2uHpQJ9+MbesgYZMRKF2OK+9V8gfkyPRrnPa8/vUo9wgQByQytSS3Y/ivhWZp2F1FpsWA==
   dependencies:
     async "^3.1.0"
     bnc-notify "^0.2.1"
