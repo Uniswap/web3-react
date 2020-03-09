@@ -53,7 +53,7 @@ _Open a PR to add your project to the list!_
 
 ## Related Efforts
 
-- [Web3Connect](https://github.com/web3connect/web3connect)
+- [Web3Modal](https://github.com/web3modal/web3modal)
 
 ## Local Development
 
