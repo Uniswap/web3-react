@@ -7,22 +7,22 @@
   resolved "https://registry.yarnpkg.com/@chaitanyapotti/random-id/-/random-id-1.0.3.tgz#f52f647cfe9f79fc7723ea2b01b0ad3889204002"
   integrity sha512-xiVWA2vTL3jQeuZ+yebXAtwIeEbh/13RAFxvRq0YxeUc02RBOGyC9eyDKXjwlN0uxPtnEwWxsELkSwnaH5kxjg==
 
-"@toruslabs/fetch-node-details@^2.0.2":
-  version "2.0.2"
-  resolved "https://registry.yarnpkg.com/@toruslabs/fetch-node-details/-/fetch-node-details-2.0.2.tgz#e2f1c2eb3d3e4e1ca1a5bb5baa10ddc286341373"
-  integrity sha512-kn4VZMIjZ19dJiaKPcTcd19LV4V45lDvfYl14CWwdHpxtBX1Mxkog85jU6l1mUh6cPgRfR0lcksn9rEr7kBLGQ==
+"@toruslabs/fetch-node-details@^2.0.4":
+  version "2.0.4"
+  resolved "https://registry.yarnpkg.com/@toruslabs/fetch-node-details/-/fetch-node-details-2.0.4.tgz#42ba98f00f96f7514fc1cd7ff42a451af6533309"
+  integrity sha512-s0poG7sd5EMyzHJ6Dbi0nB1GFGFnEYTgUT/sjGrPj1KleoQj9Ircfcxas/40OCMfKGUYBhHe7D20Caxbk+dENg==
   dependencies:
     web3-eth-contract "^1.2.6"
     web3-utils "^1.2.6"
 
-"@toruslabs/torus-embed@^1.1.1":
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/@toruslabs/torus-embed/-/torus-embed-1.1.1.tgz#a6c17742310c342677ed94fc3c26f4a8944e18d8"
-  integrity sha512-tYiU854xuWkGaLhT366jDs9IHze/b/LWjjRXi43EyQpuyD556sA+cFJGkadBsdQtx8bhtTwO8NEYTGStt7RcHA==
+"@toruslabs/torus-embed@^1.2.4":
+  version "1.2.4"
+  resolved "https://registry.yarnpkg.com/@toruslabs/torus-embed/-/torus-embed-1.2.4.tgz#1c35ad5c2b2c2e55e1556ee0688f84bc0c57691a"
+  integrity sha512-8Flyb9JTICgLSmOPMUpZBcF87K7xeVyOc29ZD/v99U0DuTjfq7cYAJGFPeKnHMOZD+2EPWY2NikqrpkC+xzkog==
   dependencies:
     "@chaitanyapotti/random-id" "^1.0.3"
-    "@toruslabs/fetch-node-details" "^2.0.2"
-    "@toruslabs/torus.js" "^1.0.7"
+    "@toruslabs/fetch-node-details" "^2.0.4"
+    "@toruslabs/torus.js" "^1.0.10"
     eth-json-rpc-errors "^2.0.2"
     fast-deep-equal "^3.1.1"
     json-rpc-engine "^5.1.8"
@@ -38,10 +38,10 @@
     through2 "^3.0.1"
     web3 "^0.20.7"
 
-"@toruslabs/torus.js@^1.0.7":
-  version "1.0.7"
-  resolved "https://registry.yarnpkg.com/@toruslabs/torus.js/-/torus.js-1.0.7.tgz#3940cabfff0b5306568d97a3556b66b030a17ce3"
-  integrity sha512-JB2xSOgRRWTX57DRDUbGWjEJdAeNZjWUPfucg0M8RmqH3eETjwuBpA0ECi7e7gZKuZ0D34pBTn+a1TPBYLfTLA==
+"@toruslabs/torus.js@^1.0.10":
+  version "1.0.10"
+  resolved "https://registry.yarnpkg.com/@toruslabs/torus.js/-/torus.js-1.0.10.tgz#cdc5657f6206006cc7910dd1d714ec1e105cbf19"
+  integrity sha512-a3r4rkqHdawvfQaJNCDfPZFrtHDplRsrjR/7VXXlH2Z0HkqaM5SNjKFTN2Ul0KM4S4MWz3mAl1r6bo3nKEJoYA==
   dependencies:
     bn.js "^5.1.1"
     eccrypto "^1.1.3"
