@@ -50,6 +50,7 @@ _Open a PR to add your project to the list!_
 - [Everest](https://github.com/metacartel/everest-web-app)
 - [NFT Scribe](https://github.com/conlan/nft-scribe)
 - [Compound Liquidator](https://github.com/conlan/compound-liquidator)
+- [HEXCAL](https://github.com/coinyon/hexcal/)
 
 ## Related Efforts
 
