@@ -26,15 +26,6 @@ export class WalletLinkConnector extends AbstractConnector {
     this.appName = appName
     this.appLogoUrl = appLogoUrl
     this.darkMode = darkMode || false
-
-    this.handleAccountsChanged = this.handleAccountsChanged.bind(this)
-  }
-
-  private handleAccountsChanged(accounts: string[]): void {
-    if (__DEV__) {
-      console.log("Handling 'accountsChanged' event with payload", accounts)
-    }
-    this.emitUpdate({ account: accounts[0] })
   }
 
   public async activate(): Promise<ConnectorUpdate> {
@@ -48,10 +39,7 @@ export class WalletLinkConnector extends AbstractConnector {
       this.provider = this.walletLink.makeWeb3Provider(this.url, CHAIN_ID)
     }
 
-    const account = await this.provider.send('eth_requestAccounts').then((accounts: string[]): string => {
-      this.handleAccountsChanged(accounts)
-      return accounts[0]
-    })
+    const account = await this.provider.send('eth_requestAccounts').then((accounts: string[]): string => accounts[0])
 
     return { provider: this.provider, chainId: CHAIN_ID, account: account }
   }
@@ -72,5 +60,6 @@ export class WalletLinkConnector extends AbstractConnector {
 
   public async close() {
     this.provider.close()
+    this.emitDeactivate()
   }
 }
