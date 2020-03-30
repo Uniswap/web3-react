@@ -7,22 +7,25 @@ interface WalletLinkConnectorArguments {
   url: string
   appName: string
   appLogoUrl?: string
+  darkMode?: boolean
 }
 
 export class WalletLinkConnector extends AbstractConnector {
   private readonly url: string
   private readonly appName: string
   private readonly appLogoUrl?: string
+  private readonly darkMode: boolean
 
   public walletLink: any
   private provider: any
 
-  constructor({ url, appName, appLogoUrl }: WalletLinkConnectorArguments) {
+  constructor({ url, appName, appLogoUrl, darkMode }: WalletLinkConnectorArguments) {
     super({ supportedChainIds: [CHAIN_ID] })
 
     this.url = url
     this.appName = appName
     this.appLogoUrl = appLogoUrl
+    this.darkMode = darkMode || false
 
     this.handleAccountsChanged = this.handleAccountsChanged.bind(this)
   }
@@ -39,14 +42,16 @@ export class WalletLinkConnector extends AbstractConnector {
       const { default: WalletLink } = await import('walletlink')
       this.walletLink = new WalletLink({
         appName: this.appName,
+        darkMode: this.darkMode,
         ...(this.appLogoUrl ? { appLogoUrl: this.appLogoUrl } : {})
       })
       this.provider = this.walletLink.makeWeb3Provider(this.url, CHAIN_ID)
     }
 
-    this.provider.on('accountsChanged', this.handleAccountsChanged)
-
-    const account = await this.provider.send('eth_requestAccounts').then((accounts: string[]): string => accounts[0])
+    const account = await this.provider.send('eth_requestAccounts').then((accounts: string[]): string => {
+      this.handleAccountsChanged(accounts)
+      return accounts[0]
+    })
 
     return { provider: this.provider, chainId: CHAIN_ID, account: account }
   }
@@ -63,7 +68,9 @@ export class WalletLinkConnector extends AbstractConnector {
     return this.provider.send('eth_accounts').then((accounts: string[]): string => accounts[0])
   }
 
-  public deactivate() {
-    this.provider.removeListener('accountsChanged', this.handleAccountsChanged)
+  public deactivate() {}
+
+  public async close() {
+    this.provider.close()
   }
 }
