@@ -68,9 +68,3 @@ _Open a PR to add your project to the list!_
 
 - Build and watch for changes\
   `yarn start`
-
-## Acknowledgements
-
-Thanks to [Aragon One](https://aragon.one/) for their generous financial support of the ongoing development of `web3-react`.
-
-<img loading="lazy" src="https://miro.medium.com/max/4000/1*PPdfJNy3uNaegc7QYqTk2w.png" alt="Aragon One" width="350"/>
