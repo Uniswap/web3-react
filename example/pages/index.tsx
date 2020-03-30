@@ -93,7 +93,7 @@ function ChainId() {
 function BlockNumber() {
   const { chainId, library } = useWeb3React()
 
-  const [blockNumber, setBlockNumber] = React.useState()
+  const [blockNumber, setBlockNumber] = React.useState<number>()
   React.useEffect((): any => {
     if (!!library) {
       let stale = false
@@ -242,7 +242,7 @@ function App() {
   const { connector, library, chainId, account, activate, deactivate, active, error } = context
 
   // handle logic to recognize the connector currently being activated
-  const [activatingConnector, setActivatingConnector] = React.useState()
+  const [activatingConnector, setActivatingConnector] = React.useState<AbstractConnector>()
   React.useEffect(() => {
     if (activatingConnector && activatingConnector === connector) {
       setActivatingConnector(undefined)
@@ -394,6 +394,20 @@ function App() {
             }}
           >
             Kill WalletConnect Session
+          </button>
+        )}
+        {connector === walletlink && (
+          <button
+            style={{
+              height: '3rem',
+              borderRadius: '1rem',
+              cursor: 'pointer'
+            }}
+            onClick={() => {
+              ;(connector as any).close()
+            }}
+          >
+            Kill WalletLink Session
           </button>
         )}
         {connector === fortmatic && (
