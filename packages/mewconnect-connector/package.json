@@ -1,0 +1,43 @@
+{
+  "name": "@web3-react/mewconnect-connector",
+  "publishConfig": {
+    "access": "public"
+  },
+  "version": "6.0.9",
+  "description": "A simple, maximally extensible, dependency minimized framework for building modern Ethereum dApps",
+  "keywords": [
+    "react",
+    "react-hooks",
+    "hooks",
+    "ethereum",
+    "javascript",
+    "typescript",
+    "web3",
+    "context",
+    "frontend",
+    "dapp",
+    "walletlink"
+  ],
+  "author": "Noah Zinsmeister <noahwz@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/NoahZinsmeister/web3-react.git"
+  },
+  "main": "dist/index.js",
+  "module": "dist/mewconnect-connector.esm.js",
+  "typings": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "start": "npx tsdx watch",
+    "build": "npx tsdx build",
+    "lint": "npx tsdx lint src"
+  },
+  "dependencies": {
+    "@web3-react/abstract-connector": "^6.0.7",
+    "@web3-react/types": "^6.0.7",
+    "@myetherwallet/mewconnect-web-client": "2.1.0-RC.3"
+  },
+  "license": "GPL-3.0-or-later"
+}

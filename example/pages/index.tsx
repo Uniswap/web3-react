@@ -26,7 +26,8 @@ import {
   fortmatic,
   portis,
   squarelink,
-  torus
+  torus,
+  mewconnect
 } from '../connectors'
 import { Spinner } from '../components/Spinner'
 
@@ -42,7 +43,8 @@ const connectorsByName: { [name: string]: AbstractConnector } = {
   Fortmatic: fortmatic,
   Portis: portis,
   Squarelink: squarelink,
-  Torus: torus
+  Torus: torus,
+  MewConnect: mewconnect
 }
 
 function getErrorMessage(error: Error) {
@@ -396,6 +398,20 @@ function App() {
             Kill WalletConnect Session
           </button>
         )}
+          {connector === mewconnect && (
+              <button
+                  style={{
+                      height: '3rem',
+                      borderRadius: '1rem',
+                      cursor: 'pointer'
+                  }}
+                  onClick={() => {
+                      ;(connector as any).close()
+                  }}
+              >
+                  Kill MewConnect Session
+              </button>
+          )}
         {connector === walletlink && (
           <button
             style={{
