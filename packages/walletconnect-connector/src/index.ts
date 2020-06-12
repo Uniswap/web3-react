@@ -20,7 +20,7 @@ interface WalletConnectConnectorArguments {
 }
 
 export class WalletConnectConnector extends AbstractConnector {
-  private readonly rpc: { [chainId: number]: string | undefined }
+  private readonly rpc: { [chainId: number]: string }
   private readonly bridge?: string
   private readonly qrcode?: boolean
   private readonly pollingInterval?: number
