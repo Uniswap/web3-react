@@ -9,11 +9,17 @@ interface NetworkConnectorArguments {
 
 // taken from ethers.js, compatible interface with web3 provider
 type AsyncSendable = {
-  isMetaMask?: boolean;
-  host?: string;
-  path?: string;
-  sendAsync?: (request: any, callback: (error: any, response: any) => void) => void;
-  send?: (request: any, callback: (error: any, response: any) => void) => void;
+  isMetaMask?: boolean
+  host?: string
+  path?: string
+  sendAsync?: (request: any, callback: (error: any, response: any) => void) => void
+  send?: (request: any, callback: (error: any, response: any) => void) => void
+}
+
+class RequestError extends Error {
+  constructor(message: string, public code: number, public data?: unknown) {
+    super(message)
+  }
 }
 
 class MiniRpcProvider implements AsyncSendable {
@@ -31,41 +37,40 @@ class MiniRpcProvider implements AsyncSendable {
     this.path = parsed.pathname
   }
 
-  sendAsync(request: any, callback: (error: any, response: any) => void): void {
-    fetch(this.url, {
+  public readonly sendAsync = (
+    request: { jsonrpc: '2.0'; id: number | string | null; method: string; params?: unknown[] | object },
+    callback: (error: any, response: any) => void
+  ): void => {
+    this.request(request.method, request.params)
+      .then(result => callback(null, { jsonrpc: '2.0', id: request.id, result }))
+      .catch(error => callback(error, null))
+  }
+
+  public readonly request = async (method: string, params?: unknown[] | object): Promise<unknown> => {
+    const response = await fetch(this.url, {
       method: 'POST',
-      body: JSON.stringify(request)
+      body: JSON.stringify({
+        jsonrpc: '2.0',
+        id: 1,
+        method,
+        params
+      })
     })
-      .then(
-        result => {
-          return result.json()
-            .then(
-              json => {
-                if (!result.ok) {
-                  throw new Error(`${json.code}: ${json.message}`)
-                }
-                return json
-              }
-            )
-        }
-      )
-      .then(
-        json => {
-          callback(undefined, json)
-        }
-      )
-      .catch(
-        error => {
-          callback(error, undefined)
-        }
-      )
+    if (!response.ok) throw new RequestError(`${response.status}: ${response.statusText}`, -32000)
+    const body = await response.json()
+    if ('error' in body) {
+      throw new RequestError(body?.error?.message, body?.error?.code, body?.error?.data)
+    } else if ('result' in body) {
+      return body.result
+    } else {
+      throw new RequestError(`Received unexpected JSON-RPC response to ${method} request.`, -32000, body)
+    }
   }
 }
 
 export class NetworkConnector extends AbstractConnector {
   private readonly providers: { [chainId: number]: MiniRpcProvider }
   private currentChainId: number
-  private active: boolean
 
   constructor({ urls, defaultChainId }: NetworkConnectorArguments) {
     invariant(defaultChainId || Object.keys(urls).length === 1, 'defaultChainId is a required argument with >1 url')
@@ -76,11 +81,9 @@ export class NetworkConnector extends AbstractConnector {
       accumulator[Number(chainId)] = new MiniRpcProvider(Number(chainId), urls[Number(chainId)])
       return accumulator
     }, {})
-    this.active = false
   }
 
   public async activate(): Promise<ConnectorUpdate> {
-    this.active = true
     return { provider: this.providers[this.currentChainId], chainId: this.currentChainId, account: null }
   }
 
@@ -97,16 +100,6 @@ export class NetworkConnector extends AbstractConnector {
   }
 
   public deactivate() {
-    this.active = false
-  }
-
-  public changeChainId(chainId: number) {
-    invariant(Object.keys(this.providers).includes(chainId.toString()), `No url found for chainId ${chainId}`)
-    if (this.active) {
-      this.currentChainId = chainId
-      this.emitUpdate({ provider: this.providers[this.currentChainId], chainId })
-    } else {
-      this.currentChainId = chainId
-    }
+    return
   }
 }
