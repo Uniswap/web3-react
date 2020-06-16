@@ -20,7 +20,7 @@ interface WalletConnectConnectorArguments {
 }
 
 export class WalletConnectConnector extends AbstractConnector {
-  private readonly rpc: { [chainId: number]: string | undefined }
+  private readonly rpc: { [chainId: number]: string }
   private readonly bridge?: string
   private readonly qrcode?: boolean
   private readonly pollingInterval?: number
@@ -97,7 +97,7 @@ export class WalletConnectConnector extends AbstractConnector {
       .enable()
       .catch((error: Error): void => {
         // TODO ideally this would be a better check
-        if (error.message === 'User closed WalletConnect modal') {
+        if (error.message === 'User closed modal') {
           throw new UserRejectedRequestError()
         }
 

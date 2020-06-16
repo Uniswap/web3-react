@@ -6,8 +6,8 @@
     "start": "next build && next start"
   },
   "dependencies": {
-    "@ethersproject/providers": "^5.0.0-beta.151",
-    "@ethersproject/units": "^5.0.0-beta.132",
+    "@ethersproject/providers": "^5.0.2",
+    "@ethersproject/units": "^5.0.1",
     "@web3-react/abstract-connector": "latest",
     "@web3-react/authereum-connector": "latest",
     "@web3-react/core": "latest",
