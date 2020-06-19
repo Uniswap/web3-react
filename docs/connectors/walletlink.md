@@ -16,7 +16,7 @@ appLogoUrl?: string
 
 ## Example
 ```javascript
-import { WalletConnectConnector } from '@web3-react/walletconnect-connector'
+import { WalletLinkConnector } from '@web3-react/walletlink-connector'
 
 const walletlink = new WalletLinkConnector({ url: '...', appName: '...' })
 ```
