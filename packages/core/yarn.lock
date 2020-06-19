@@ -3,24 +3,24 @@
 
 
 "@ethersproject/bytes@>=5.0.0-beta.129":
-  version "5.0.0-beta.132"
-  resolved "https://registry.yarnpkg.com/@ethersproject/bytes/-/bytes-5.0.0-beta.132.tgz#6664b468eb78b24f965014118e949cd85c0c3801"
-  integrity sha512-w8lf+xVdN3W48xg+JystkelbMWI7r8bRMpFKYIkNkKUc9JmxVI9voTV1AM/ELVCLpELYluZNZIpWJ/fSfQYs/A==
+  version "5.0.0-beta.137"
+  resolved "https://registry.yarnpkg.com/@ethersproject/bytes/-/bytes-5.0.0-beta.137.tgz#a9a35e2b358886289225d28212f4071ae391c161"
+  integrity sha512-uBwchZzGP912Wcani6vM7RLtsnN69Uc9WTLvewsniKrpHpSx0/k33WUcQVosmkwPgUtqflKyGjcIqaea1Z9WHw==
   dependencies:
     "@ethersproject/logger" ">=5.0.0-beta.129"
 
 "@ethersproject/keccak256@^5.0.0-beta.130":
-  version "5.0.0-beta.130"
-  resolved "https://registry.yarnpkg.com/@ethersproject/keccak256/-/keccak256-5.0.0-beta.130.tgz#fd9c2adefeb31f0abb137af35a9eda2216a58584"
-  integrity sha512-wE2kkSqhXUYbr3VB7YSaQ16lVoyCiIUlSJ6UBckY55gPYIgpAaHb2TCY4rtxeKGpHkv/j+1DyKGB/UYSb+KCew==
+  version "5.0.0-beta.131"
+  resolved "https://registry.yarnpkg.com/@ethersproject/keccak256/-/keccak256-5.0.0-beta.131.tgz#b5778723ee75208065b9b9ad30c71d480f41bb31"
+  integrity sha512-KQnqMwGV0IMOjAr/UTFO8DuLrmN1uaMvcV3zh9hiXhh3rCuY+WXdeUh49w1VQ94kBKmaP0qfGb7z4SdhUWUHjw==
   dependencies:
     "@ethersproject/bytes" ">=5.0.0-beta.129"
     js-sha3 "0.5.7"
 
 "@ethersproject/logger@>=5.0.0-beta.129":
-  version "5.0.0-beta.131"
-  resolved "https://registry.yarnpkg.com/@ethersproject/logger/-/logger-5.0.0-beta.131.tgz#d52ab173fd0b459117ce47e43f38d1e3b1a5add4"
-  integrity sha512-5WKvSvijhhQ5+7vCIJSU/fmxuGY2ENd+axeN/Gjk+0l1hZmYPSMvO4jJ1YSnu38BhhvI8aiVM3PDlmzAWwwv4g==
+  version "5.0.0-beta.136"
+  resolved "https://registry.yarnpkg.com/@ethersproject/logger/-/logger-5.0.0-beta.136.tgz#a140cea77e1d820a97384fb02bfad63c130f31c1"
+  integrity sha512-baWK/4ccsVcyUU20nhp7k+hoRYsiaOfURYlyvQCoUUFKD3mpSRQCH42wxCosZZSCWz4rTHgASLQDdKkBtNVz1w==
 
 js-sha3@0.5.7:
   version "0.5.7"
@@ -28,9 +28,9 @@ js-sha3@0.5.7:
   integrity sha1-DU/9gALVMzqrr0oj7tL2N0yfKOc=
 
 tiny-invariant@^1.0.6:
-  version "1.0.6"
-  resolved "https://registry.yarnpkg.com/tiny-invariant/-/tiny-invariant-1.0.6.tgz#b3f9b38835e36a41c843a3b0907a5a7b3755de73"
-  integrity sha512-FOyLWWVjG+aC0UqG76V53yAWdXfH8bO6FNmyZOuUrzDzK8DI3/JRY25UD7+g49JWM1LXwymsKERB+DzI0dTEQA==
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/tiny-invariant/-/tiny-invariant-1.1.0.tgz#634c5f8efdc27714b7f386c35e6760991d230875"
+  integrity sha512-ytxQvrb1cPc9WBEI/HSeYYoGD0kWnGEOR8RY6KomWLBVhqz0RgTwVO9dLrGz7dC+nN9llyI7OKAgRq8Vq4ZBSw==
 
 tiny-warning@^1.0.3:
   version "1.0.3"

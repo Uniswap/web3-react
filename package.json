@@ -31,7 +31,7 @@
   "scripts": {
     "bootstrap": "lerna bootstrap",
     "publish:lerna": "lerna publish",
-    "clean": "lerna clean --yes && lerna exec -- rimraf dist/ .rts2_cache_{cjs,esm}/",
+    "clean": "lerna clean --yes && lerna exec -- rimraf yarn.lock dist/ .rts2_cache_{cjs,esm}/",
     "build": "lerna run build",
     "start": "lerna run --parallel --no-bail start -- --noClean",
     "lint": "lerna run lint --parallel",

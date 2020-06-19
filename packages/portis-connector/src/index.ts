@@ -8,7 +8,18 @@ const chainIdToNetwork: { [network: number]: string } = {
   4: 'rinkeby',
   5: 'goerli',
   42: 'kovan',
-  100: 'xdai'
+  100: 'xdai',
+  30: 'orchid',
+  31: 'orchidTestnet',
+  99: 'core',
+  77: 'sokol',
+  61: 'classic',
+  8: 'ubiq',
+  108: 'thundercore',
+  18: 'thundercoreTestnet',
+  163: 'lightstreams',
+  122: 'fuse',
+  15001: 'maticTestnet'
 }
 
 type Network = number | { chainId: string; [key: string]: any }

@@ -45,6 +45,7 @@ _A simple, maximally extensible, dependency minimized framework for building mod
 _Open a PR to add your project to the list!_
 
 - [Uniswap.exchange](https://github.com/Uniswap/uniswap-frontend)
+- [hypertext.finance](https://github.com/NoahZinsmeister/hypertext)
 - [useWallet](https://github.com/aragon/use-wallet)
 - [Terminal](https://blog.terminal.co/web3-react-integration/)
 - [Everest](https://github.com/metacartel/everest-web-app)
@@ -53,7 +54,7 @@ _Open a PR to add your project to the list!_
 
 ## Related Efforts
 
-- [Web3Connect](https://github.com/web3connect/web3connect)
+- [Web3Modal](https://github.com/web3modal/web3modal)
 
 ## Local Development
 
@@ -68,9 +69,3 @@ _Open a PR to add your project to the list!_
 
 - Build and watch for changes\
   `yarn start`
-
-## Acknowledgements
-
-Thanks to [Aragon One](https://aragon.one/) for their generous financial support of the ongoing development of `web3-react`.
-
-<img loading="lazy" src="https://miro.medium.com/max/4000/1*PPdfJNy3uNaegc7QYqTk2w.png" alt="Aragon One" width="350"/>
