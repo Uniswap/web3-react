@@ -25,7 +25,7 @@ export class WalletConnectConnector extends AbstractConnector {
   private readonly qrcode?: boolean
   private readonly pollingInterval?: number
 
-  public walletConnectProvider: any
+  public walletConnectProvider?: any
 
   constructor({ rpc, bridge, qrcode, pollingInterval }: WalletConnectConnectorArguments) {
     invariant(Object.keys(rpc).length === 1, '@walletconnect/web3-provider is broken with >1 chainId, please use 1')
@@ -80,21 +80,17 @@ export class WalletConnectConnector extends AbstractConnector {
         qrcode: this.qrcode,
         pollingInterval: this.pollingInterval
       })
-      // only doing this here because this.walletConnectProvider.wc doesn't have a removeListener function...
-      this.walletConnectProvider.wc.on('disconnect', this.handleDisconnect)
     }
-
-    this.walletConnectProvider.on('chainChanged', this.handleChainChanged)
-    this.walletConnectProvider.on('accountsChanged', this.handleAccountsChanged)
 
     // ensure that the uri is going to be available, and emit an event if there's a new uri
     if (!this.walletConnectProvider.wc.connected) {
-      await this.walletConnectProvider.wc.createSession({ chainId: this.walletConnectProvider.chainId })
+      await this.walletConnectProvider.wc.createSession({ chainId: Number(Object.keys(this.rpc)[0]) })
       this.emit(URI_AVAILABLE, this.walletConnectProvider.wc.uri)
     }
 
     const account = await this.walletConnectProvider
       .enable()
+      .then((accounts: string[]): string => accounts[0])
       .catch((error: Error): void => {
         // TODO ideally this would be a better check
         if (error.message === 'User closed modal') {
@@ -103,7 +99,10 @@ export class WalletConnectConnector extends AbstractConnector {
 
         throw error
       })
-      .then((accounts: string[]): string => accounts[0])
+
+    this.walletConnectProvider.on('disconnect', this.handleDisconnect)
+    this.walletConnectProvider.on('chainChanged', this.handleChainChanged)
+    this.walletConnectProvider.on('accountsChanged', this.handleAccountsChanged)
 
     return { provider: this.walletConnectProvider, account }
   }
@@ -123,12 +122,13 @@ export class WalletConnectConnector extends AbstractConnector {
   public deactivate() {
     if (this.walletConnectProvider) {
       this.walletConnectProvider.stop()
+      this.walletConnectProvider.removeListener('disconnect', this.handleDisconnect)
       this.walletConnectProvider.removeListener('chainChanged', this.handleChainChanged)
       this.walletConnectProvider.removeListener('accountsChanged', this.handleAccountsChanged)
     }
   }
 
   public async close() {
-    this.walletConnectProvider.wc.killSession()
+    await this.walletConnectProvider?.close()
   }
 }
