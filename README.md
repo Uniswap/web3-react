@@ -51,6 +51,7 @@ _Open a PR to add your project to the list!_
 - [Everest](https://github.com/metacartel/everest-web-app)
 - [NFT Scribe](https://github.com/conlan/nft-scribe)
 - [Compound Liquidator](https://github.com/conlan/compound-liquidator)
+- [wildcards.world](https://github.com/wildcards-world/ui)
 
 ## Related Efforts
 
