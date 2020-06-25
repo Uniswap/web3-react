@@ -1,9 +1,8 @@
 {
   "name": "web3-react-example",
   "scripts": {
-    "dev": "next",
-    "build": "rimraf .next out && next build && next export",
-    "start": "next build && next start"
+    "start": "next",
+    "build": "next build && next export"
   },
   "dependencies": {
     "@ethersproject/providers": "^5.0.2",
