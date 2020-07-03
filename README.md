@@ -14,6 +14,8 @@ _A simple, maximally extensible, dependency minimized framework for building mod
 | 🔌 **Connectors**                     |
 | _Browser Extension/dApp Browser_      |
 | `@web3-react/injected-connector`      | [![npm version](https://img.shields.io/npm/v/@web3-react/injected-connector/latest.svg)](https://www.npmjs.com/package/@web3-react/injected-connector/v/latest)           | [![minzip](https://img.shields.io/bundlephobia/minzip/@web3-react/injected-connector/latest.svg)](https://bundlephobia.com/result?p=@web3-react/injected-connector@latest)           | [Injected](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1193.md) Connector |
+| _Browser Extension/dApp Browser_      |
+| `@web3-react/provided-connector`      | [![npm version](https://img.shields.io/npm/v/@web3-react/provided-connector/latest.svg)](https://www.npmjs.com/package/@web3-react/provided-connector/v/latest)           | [![minzip](https://img.shields.io/bundlephobia/minzip/@web3-react/provided-connector/latest.svg)](https://bundlephobia.com/result?p=@web3-react/injected-connector@latest)           | [Provided](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1193.md) Connector |
 | _Remote API_                          |
 | `@web3-react/network-connector`       | [![npm version](https://img.shields.io/npm/v/@web3-react/network-connector/latest.svg)](https://www.npmjs.com/package/@web3-react/network-connector/v/latest)             | [![minzip](https://img.shields.io/bundlephobia/minzip/@web3-react/network-connector/latest.svg)](https://bundlephobia.com/result?p=@web3-react/network-connector@latest)             | [RPC](https://github.com/ethereum/wiki/wiki/JSON-RPC) Connector                     |
 | _QR Code_                             |
