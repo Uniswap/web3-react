@@ -12,7 +12,7 @@ export class NoEthereumProviderError extends Error {
   public constructor() {
     super()
     this.name = this.constructor.name
-    this.message = 'No Ethereum provider was found on window.ethereum.'
+    this.message = 'No Ethereum provider was passed to the constructor or found on window.ethereum.'
   }
 }
 
