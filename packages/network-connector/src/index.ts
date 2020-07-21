@@ -49,8 +49,8 @@ class MiniRpcProvider implements AsyncSendable {
     params?: unknown[] | object
   ): Promise<unknown> => {
     if (typeof method !== 'string') {
-      method = method.method
       params = (method as any).params
+      method = method.method
     }
 
     const response = await fetch(this.url, {
