@@ -1,5 +1,5 @@
 {
-  "name": "@web3-react/provided-connector",
+  "name": "@aragon/provided-connector",
   "publishConfig": {
     "access": "public"
   },
@@ -24,7 +24,7 @@
     "url": "git://github.com/NoahZinsmeister/web3-react.git"
   },
   "main": "dist/index.js",
-  "module": "dist/injected-connector.esm.js",
+  "module": "dist/provided-connector.esm.js",
   "typings": "dist/index.d.ts",
   "files": [
     "dist"
