@@ -29,7 +29,7 @@ export class AuthereumConnector extends AbstractConnector {
 
   public async activate(): Promise<ConnectorUpdate> {
     if (!this.authereum) {
-      const Authereum = await import('authereum').then((m) => m?.default ?? m)
+      const Authereum = await import('authereum').then(m => m?.default ?? m)
       this.authereum = new Authereum({
         networkName: chainIdToNetwork[this.chainId],
         ...this.config

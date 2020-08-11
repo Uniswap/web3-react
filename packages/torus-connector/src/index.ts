@@ -27,7 +27,7 @@ export class TorusConnector extends AbstractConnector {
 
   public async activate(): Promise<ConnectorUpdate> {
     if (!this.torus) {
-      const Torus = await import('@toruslabs/torus-embed').then((m) => m?.default ?? m)
+      const Torus = await import('@toruslabs/torus-embed').then(m => m?.default ?? m)
       this.torus = new Torus(this.constructorOptions)
       await this.torus.init(this.initOptions)
     }

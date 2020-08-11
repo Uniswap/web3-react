@@ -30,7 +30,7 @@ export class WalletLinkConnector extends AbstractConnector {
 
   public async activate(): Promise<ConnectorUpdate> {
     if (!this.walletLink) {
-      const WalletLink = await import('walletlink').then((m) => m?.default ?? m)
+      const WalletLink = await import('walletlink').then(m => m?.default ?? m)
       this.walletLink = new WalletLink({
         appName: this.appName,
         darkMode: this.darkMode,
