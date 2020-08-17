@@ -45,11 +45,13 @@ _A simple, maximally extensible, dependency minimized framework for building mod
 _Open a PR to add your project to the list!_
 
 - [Uniswap.exchange](https://github.com/Uniswap/uniswap-frontend)
+- [hypertext.finance](https://github.com/NoahZinsmeister/hypertext)
 - [useWallet](https://github.com/aragon/use-wallet)
 - [Terminal](https://blog.terminal.co/web3-react-integration/)
 - [Everest](https://github.com/metacartel/everest-web-app)
 - [NFT Scribe](https://github.com/conlan/nft-scribe)
 - [Compound Liquidator](https://github.com/conlan/compound-liquidator)
+- [wildcards.world](https://github.com/wildcards-world/ui)
 
 ## Related Efforts
 
