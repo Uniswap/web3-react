@@ -9,3 +9,4 @@ node_modules
 dist
 .env
 out
+.idea
