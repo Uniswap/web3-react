@@ -52,6 +52,7 @@ _Open a PR to add your project to the list!_
 - [NFT Scribe](https://github.com/conlan/nft-scribe)
 - [Compound Liquidator](https://github.com/conlan/compound-liquidator)
 - [wildcards.world](https://github.com/wildcards-world/ui)
+- [Outpost](https://github.com/OutpostProtocol/outpost-app)
 
 ## Related Efforts
 
