@@ -56,7 +56,7 @@ export const fortmatic = new FortmaticConnector({ apiKey: process.env.FORTMATIC_
 export const magic = new MagicConnector({
   apiKey: process.env.MAGIC_API_KEY as string,
   chainId: 4,
-  email: process.env.MAGIC_EMAIL,
+  email: 'hello@example.org'
 })
 
 export const portis = new PortisConnector({ dAppId: process.env.PORTIS_DAPP_ID as string, networks: [1, 100] })
