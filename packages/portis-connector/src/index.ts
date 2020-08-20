@@ -77,7 +77,7 @@ export class PortisConnector extends AbstractConnector {
 
   public async activate(): Promise<ConnectorUpdate> {
     if (!this.portis) {
-      const { default: Portis } = await import('@portis/web3')
+      const Portis = await import('@portis/web3').then(m => m?.default ?? m)
       this.portis = new Portis(
         this.dAppId,
         typeof this.networks[0] === 'number' ? chainIdToNetwork[this.networks[0]] : (this.networks[0] as any),

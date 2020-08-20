@@ -48,7 +48,7 @@ export class TrezorConnector extends AbstractConnector {
 
   public async activate(): Promise<ConnectorUpdate> {
     if (!this.provider) {
-      const { default: TrezorConnect } = await import('trezor-connect')
+      const TrezorConnect = await import('trezor-connect').then(m => m?.default ?? m)
       TrezorConnect.manifest({
         email: this.manifestEmail,
         appUrl: this.manifestAppUrl
