@@ -67,7 +67,8 @@ export class MagicConnector extends AbstractConnector {
   }
 
   public async activate(): Promise<ConnectorUpdate> {
-    const { Magic, RPCError, RPCErrorCode } = await import('magic-sdk')
+    const MagicSDK = await import('magic-sdk').then(m => m?.default ?? m)
+    const { Magic, RPCError, RPCErrorCode } = MagicSDK
 
     if (!this.magic) {
       this.magic = new Magic(this.apiKey, { network: chainIdToNetwork[this.chainId] })
