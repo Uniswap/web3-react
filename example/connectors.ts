@@ -10,7 +10,7 @@ import { FortmaticConnector } from '@web3-react/fortmatic-connector'
 import { PortisConnector } from '@web3-react/portis-connector'
 import { SquarelinkConnector } from '@web3-react/squarelink-connector'
 import { TorusConnector } from '@web3-react/torus-connector'
-import { MewConnectConnector } from '@web3-react/mewconnect-connector'
+import { MewConnectConnector } from '@myetherwallet/mewconnect-connector'
 
 const POLLING_INTERVAL = 12000
 const RPC_URLS: { [chainId: number]: string } = {

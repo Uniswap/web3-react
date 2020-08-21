@@ -7,6 +7,7 @@
   "dependencies": {
     "@ethersproject/providers": "^5.0.2",
     "@ethersproject/units": "^5.0.1",
+    "@myetherwallet/mewconnect-connector": "^0.1.6",
     "@web3-react/abstract-connector": "latest",
     "@web3-react/authereum-connector": "latest",
     "@web3-react/core": "latest",
@@ -21,7 +22,6 @@
     "@web3-react/trezor-connector": "latest",
     "@web3-react/walletconnect-connector": "latest",
     "@web3-react/walletlink-connector": "latest",
-    "@web3-react/mewconnect-connector": "latest",
     "next": "^9.2.1",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
