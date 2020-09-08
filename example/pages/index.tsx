@@ -20,6 +20,7 @@ import {
   frame,
   authereum,
   fortmatic,
+  magic,
   portis,
   squarelink,
   torus
@@ -36,6 +37,7 @@ enum ConnectorNames {
   Frame = 'Frame',
   Authereum = 'Authereum',
   Fortmatic = 'Fortmatic',
+  Magic = 'Magic',
   Portis = 'Portis',
   Squarelink = 'Squarelink',
   Torus = 'Torus'
@@ -51,6 +53,7 @@ const connectorsByName: { [connectorName in ConnectorNames]: any } = {
   [ConnectorNames.Frame]: frame,
   [ConnectorNames.Authereum]: authereum,
   [ConnectorNames.Fortmatic]: fortmatic,
+  [ConnectorNames.Magic]: magic,
   [ConnectorNames.Portis]: portis,
   [ConnectorNames.Squarelink]: squarelink,
   [ConnectorNames.Torus]: torus
@@ -415,6 +418,20 @@ function App() {
             }}
           >
             Kill Fortmatic Session
+          </button>
+        )}
+        {connector === connectorsByName[ConnectorNames.Magic] && (
+          <button
+            style={{
+              height: '3rem',
+              borderRadius: '1rem',
+              cursor: 'pointer'
+            }}
+            onClick={() => {
+              ;(connector as any).close()
+            }}
+          >
+            Kill Magic Session
           </button>
         )}
         {connector === connectorsByName[ConnectorNames.Portis] && (

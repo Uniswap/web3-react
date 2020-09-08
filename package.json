@@ -21,7 +21,8 @@
     "portis",
     "squarelink",
     "torus",
-    "authereum"
+    "authereum",
+    "magic"
   ],
   "author": "Noah Zinsmeister <noahwz@gmail.com>",
   "repository": {
