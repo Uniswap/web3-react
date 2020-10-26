@@ -1,5 +1,6 @@
 import { ConnectorUpdate } from '@web3-react/types'
 import { AbstractConnector } from '@web3-react/abstract-connector'
+import { IInternalEvent } from '@walletconnect/types'
 import invariant from 'tiny-invariant'
 
 export const URI_AVAILABLE = 'URI_AVAILABLE'
@@ -88,17 +89,35 @@ export class WalletConnectConnector extends AbstractConnector {
       this.emit(URI_AVAILABLE, this.walletConnectProvider.wc.uri)
     }
 
-    const account = await this.walletConnectProvider
-      .enable()
-      .then((accounts: string[]): string => accounts[0])
-      .catch((error: Error): void => {
-        // TODO ideally this would be a better check
-        if (error.message === 'User closed modal') {
-          throw new UserRejectedRequestError()
-        }
+    let account: string
+    account = await new Promise<string>((resolve, reject) => {
+      const userReject = () => {
+        // Erase the provider manually
+        this.walletConnectProvider = undefined
+        reject(new UserRejectedRequestError())
+      }
 
-        throw error
+      // Workaround to bubble up the error when user reject the connection
+      this.walletConnectProvider.wc.on('disconnect', (_: Error, event: IInternalEvent) => {
+        // Check provider has not been enabled to prevent this event callback from being called in the future
+        if (!account && event?.params[0]?.message === 'Session update rejected') {
+          userReject()
+        }
       })
+
+      this.walletConnectProvider
+        .enable()
+        .then((accounts: string[]) => resolve(accounts[0]))
+        .catch((error: Error): void => {
+          // TODO ideally this would be a better check
+          if (error.message === 'User closed modal') {
+            userReject()
+          }
+          reject(error)
+        })
+    }).catch(err => {
+      throw err
+    })
 
     this.walletConnectProvider.on('disconnect', this.handleDisconnect)
     this.walletConnectProvider.on('chainChanged', this.handleChainChanged)
