@@ -1,6 +1,5 @@
 import { ConnectorUpdate } from '@web3-react/types'
 import { AbstractConnector } from '@web3-react/abstract-connector'
-import { IInternalEvent } from '@walletconnect/types'
 import invariant from 'tiny-invariant'
 
 export const URI_AVAILABLE = 'URI_AVAILABLE'
@@ -98,9 +97,9 @@ export class WalletConnectConnector extends AbstractConnector {
       }
 
       // Workaround to bubble up the error when user reject the connection
-      this.walletConnectProvider.wc.on('disconnect', (_: Error, event: IInternalEvent) => {
+      this.walletConnectProvider.wc.on('disconnect', () => {
         // Check provider has not been enabled to prevent this event callback from being called in the future
-        if (!account && event?.params[0]?.message === 'Session update rejected') {
+        if (!account) {
           userReject()
         }
       })
