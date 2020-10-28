@@ -16,7 +16,7 @@ interface WalletConnectConnectorArguments {
   rpc: { [chainId: number]: string }
   bridge?: string
   qrcode?: boolean
-  pollingInterval?: number,
+  pollingInterval?: number
   qrcodeModalOptions?: object 
 }
 
