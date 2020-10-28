@@ -17,7 +17,7 @@ interface WalletConnectConnectorArguments {
   bridge?: string
   qrcode?: boolean
   pollingInterval?: number
-  qrcodeModalOptions?: object 
+  qrcodeModalOptions?: object
 }
 
 export class WalletConnectConnector extends AbstractConnector {
