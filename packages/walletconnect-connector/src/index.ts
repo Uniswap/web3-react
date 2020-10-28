@@ -16,7 +16,8 @@ interface WalletConnectConnectorArguments {
   rpc: { [chainId: number]: string }
   bridge?: string
   qrcode?: boolean
-  pollingInterval?: number
+  pollingInterval?: number,
+  qrcodeModalOptions?: object 
 }
 
 export class WalletConnectConnector extends AbstractConnector {
@@ -24,10 +25,11 @@ export class WalletConnectConnector extends AbstractConnector {
   private readonly bridge?: string
   private readonly qrcode?: boolean
   private readonly pollingInterval?: number
+  private readonly qrcodeModalOptions?: object
 
   public walletConnectProvider?: any
 
-  constructor({ rpc, bridge, qrcode, pollingInterval }: WalletConnectConnectorArguments) {
+  constructor({ rpc, bridge, qrcode, pollingInterval, qrcodeModalOptions }: WalletConnectConnectorArguments) {
     invariant(Object.keys(rpc).length === 1, '@walletconnect/web3-provider is broken with >1 chainId, please use 1')
     super({ supportedChainIds: Object.keys(rpc).map(k => Number(k)) })
 
@@ -35,6 +37,7 @@ export class WalletConnectConnector extends AbstractConnector {
     this.bridge = bridge
     this.qrcode = qrcode
     this.pollingInterval = pollingInterval
+    this.qrcodeModalOptions = qrcodeModalOptions
 
     this.handleChainChanged = this.handleChainChanged.bind(this)
     this.handleAccountsChanged = this.handleAccountsChanged.bind(this)
@@ -78,7 +81,8 @@ export class WalletConnectConnector extends AbstractConnector {
         bridge: this.bridge,
         rpc: this.rpc,
         qrcode: this.qrcode,
-        pollingInterval: this.pollingInterval
+        pollingInterval: this.pollingInterval,
+        qrcodeModalOptions: this.qrcodeModalOptions
       })
     }
 
