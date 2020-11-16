@@ -11,7 +11,7 @@ type AsyncSendable = {
   send?: (request: any, callback: (error: any, response: any) => void) => void
 }
 
-type Request = { method: string | { method: string; params?: unknown[] | object }, params?: unknown[] | object }
+type Request = { method: string | { method: string; params?: unknown[] | object }; params?: unknown[] | object }
 
 export class RequestError extends Error {
   constructor(message: string, public code: number, public data?: unknown) {
@@ -46,10 +46,7 @@ class MiniRpcProvider implements AsyncSendable {
       .catch(error => callback(error, null))
   }
 
-  public readonly request = async ({
-    method,
-    params
-  }: Request): Promise<unknown> => {
+  public readonly request = async ({ method, params }: Request): Promise<unknown> => {
     if (typeof method !== 'string') {
       params = (method as any).params
       method = method.method
