@@ -53,6 +53,8 @@ _Open a PR to add your project to the list!_
 - [Compound Liquidator](https://github.com/conlan/compound-liquidator)
 - [wildcards.world](https://github.com/wildcards-world/ui)
 - [Outpost](https://github.com/OutpostProtocol/outpost-app)
+- [Async Art](https://async.art)
+- [Union](https://union.finance)
 
 ## Related Efforts
 
