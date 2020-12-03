@@ -38,7 +38,7 @@ export class LatticeConnector extends AbstractConnector {
       const opts = {
         appName: this.appName,
         latticeConnectClient: LatticeKeyring,
-        networkId: this.chainId
+        networkId: this.chainId,
       }
       engine.addProvider(new LatticeSubprovider(opts))
       engine.addProvider(new CacheSubprovider())
@@ -65,5 +65,15 @@ export class LatticeConnector extends AbstractConnector {
 
   public deactivate() {
     this.provider.stop()
+  }
+
+  public async close(): Promise<null> {
+    this.emitDeactivate()
+    // Due to limitations in the LatticeSubprovider API, we use this code with `getAccounts`
+    // as a hack to allow us to close out the connection and forget data.
+    // It will get handled in `eth-lattice-keyring`, which will forget the device and return
+    // an empty array (whose first element will be null/undefined)
+    const CLOSE_CODE = -1000;
+    return this.provider._providers[0].getAccountsAsync(CLOSE_CODE).then((accounts: string[]): string => accounts[0])
   }
 }
