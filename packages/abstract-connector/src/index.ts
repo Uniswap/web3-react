@@ -1,4 +1,4 @@
-import { EventEmitter } from 'events'
+import EventEmitter from 'eventemitter3'
 import { AbstractConnectorArguments, ConnectorUpdate, ConnectorEvent } from '@web3-react/types'
 
 export abstract class AbstractConnector extends EventEmitter {

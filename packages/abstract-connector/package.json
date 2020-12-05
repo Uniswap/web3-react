@@ -34,7 +34,8 @@
     "lint": "tsdx lint src"
   },
   "dependencies": {
-    "@web3-react/types": "^6.0.7"
+    "@web3-react/types": "^6.0.7",
+    "eventemitter3": "^4.0.7"
   },
   "license": "GPL-3.0-or-later"
 }
