@@ -9,7 +9,6 @@ import { AuthereumConnector } from '@web3-react/authereum-connector'
 import { FortmaticConnector } from '@web3-react/fortmatic-connector'
 import { MagicConnector } from '@web3-react/magic-connector'
 import { PortisConnector } from '@web3-react/portis-connector'
-import { SquarelinkConnector } from '@web3-react/squarelink-connector'
 import { TorusConnector } from '@web3-react/torus-connector'
 
 const POLLING_INTERVAL = 12000
@@ -60,10 +59,5 @@ export const magic = new MagicConnector({
 })
 
 export const portis = new PortisConnector({ dAppId: process.env.PORTIS_DAPP_ID as string, networks: [1, 100] })
-
-export const squarelink = new SquarelinkConnector({
-  clientId: process.env.SQUARELINK_CLIENT_ID as string,
-  networks: [1, 100]
-})
 
 export const torus = new TorusConnector({ chainId: 1 })

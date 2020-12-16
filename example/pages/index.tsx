@@ -22,7 +22,6 @@ import {
   fortmatic,
   magic,
   portis,
-  squarelink,
   torus
 } from '../connectors'
 import { Spinner } from '../components/Spinner'
@@ -39,7 +38,6 @@ enum ConnectorNames {
   Fortmatic = 'Fortmatic',
   Magic = 'Magic',
   Portis = 'Portis',
-  Squarelink = 'Squarelink',
   Torus = 'Torus'
 }
 
@@ -55,7 +53,6 @@ const connectorsByName: { [connectorName in ConnectorNames]: any } = {
   [ConnectorNames.Fortmatic]: fortmatic,
   [ConnectorNames.Magic]: magic,
   [ConnectorNames.Portis]: portis,
-  [ConnectorNames.Squarelink]: squarelink,
   [ConnectorNames.Torus]: torus
 }
 
