@@ -1217,7 +1217,7 @@ bignumber.js@7.2.1:
   resolved "https://registry.yarnpkg.com/bignumber.js/-/bignumber.js-7.2.1.tgz#80c048759d826800807c4bfd521e50edbba57a5f"
   integrity sha512-S4XzBk5sMB+Rcb/LNcpzXr57VRTxgAvaAEDAl1AwRx27j00hT84O6OkteE7u8UB3NuaaygCRrEpqox4uDOrbdQ==
 
-bignumber.js@^9.0.0, bignumber.js@~9.0.0:
+bignumber.js@^9.0.0, bignumber.js@^9.0.1, bignumber.js@~9.0.0:
   version "9.0.1"
   resolved "https://registry.yarnpkg.com/bignumber.js/-/bignumber.js-9.0.1.tgz#8d7ba124c882bfd8e43260c67475518d0689e4e5"
   integrity sha512-IdZR9mh6ahOBv/hYGiXyVuyCetmGJhtYkqLBpTStdhEGjegpPlUawydyaF3pbIOFynJTpllEs+NP+CS9jKFLjA==
@@ -1257,6 +1257,11 @@ bip66@^1.1.5:
   integrity sha1-AfqHSHhcpwlV1QESF9GzE5lpyiI=
   dependencies:
     safe-buffer "^5.0.1"
+
+bitwise@^2.0.4:
+  version "2.0.4"
+  resolved "https://registry.yarnpkg.com/bitwise/-/bitwise-2.0.4.tgz#3b6f95c43d614b83b980331d3b41d78b9c902039"
+  integrity sha512-ZOByl1Sc8SH2/owfRfR1apaC1ELNqHqAAtfqs1Ixqk/9Bod6VxWz10MiMYXkNiL95RdFAqOGQxm1TCGPf1iFyw==
 
 bl@^4.0.3:
   version "4.0.3"
@@ -3069,11 +3074,13 @@ graceful-fs@^4.1.11, graceful-fs@^4.1.2, graceful-fs@^4.1.6:
   integrity sha512-WjKPNJF79dtJAVniUlGGWHYGz2jWxT6VhN/4m1NdkbZ2nOsEF+cI1Edgql5zCRhs/VsQYRvrXctxktVXZUkixw==
 
 gridplus-sdk@latest:
-  version "0.6.1"
-  resolved "https://registry.yarnpkg.com/gridplus-sdk/-/gridplus-sdk-0.6.1.tgz#45709a9d94b4cc14e5004751b9382a8665c2e050"
-  integrity sha512-J7Lul1u5qx3I/9Ic+3RnBODE2GtaSHJGtwyZ9GHoVabUtxJoWraX6kz67mGzrGo3ewKn6MX6ThH1QOhOa8acWA==
+  version "0.7.1"
+  resolved "https://registry.yarnpkg.com/gridplus-sdk/-/gridplus-sdk-0.7.1.tgz#314619b4f9e7942f5f45b42032249ff6f08b3b67"
+  integrity sha512-JYsWCJ01zOmgGbsmGjrKcQRQ6MIDmYo7gZmUf2rzHDEPOmLQA9BJJxZ+36R9jHWkdttKCd9g1zFHtAzaulk+Sg==
   dependencies:
     aes-js "^3.1.1"
+    bignumber.js "^9.0.1"
+    bitwise "^2.0.4"
     bs58 "^4.0.1"
     bs58check "^2.1.2"
     buffer "^5.6.0"
