@@ -192,16 +192,17 @@ export class InjectedConnector extends AbstractConnector {
       return false
     }
 
+    let account
     try {
-      return await (window.ethereum.send as Send)('eth_accounts').then(sendReturn => {
-        if (parseSendReturn(sendReturn).length > 0) {
-          return true
-        } else {
-          return false
-        }
-      })
+      account = await (window.ethereum.send as Send)('eth_accounts').then(sendReturn => parseSendReturn(sendReturn)[0])
     } catch {
-      return false
+      warning(false, 'eth_accounts was unsuccessful, falling back to eth_accounts v2')
     }
+
+    if (!account) {
+      account = parseSendReturn((window.ethereum.send as SendOld)({ method: 'eth_accounts' }))[0]
+    }
+
+    return !!account
   }
 }
