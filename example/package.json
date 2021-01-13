@@ -13,6 +13,7 @@
     "@web3-react/fortmatic-connector": "latest",
     "@web3-react/frame-connector": "latest",
     "@web3-react/injected-connector": "latest",
+    "@web3-react/lattice-connector": "latest",
     "@web3-react/ledger-connector": "latest",
     "@web3-react/network-connector": "latest",
     "@web3-react/portis-connector": "latest",
