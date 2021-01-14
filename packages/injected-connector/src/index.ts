@@ -28,10 +28,9 @@ export class InjectedConnector extends AbstractConnector {
   constructor(kwargs: AbstractConnectorArguments) {
     super(kwargs)
 
-    this.handleNetworkChanged = this.handleNetworkChanged.bind(this)
     this.handleChainChanged = this.handleChainChanged.bind(this)
     this.handleAccountsChanged = this.handleAccountsChanged.bind(this)
-    this.handleClose = this.handleClose.bind(this)
+    this.handleDisconnect = this.handleDisconnect.bind(this)
   }
 
   private handleChainChanged(chainId: string | number): void {
@@ -52,18 +51,11 @@ export class InjectedConnector extends AbstractConnector {
     }
   }
 
-  private handleClose(code: number, reason: string): void {
+  private handleDisconnect(code: number, reason: string): void {
     if (__DEV__) {
       console.log("Handling 'close' event with payload", code, reason)
     }
     this.emitDeactivate()
-  }
-
-  private handleNetworkChanged(networkId: string | number): void {
-    if (__DEV__) {
-      console.log("Handling 'networkChanged' event with payload", networkId)
-    }
-    this.emitUpdate({ chainId: networkId, provider: window.ethereum })
   }
 
   public async activate(): Promise<ConnectorUpdate> {
@@ -74,12 +66,11 @@ export class InjectedConnector extends AbstractConnector {
     if (window.ethereum.on) {
       window.ethereum.on('chainChanged', this.handleChainChanged)
       window.ethereum.on('accountsChanged', this.handleAccountsChanged)
-      window.ethereum.on('close', this.handleClose)
-      window.ethereum.on('networkChanged', this.handleNetworkChanged)
+      window.ethereum.on('disconnect', this.handleDisconnect)
     }
 
     if ((window.ethereum as any).isMetaMask) {
-      ;(window.ethereum as any).autoRefreshOnNetworkChange = false
+      ; (window.ethereum as any).autoRefreshOnNetworkChange = false
     }
 
     // try to activate + get account via eth_requestAccounts
@@ -182,8 +173,7 @@ export class InjectedConnector extends AbstractConnector {
     if (window.ethereum && window.ethereum.removeListener) {
       window.ethereum.removeListener('chainChanged', this.handleChainChanged)
       window.ethereum.removeListener('accountsChanged', this.handleAccountsChanged)
-      window.ethereum.removeListener('close', this.handleClose)
-      window.ethereum.removeListener('networkChanged', this.handleNetworkChanged)
+      window.ethereum.removeListener('disconnect', this.handleDisconnect)
     }
   }
 
