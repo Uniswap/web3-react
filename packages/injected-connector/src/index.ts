@@ -70,7 +70,7 @@ export class InjectedConnector extends AbstractConnector {
     }
 
     if ((window.ethereum as any).isMetaMask) {
-      ; (window.ethereum as any).autoRefreshOnNetworkChange = false
+      ;(window.ethereum as any).autoRefreshOnNetworkChange = false
     }
 
     // try to activate + get account via eth_requestAccounts
