@@ -283,7 +283,11 @@ function App() {
               key={name}
               onClick={() => {
                 setActivatingConnector(currentConnector)
-                activate(connectorsByName[name])
+                activate(connectorsByName[name], (error) => {
+                  if (error) {
+                    setActivatingConnector(undefined)
+                  }
+                })
               }}
             >
               <div
