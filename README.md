@@ -56,6 +56,7 @@ _Open a PR to add your project to the list!_
 - [Outpost](https://github.com/OutpostProtocol/outpost-app)
 - [Async Art](https://async.art)
 - [Union](https://union.finance)
+- [Aave](https://app.aave.com)
 
 ## Related Efforts
 
