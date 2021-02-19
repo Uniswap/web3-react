@@ -15,16 +15,16 @@
     "@web3-react/injected-connector": "latest",
     "@web3-react/lattice-connector": "latest",
     "@web3-react/ledger-connector": "latest",
+    "@web3-react/magic-connector": "latest",
     "@web3-react/network-connector": "latest",
     "@web3-react/portis-connector": "latest",
     "@web3-react/torus-connector": "latest",
     "@web3-react/trezor-connector": "latest",
     "@web3-react/walletconnect-connector": "latest",
     "@web3-react/walletlink-connector": "latest",
-    "@web3-react/magic-connector": "latest",
     "next": "^9.2.1",
-    "react": "^16.12.0",
-    "react-dom": "^16.12.0",
+    "react": ">=16.8",
+    "react-dom": ">=16.8",
     "typescript": "^3.7.5"
   }
 }
