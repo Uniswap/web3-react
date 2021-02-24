@@ -57,6 +57,8 @@ _Open a PR to add your project to the list!_
 - [Async Art](https://async.art)
 - [Union](https://union.finance)
 - [Aave](https://app.aave.com)
+- [Eth2 Launchpad](https://launchpad.ethereum.org/)
+
 
 ## Related Efforts
 
