@@ -1,8 +1,8 @@
-let LOG: Function;
+let LOG: Function
 if (process.env.NODE_ENV !== 'production') {
-  LOG = console.log.bind(console, '[LOG]');
+  LOG = console.log.bind(console, '[LOG]')
 } else {
-  LOG = () => {};
+  LOG = () => {}
 }
 
-export default LOG;
+export default LOG

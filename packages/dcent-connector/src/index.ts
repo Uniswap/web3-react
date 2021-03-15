@@ -20,12 +20,7 @@ export class DcentConnector extends AbstractConnector {
 
   private provider: any
 
-  constructor({
-    chainId,
-    url,
-    pollingInterval,
-    requestTimeoutMs,
-  }: DcentConnectorArguments) {
+  constructor({ chainId, url, pollingInterval, requestTimeoutMs }: DcentConnectorArguments) {
     super({ supportedChainIds: [chainId] })
 
     this.chainId = chainId
