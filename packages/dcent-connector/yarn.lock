@@ -3522,10 +3522,10 @@ data-urls@^1.0.0:
     whatwg-mimetype "^2.2.0"
     whatwg-url "^7.0.0"
 
-dcent-web-connector@^0.10.1:
-  version "0.10.1"
-  resolved "https://registry.yarnpkg.com/dcent-web-connector/-/dcent-web-connector-0.10.1.tgz#54a7952b2b42072f265dc0fd3c059e10ddc82abf"
-  integrity sha512-AQWZTztHBaq0KTNcX47NLrA6Vg9BB15Vl7ms3YZWH0g2c2tD3/o9NqAAE8877A8qr9uVe6XRQAvb+IFIGgzjdA==
+dcent-web-connector@^0.10.3:
+  version "0.10.3"
+  resolved "https://registry.yarnpkg.com/dcent-web-connector/-/dcent-web-connector-0.10.3.tgz#c2e98505536561136ebf2a1652aa81b53e06985e"
+  integrity sha512-BI96KL3QIgdGnrWIBNnyLRJhLGgFOSJI4LmLaOP8gpHkmztgcEK2UO052e/ybTOy3rz0BrkETmdr/9wnubetJg==
   dependencies:
     events "^3.0.0"
 

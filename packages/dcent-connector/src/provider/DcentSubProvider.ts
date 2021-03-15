@@ -210,7 +210,8 @@ export default class DcentHookedWalletSubprovider extends HookedWallet {
   constructor(opts: any = {}) {
     const extOpts = {
       signTransaction,
-      signPersonalMessage
+      signPersonalMessage,
+      signMessage: signPersonalMessage,
     };
     const options = Object.assign(opts, extOpts);
     LOG('dcent DcentHookedWalletSubprovider constructor options: ', options);
