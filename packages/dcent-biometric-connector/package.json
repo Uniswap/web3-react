@@ -1,5 +1,5 @@
 {
-  "name": "@web3-react/dcent-biomeric-connector",
+  "name": "@web3-react/dcent-biometric-connector",
   "publishConfig": {
     "access": "public"
   },
