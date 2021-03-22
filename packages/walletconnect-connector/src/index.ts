@@ -1,6 +1,5 @@
 import { ConnectorUpdate } from '@web3-react/types'
 import { AbstractConnector } from '@web3-react/abstract-connector'
-import invariant from 'tiny-invariant'
 
 export const URI_AVAILABLE = 'URI_AVAILABLE'
 
@@ -28,7 +27,6 @@ export class WalletConnectConnector extends AbstractConnector {
   public walletConnectProvider?: any
 
   constructor({ rpc, bridge, qrcode, pollingInterval }: WalletConnectConnectorArguments) {
-    invariant(Object.keys(rpc).length === 1, '@walletconnect/web3-provider is broken with >1 chainId, please use 1')
     super({ supportedChainIds: Object.keys(rpc).map(k => Number(k)) })
 
     this.rpc = rpc
