@@ -58,6 +58,7 @@ _Open a PR to add your project to the list!_
 - [Union](https://union.finance)
 - [Aave](https://app.aave.com)
 - [Eth2 Launchpad](https://launchpad.ethereum.org/)
+- [EthBlockArt](https://ethblock.art/)
 
 
 ## Related Efforts
