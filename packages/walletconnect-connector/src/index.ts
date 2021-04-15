@@ -6,7 +6,7 @@ import { IWalletConnectProviderOptions } from '@walletconnect/types'
 export const URI_AVAILABLE = 'URI_AVAILABLE'
 
 export interface WalletConnectConnectorArguments extends IWalletConnectProviderOptions {
-  supportedChainIds?: number[];
+  supportedChainIds?: number[]
 }
 
 export class UserRejectedRequestError extends Error {
@@ -21,10 +21,9 @@ function getSupportedChains({ supportedChainIds, rpc }: WalletConnectConnectorAr
   if (supportedChainIds) {
     return supportedChainIds
   }
-  
+
   return rpc ? Object.keys(rpc).map(k => Number(k)) : undefined
 }
-
 
 export class WalletConnectConnector extends AbstractConnector {
   private readonly config: WalletConnectConnectorArguments
@@ -32,7 +31,7 @@ export class WalletConnectConnector extends AbstractConnector {
   public walletConnectProvider?: any
 
   constructor(config: WalletConnectConnectorArguments) {
-    super({supportedChainIds: getSupportedChains(config) })
+    super({ supportedChainIds: getSupportedChains(config) })
 
     this.config = config
 
