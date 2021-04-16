@@ -2,13 +2,26 @@ import { ConnectorUpdate } from '@web3-react/types'
 import { AbstractConnector } from '@web3-react/abstract-connector'
 import invariant from 'tiny-invariant'
 
-type NetworkName = 'mainnet' | 'ropsten' | 'rinkeby' | 'kovan'
+interface CustomNodeOptions {
+  rpcUrl: string
+  chainId: number
+}
+
+type NetworkName = 'mainnet' | 'ropsten' | 'rinkeby' | 'kovan' | CustomNodeOptions
 
 const chainIdToNetwork: { [network: number]: NetworkName } = {
   1: 'mainnet',
   3: 'ropsten',
   4: 'rinkeby',
-  42: 'kovan'
+  42: 'kovan',
+  137: {
+    rpcUrl: 'https://rpc-mainnet.maticvigil.com/',
+    chainId: 137,
+  },
+  80001: {
+    rpcUrl: 'https://rpc-mumbai.maticvigil.com/',
+    chainId: 80001,
+  },
 }
 
 interface MagicConnectorArguments {
@@ -67,7 +80,7 @@ export class MagicConnector extends AbstractConnector {
   }
 
   public async activate(): Promise<ConnectorUpdate> {
-    const MagicSDK = await import('magic-sdk').then(m => m?.default ?? m)
+    const MagicSDK = await import('magic-sdk').then((m) => m?.default ?? m)
     const { Magic, RPCError, RPCErrorCode } = MagicSDK
 
     if (!this.magic) {
