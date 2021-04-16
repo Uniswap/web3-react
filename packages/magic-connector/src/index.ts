@@ -16,12 +16,12 @@ const chainIdToNetwork: { [network: number]: NetworkName } = {
   42: 'kovan',
   137: {
     rpcUrl: 'https://rpc-mainnet.maticvigil.com/',
-    chainId: 137,
+    chainId: 137
   },
   80001: {
     rpcUrl: 'https://rpc-mumbai.maticvigil.com/',
-    chainId: 80001,
-  },
+    chainId: 80001
+  }
 }
 
 interface MagicConnectorArguments {
@@ -80,7 +80,7 @@ export class MagicConnector extends AbstractConnector {
   }
 
   public async activate(): Promise<ConnectorUpdate> {
-    const MagicSDK = await import('magic-sdk').then((m) => m?.default ?? m)
+    const MagicSDK = await import('magic-sdk').then(m => m?.default ?? m)
     const { Magic, RPCError, RPCErrorCode } = MagicSDK
 
     if (!this.magic) {
