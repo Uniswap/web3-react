@@ -15,7 +15,7 @@ interface FortmaticConnectorArguments {
 }
 
 export class FortmaticConnector extends AbstractConnector {
-  public readonly id = 'fortmatic'
+  public readonly id: string
 
   private readonly apiKey: string
   private readonly chainId: number
@@ -25,6 +25,8 @@ export class FortmaticConnector extends AbstractConnector {
   constructor({ apiKey, chainId }: FortmaticConnectorArguments) {
     invariant(Object.keys(chainIdToNetwork).includes(chainId.toString()), `Unsupported chainId ${chainId}`)
     super({ supportedChainIds: [chainId] })
+
+    this.id = 'fortmatic'
 
     this.apiKey = apiKey
     this.chainId = chainId

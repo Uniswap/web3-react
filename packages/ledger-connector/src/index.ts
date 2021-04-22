@@ -16,7 +16,7 @@ interface LedgerConnectorArguments {
 }
 
 export class LedgerConnector extends AbstractConnector {
-  public readonly id = 'ledger'
+  public readonly id: string
 
   private readonly chainId: number
   private readonly url: string
@@ -36,6 +36,8 @@ export class LedgerConnector extends AbstractConnector {
     baseDerivationPath
   }: LedgerConnectorArguments) {
     super({ supportedChainIds: [chainId] })
+
+    this.id = 'ledger'
 
     this.chainId = chainId
     this.url = url

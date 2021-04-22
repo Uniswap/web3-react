@@ -50,7 +50,7 @@ export class MagicLinkExpiredError extends Error {
 }
 
 export class MagicConnector extends AbstractConnector {
-  public readonly id = 'magic'
+  public readonly id: string
 
   private readonly apiKey: string
   private readonly chainId: number
@@ -62,6 +62,8 @@ export class MagicConnector extends AbstractConnector {
     invariant(Object.keys(chainIdToNetwork).includes(chainId.toString()), `Unsupported chainId ${chainId}`)
     invariant(email && email.includes('@'), `Invalid email: ${email}`)
     super({ supportedChainIds: [chainId] })
+
+    this.id = 'magic'
 
     this.apiKey = apiKey
     this.chainId = chainId

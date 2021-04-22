@@ -80,7 +80,7 @@ interface NetworkConnectorArguments {
 }
 
 export class NetworkConnector extends AbstractConnector {
-  public readonly id = 'network'
+  public readonly id: string
 
   private readonly providers: { [chainId: number]: MiniRpcProvider }
   private currentChainId: number
@@ -88,6 +88,8 @@ export class NetworkConnector extends AbstractConnector {
   constructor({ urls, defaultChainId }: NetworkConnectorArguments) {
     invariant(defaultChainId || Object.keys(urls).length === 1, 'defaultChainId is a required argument with >1 url')
     super({ supportedChainIds: Object.keys(urls).map((k): number => Number(k)) })
+
+    this.id = 'network'
 
     this.currentChainId = defaultChainId || Number(Object.keys(urls)[0])
     this.providers = Object.keys(urls).reduce<{ [chainId: number]: MiniRpcProvider }>((accumulator, chainId) => {
