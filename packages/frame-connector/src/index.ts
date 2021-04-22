@@ -12,13 +12,14 @@ export class UserRejectedRequestError extends Error {
 }
 
 export class FrameConnector extends AbstractConnector {
-  public readonly id = 'frame'
-
+  public readonly id: string
   private provider: any
 
   constructor(kwargs: Required<AbstractConnectorArguments>) {
     invariant(kwargs.supportedChainIds.length === 1, 'This connector only supports 1 chainId at the moment.')
     super(kwargs)
+
+    this.id = 'frame'
 
     this.handleNetworkChanged = this.handleNetworkChanged.bind(this)
     this.handleChainChanged = this.handleChainChanged.bind(this)

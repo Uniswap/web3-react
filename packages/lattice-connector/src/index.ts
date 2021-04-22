@@ -14,7 +14,7 @@ interface LatticeConnectorArguments {
 }
 
 export class LatticeConnector extends AbstractConnector {
-  public readonly id = 'lattice'
+  public readonly id: string
 
   private readonly chainId: number
   private readonly url: string
@@ -25,6 +25,8 @@ export class LatticeConnector extends AbstractConnector {
 
   constructor({ chainId, url, pollingInterval, requestTimeoutMs, appName }: LatticeConnectorArguments) {
     super({ supportedChainIds: [chainId] })
+
+    this.id = 'lattice'
 
     this.chainId = chainId
     this.url = url

@@ -16,7 +16,7 @@ interface TrezorConnectorArguments {
 }
 
 export class TrezorConnector extends AbstractConnector {
-  public readonly id = 'trezor'
+  public readonly id: string
 
   private readonly chainId: number
   private readonly url: string
@@ -38,6 +38,8 @@ export class TrezorConnector extends AbstractConnector {
     manifestAppUrl
   }: TrezorConnectorArguments) {
     super({ supportedChainIds: [chainId] })
+
+    this.id = 'trezor'
 
     this.chainId = chainId
     this.url = url

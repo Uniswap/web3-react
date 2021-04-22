@@ -31,7 +31,7 @@ interface PortisConnectorArguments {
 }
 
 export class PortisConnector extends AbstractConnector {
-  public readonly id = 'portis'
+  public readonly id: string
 
   private readonly dAppId: string
   private readonly networks: Network[]
@@ -46,6 +46,8 @@ export class PortisConnector extends AbstractConnector {
       `One or more unsupported networks ${networks}`
     )
     super({ supportedChainIds: chainIds })
+
+    this.id = 'portis'
 
     this.dAppId = dAppId
     this.networks = networks

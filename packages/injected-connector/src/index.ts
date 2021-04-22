@@ -25,10 +25,12 @@ export class UserRejectedRequestError extends Error {
 }
 
 export class InjectedConnector extends AbstractConnector {
-  public readonly id = 'injected'
+  public readonly id: string
 
   constructor(kwargs: AbstractConnectorArguments) {
     super(kwargs)
+
+    this.id = 'injected'
 
     this.handleNetworkChanged = this.handleNetworkChanged.bind(this)
     this.handleChainChanged = this.handleChainChanged.bind(this)

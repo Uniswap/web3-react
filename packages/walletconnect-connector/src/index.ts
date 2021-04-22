@@ -20,7 +20,7 @@ interface WalletConnectConnectorArguments {
 }
 
 export class WalletConnectConnector extends AbstractConnector {
-  public readonly id = 'walletconnect'
+  public readonly id: string
 
   private readonly rpc: { [chainId: number]: string }
   private readonly bridge?: string
@@ -32,6 +32,8 @@ export class WalletConnectConnector extends AbstractConnector {
   constructor({ rpc, bridge, qrcode, pollingInterval }: WalletConnectConnectorArguments) {
     invariant(Object.keys(rpc).length === 1, '@walletconnect/web3-provider is broken with >1 chainId, please use 1')
     super({ supportedChainIds: Object.keys(rpc).map(k => Number(k)) })
+
+    this.id = 'walletconnect'
 
     this.rpc = rpc
     this.bridge = bridge

@@ -20,7 +20,7 @@ interface SquarelinkConnectorArguments {
 }
 
 export class SquarelinkConnector extends AbstractConnector {
-  public readonly id = 'squarelink'
+  public readonly id: string
 
   private readonly clientId: string
   private readonly networks: Network[]
@@ -35,6 +35,8 @@ export class SquarelinkConnector extends AbstractConnector {
       `One or more unsupported networks ${networks}`
     )
     super({ supportedChainIds: chainIds })
+
+    this.id = 'squarelink'
 
     this.clientId = clientId
     this.networks = networks

@@ -9,7 +9,7 @@ interface TorusConnectorArguments {
 }
 
 export class TorusConnector extends AbstractConnector {
-  public readonly id = 'torus'
+  public readonly id: string
 
   private readonly chainId: number
   private readonly initOptions: any
@@ -20,6 +20,8 @@ export class TorusConnector extends AbstractConnector {
 
   constructor({ chainId, initOptions = {}, constructorOptions = {}, loginOptions = {} }: TorusConnectorArguments) {
     super({ supportedChainIds: [chainId] })
+
+    this.id = 'torus'
 
     this.chainId = chainId
     this.initOptions = initOptions
