@@ -164,7 +164,7 @@ function Component () {
   const { error } = useWeb3React()
   const isUnsupportedChainIdError = error instanceof UnsupportedChainIdError
   // ...
-}å
+}
 ```
 
 ## Understanding Error Bubbling

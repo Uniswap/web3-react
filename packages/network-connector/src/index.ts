@@ -2,11 +2,6 @@ import { ConnectorUpdate } from '@web3-react/types'
 import { AbstractConnector } from '@web3-react/abstract-connector'
 import invariant from 'tiny-invariant'
 
-interface NetworkConnectorArguments {
-  urls: { [chainId: number]: string }
-  defaultChainId?: number
-}
-
 // taken from ethers.js, compatible interface with web3 provider
 type AsyncSendable = {
   isMetaMask?: boolean
@@ -16,9 +11,11 @@ type AsyncSendable = {
   send?: (request: any, callback: (error: any, response: any) => void) => void
 }
 
-class RequestError extends Error {
+export class RequestError extends Error {
   constructor(message: string, public code: number, public data?: unknown) {
-    super(message)
+    super()
+    this.name = this.constructor.name
+    this.message = message
   }
 }
 
@@ -41,12 +38,21 @@ class MiniRpcProvider implements AsyncSendable {
     request: { jsonrpc: '2.0'; id: number | string | null; method: string; params?: unknown[] | object },
     callback: (error: any, response: any) => void
   ): void => {
+    console.log('sendAsync', request.method, request.params)
     this.request(request.method, request.params)
       .then(result => callback(null, { jsonrpc: '2.0', id: request.id, result }))
       .catch(error => callback(error, null))
   }
 
-  public readonly request = async (method: string, params?: unknown[] | object): Promise<unknown> => {
+  public readonly request = async (
+    method: string | { method: string; params?: unknown[] | object },
+    params?: unknown[] | object
+  ): Promise<unknown> => {
+    if (typeof method !== 'string') {
+      params = (method as any).params
+      method = method.method
+    }
+
     const response = await fetch(this.url, {
       method: 'POST',
       body: JSON.stringify({
@@ -66,6 +72,11 @@ class MiniRpcProvider implements AsyncSendable {
       throw new RequestError(`Received unexpected JSON-RPC response to ${method} request.`, -32000, body)
     }
   }
+}
+
+interface NetworkConnectorArguments {
+  urls: { [chainId: number]: string }
+  defaultChainId?: number
 }
 
 export class NetworkConnector extends AbstractConnector {
@@ -101,5 +112,11 @@ export class NetworkConnector extends AbstractConnector {
 
   public deactivate() {
     return
+  }
+
+  public changeChainId(chainId: number) {
+    invariant(Object.keys(this.providers).includes(chainId.toString()), `No url found for chainId ${chainId}`)
+    this.currentChainId = chainId
+    this.emitUpdate({ provider: this.providers[this.currentChainId], chainId })
   }
 }

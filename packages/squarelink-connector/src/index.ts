@@ -41,7 +41,7 @@ export class SquarelinkConnector extends AbstractConnector {
 
   public async activate(): Promise<ConnectorUpdate> {
     if (!this.squarelink) {
-      const { default: Squarelink } = await import('squarelink')
+      const Squarelink = await import('squarelink').then(m => m?.default ?? m)
       this.squarelink = new Squarelink(
         this.clientId,
         typeof this.networks[0] === 'number' ? chainIdToNetwork[this.networks[0]] : this.networks[0],

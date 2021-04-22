@@ -27,7 +27,7 @@ export class TorusConnector extends AbstractConnector {
 
   public async activate(): Promise<ConnectorUpdate> {
     if (!this.torus) {
-      const { default: Torus } = await import('@toruslabs/torus-embed')
+      const Torus = await import('@toruslabs/torus-embed').then(m => m?.default ?? m)
       this.torus = new Torus(this.constructorOptions)
       await this.torus.init(this.initOptions)
     }
@@ -49,13 +49,10 @@ export class TorusConnector extends AbstractConnector {
     return this.torus.ethereum.send('eth_accounts').then((accounts: string[]): string => accounts[0])
   }
 
-  public async deactivate() {
-    await this.torus.cleanUp()
-    this.torus = undefined
-  }
+  public async deactivate() {}
 
   public async close() {
-    await this.torus.logout()
+    await this.torus.cleanUp()
     this.emitDeactivate()
   }
 }

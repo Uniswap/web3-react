@@ -2,25 +2,25 @@
 # yarn lockfile v1
 
 
-"@ethersproject/bytes@>=5.0.0-beta.129":
-  version "5.0.0-beta.137"
-  resolved "https://registry.yarnpkg.com/@ethersproject/bytes/-/bytes-5.0.0-beta.137.tgz#a9a35e2b358886289225d28212f4071ae391c161"
-  integrity sha512-uBwchZzGP912Wcani6vM7RLtsnN69Uc9WTLvewsniKrpHpSx0/k33WUcQVosmkwPgUtqflKyGjcIqaea1Z9WHw==
+"@ethersproject/bytes@^5.0.9":
+  version "5.0.10"
+  resolved "https://registry.yarnpkg.com/@ethersproject/bytes/-/bytes-5.0.10.tgz#aa49afe7491ba24ff76fa33d98677351263f9ba4"
+  integrity sha512-vpu0v1LZ1j1s9kERQIMnVU69MyHEzUff7nqK9XuCU4vx+AM8n9lU2gj7jtJIvGSt9HzatK/6I6bWusI5nyuaTA==
   dependencies:
-    "@ethersproject/logger" ">=5.0.0-beta.129"
+    "@ethersproject/logger" "^5.0.8"
 
 "@ethersproject/keccak256@^5.0.0-beta.130":
-  version "5.0.0-beta.131"
-  resolved "https://registry.yarnpkg.com/@ethersproject/keccak256/-/keccak256-5.0.0-beta.131.tgz#b5778723ee75208065b9b9ad30c71d480f41bb31"
-  integrity sha512-KQnqMwGV0IMOjAr/UTFO8DuLrmN1uaMvcV3zh9hiXhh3rCuY+WXdeUh49w1VQ94kBKmaP0qfGb7z4SdhUWUHjw==
+  version "5.0.8"
+  resolved "https://registry.yarnpkg.com/@ethersproject/keccak256/-/keccak256-5.0.8.tgz#13aaf69e1c8bd15fc59a2ebd055c0878f2a059c8"
+  integrity sha512-zoGbwXcWWs9MX4NOAZ7N0hhgIRl4Q/IO/u9c/RHRY4WqDy3Ywm0OLamEV53QDwhjwn3YiiVwU1Ve5j7yJ0a/KQ==
   dependencies:
-    "@ethersproject/bytes" ">=5.0.0-beta.129"
+    "@ethersproject/bytes" "^5.0.9"
     js-sha3 "0.5.7"
 
-"@ethersproject/logger@>=5.0.0-beta.129":
-  version "5.0.0-beta.136"
-  resolved "https://registry.yarnpkg.com/@ethersproject/logger/-/logger-5.0.0-beta.136.tgz#a140cea77e1d820a97384fb02bfad63c130f31c1"
-  integrity sha512-baWK/4ccsVcyUU20nhp7k+hoRYsiaOfURYlyvQCoUUFKD3mpSRQCH42wxCosZZSCWz4rTHgASLQDdKkBtNVz1w==
+"@ethersproject/logger@^5.0.8":
+  version "5.0.9"
+  resolved "https://registry.yarnpkg.com/@ethersproject/logger/-/logger-5.0.9.tgz#0e6a0b3ecc938713016954daf4ac7967467aa763"
+  integrity sha512-kV3Uamv3XOH99Xf3kpIG3ZkS7mBNYcLDM00JSDtNgNB4BihuyxpQzIZPRIDmRi+95Z/R1Bb0X2kUNHa/kJoVrw==
 
 js-sha3@0.5.7:
   version "0.5.7"
