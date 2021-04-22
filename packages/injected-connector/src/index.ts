@@ -25,6 +25,8 @@ export class UserRejectedRequestError extends Error {
 }
 
 export class InjectedConnector extends AbstractConnector {
+  public readonly id = 'injected'
+
   constructor(kwargs: AbstractConnectorArguments) {
     super(kwargs)
 

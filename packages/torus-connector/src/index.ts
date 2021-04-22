@@ -9,6 +9,8 @@ interface TorusConnectorArguments {
 }
 
 export class TorusConnector extends AbstractConnector {
+  public readonly id = 'torus'
+
   private readonly chainId: number
   private readonly initOptions: any
   private readonly constructorOptions: any

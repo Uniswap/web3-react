@@ -15,6 +15,8 @@ interface FortmaticConnectorArguments {
 }
 
 export class FortmaticConnector extends AbstractConnector {
+  public readonly id = 'fortmatic'
+
   private readonly apiKey: string
   private readonly chainId: number
 

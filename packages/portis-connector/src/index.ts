@@ -31,6 +31,8 @@ interface PortisConnectorArguments {
 }
 
 export class PortisConnector extends AbstractConnector {
+  public readonly id = 'portis'
+
   private readonly dAppId: string
   private readonly networks: Network[]
   private readonly config: any

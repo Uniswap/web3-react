@@ -14,6 +14,8 @@ interface LatticeConnectorArguments {
 }
 
 export class LatticeConnector extends AbstractConnector {
+  public readonly id = 'lattice'
+
   private readonly chainId: number
   private readonly url: string
   private readonly pollingInterval?: number

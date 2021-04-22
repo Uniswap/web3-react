@@ -16,6 +16,8 @@ interface TrezorConnectorArguments {
 }
 
 export class TrezorConnector extends AbstractConnector {
+  public readonly id = 'trezor'
+
   private readonly chainId: number
   private readonly url: string
   private readonly pollingInterval?: number

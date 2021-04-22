@@ -15,6 +15,8 @@ interface AuthereumConnectorArguments {
 }
 
 export class AuthereumConnector extends AbstractConnector {
+  public readonly id = 'authereum'
+
   private readonly chainId: number
   private readonly config: any
 

@@ -80,6 +80,8 @@ interface NetworkConnectorArguments {
 }
 
 export class NetworkConnector extends AbstractConnector {
+  public readonly id = 'network'
+
   private readonly providers: { [chainId: number]: MiniRpcProvider }
   private currentChainId: number
 

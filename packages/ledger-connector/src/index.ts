@@ -16,6 +16,8 @@ interface LedgerConnectorArguments {
 }
 
 export class LedgerConnector extends AbstractConnector {
+  public readonly id = 'ledger'
+
   private readonly chainId: number
   private readonly url: string
   private readonly pollingInterval?: number

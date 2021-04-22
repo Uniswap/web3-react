@@ -50,6 +50,8 @@ export class MagicLinkExpiredError extends Error {
 }
 
 export class MagicConnector extends AbstractConnector {
+  public readonly id = 'magic'
+
   private readonly apiKey: string
   private readonly chainId: number
   private readonly email: string

@@ -11,6 +11,8 @@ interface WalletLinkConnectorArguments {
 }
 
 export class WalletLinkConnector extends AbstractConnector {
+  public readonly id = 'walletlink'
+
   private readonly url: string
   private readonly appName: string
   private readonly appLogoUrl?: string

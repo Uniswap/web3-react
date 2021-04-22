@@ -12,6 +12,8 @@ export class UserRejectedRequestError extends Error {
 }
 
 export class FrameConnector extends AbstractConnector {
+  public readonly id = 'frame'
+
   private provider: any
 
   constructor(kwargs: Required<AbstractConnectorArguments>) {

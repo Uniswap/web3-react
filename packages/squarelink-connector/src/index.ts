@@ -20,6 +20,8 @@ interface SquarelinkConnectorArguments {
 }
 
 export class SquarelinkConnector extends AbstractConnector {
+  public readonly id = 'squarelink'
+
   private readonly clientId: string
   private readonly networks: Network[]
   private readonly options: any
