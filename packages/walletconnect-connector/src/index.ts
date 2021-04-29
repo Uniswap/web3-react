@@ -1,8 +1,13 @@
 import { ConnectorUpdate } from '@web3-react/types'
 import { AbstractConnector } from '@web3-react/abstract-connector'
-import invariant from 'tiny-invariant'
+// import invariant from 'tiny-invariant'
+import { IWalletConnectProviderOptions } from '@walletconnect/types'
 
 export const URI_AVAILABLE = 'URI_AVAILABLE'
+
+export interface WalletConnectConnectorArguments extends IWalletConnectProviderOptions {
+  supportedChainIds?: number[]
+}
 
 export class UserRejectedRequestError extends Error {
   public constructor() {
@@ -12,29 +17,23 @@ export class UserRejectedRequestError extends Error {
   }
 }
 
-interface WalletConnectConnectorArguments {
-  rpc: { [chainId: number]: string }
-  bridge?: string
-  qrcode?: boolean
-  pollingInterval?: number
+function getSupportedChains({ supportedChainIds, rpc }: WalletConnectConnectorArguments): number[] | undefined {
+  if (supportedChainIds) {
+    return supportedChainIds
+  }
+
+  return rpc ? Object.keys(rpc).map(k => Number(k)) : undefined
 }
 
 export class WalletConnectConnector extends AbstractConnector {
-  private readonly rpc: { [chainId: number]: string }
-  private readonly bridge?: string
-  private readonly qrcode?: boolean
-  private readonly pollingInterval?: number
+  private readonly config: WalletConnectConnectorArguments
 
   public walletConnectProvider?: any
 
-  constructor({ rpc, bridge, qrcode, pollingInterval }: WalletConnectConnectorArguments) {
-    invariant(Object.keys(rpc).length === 1, '@walletconnect/web3-provider is broken with >1 chainId, please use 1')
-    super({ supportedChainIds: Object.keys(rpc).map(k => Number(k)) })
+  constructor(config: WalletConnectConnectorArguments) {
+    super({ supportedChainIds: getSupportedChains(config) })
 
-    this.rpc = rpc
-    this.bridge = bridge
-    this.qrcode = qrcode
-    this.pollingInterval = pollingInterval
+    this.config = config
 
     this.handleChainChanged = this.handleChainChanged.bind(this)
     this.handleAccountsChanged = this.handleAccountsChanged.bind(this)
@@ -74,17 +73,14 @@ export class WalletConnectConnector extends AbstractConnector {
   public async activate(): Promise<ConnectorUpdate> {
     if (!this.walletConnectProvider) {
       const WalletConnectProvider = await import('@walletconnect/web3-provider').then(m => m?.default ?? m)
-      this.walletConnectProvider = new WalletConnectProvider({
-        bridge: this.bridge,
-        rpc: this.rpc,
-        qrcode: this.qrcode,
-        pollingInterval: this.pollingInterval
-      })
+      this.walletConnectProvider = new WalletConnectProvider(this.config)
     }
 
     // ensure that the uri is going to be available, and emit an event if there's a new uri
     if (!this.walletConnectProvider.wc.connected) {
-      await this.walletConnectProvider.wc.createSession({ chainId: Number(Object.keys(this.rpc)[0]) })
+      await this.walletConnectProvider.wc.createSession({
+        chainId: this.supportedChainIds && this.supportedChainIds.length > 0 ? this.supportedChainIds[0] : 1
+      })
       this.emit(URI_AVAILABLE, this.walletConnectProvider.wc.uri)
     }
 
