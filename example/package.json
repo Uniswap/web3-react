@@ -5,8 +5,8 @@
     "build": "next build && next export"
   },
   "dependencies": {
-    "@ethersproject/providers": "^5.0.2",
-    "@ethersproject/units": "^5.0.1",
+    "@ethersproject/providers": "^5.1.2",
+    "@ethersproject/units": "^5.1.0",
     "@web3-react/abstract-connector": "latest",
     "@web3-react/authereum-connector": "latest",
     "@web3-react/core": "latest",
