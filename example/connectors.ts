@@ -26,8 +26,7 @@ export const network = new NetworkConnector({
 })
 
 export const walletconnect = new WalletConnectConnector({
-  rpc: { 1: RPC_URLS[1] },
-  bridge: 'https://bridge.walletconnect.org',
+  rpc: { 1: RPC_URLS[1], 4: RPC_URLS[4] },
   qrcode: true,
   pollingInterval: POLLING_INTERVAL
 })
@@ -50,7 +49,7 @@ export const trezor = new TrezorConnector({
 export const lattice = new LatticeConnector({
   chainId: 4,
   appName: 'web3-react',
-  url: RPC_URLS[4],
+  url: RPC_URLS[4]
 })
 
 export const frame = new FrameConnector({ supportedChainIds: [1] })

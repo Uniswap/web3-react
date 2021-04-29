@@ -1,6 +1,5 @@
 import { ConnectorUpdate } from '@web3-react/types'
 import { AbstractConnector } from '@web3-react/abstract-connector'
-// import invariant from 'tiny-invariant'
 import { IWalletConnectProviderOptions } from '@walletconnect/types'
 
 export const URI_AVAILABLE = 'URI_AVAILABLE'
