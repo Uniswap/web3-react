@@ -19,6 +19,7 @@ const chainIdToNetwork: { [network: number]: string } = {
   18: 'thundercoreTestnet',
   163: 'lightstreams',
   122: 'fuse',
+  137: 'matic',
   15001: 'maticTestnet'
 }
 
