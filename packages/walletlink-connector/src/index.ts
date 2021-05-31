@@ -12,11 +12,15 @@ interface WalletLinkConnectorArguments {
 
 export class WalletLinkConnector extends AbstractConnector {
   private readonly url: string
+
   private readonly appName: string
+
   private readonly appLogoUrl?: string
+
   private readonly darkMode: boolean
 
   public walletLink: any
+
   private provider: any
 
   constructor({ url, appName, appLogoUrl, darkMode }: WalletLinkConnectorArguments) {
@@ -30,13 +34,29 @@ export class WalletLinkConnector extends AbstractConnector {
 
   public async activate(): Promise<ConnectorUpdate> {
     if (!this.walletLink) {
-      const WalletLink = await import('walletlink').then(m => m?.default ?? m)
+      const WalletLink = await import('walletlink').then((m) => m?.default ?? m)
       this.walletLink = new WalletLink({
         appName: this.appName,
         darkMode: this.darkMode,
-        ...(this.appLogoUrl ? { appLogoUrl: this.appLogoUrl } : {})
+        ...(this.appLogoUrl ? { appLogoUrl: this.appLogoUrl } : {}),
       })
-      this.provider = this.walletLink.makeWeb3Provider(this.url, CHAIN_ID)
+      const provider = this.walletLink.makeWeb3Provider(this.url, CHAIN_ID)
+
+      provider.request = provider.request.bind(provider)
+      provider.setAppInfo = provider.setAppInfo.bind(provider)
+      provider.enable = provider.enable.bind(provider)
+      provider.close = provider.close.bind(provider)
+      provider.send = provider.send.bind(provider)
+      provider.sendAsync = provider.sendAsync.bind(provider)
+      provider.request = provider.request.bind(provider)
+      provider.scanQRCode = provider.scanQRCode.bind(provider)
+      provider.arbitraryRequest = provider.arbitraryRequest.bind(provider)
+      provider.childRequestEthereumAccounts = provider.childRequestEthereumAccounts.bind(provider)
+
+      provider.on('chainChanged', this.handleChainChanged)
+      provider.on('accountsChanged', this.handleAccountsChanged)
+
+      this.provider = provider
     }
 
     const account = await this.provider.send('eth_requestAccounts').then((accounts: string[]): string => accounts[0])
@@ -44,7 +64,7 @@ export class WalletLinkConnector extends AbstractConnector {
     this.provider.on('chainChanged', this.handleChainChanged)
     this.provider.on('accountsChanged', this.handleAccountsChanged)
 
-    return { provider: this.provider, chainId: CHAIN_ID, account: account }
+    return { provider: this.provider, chainId: CHAIN_ID, account }
   }
 
   public async getProvider(): Promise<any> {
@@ -70,16 +90,10 @@ export class WalletLinkConnector extends AbstractConnector {
   }
 
   private handleChainChanged(chainId: number | string): void {
-    if (__DEV__) {
-      console.log("Handling 'chainChanged' event with payload", chainId)
-    }
     this.emitUpdate({ chainId })
   }
 
   private handleAccountsChanged(accounts: string[]): void {
-    if (__DEV__) {
-      console.log("Handling 'accountsChanged' event with payload", accounts)
-    }
     this.emitUpdate({ account: accounts[0] })
   }
 }
