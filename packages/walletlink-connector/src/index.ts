@@ -12,15 +12,11 @@ interface WalletLinkConnectorArguments {
 
 export class WalletLinkConnector extends AbstractConnector {
   private readonly url: string
-
   private readonly appName: string
-
   private readonly appLogoUrl?: string
-
   private readonly darkMode: boolean
 
   public walletLink: any
-
   private provider: any
 
   constructor({ url, appName, appLogoUrl, darkMode }: WalletLinkConnectorArguments) {
@@ -90,10 +86,16 @@ export class WalletLinkConnector extends AbstractConnector {
   }
 
   private handleChainChanged(chainId: number | string): void {
+    if (__DEV__) {
+      console.log("Handling 'chainChanged' event with payload", chainId)
+    }
     this.emitUpdate({ chainId })
   }
 
   private handleAccountsChanged(accounts: string[]): void {
+    if (__DEV__) {
+      console.log("Handling 'accountsChanged' event with payload", accounts)
+    }
     this.emitUpdate({ account: accounts[0] })
   }
 }
