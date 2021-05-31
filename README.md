@@ -59,6 +59,8 @@ _Open a PR to add your project to the list!_
 - [Aave](https://app.aave.com)
 - [Eth2 Launchpad](https://launchpad.ethereum.org/)
 - [EthBlockArt](https://ethblock.art/)
+- [Vesper](https://app.vesper.finance)
+- [Pure Finance](https://pure.finance)
 
 
 ## Related Efforts
