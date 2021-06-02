@@ -17,12 +17,12 @@ import {
   walletlink,
   ledger,
   trezor,
+  lattice,
   frame,
   authereum,
   fortmatic,
   magic,
   portis,
-  squarelink,
   torus
 } from '../connectors'
 import { Spinner } from '../components/Spinner'
@@ -34,12 +34,12 @@ enum ConnectorNames {
   WalletLink = 'WalletLink',
   Ledger = 'Ledger',
   Trezor = 'Trezor',
+  Lattice = 'Lattice',
   Frame = 'Frame',
   Authereum = 'Authereum',
   Fortmatic = 'Fortmatic',
   Magic = 'Magic',
   Portis = 'Portis',
-  Squarelink = 'Squarelink',
   Torus = 'Torus'
 }
 
@@ -50,12 +50,12 @@ const connectorsByName: { [connectorName in ConnectorNames]: any } = {
   [ConnectorNames.WalletLink]: walletlink,
   [ConnectorNames.Ledger]: ledger,
   [ConnectorNames.Trezor]: trezor,
+  [ConnectorNames.Lattice]: lattice,
   [ConnectorNames.Frame]: frame,
   [ConnectorNames.Authereum]: authereum,
   [ConnectorNames.Fortmatic]: fortmatic,
   [ConnectorNames.Magic]: magic,
   [ConnectorNames.Portis]: portis,
-  [ConnectorNames.Squarelink]: squarelink,
   [ConnectorNames.Torus]: torus
 }
 
