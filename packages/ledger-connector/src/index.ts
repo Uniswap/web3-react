@@ -1,10 +1,9 @@
 import { ConnectorUpdate } from '@web3-react/types'
 import { AbstractConnector } from '@web3-react/abstract-connector'
 import Web3ProviderEngine from 'web3-provider-engine'
-import { ledgerEthereumBrowserClientFactoryAsync } from '@0x/subproviders/lib/src' // https://github.com/0xProject/0x-monorepo/issues/1400
-import { LedgerSubprovider } from '@0x/subproviders/lib/src/subproviders/ledger' // https://github.com/0xProject/0x-monorepo/issues/1400
 import CacheSubprovider from 'web3-provider-engine/subproviders/cache.js'
 import { RPCSubprovider } from '@0x/subproviders/lib/src/subproviders/rpc_subprovider' // https://github.com/0xProject/0x-monorepo/issues/1400
+import { LedgerSubprovider } from 'subprovider'
 
 interface LedgerConnectorArguments {
   chainId: number
@@ -20,7 +19,6 @@ export class LedgerConnector extends AbstractConnector {
   private readonly url: string
   private readonly pollingInterval?: number
   private readonly requestTimeoutMs?: number
-  private readonly accountFetchingConfigs?: any
   private readonly baseDerivationPath?: string
 
   private provider: any
@@ -30,7 +28,6 @@ export class LedgerConnector extends AbstractConnector {
     url,
     pollingInterval,
     requestTimeoutMs,
-    accountFetchingConfigs,
     baseDerivationPath
   }: LedgerConnectorArguments) {
     super({ supportedChainIds: [chainId] })
@@ -39,7 +36,6 @@ export class LedgerConnector extends AbstractConnector {
     this.url = url
     this.pollingInterval = pollingInterval
     this.requestTimeoutMs = requestTimeoutMs
-    this.accountFetchingConfigs = accountFetchingConfigs
     this.baseDerivationPath = baseDerivationPath
   }
 
@@ -49,8 +45,6 @@ export class LedgerConnector extends AbstractConnector {
       engine.addProvider(
         new LedgerSubprovider({
           networkId: this.chainId,
-          ledgerEthereumClientFactoryAsync: ledgerEthereumBrowserClientFactoryAsync,
-          accountFetchingConfigs: this.accountFetchingConfigs,
           baseDerivationPath: this.baseDerivationPath
         })
       )
@@ -73,7 +67,7 @@ export class LedgerConnector extends AbstractConnector {
   }
 
   public async getAccount(): Promise<null> {
-    return this.provider._providers[0].getAccountsAsync(1).then((accounts: string[]): string => accounts[0])
+    return (await this.provider._providers[0].getAccountsAsync(1))[0]
   }
 
   public deactivate() {

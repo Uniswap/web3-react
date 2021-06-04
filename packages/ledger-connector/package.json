@@ -36,8 +36,10 @@
   },
   "dependencies": {
     "@0x/subproviders": "^5.0.4",
+    "@ledgerhq/hw-transport-webhid": "^5.51.1",
     "@web3-react/abstract-connector": "^6.0.7",
-    "@web3-react/types": "^6.0.7"
+    "@web3-react/types": "^6.0.7",
+    "ethereumjs-tx": "^2.1.2"
   },
   "license": "GPL-3.0-or-later"
 }
