@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {useState} from 'react'
 import { Web3ReactProvider, useWeb3React, UnsupportedChainIdError } from '@web3-react/core'
 import {
   NoEthereumProviderError,
@@ -26,6 +26,7 @@ import {
   torus
 } from '../connectors'
 import { Spinner } from '../components/Spinner'
+import { AbstractConnector } from '@web3-react/abstract-connector'
 
 enum ConnectorNames {
   Injected = 'Injected',
@@ -233,6 +234,32 @@ function Header() {
   )
 }
 
+function KillSessionButton({ connector }: { connector: AbstractConnector }) {
+  if (
+    [walletconnect, walletlink, fortmatic, magic, portis, torus].includes(
+      connector
+    )
+  ) {
+    const name = Object.entries(connectorsByName).find(
+      ([, c]) => c === connector
+    )[0];
+    return (
+      <button
+        style={{
+          height: "3rem",
+          borderRadius: "1rem",
+          cursor: "pointer",
+        }}
+        onClick={() => (connector as any).close()}
+      >
+        Kill {name} Session
+      </button>
+    );
+  } else {
+    return null;
+  }
+}
+
 function App() {
   const context = useWeb3React<Web3Provider>()
   const { connector, library, chainId, account, activate, deactivate, active, error } = context
@@ -378,78 +405,8 @@ function App() {
             Switch Networks
           </button>
         )}
-        {connector === connectorsByName[ConnectorNames.WalletConnect] && (
-          <button
-            style={{
-              height: '3rem',
-              borderRadius: '1rem',
-              cursor: 'pointer'
-            }}
-            onClick={() => {
-              ;(connector as any).close()
-            }}
-          >
-            Kill WalletConnect Session
-          </button>
-        )}
-        {connector === connectorsByName[ConnectorNames.WalletLink] && (
-          <button
-            style={{
-              height: '3rem',
-              borderRadius: '1rem',
-              cursor: 'pointer'
-            }}
-            onClick={() => {
-              ;(connector as any).close()
-            }}
-          >
-            Kill WalletLink Session
-          </button>
-        )}
-        {connector === connectorsByName[ConnectorNames.Fortmatic] && (
-          <button
-            style={{
-              height: '3rem',
-              borderRadius: '1rem',
-              cursor: 'pointer'
-            }}
-            onClick={() => {
-              ;(connector as any).close()
-            }}
-          >
-            Kill Fortmatic Session
-          </button>
-        )}
-        {connector === connectorsByName[ConnectorNames.Magic] && (
-          <button
-            style={{
-              height: '3rem',
-              borderRadius: '1rem',
-              cursor: 'pointer'
-            }}
-            onClick={() => {
-              ;(connector as any).close()
-            }}
-          >
-            Kill Magic Session
-          </button>
-        )}
-        {connector === connectorsByName[ConnectorNames.Portis] && (
-          <>
-            {chainId !== undefined && (
-              <button
-                style={{
-                  height: '3rem',
-                  borderRadius: '1rem',
-                  cursor: 'pointer'
-                }}
-                onClick={() => {
-                  ;(connector as any).changeNetwork(chainId === 1 ? 100 : 1)
-                }}
-              >
-                Switch Networks
-              </button>
-            )}
+        {connector === connectorsByName[ConnectorNames.Portis] &&
+          chainId !== undefined && (
             <button
               style={{
                 height: '3rem',
@@ -457,27 +414,13 @@ function App() {
                 cursor: 'pointer'
               }}
               onClick={() => {
-                ;(connector as any).close()
+                ;(connector as any).changeNetwork(chainId === 1 ? 100 : 1)
               }}
             >
-              Kill Portis Session
+              Switch Networks
             </button>
-          </>
         )}
-        {connector === connectorsByName[ConnectorNames.Torus] && (
-          <button
-            style={{
-              height: '3rem',
-              borderRadius: '1rem',
-              cursor: 'pointer'
-            }}
-            onClick={() => {
-              ;(connector as any).close()
-            }}
-          >
-            Kill Torus Session
-          </button>
-        )}
+        <KillSessionButton connector={connector} />
       </div>
     </>
   )
