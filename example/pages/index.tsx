@@ -235,11 +235,15 @@ function Header() {
 }
 
 function KillSessionButton({ connector }: { connector: AbstractConnector }) {
-  if (
-    [walletconnect, walletlink, fortmatic, magic, portis, torus].includes(
-      connector
-    )
-  ) {
+  const killableConnectors: AbstractConnector[] = [
+    walletconnect,
+    walletlink,
+    fortmatic,
+    magic,
+    portis,
+    torus,
+  ];
+  if (killableConnectors.includes(connector)) {
     const name = Object.entries(connectorsByName).find(
       ([, c]) => c === connector
     )[0];
