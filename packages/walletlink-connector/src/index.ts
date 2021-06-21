@@ -7,7 +7,7 @@ interface WalletLinkConnectorArguments {
   url: string
   appName: string
   appLogoUrl?: string
-  darkMode?: boolean,
+  darkMode?: boolean
   supportedChainIds?: number[]
 }
 
