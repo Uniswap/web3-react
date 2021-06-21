@@ -8,6 +8,7 @@ interface WalletLinkConnectorArguments {
   appName: string
   appLogoUrl?: string
   darkMode?: boolean
+  supportedChainIds?: number[]
 }
 
 export class WalletLinkConnector extends AbstractConnector {
@@ -19,13 +20,16 @@ export class WalletLinkConnector extends AbstractConnector {
   public walletLink: any
   private provider: any
 
-  constructor({ url, appName, appLogoUrl, darkMode }: WalletLinkConnectorArguments) {
-    super({ supportedChainIds: [CHAIN_ID] })
+  constructor({ url, appName, appLogoUrl, darkMode, supportedChainIds }: WalletLinkConnectorArguments) {
+    super({ supportedChainIds: supportedChainIds })
 
     this.url = url
     this.appName = appName
     this.appLogoUrl = appLogoUrl
     this.darkMode = darkMode || false
+
+    this.handleChainChanged = this.handleChainChanged.bind(this)
+    this.handleAccountsChanged = this.handleAccountsChanged.bind(this)
   }
 
   public async activate(): Promise<ConnectorUpdate> {
@@ -73,7 +77,7 @@ export class WalletLinkConnector extends AbstractConnector {
     if (__DEV__) {
       console.log("Handling 'chainChanged' event with payload", chainId)
     }
-    this.emitUpdate({ chainId })
+    this.emitUpdate({ chainId: chainId })
   }
 
   private handleAccountsChanged(accounts: string[]): void {
