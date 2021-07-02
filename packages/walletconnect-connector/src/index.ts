@@ -35,7 +35,7 @@ export class WalletConnectConnector extends AbstractConnector {
     super({ supportedChainIds: getSupportedChains(config) })
 
     this.id = 'walletconnect'
-    
+
     this.config = config
 
     this.handleChainChanged = this.handleChainChanged.bind(this)
