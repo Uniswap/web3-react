@@ -921,10 +921,10 @@ util-deprecate@^1.0.1:
   resolved "https://registry.yarnpkg.com/util-deprecate/-/util-deprecate-1.0.2.tgz#450d4dc9fa70de732762fbd2d4a28981419a0ccf"
   integrity sha1-RQ1Nyfpw3nMnYvvS1KKJgUGaDM8=
 
-walletlink@^2.1.4:
-  version "2.1.5"
-  resolved "https://registry.yarnpkg.com/walletlink/-/walletlink-2.1.5.tgz#3ae305c51d77da2ea98b88943d597adc85b8b310"
-  integrity sha512-s1eLN9giGWePCalWZu8hys+WHvpsfxWuuYASxJQUH2X17p0/DnkdclysmI9E+hxwGtNQqho8N9axiBRcEOUcoA==
+walletlink@^2.1.6:
+  version "2.1.6"
+  resolved "https://registry.yarnpkg.com/walletlink/-/walletlink-2.1.6.tgz#4e48310af09bb0c940a156c26c1d0b1b9506ddb9"
+  integrity sha512-4M+8GrDq4zUCcRsbpBVIwMLVxJ8Fg8ybWi1E6K9d2cYHO1S9WnzsV5MN6HDyThBci00a+O3tKeUD++nVaUyA5g==
   dependencies:
     "@metamask/safe-event-emitter" "2.0.0"
     bind-decorator "^1.0.11"
