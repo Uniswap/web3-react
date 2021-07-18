@@ -124,7 +124,7 @@ export function useWeb3ReactManager(): Web3ReactManagerReturn {
       connector: AbstractConnector,
       onError?: (error: Error) => void,
       throwErrors: boolean = false
-    ): Promise<void> => {
+    ): Promise<ConnectorUpdate<number> | undefined> => {
       const updateBusterInitial = updateBusterRef.current
 
       let activated = false
@@ -158,6 +158,7 @@ export function useWeb3ReactManager(): Web3ReactManagerReturn {
           dispatch({ type: ActionType.ERROR_FROM_ACTIVATION, payload: { connector, error } })
         }
       }
+      return
     },
     []
   )
