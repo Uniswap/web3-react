@@ -142,6 +142,7 @@ export function useWeb3ReactManager(): Web3ReactManagerReturn {
           throw new StaleConnectorError()
         }
         dispatch({ type: ActionType.ACTIVATE_CONNECTOR, payload: { connector, ...augmentedUpdate, onError } })
+        return augmentedUpdate;
       } catch (error) {
         if (error instanceof StaleConnectorError) {
           activated && connector.deactivate()
