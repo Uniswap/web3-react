@@ -27,7 +27,7 @@
   "author": "Noah Zinsmeister <noahwz@gmail.com>",
   "repository": {
     "type": "git",
-    "url": "git://github.com/NoahZinsmeister/web3-react.git"
+    "url": "git://github.com/Faolain/dclimate-monorepo.git"
   },
   "scripts": {
     "bootstrap": "lerna bootstrap",
