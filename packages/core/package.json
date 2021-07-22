@@ -44,5 +44,6 @@
   "peerDependencies": {
     "react": ">=16.8"
   },
-  "license": "GPL-3.0-or-later"
+  "license": "GPL-3.0-or-later",
+  "gitHead": "e465c7fd2afe7bd3baf19a15b4d6ac1abc797b98"
 }
