@@ -1,0 +1,49 @@
+{
+  "name": "@blocto/blocto-connector",
+  "version": "0.1.2",
+  "description": "A Blocto SDK connector for web3-react",
+  "main": "dist/index.js",
+  "module": "dist/blocto-connector.esm.js",
+  "typings": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "start": "tsdx watch",
+    "build": "tsdx build",
+    "lint": "tsdx lint src"
+  },
+  "keywords": [
+    "react",
+    "react-hooks",
+    "hooks",
+    "javascript",
+    "typescript",
+    "web3",
+    "context",
+    "frontend",
+    "dapp",
+    "blocto",
+    "web3-react",
+    "blocto-sdk",
+    "eth",
+    "ethereum"
+  ],
+  "author": "Chiaki.C",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/portto/blocto-connector.git"
+  },
+  "dependencies": {
+    "@blocto/sdk": "^0.2.0",
+    "@web3-react/abstract-connector": "^6.0.7",
+    "@web3-react/types": "^6.0.7",
+    "tiny-invariant": "^1.1.0"
+  },
+  "devDependencies": {
+    "tsdx": "^0.14.1"
+  }
+}
