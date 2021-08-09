@@ -27,8 +27,7 @@ export const network = new NetworkConnector({
 
 export const walletconnect = new WalletConnectConnector({
   rpc: { 1: RPC_URLS[1] },
-  qrcode: true,
-  pollingInterval: POLLING_INTERVAL
+  qrcode: true
 })
 
 export const walletlink = new WalletLinkConnector({

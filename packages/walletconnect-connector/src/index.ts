@@ -1,10 +1,10 @@
 import { ConnectorUpdate } from '@web3-react/types'
 import { AbstractConnector } from '@web3-react/abstract-connector'
-import { IWalletConnectProviderOptions } from '@walletconnect/types'
+import { IWCEthRpcConnectionOptions } from '@walletconnect/types'
 
 export const URI_AVAILABLE = 'URI_AVAILABLE'
 
-export interface WalletConnectConnectorArguments extends IWalletConnectProviderOptions {
+export interface WalletConnectConnectorArguments extends IWCEthRpcConnectionOptions {
   supportedChainIds?: number[]
 }
 
@@ -58,29 +58,12 @@ export class WalletConnectConnector extends AbstractConnector {
       console.log("Handling 'disconnect' event")
     }
     this.emitDeactivate()
-    // we have to do this because of a @walletconnect/web3-provider bug
-    if (this.walletConnectProvider) {
-      this.walletConnectProvider.stop()
-      this.walletConnectProvider.removeListener('chainChanged', this.handleChainChanged)
-      this.walletConnectProvider.removeListener('accountsChanged', this.handleAccountsChanged)
-      this.walletConnectProvider = undefined
-    }
-
-    this.emitDeactivate()
   }
 
   public async activate(): Promise<ConnectorUpdate> {
     if (!this.walletConnectProvider) {
-      const WalletConnectProvider = await import('@walletconnect/web3-provider').then(m => m?.default ?? m)
+      const WalletConnectProvider = await import('@walletconnect/ethereum-provider').then(m => m?.default ?? m)
       this.walletConnectProvider = new WalletConnectProvider(this.config)
-    }
-
-    // ensure that the uri is going to be available, and emit an event if there's a new uri
-    if (!this.walletConnectProvider.wc.connected) {
-      await this.walletConnectProvider.wc.createSession({
-        chainId: this.supportedChainIds && this.supportedChainIds.length > 0 ? this.supportedChainIds[0] : 1
-      })
-      this.emit(URI_AVAILABLE, this.walletConnectProvider.wc.uri)
     }
 
     const account = await this.walletConnectProvider
@@ -107,23 +90,23 @@ export class WalletConnectConnector extends AbstractConnector {
   }
 
   public async getChainId(): Promise<number | string> {
-    return this.walletConnectProvider.send('eth_chainId')
+    return Promise.resolve(this.walletConnectProvider.chainId)
   }
 
   public async getAccount(): Promise<null | string> {
-    return this.walletConnectProvider.send('eth_accounts').then((accounts: string[]): string => accounts[0])
+    return Promise.resolve(this.walletConnectProvider.accounts).then((accounts: string[]): string => accounts[0])
   }
 
   public deactivate() {
     if (this.walletConnectProvider) {
-      this.walletConnectProvider.stop()
       this.walletConnectProvider.removeListener('disconnect', this.handleDisconnect)
       this.walletConnectProvider.removeListener('chainChanged', this.handleChainChanged)
       this.walletConnectProvider.removeListener('accountsChanged', this.handleAccountsChanged)
+      this.walletConnectProvider.disconnect()
     }
   }
 
   public async close() {
-    await this.walletConnectProvider?.close()
+    await this.walletConnectProvider?.disconnect()
   }
 }
