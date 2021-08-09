@@ -36,7 +36,6 @@ export class WalletConnectConnector extends AbstractConnector {
 
     this.handleChainChanged = this.handleChainChanged.bind(this)
     this.handleAccountsChanged = this.handleAccountsChanged.bind(this)
-    this.handleDisconnect = this.handleDisconnect.bind(this)
   }
 
   private handleChainChanged(chainId: number | string): void {
@@ -53,18 +52,14 @@ export class WalletConnectConnector extends AbstractConnector {
     this.emitUpdate({ account: accounts[0] })
   }
 
-  private handleDisconnect(): void {
-    if (__DEV__) {
-      console.log("Handling 'disconnect' event")
-    }
-    this.emitDeactivate()
-  }
-
   public async activate(): Promise<ConnectorUpdate> {
     if (!this.walletConnectProvider) {
       const WalletConnectProvider = await import('@walletconnect/ethereum-provider').then(m => m?.default ?? m)
       this.walletConnectProvider = new WalletConnectProvider(this.config)
     }
+
+    this.walletConnectProvider.on('chainChanged', this.handleChainChanged)
+    this.walletConnectProvider.on('accountsChanged', this.handleAccountsChanged)
 
     const account = await this.walletConnectProvider
       .enable()
@@ -77,10 +72,6 @@ export class WalletConnectConnector extends AbstractConnector {
 
         throw error
       })
-
-    this.walletConnectProvider.on('disconnect', this.handleDisconnect)
-    this.walletConnectProvider.on('chainChanged', this.handleChainChanged)
-    this.walletConnectProvider.on('accountsChanged', this.handleAccountsChanged)
 
     return { provider: this.walletConnectProvider, account }
   }
@@ -99,7 +90,6 @@ export class WalletConnectConnector extends AbstractConnector {
 
   public deactivate() {
     if (this.walletConnectProvider) {
-      this.walletConnectProvider.removeListener('disconnect', this.handleDisconnect)
       this.walletConnectProvider.removeListener('chainChanged', this.handleChainChanged)
       this.walletConnectProvider.removeListener('accountsChanged', this.handleAccountsChanged)
       this.walletConnectProvider.disconnect()
@@ -107,6 +97,6 @@ export class WalletConnectConnector extends AbstractConnector {
   }
 
   public async close() {
-    await this.walletConnectProvider?.disconnect()
+    this.emitDeactivate()
   }
 }
