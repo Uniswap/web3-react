@@ -15,6 +15,7 @@ interface MagicConnectorArguments {
   apiKey: string
   chainId: number
   email: string
+  decentralizedId: string
 }
 
 export class UserRejectedRequestError extends Error {
@@ -53,6 +54,7 @@ export class MagicConnector extends AbstractConnector {
   private readonly apiKey: string
   private readonly chainId: number
   private readonly email: string
+  public decentralizedId: string | undefined
 
   public magic: any
 
@@ -64,6 +66,7 @@ export class MagicConnector extends AbstractConnector {
     this.apiKey = apiKey
     this.chainId = chainId
     this.email = email
+    this.decentralizedId = undefined
   }
 
   public async activate(): Promise<ConnectorUpdate> {
@@ -83,7 +86,7 @@ export class MagicConnector extends AbstractConnector {
 
     if (!isLoggedIn) {
       try {
-        await this.magic.auth.loginWithMagicLink({ email: this.email })
+        this.decentralizedId = await this.magic.auth.loginWithMagicLink({ email: this.email })
       } catch (err) {
         if (!(err instanceof RPCError)) {
           throw err
