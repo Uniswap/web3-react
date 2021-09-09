@@ -183,7 +183,7 @@ Arguments:
 ### IMPORTANT: To use PortisConnector, you must install the SDK:
 
 ```bash
-yarn add @portis/web3@^2.0.0-beta.1
+yarn add @portis/web3@latest
 ```
 
 Manages connectivity to [Portis](https://www.portis.io/).
@@ -202,7 +202,7 @@ const Portis = Connectors.PortisConnector({
 
 Arguments:
 
-- `api: any` - An instance of the [`@portis/web3`](https://github.com/portis-project/web-sdk) API, version `^2.0.0-beta.1`.
+- `api: any` - An instance of the [`@portis/web3`](https://github.com/portis-project/web-sdk) API, latest version.
 
 - `dAppId: string` - Portis API key.
 
