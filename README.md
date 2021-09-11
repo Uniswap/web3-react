@@ -60,6 +60,7 @@ _Open a PR to add your project to the list!_
 - [Aave](https://app.aave.com)
 - [Eth2 Launchpad](https://launchpad.ethereum.org/)
 - [EthBlockArt](https://ethblock.art/)
+- [Float Capital](https://float.capital)
 
 ## Related Efforts
 
