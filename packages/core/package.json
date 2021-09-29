@@ -5,7 +5,7 @@
   },
   "version": "8.0.1-alpha.0",
   "type": "module",
-  "main": "dist/index.js",
+  "module": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
     "prebuild": "rm -rf dist",
