@@ -1,6 +1,6 @@
 # `web3-react` 🧰
 
-[![CI](https://github.com/NoahZinsmeister/web3-react/actions/workflows/CI.yml/badge.svg)](https://github.com/NoahZinsmeister/web3-react/actions/workflows/CI.yml)
+[![CI](https://github.com/NoahZinsmeister/web3-react/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/NoahZinsmeister/web3-react/actions/workflows/CI.yml)
 
 Warning: alpha code!
 
