@@ -3,7 +3,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "version": "8.0.1-alpha.0",
+  "version": "8.0.2-alpha.0",
   "type": "module",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -14,6 +14,6 @@
   },
   "dependencies": {
     "@metamask/detect-provider": "^1.2.0",
-    "@web3-react/types": "^8.0.1-alpha.0"
+    "@web3-react/types": "^8.0.2-alpha.0"
   }
 }
