@@ -1,5 +1,8 @@
 {
   "name": "@web3-react/network",
+  "publishConfig": {
+    "access": "public"
+  },
   "version": "8.0.0-alpha.0",
   "type": "module",
   "main": "dist/index.js",
