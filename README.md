@@ -6,10 +6,10 @@ Warning: alpha code!
 
 Tasks:
 - Other Connectors
-  - Frame
   - WalletLink
   - WalletConnect V2
   - Gnosis Safe
+  - Frame
   - Other injected connectors?
 - Address remaining TODOs in the code
 - Tests
@@ -19,8 +19,9 @@ Tasks:
 - Docs
 - Upgrade to Node 16 once LTS
 
+## Packages
 <details>
-  <summary><h2>Packages</h2></summary>
+  <summary>Details</summary>
 
 | Package                                               | `@alpha` Version                                                                                                                            | Size                                                                                                                                                           | Description |
 | ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
