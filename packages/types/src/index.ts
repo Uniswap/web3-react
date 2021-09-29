@@ -1,15 +1,40 @@
-export interface AbstractConnectorArguments {
-  supportedChainIds?: number[]
+import { State, StoreApi } from 'zustand/vanilla'
+import type { EventEmitter } from 'events'
+
+export interface Web3ReactState extends State {
+  chainId: number | undefined
+  accounts: string[] | undefined
+  activating: boolean
+  error: Error | undefined
 }
 
-export interface ConnectorUpdate<T = number | string> {
-  provider?: any
-  chainId?: T
-  account?: null | string
+export type Web3ReactStore = StoreApi<Web3ReactState>
+
+export interface Actions {
+  startActivation: () => void
+  update: (state: Partial<Pick<Web3ReactState, 'chainId' | 'accounts'>>) => void
+  reportError: (error: Error) => void
 }
 
-export enum ConnectorEvent {
-  Update = 'Web3ReactUpdate',
-  Error = 'Web3ReactError',
-  Deactivate = 'Web3ReactDeactivate'
+// per EIP-1193
+export interface RequestArguments {
+  readonly method: string
+  readonly params?: readonly unknown[] | object
+}
+
+// per EIP-1193
+export interface Provider extends EventEmitter {
+  request(args: RequestArguments): Promise<unknown>
+}
+
+export abstract class Connector {
+  protected readonly actions: Actions
+  public provider: Provider | undefined
+  public deactivate?(): Promise<void>
+
+  constructor(actions: Actions) {
+    this.actions = actions
+  }
+
+  public abstract activate(): Promise<void>
 }

@@ -1,5 +1,8 @@
 {
-  "version": "6.2.5",
+  "version": "independent",
+  "packages": [
+    "packages/*"
+  ],
   "npmClient": "yarn",
   "command": {
     "publish": {
@@ -7,8 +10,5 @@
         "*.md"
       ]
     }
-  },
-  "packages": [
-    "packages/*"
-  ]
+  }
 }

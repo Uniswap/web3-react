@@ -3,40 +3,30 @@ name: CI
 on:
   pull_request:
     branches:
-      - v6
+      - main
   push:
     branches:
-      - v6
+      - main
 
 jobs:
-  test:
-    strategy:
-      matrix:
-        node: ['10.x', '12.x']
-        os: [ubuntu-latest, macOS-latest]
-
+  build:
     runs-on: ${{ matrix.os }}
 
+    strategy:
+      matrix:
+        os:
+          - ubuntu-latest
+          - macOS-latest
+        node_version:
+          - 14
+
     steps:
-      - uses: actions/checkout@v1
-      - uses: actions/setup-node@v1
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
         with:
-          node-version: ${{ matrix.node }}
-
-      - run: npm install -g yarn
-
-      - id: yarn-cache
-        run: echo "::set-output name=dir::$(yarn cache dir)"
-      - uses: actions/cache@v1
-        with:
-          path: ${{ steps.yarn-cache.outputs.dir }}
-          key: ${{ matrix.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ matrix.os }}-yarn-
+          node-version: ${{ matrix.node_version }}
+          cache: 'yarn'
 
       - run: yarn
       - run: yarn bootstrap
-
-      - run: yarn lint
       - run: yarn build
-      - run: yarn test

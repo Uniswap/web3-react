@@ -1,5 +1,5 @@
 {
-  "name": "@web3-react/types",
+  "name": "@web3-react/walletconnect",
   "version": "8.0.0-alpha.0",
   "type": "module",
   "main": "dist/index.js",
@@ -9,7 +9,13 @@
     "build": "tsc",
     "start": "tsc --watch"
   },
+  "dependencies": {
+    "@web3-react/types": "^8.0.0-alpha.0"
+  },
   "peerDependencies": {
-    "zustand": "^3.5.10"
+    "@walletconnect/ethereum-provider": "^1.6.5"
+  },
+  "devDependencies": {
+    "@walletconnect/ethereum-provider": "^1.6.5"
   }
 }

@@ -1,5 +1,5 @@
 {
-  "name": "@web3-react/types",
+  "name": "@web3-react/metamask",
   "version": "8.0.0-alpha.0",
   "type": "module",
   "main": "dist/index.js",
@@ -9,7 +9,8 @@
     "build": "tsc",
     "start": "tsc --watch"
   },
-  "peerDependencies": {
-    "zustand": "^3.5.10"
+  "dependencies": {
+    "@metamask/detect-provider": "^1.2.0",
+    "@web3-react/types": "^8.0.0-alpha.0"
   }
 }

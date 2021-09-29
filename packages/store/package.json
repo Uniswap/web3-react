@@ -1,5 +1,5 @@
 {
-  "name": "@web3-react/types",
+  "name": "@web3-react/store",
   "version": "8.0.0-alpha.0",
   "type": "module",
   "main": "dist/index.js",
@@ -8,6 +8,10 @@
     "prebuild": "rm -rf dist",
     "build": "tsc",
     "start": "tsc --watch"
+  },
+  "dependencies": {
+    "@ethersproject/address": "^5.4.0",
+    "@web3-react/types": "^8.0.0-alpha.0"
   },
   "peerDependencies": {
     "zustand": "^3.5.10"

@@ -2,56 +2,26 @@
   "private": true,
   "name": "web3-react",
   "description": "A simple, maximally extensible, dependency minimized framework for building modern Ethereum dApps",
-  "keywords": [
-    "react",
-    "react-hooks",
-    "hooks",
-    "ethereum",
-    "javascript",
-    "typescript",
-    "web3",
-    "context",
-    "frontend",
-    "dapp",
-    "metamask",
-    "walletconnect",
-    "walletlink",
-    "frame",
-    "fortmatic",
-    "portis",
-    "squarelink",
-    "torus",
-    "authereum",
-    "magic"
-  ],
   "author": "Noah Zinsmeister <noahwz@gmail.com>",
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/NoahZinsmeister/web3-react.git"
+  "license": "GPL-3.0-or-later",
+  "engines": {
+    "node": "14"
   },
   "scripts": {
     "bootstrap": "lerna bootstrap",
-    "publish:lerna": "lerna publish",
-    "clean": "lerna clean --yes && lerna exec -- rimraf yarn.lock dist/ .rts2_cache_{cjs,esm}/",
     "build": "lerna run build",
-    "start": "lerna run --parallel --no-bail start -- --noClean",
-    "lint": "lerna run lint --parallel",
-    "test": "lerna run test --parallel"
+    "prestart": "yarn build",
+    "start": "lerna run start --parallel",
+    "clean": "lerna clean --yes"
   },
   "devDependencies": {
-    "@types/jest": "^24.0.21",
-    "@types/react": "^16.9.11",
-    "@types/react-dom": "^16.9.4",
-    "lerna": "^3.19.0",
-    "react": ">=16.8",
-    "react-dom": ">=16.8",
-    "rimraf": "^3.0.1",
-    "tsdx": "^0.11.0"
-  },
-  "license": "GPL-3.0-or-later",
-  "prettier": {
-    "semi": false,
-    "singleQuote": true,
-    "printWidth": 120
+    "@tsconfig/recommended": "^1.0.1",
+    "@types/node": "^16.9.0",
+    "@types/react": "^17.0.21",
+    "lerna": "^4.0.0",
+    "prettier": "2.3.2",
+    "react": "^17.0.2",
+    "typescript": "^4.4.2",
+    "zustand": "^3.5.10"
   }
 }
