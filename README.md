@@ -57,3 +57,9 @@ Because of a [lerna bug](https://github.com/lerna/lerna/issues/1883), it's not p
 - `rm -f packages/<SUBPACKAGE>/yarn.lock`
 - `yarn clean --scope SUBPACKAGE`
 - `yarn bootstrap`
+
+### Publishing
+
+- `yarn lerna publish`
+
+Note that because `packages/example` is set to private, sibling dependencies in `packages/example/package.json` are not updated during publishing, and must be manually bumped.
