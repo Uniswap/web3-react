@@ -8,7 +8,6 @@
     "@ethersproject/bignumber": "^5.4.2",
     "@ethersproject/units": "^5.4.0",
     "@web3-react/core": "^8.0.0-alpha.0",
-    "@web3-react/frame": "^8.0.0-alpha.0",
     "@web3-react/metamask": "^8.0.0-alpha.0",
     "@web3-react/network": "^8.0.0-alpha.0",
     "@web3-react/store": "^8.0.0-alpha.0",
