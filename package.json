@@ -13,8 +13,7 @@
     "prestart": "yarn build",
     "start": "lerna run start --parallel",
     "clean": "lerna clean --yes",
-    "prepublish:lerna": "yarn build",
-    "publish:lerna": "lerna publish"
+    "prepare": "yarn build"
   },
   "devDependencies": {
     "@tsconfig/recommended": "^1.0.1",
