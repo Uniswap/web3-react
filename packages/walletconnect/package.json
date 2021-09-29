@@ -3,7 +3,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "version": "8.0.0-alpha.0",
+  "version": "8.0.1-alpha.0",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -13,7 +13,7 @@
     "start": "tsc --watch"
   },
   "dependencies": {
-    "@web3-react/types": "^8.0.0-alpha.0"
+    "@web3-react/types": "^8.0.1-alpha.0"
   },
   "peerDependencies": {
     "@walletconnect/ethereum-provider": "^1.6.5"
