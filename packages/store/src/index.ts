@@ -1,5 +1,5 @@
-import create from 'zustand/vanilla'
 import { Web3ReactState, Web3ReactStore, Actions } from '@web3-react/types'
+import create from 'zustand/vanilla'
 import { getAddress } from '@ethersproject/address'
 
 function validateChainId(chainId: number): void {
@@ -11,6 +11,7 @@ function validateChainId(chainId: number): void {
 export class ChainIdNotAllowedError extends Error {
   public constructor(chainId: number, allowedChainIds: number[]) {
     super(`chainId ${chainId} not included in ${allowedChainIds}`)
+    this.name = ChainIdNotAllowedError.name
     Object.setPrototypeOf(this, ChainIdNotAllowedError.prototype)
   }
 }

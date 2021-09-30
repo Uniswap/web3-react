@@ -1,4 +1,4 @@
-import { State, StoreApi } from 'zustand/vanilla'
+import type { State, StoreApi } from 'zustand/vanilla'
 import type { EventEmitter } from 'events'
 
 export interface Web3ReactState extends State {

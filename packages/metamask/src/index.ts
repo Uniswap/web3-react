@@ -4,6 +4,7 @@ import type detectEthereumProvider from '@metamask/detect-provider'
 export class NoMetaMaskError extends Error {
   public constructor() {
     super('MetaMask not installed')
+    this.name = NoMetaMaskError.name
     Object.setPrototypeOf(this, NoMetaMaskError.prototype)
   }
 }

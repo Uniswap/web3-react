@@ -4,5 +4,6 @@
     "module": "ES2020",
     "declaration": true,
     "moduleResolution": "Node"
-  }
+  },
+  "exclude": ["**/*.spec.ts"]
 }

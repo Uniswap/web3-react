@@ -9,7 +9,7 @@ on:
       - main
 
 jobs:
-  build:
+  test:
     runs-on: ${{ matrix.os }}
 
     strategy:
@@ -30,3 +30,4 @@ jobs:
       - run: yarn
       - run: yarn bootstrap
       - run: yarn build
+      - run: yarn test
