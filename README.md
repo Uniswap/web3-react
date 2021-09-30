@@ -42,7 +42,7 @@ Tasks:
 
 In addition to compiling each package in watch mode, this will also spin up an example app on [http://localhost:3000/](http://localhost:3000/).
 
-To run tests, open another terminal and run:
+## Running Tests
 
 - `yarn test --watch`
 
