@@ -1,5 +1,5 @@
 import type { State, StoreApi } from 'zustand/vanilla'
-import type { EventEmitter } from 'events'
+import type { EventEmitter } from 'node:events'
 
 export interface Web3ReactState extends State {
   chainId: number | undefined
