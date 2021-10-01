@@ -32,11 +32,11 @@ export class WalletLink extends Connector {
 
   private async startListening(connectEagerly: boolean): Promise<void> {
     const { url, ...options } = this.options
+    
+     const WalletLinkProvider = await import('walletlink').then((m) => m?.default ?? m).then(m => m.WalletLink(options).makeWeb3Provider(url))
 
     await import('walletlink')
-      .then((m) => {
-        return new m.WalletLink(options).makeWeb3Provider(url)
-      })
+ 
       .then((provider) => {
         this.provider = (provider as unknown as Provider) ?? undefined
 
