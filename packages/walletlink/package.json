@@ -1,0 +1,25 @@
+{
+  "name": "@web3-react/walletlink",
+  "publishConfig": {
+    "access": "public"
+  },
+  "version": "8.0.2-alpha.0",
+  "type": "module",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "prebuild": "rm -rf dist",
+    "build": "tsc",
+    "start": "tsc --watch"
+  },
+  "dependencies": {
+    "@web3-react/types": "^8.0.2-alpha.0"
+  },
+  "devDependencies": {
+    "walletlink": "^2.1.11"
+  },
+  "peerDependencies": {
+    "walletlink": ">=2"
+  },
+  "exports": "./dist/index.js"
+}
