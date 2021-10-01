@@ -1,5 +1,5 @@
 import { Actions, Connector, Provider } from '@web3-react/types'
-import type { EventEmitter } from 'events'
+import type { EventEmitter } from 'node:events'
 import type WalletConnectProvider from '@walletconnect/ethereum-provider'
 import type { IWCEthRpcConnectionOptions } from '@walletconnect/types'
 
