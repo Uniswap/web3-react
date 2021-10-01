@@ -15,6 +15,8 @@
     "@web3-react/types": "^8.0.2-alpha.0",
     "@web3-react/walletconnect": "^8.0.2-alpha.0",
     "@web3-react/walletlink": "^8.0.2-alpha.0",
+    "eth-provider": "^0.9.4",
+    "walletlink": "^2.1.11",
     "next": "^11.1.2",
     "react-dom": "^17.0.2",
     "zustand": "^3.5.10"
