@@ -13,8 +13,13 @@
     "start": "tsc --watch"
   },
   "dependencies": {
-    "@web3-react/types": "^8.0.2-alpha.0",
+    "@web3-react/types": "^8.0.2-alpha.0"
+  },
+  "devDependencies": {
     "walletlink": "^2.1.11"
+  },
+  "peerDependencies": {
+    "walletlink": ">=2"
   },
   "exports": "./dist/index.js"
 }
