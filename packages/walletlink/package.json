@@ -19,7 +19,7 @@
     "walletlink": "^2.1.11"
   },
   "peerDependencies": {
-    "walletlink": ">=2"
+    "walletlink": "^2.1.11"
   },
   "exports": "./dist/index.js"
 }

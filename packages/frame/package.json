@@ -17,7 +17,7 @@
     "@web3-react/types": "8.0.2-alpha.0"
   },
   "peerDependencies": {
-    "eth-provider": ">=0.9"
+    "eth-provider": "^0.9.4"
   },
   "devDependencies": {
     "eth-provider": "^0.9.4"

@@ -8,6 +8,10 @@ const nextConfig = {
     alchemyKey: '_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC',
   },
   esmExternals: 'loose',
+  webpack: (config) => {
+    config.resolve.fallback = { events: require.resolve('events/'), process: require.resolve('process/browser') }
+    return config
+  },
 }
 
 module.exports = nextConfig
