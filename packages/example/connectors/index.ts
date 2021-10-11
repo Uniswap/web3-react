@@ -5,6 +5,7 @@ import { metaMask, useMetaMask } from './metaMask'
 import { walletConnect, useWalletConnect } from './walletConnect'
 import { walletLink, useWalletLink } from './walletLink'
 import { frame, useFrame } from './frame'
+import { magic, useMagic } from './magic'
 
 export const connectors: [Connector, UseStore<Web3ReactState>][] = [
   [network, useNetwork],
@@ -12,4 +13,5 @@ export const connectors: [Connector, UseStore<Web3ReactState>][] = [
   [walletConnect, useWalletConnect],
   [walletLink, useWalletLink],
   [frame, useFrame],
+  [magic, useMagic],
 ]

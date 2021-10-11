@@ -13,7 +13,7 @@ function parseChainId(chainId: string) {
   return Number.parseInt(chainId, 16)
 }
 
-interface WalletLinkConnectorArguments extends WalletLinkOptions {
+export interface WalletLinkConnectorArguments extends WalletLinkOptions {
   url: string
 }
 
