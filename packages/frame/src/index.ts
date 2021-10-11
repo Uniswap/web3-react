@@ -1,11 +1,10 @@
 import { Connector, Actions, Provider } from '@web3-react/types'
-import type { WalletLinkOptions } from 'walletlink/dist/WalletLink'
 
-export class NoWalletLinkError extends Error {
+export class NoFrameError extends Error {
   public constructor() {
-    super('WalletLink not installed')
-    this.name = NoWalletLinkError.name
-    Object.setPrototypeOf(this, NoWalletLinkError.prototype)
+    super('Frame not installed')
+    this.name = NoFrameError.name
+    Object.setPrototypeOf(this, NoFrameError.prototype)
   }
 }
 
@@ -13,15 +12,17 @@ function parseChainId(chainId: string) {
   return Number.parseInt(chainId, 16)
 }
 
-interface WalletLinkConnectorArguments extends WalletLinkOptions {
-  url: string
+interface FrameConnectorArguments {
+  infuraId?: string
+  alchemyId?: string
+  origin?: string
 }
 
-export class WalletLink extends Connector {
-  private readonly options: WalletLinkConnectorArguments
+export class Frame extends Connector {
+  private readonly options?: FrameConnectorArguments
   private providerPromise?: Promise<void>
 
-  constructor(actions: Actions, options: WalletLinkConnectorArguments, connectEagerly = true) {
+  constructor(actions: Actions, options?: FrameConnectorArguments, connectEagerly = true) {
     super(actions)
     this.options = options
 
@@ -31,13 +32,17 @@ export class WalletLink extends Connector {
   }
 
   private async startListening(connectEagerly: boolean): Promise<void> {
-    const { url, ...options } = this.options
+    const ethProvider = await import('eth-provider').then((m) => m.default)
 
-    const provider = await import('walletlink')
-      .then((m) => m.WalletLink)
-      .then((WalletLink) => new WalletLink(options).makeWeb3Provider(url))
+    let provider: Provider
 
-    this.provider = (provider as unknown as Provider) ?? undefined
+    try {
+      provider = ethProvider('frame', this.options)
+    } catch (e) {
+      this.actions.reportError(e)
+    }
+
+    this.provider = (provider as Provider) ?? undefined
 
     if (this.provider) {
       this.provider.on('connect', ({ chainId }: { chainId: string }): void => {
@@ -90,7 +95,7 @@ export class WalletLink extends Connector {
           this.actions.reportError(error)
         })
     } else {
-      this.actions.reportError(new NoWalletLinkError())
+      this.actions.reportError(new NoFrameError())
     }
   }
 }

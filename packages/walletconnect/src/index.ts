@@ -23,7 +23,7 @@ export class WalletConnect extends Connector {
   }
 
   private async startListening(connectEagerly: boolean): Promise<void> {
-    const WalletConnectProvider = await import('@walletconnect/ethereum-provider').then((m) => m?.default ?? m)
+    const WalletConnectProvider = await import('@walletconnect/ethereum-provider').then((m) => m.default)
 
     this.provider = new WalletConnectProvider(this.options) as unknown as MockWalletConnectProvider
 

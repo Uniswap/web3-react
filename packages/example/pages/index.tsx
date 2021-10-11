@@ -1,5 +1,5 @@
 import dynamic from 'next/dynamic'
-import { UseStore } from 'zustand'
+import { UseStore } from 'zustand/esm'
 import { Connector, Web3ReactState } from '@web3-react/types'
 import { connectors } from '../connectors'
 import { useChainId, useAccounts, useENSNames, useError, useActivating, useProvider } from '@web3-react/core'

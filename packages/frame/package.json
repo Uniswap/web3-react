@@ -1,5 +1,5 @@
 {
-  "name": "@web3-react/types",
+  "name": "@web3-react/frame",
   "publishConfig": {
     "access": "public"
   },
@@ -12,7 +12,13 @@
     "build": "tsc",
     "start": "tsc --watch"
   },
+  "dependencies": {
+    "@web3-react/types": "8.0.2-alpha.0"
+  },
   "peerDependencies": {
-    "zustand": "^3.5.10"
+    "eth-provider": "^0.9.4"
+  },
+  "devDependencies": {
+    "eth-provider": "^0.9.4"
   }
 }

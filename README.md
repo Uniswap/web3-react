@@ -58,7 +58,7 @@ In addition to compiling each package in watch mode, this will also spin up an e
 
 Because of a [lerna bug](https://github.com/lerna/lerna/issues/1883), it's not possible to prune `yarn.lock` programmatically, so regenerate it manually:
 
-- `rm -f packages/<SUBPACKAGE>/yarn.lock`
+- `yarn lerna exec 'rm -f yarn.lock' --scope SUBPACKAGE`
 - `yarn clean --scope SUBPACKAGE`
 - `yarn bootstrap`
 
