@@ -19,7 +19,6 @@ jobs:
           - macOS-latest
         node_version:
           - 14
-          - 16
 
     steps:
       - uses: actions/checkout@v2
