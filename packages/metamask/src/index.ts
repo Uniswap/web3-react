@@ -32,7 +32,7 @@ export class MetaMask extends Connector {
 
   private async startListening(connectEagerly: boolean): Promise<void> {
     await import('@metamask/detect-provider')
-      .then((m) => m?.default ?? m)
+      .then((m) => m.default)
       .then((detectEthereumProvider) => detectEthereumProvider(this.options))
       .then((provider) => {
         this.provider = (provider as Provider) ?? undefined

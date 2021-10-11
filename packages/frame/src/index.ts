@@ -32,7 +32,7 @@ export class Frame extends Connector {
   }
 
   private async startListening(connectEagerly: boolean): Promise<void> {
-    const ethProvider = await import('eth-provider').then((m) => m?.default ?? m)
+    const ethProvider = await import('eth-provider').then((m) => m.default)
 
     let provider: Provider
 
