@@ -62,6 +62,7 @@ _Open a PR to add your project to the list!_
 - [EthBlockArt](https://ethblock.art/)
 - [Foundation](https://foundation.app)
 - [Float Capital](https://float.capital)
+- [the pixel portraits](https://www.thepixelportraits.me)
 
 ## Related Efforts
 
