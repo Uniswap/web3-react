@@ -18,5 +18,6 @@
   },
   "peerDependencies": {
     "zustand": "^3.5.10"
-  }
+  },
+  "gitHead": "9461726911d45849d76642bc60fec57e84234cd7"
 }

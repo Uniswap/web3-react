@@ -20,5 +20,6 @@
   },
   "peerDependencies": {
     "walletlink": "^2.1.11"
-  }
+  },
+  "gitHead": "9461726911d45849d76642bc60fec57e84234cd7"
 }

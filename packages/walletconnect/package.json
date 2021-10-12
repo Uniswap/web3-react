@@ -20,5 +20,6 @@
   },
   "devDependencies": {
     "@walletconnect/ethereum-provider": "^1.6.5"
-  }
+  },
+  "gitHead": "9461726911d45849d76642bc60fec57e84234cd7"
 }

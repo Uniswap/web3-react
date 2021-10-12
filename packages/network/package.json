@@ -16,5 +16,6 @@
     "@ethersproject/experimental": "^5.4.0",
     "@ethersproject/providers": "^5.4.5",
     "@web3-react/types": "^8.0.3-alpha.0"
-  }
+  },
+  "gitHead": "9461726911d45849d76642bc60fec57e84234cd7"
 }

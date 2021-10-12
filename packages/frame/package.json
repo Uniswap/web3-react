@@ -20,5 +20,6 @@
   },
   "devDependencies": {
     "eth-provider": "^0.9.4"
-  }
+  },
+  "gitHead": "9461726911d45849d76642bc60fec57e84234cd7"
 }

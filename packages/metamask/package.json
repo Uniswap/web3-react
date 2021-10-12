@@ -15,5 +15,6 @@
   "dependencies": {
     "@metamask/detect-provider": "^1.2.0",
     "@web3-react/types": "^8.0.3-alpha.0"
-  }
+  },
+  "gitHead": "9461726911d45849d76642bc60fec57e84234cd7"
 }
