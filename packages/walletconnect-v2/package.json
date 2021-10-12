@@ -1,0 +1,25 @@
+{
+  "name": "@web3-react/walletconnect-v2",
+  "publishConfig": {
+    "access": "public"
+  },
+  "version": "8.0.4-alpha.0",
+  "type": "module",
+  "exports": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "prebuild": "rm -rf dist",
+    "build": "tsc",
+    "start": "tsc --watch"
+  },
+  "dependencies": {
+    "@walletconnect/types": "2.0.0-beta.18.2",
+    "@web3-react/types": "^8.0.4-alpha.0"
+  },
+  "peerDependencies": {
+    "@walletconnect/client": "^2.0.0-beta.18"
+  },
+  "devDependencies": {
+    "@walletconnect/client": "^2.0.0-beta.18"
+  }
+}
