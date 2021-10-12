@@ -63,6 +63,7 @@ _Open a PR to add your project to the list!_
 - [Foundation](https://foundation.app)
 - [Float Capital](https://float.capital)
 - [Refinable](https://refinable.com)
+- [the pixel portraits](https://www.thepixelportraits.me)
 
 ## Related Efforts
 
