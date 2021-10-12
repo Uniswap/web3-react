@@ -2,21 +2,25 @@ import { Actions, Connector } from '@web3-react/types'
 import type { EventEmitter } from 'node:events'
 import WalletConnectProvider from '@walletconnect/client'
 import { CLIENT_EVENTS } from '@walletconnect/client'
-import { ClientOptions, PairingTypes, SessionTypes } from '@walletconnect/types'
+import { ClientOptions, PairingTypes, SessionTypes, ClientTypes } from '@walletconnect/types'
 
 interface MockWalletConnectProvider
   extends Omit<WalletConnectProvider, 'on' | 'off' | 'once' | 'removeListener'>,
     EventEmitter {}
 
+export interface WalletConnectArguments extends ClientOptions {
+  connectParams: ClientTypes.ConnectParams
+}
+
 export class WalletConnect extends Connector {
-  private readonly options?: ClientOptions
+  private readonly options?: WalletConnectArguments
   private providerPromise?: Promise<void>
 
   public provider: MockWalletConnectProvider // type error
 
   session?: SessionTypes.Settled
 
-  constructor(actions: Actions, options?: ClientOptions, connectEagerly = true) {
+  constructor(actions: Actions, options?: WalletConnectArguments, connectEagerly = true) {
     super(actions)
     this.options = options
 
@@ -34,7 +38,7 @@ export class WalletConnect extends Connector {
     })
 
     if ((client.session?.topics || []).length) {
-      const session = await client.connect({})
+      const session = await client.connect(this.options?.connectParams!)
       this.session = session
       // where do we handle a session?
     }
