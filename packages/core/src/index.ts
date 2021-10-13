@@ -1,5 +1,5 @@
 import { createWeb3ReactStoreAndActions } from '@web3-react/store'
-import { Connector, Web3ReactState } from '@web3-react/types'
+import { Connector, Web3ReactState, Actions } from '@web3-react/types'
 import create, { UseStore } from 'zustand'
 import { useEffect, useMemo, useState } from 'react'
 import { Web3Provider } from '@ethersproject/providers'
@@ -9,13 +9,10 @@ interface IConstructor<T> {
   new (...args: any[]): T
 }
 
-export function initializeConnector<T extends Connector>(
-  Connector: IConstructor<T>,
-  constructorArgs: any = [] // TODO: really unfortunate that we can't type this
-): [T, UseStore<Web3ReactState>] {
+export function initializeConnector<T extends Connector>(f: (actions: Actions) => T): [T, UseStore<Web3ReactState>] {
   const [store, actions] = createWeb3ReactStoreAndActions()
 
-  const instance = new Connector(actions, ...constructorArgs)
+  const instance = f(actions)
   const useConnector = create<Web3ReactState>(store)
 
   return [instance, useConnector]
