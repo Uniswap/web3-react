@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react'
 import { BigNumber } from '@ethersproject/bignumber'
 import { formatEther } from '@ethersproject/units'
 import { Magic } from '@web3-react/magic'
+import { Network } from '@web3-react/network'
 
 function Status({
   connector,
@@ -97,6 +98,8 @@ function Connect({ connector, useConnector }: { connector: Connector; useConnect
   const accounts = useAccounts(useConnector)
   const connected = Boolean(chainId && accounts)
 
+  const [activateArgs, setActivateArgs] = useState<any[]>([])
+
   if (error) {
     return (
       <button
@@ -109,29 +112,52 @@ function Connect({ connector, useConnector }: { connector: Connector; useConnect
     )
   } else if (connected) {
     return (
-      <button
-        onClick={() => {
-          if (connector?.deactivate) {
-            connector.deactivate()
-          }
-        }}
-        disabled={connector.deactivate ? false : true}
-      >
-        {connector.deactivate ? 'Disconnect' : 'Connected'}
-      </button>
+      <>
+        {connector instanceof Network ? (
+          <label>
+            Network:
+            <select value={`${chainId}`} onChange={(event) => connector.activate(Number(event.target.value))}>
+              <option value="1">Mainnet</option>
+              <option value="3">Ropsten</option>
+              <option value="4">Rinkeby</option>
+              <option value="42">Kovan</option>
+              <option value="10">Optimism</option>
+              <option value="42161">Arbitrum</option>
+            </select>
+          </label>
+        ) : null}
+        <button
+          onClick={() => {
+            if (connector?.deactivate) {
+              connector.deactivate()
+            }
+          }}
+          disabled={connector.deactivate ? false : true}
+        >
+          {connector.deactivate ? 'Disconnect' : 'Connected'}
+        </button>
+      </>
     )
   } else {
     return (
-      <button
-        onClick={() => {
-          if (!activating) {
-            connector.activate()
-          }
-        }}
-        disabled={activating ? true : false}
-      >
-        {activating ? 'Connecting...' : 'Activate'}
-      </button>
+      <>
+        {connector instanceof Magic ? (
+          <label>
+            Email:{' '}
+            <input type="email" name="email" onChange={(event) => setActivateArgs([{ email: event.target.value }])} />
+          </label>
+        ) : null}
+        <button
+          onClick={() => {
+            if (!activating) {
+              connector.activate(...activateArgs)
+            }
+          }}
+          disabled={activating ? true : false}
+        >
+          {activating ? 'Connecting...' : 'Activate'}
+        </button>
+      </>
     )
   }
 }
@@ -159,11 +185,6 @@ export function Connectors() {
             <br />
             <ChainId useConnector={useConnector} />
             <Accounts connector={connector} useConnector={useConnector} />
-            {connector instanceof Magic ? (
-              <label>
-                Email: <input type="email" name="email" onChange={(event) => (connector.email = event.target.value)} />
-              </label>
-            ) : null}
             <br />
           </div>
           <Connect connector={connector} useConnector={useConnector} />

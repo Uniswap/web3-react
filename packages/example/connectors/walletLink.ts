@@ -5,7 +5,7 @@ import { URLS } from './network'
 export const [walletLink, useWalletLink] = initializeConnector<WalletLink>(
   (actions) =>
     new WalletLink(actions, {
-      url: URLS[0],
+      url: URLS[1][0],
       appName: 'web3-react',
     })
 )

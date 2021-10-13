@@ -5,6 +5,9 @@ import { URLS } from './network'
 export const [walletConnect, useWalletConnect] = initializeConnector<WalletConnect>(
   (actions) =>
     new WalletConnect(actions, {
-      rpc: { 1: URLS[0] },
+      rpc: Object.keys(URLS).reduce((accumulator, chainId) => {
+        accumulator[chainId] = URLS[chainId][0]
+        return accumulator
+      }, {}),
     })
 )

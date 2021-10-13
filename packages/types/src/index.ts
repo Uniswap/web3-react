@@ -36,5 +36,5 @@ export abstract class Connector {
     this.actions = actions
   }
 
-  public abstract activate(): Promise<void>
+  public abstract activate(...args: any[]): Promise<void>
 }

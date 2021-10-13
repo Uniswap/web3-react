@@ -1,9 +1,9 @@
 import { Connector, Actions } from '@web3-react/types'
-import type { Magic as MagicInstance, MagicSDKAdditionalConfiguration } from 'magic-sdk'
-
-function parseChainId(chainId: string) {
-  return Number.parseInt(chainId, 16)
-}
+import type {
+  Magic as MagicInstance,
+  MagicSDKAdditionalConfiguration,
+  LoginWithMagicLinkConfiguration,
+} from 'magic-sdk'
 
 export interface MagicConnectorArguments extends MagicSDKAdditionalConfiguration {
   apiKey: string
@@ -12,29 +12,20 @@ export interface MagicConnectorArguments extends MagicSDKAdditionalConfiguration
 export class Magic extends Connector {
   private readonly options: MagicConnectorArguments
   public magic?: MagicInstance
-  private _email: string = ''
 
   constructor(actions: Actions, options: MagicConnectorArguments) {
     super(actions)
     this.options = options
   }
 
-  get email() {
-    return this._email
-  }
-
-  set email(email: string) {
-    this._email = email
-  }
-
-  private async startListening(): Promise<void> {
+  private async startListening(configuration: LoginWithMagicLinkConfiguration): Promise<void> {
     const { apiKey, ...options } = this.options
 
     return import('magic-sdk')
       .then((m) => m.Magic)
       .then((Magic) => (this.magic = new Magic(apiKey, options)))
       .then(async () => {
-        await this.magic!.auth.loginWithMagicLink({ email: this.email })
+        await this.magic!.auth.loginWithMagicLink(configuration)
 
         const [{ Web3Provider }, { Eip1193Bridge }] = await Promise.all([
           import('@ethersproject/providers'),
@@ -47,10 +38,10 @@ export class Magic extends Connector {
       })
   }
 
-  public async activate(): Promise<void> {
+  public async activate(configuration: LoginWithMagicLinkConfiguration): Promise<void> {
     this.actions.startActivation()
 
-    await this.startListening().catch((error) => {
+    await this.startListening(configuration).catch((error) => {
       this.actions.reportError(error)
     })
 

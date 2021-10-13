@@ -1,6 +1,4 @@
 import { Connector, Actions, Provider } from '@web3-react/types'
-import type { Networkish } from '@ethersproject/networks'
-import type { FallbackProviderConfig } from '@ethersproject/providers/lib.esm/fallback-provider'
 import type { ConnectionInfo } from '@ethersproject/web'
 
 type url = string | ConnectionInfo
@@ -8,61 +6,55 @@ type url = string | ConnectionInfo
 export class Network extends Connector {
   public provider: Provider | undefined
 
-  private readonly instantiateProvider: () => Promise<void>
+  private providerCache: { [chainId: number]: Provider } = {}
+  private readonly instantiateProvider: (chainId?: number) => Promise<void>
 
-  constructor(
-    actions: Actions,
-    urls: url | url[],
-    network?: Networkish,
-    fallbackProviderConfigs?: Omit<FallbackProviderConfig, 'provider'>[],
-    quorum?: number
-  ) {
+  constructor(actions: Actions, urlMap: { [chainId: number]: url | url[] }) {
     super(actions)
 
-    if (!Array.isArray(urls)) {
-      if (fallbackProviderConfigs) {
-        throw new Error('fallbackProviderConfigs defined with a single url')
+    this.instantiateProvider = async (chainId) => {
+      if (typeof chainId === 'undefined') {
+        chainId = Number(Object.keys(urlMap)[0])
       }
-      if (quorum) {
-        throw new Error('quorum defined with a single url')
-      }
-      urls = [urls]
-    } else {
-      if (fallbackProviderConfigs && fallbackProviderConfigs.length !== urls.length) {
-        throw new Error('fallbackProviderConfigs length does not match urls length')
-      }
-    }
 
-    this.instantiateProvider = async () => {
+      // load provider from cache if possible
+      if (this.providerCache[chainId]) {
+        this.provider = this.providerCache[chainId]
+      }
+
+      // instantiate new provider
       const [{ JsonRpcProvider, FallbackProvider }, { Eip1193Bridge }] = await Promise.all([
         import('@ethersproject/providers'),
         import('@ethersproject/experimental'),
       ])
 
-      const providers = (urls as url[]).map((url) => new JsonRpcProvider(url, network))
+      let urls = urlMap[chainId]
+      if (typeof urls === 'undefined') {
+        throw new Error(`no urls provided for chainId ${chainId}`)
+      }
+      if (!Array.isArray(urls)) {
+        urls = [urls]
+      }
 
-      this.provider = new Eip1193Bridge(
+      const providers = urls.map((url) => new JsonRpcProvider(url, chainId))
+      const provider = new Eip1193Bridge(
         // TODO: use VoidSigner here?
         providers[0].getSigner(),
-        providers.length === 1
-          ? providers[0]
-          : new FallbackProvider(
-              fallbackProviderConfigs
-                ? fallbackProviderConfigs.map((config, i) => ({ ...config, provider: providers[i] }))
-                : providers,
-              quorum
-            )
+        providers.length === 1 ? providers[0] : new FallbackProvider(providers)
       )
+
+      this.providerCache[chainId] = provider
+      this.provider = provider
     }
   }
 
-  public async activate(): Promise<void> {
+  public async activate(desiredChainId?: number): Promise<void> {
     this.actions.startActivation()
 
-    await this.instantiateProvider()
-    // this.provider guaranteed to be defined now
+    await this.instantiateProvider(desiredChainId)
+    // this.provider guaranteed to be defined now, and for the correct chainId
 
-    const chainId = await ((this.provider as Provider).request({ method: 'eth_chainId' }) as Promise<number>)
+    const chainId = (await this.provider!.request({ method: 'eth_chainId' })) as number
 
     this.actions.update({ chainId, accounts: [] })
   }
