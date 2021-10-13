@@ -7,4 +7,4 @@ export const URLS = [
   'https://cloudflare-eth.com',
 ].filter((url) => url)
 
-export const [network, useNetwork] = initializeConnector<Network>(Network, [URLS])
+export const [network, useNetwork] = initializeConnector<Network>((actions) => new Network(actions, URLS))

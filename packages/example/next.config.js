@@ -8,7 +8,12 @@ const nextConfig = {
   },
   esmExternals: true,
   webpack: (config) => {
-    config.resolve.fallback = { events: require.resolve('events/'), process: require.resolve('process/browser') }
+    config.resolve.fallback = {
+      events: require.resolve('events/'),
+      process: require.resolve('process/browser'),
+      bufferutil: false,
+      'utf-8-validate': false,
+    }
     return config
   },
 }

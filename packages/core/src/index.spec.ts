@@ -33,7 +33,7 @@ describe('#initializeConnector', () => {
   let useConnector: UseStore<Web3ReactState>
 
   beforeEach(() => {
-    ;[connector, useConnector] = initializeConnector(MockConnector)
+    ;[connector, useConnector] = initializeConnector((actions) => new MockConnector(actions))
   })
 
   // #useChainId
