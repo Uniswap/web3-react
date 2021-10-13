@@ -3,7 +3,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "version": "8.0.4-alpha.0",
+  "version": "8.0.5-alpha.0",
   "type": "module",
   "exports": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@ethersproject/address": "^5.4.0",
-    "@web3-react/types": "^8.0.4-alpha.0"
+    "@web3-react/types": "^8.0.5-alpha.0"
   },
   "peerDependencies": {
     "zustand": "^3.5.10"
