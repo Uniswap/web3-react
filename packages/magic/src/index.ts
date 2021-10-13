@@ -18,10 +18,10 @@ export interface MagicConnectorArguments extends MagicSDKAdditionalConfiguration
 }
 
 export class Magic extends Connector {
-  private readonly options?: NonNullable<MagicConnectorArguments>
+  private readonly options?: MagicConnectorArguments
   private providerPromise?: Promise<void>
 
-  constructor(actions: Actions, options?: NonNullable<MagicConnectorArguments>, connectEagerly = true) {
+  constructor(actions: Actions, options: MagicConnectorArguments, connectEagerly = true) {
     super(actions)
     this.options = options
 

@@ -99,5 +99,5 @@ export function createWeb3ReactStoreAndActions(allowedChainIds?: number[]): [Web
     store.setState(() => ({ ...DEFAULT_STATE, error }))
   }
 
-  return [store as Web3ReactStore, { startActivation, update, reportError }]
+  return [store, { startActivation, update, reportError }]
 }
