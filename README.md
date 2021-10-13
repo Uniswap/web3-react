@@ -66,6 +66,9 @@ Because of a [lerna bug](https://github.com/lerna/lerna/issues/1883), it's not p
 
 ### Publishing
 
+- `yarn lerna version`
+
+Note that `packages/example` is set to private, so sibling dependencies in `packages/example/package.json` are not updated during publishing, and must be manually bumped.
+
 - `yarn lerna publish`
 
-Note that because `packages/example` is set to private, sibling dependencies in `packages/example/package.json` are not updated during publishing, and must be manually bumped.
