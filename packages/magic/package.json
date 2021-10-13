@@ -1,0 +1,26 @@
+{
+  "name": "@web3-react/magic",
+  "publishConfig": {
+    "access": "public"
+  },
+  "version": "8.0.4-alpha.0",
+  "type": "module",
+  "exports": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "prebuild": "rm -rf dist",
+    "build": "tsc",
+    "start": "tsc --watch"
+  },
+  "dependencies": {
+    "@ethersproject/experimental": "^5.4.0",
+    "@ethersproject/providers": "^5.4.5",
+    "@web3-react/types": "^8.0.4-alpha.0"
+  },
+  "devDependencies": {
+    "magic-sdk": "^6.1.0"
+  },
+  "peerDependencies": {
+    "magic-sdk": "^6.1.0"
+  }
+}

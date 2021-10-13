@@ -5,6 +5,7 @@ import { useChainId, useAccounts, useENSNames, useError, useActivating, useProvi
 import { useEffect, useState } from 'react'
 import { BigNumber } from '@ethersproject/bignumber'
 import { formatEther } from '@ethersproject/units'
+import { Magic } from '@web3-react/magic'
 
 function Status({
   connector,
@@ -158,6 +159,11 @@ export function Connectors() {
             <br />
             <ChainId useConnector={useConnector} />
             <Accounts connector={connector} useConnector={useConnector} />
+            {connector instanceof Magic ? (
+              <label>
+                Email: <input type="email" name="email" onChange={(event) => (connector.email = event.target.value)} />
+              </label>
+            ) : null}
             <br />
           </div>
           <Connect connector={connector} useConnector={useConnector} />

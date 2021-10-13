@@ -10,6 +10,7 @@
     "@walletconnect/ethereum-provider": "^1.6.5",
     "@web3-react/core": "8.0.4-alpha.0",
     "@web3-react/frame": "8.0.4-alpha.0",
+    "@web3-react/magic": "8.0.4-alpha.0",
     "@web3-react/metamask": "8.0.4-alpha.0",
     "@web3-react/network": "8.0.4-alpha.0",
     "@web3-react/store": "8.0.4-alpha.0",

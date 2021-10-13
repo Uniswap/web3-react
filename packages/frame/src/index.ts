@@ -38,8 +38,8 @@ export class Frame extends Connector {
 
     try {
       provider = ethProvider('frame', this.options)
-    } catch (e) {
-      this.actions.reportError(e)
+    } catch (error) {
+      this.actions.reportError(error)
     }
 
     this.provider = (provider as Provider) ?? undefined
