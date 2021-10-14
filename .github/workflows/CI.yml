@@ -31,4 +31,3 @@ jobs:
       - run: yarn bootstrap
       - run: yarn build
       - run: yarn test
-      - run: yarn lerna exec 'yarn next build' --scope=example

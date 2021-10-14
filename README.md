@@ -2,22 +2,22 @@
 
 [![CI](https://github.com/NoahZinsmeister/web3-react/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/NoahZinsmeister/web3-react/actions/workflows/CI.yml)
 
+[Example](https://web3-react-mu.vercel.app/)
+
 Warning: alpha code!
 
 Tasks:
-- Other Connectors
-  - WalletLink
+- Write other connectors
   - WalletConnect V2
   - Gnosis Safe
-  - Frame
   - Other injected connectors?
+- Tighten up experimental connectors
 - Address remaining TODOs in the code
-- Tests
+- More tests
 - Ensure dist/ files can be consumed in e.g. CRA
-- Host example/ on CodeSandbox
-- Work on DevEx
 - Docs
-- Upgrade to Node 16 once LTS
+- Test Node 12 support
+- Add Node 16 support once LTS
 
 ## Packages
 
