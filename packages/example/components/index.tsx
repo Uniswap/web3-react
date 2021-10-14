@@ -7,6 +7,27 @@ import { formatEther } from '@ethersproject/units'
 import { Magic } from '@web3-react/magic'
 import { Network } from '@web3-react/network'
 import { WalletConnect } from '@web3-react/walletconnect'
+import { Frame } from '@web3-react/frame'
+import { MetaMask } from '@web3-react/metamask'
+import { WalletLink } from '@web3-react/walletlink'
+
+function getName(connector: Connector) {
+  if (connector instanceof Frame) {
+    return 'Frame (Experimental)'
+  } else if (connector instanceof Magic) {
+    return 'Magic (Experimental)'
+  } else if (connector instanceof MetaMask) {
+    return 'MetaMask'
+  } else if (connector instanceof Network) {
+    return 'Network'
+  } else if (connector instanceof WalletConnect) {
+    return 'WalletConnect'
+  } else if (connector instanceof WalletLink) {
+    return 'WalletLink'
+  } else {
+    return 'Unknown'
+  }
+}
 
 function Status({
   connector,
@@ -23,7 +44,7 @@ function Status({
 
   return (
     <div>
-      <b>{connector.constructor.name}</b>
+      <b>{getName(connector)}</b>
       <br />
       {error ? (
         <>
