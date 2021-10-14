@@ -3,13 +3,17 @@ import { Connector, Web3ReactState, Actions } from '@web3-react/types'
 import create, { UseStore } from 'zustand'
 import { useEffect, useMemo, useState } from 'react'
 import { Web3Provider } from '@ethersproject/providers'
+import type { Networkish } from '@ethersproject/networks'
 
 export type Web3ReactHooks = ReturnType<typeof getStateHooks> &
   ReturnType<typeof getDerivedHooks> &
   ReturnType<typeof getAugmentedHooks>
 
-export function initializeConnector<T extends Connector>(f: (actions: Actions) => T): [T, Web3ReactHooks] {
-  const [store, actions] = createWeb3ReactStoreAndActions()
+export function initializeConnector<T extends Connector>(
+  f: (actions: Actions) => T,
+  allowedChainIds?: number[]
+): [T, Web3ReactHooks] {
+  const [store, actions] = createWeb3ReactStoreAndActions(allowedChainIds)
 
   const connector = f(actions)
   const useConnector = create<Web3ReactState>(store)
@@ -96,45 +100,39 @@ function getAugmentedHooks<T extends Connector>(
   { useChainId, useAccounts, useError }: ReturnType<typeof getStateHooks>,
   { useAccount, useIsActive }: ReturnType<typeof getDerivedHooks>
 ) {
-  function useProvider(): Web3Provider | undefined {
+  function useProvider(network?: Networkish): Web3Provider | undefined {
     const isActive = useIsActive()
 
     const chainId = useChainId()
     const accounts = useChainId()
 
     // we use chainId and accounts to re-render in case connector.provider changes in place
-    const { provider } = connector
-
     return useMemo(() => {
-      if (isActive && provider) {
-        return new Web3Provider(provider)
+      if (isActive && connector.provider) {
+        return new Web3Provider(connector.provider, network)
       }
-    }, [isActive, provider, chainId, accounts])
+    }, [isActive, connector.provider, chainId, accounts])
   }
 
-  function useENSNames(): string[] | undefined {
-    const provider = useProvider()
+  function useENSNames(provider: Web3Provider | undefined): string[] | undefined {
     const accounts = useAccounts()
 
     return useENS(provider, accounts)
   }
 
-  function useENSName(): string | undefined {
-    const provider = useProvider()
+  function useENSName(provider: Web3Provider | undefined): string | undefined {
     const account = useAccount()
 
     return useENS(provider, typeof account === 'undefined' ? undefined : [account])?.[0]
   }
 
   // for backwards compatibility only
-  function useWeb3React() {
+  function useWeb3React(provider: Web3Provider | undefined) {
     const chainId = useChainId()
     const error = useError()
 
     const account = useAccount()
     const isActive = useIsActive()
-
-    const provider = useProvider()
 
     return {
       connector,

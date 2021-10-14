@@ -1,17 +1,6 @@
-import {
-  initializeConnector,
-  useChainId,
-  useAccounts,
-  useAccount,
-  useActivating,
-  useError,
-  useProvider,
-  useENSNames,
-  useENSName,
-} from './'
-import { Connector, Actions, Web3ReactState } from '@web3-react/types'
-import { renderHook } from '@testing-library/react-hooks'
-import { UseStore } from 'zustand'
+import { initializeConnector, Web3ReactHooks } from './'
+import { Connector, Actions } from '@web3-react/types'
+import { renderHook, act } from '@testing-library/react-hooks'
 
 class MockConnector extends Connector {
   constructor(actions: Actions) {
@@ -30,115 +19,96 @@ class MockConnector extends Connector {
 
 describe('#initializeConnector', () => {
   let connector: MockConnector
-  let useConnector: UseStore<Web3ReactState>
+  let hooks: Web3ReactHooks
 
   beforeEach(() => {
-    ;[connector, useConnector] = initializeConnector((actions) => new MockConnector(actions))
+    ;[connector, hooks] = initializeConnector((actions) => new MockConnector(actions))
   })
 
-  // #useChainId
-  afterEach(() => {
-    const { result } = renderHook(() => useConnector())
-    const {
+  test('#useChainId', () => {
+    let {
       result: { current: chainId },
-    } = renderHook(() => useChainId(useConnector))
-    expect(result.current.chainId).toBe(chainId)
+    } = renderHook(() => hooks.useChainId())
+    expect(chainId).toBe(undefined)
+
+    act(() => connector.update({ chainId: 1 }))
+    ;({
+      result: { current: chainId },
+    } = renderHook(() => hooks.useChainId()))
+    expect(chainId).toBe(1)
   })
 
-  // #useAccounts
-  // #useAccount
-  afterEach(() => {
-    const { result } = renderHook(() => useConnector())
-    const {
-      result: { current: accounts },
-    } = renderHook(() => useAccounts(useConnector))
-    expect(result.current.accounts).toEqual(accounts)
-    const {
-      result: { current: account },
-    } = renderHook(() => useAccount(useConnector))
-    expect(result.current.accounts?.[0]).toBe(account)
+  describe('#useAccounts', () => {
+    test('empty', async () => {
+      let {
+        result: { current: accounts },
+      } = renderHook(() => hooks.useAccounts())
+      expect(accounts).toBe(undefined)
+
+      act(() => connector.update({ accounts: [] }))
+      ;({
+        result: { current: accounts },
+      } = renderHook(() => hooks.useAccounts()))
+      expect(accounts).toEqual([])
+    })
+
+    test('single', () => {
+      let {
+        result: { current: accounts },
+      } = renderHook(() => hooks.useAccounts())
+      expect(accounts).toBe(undefined)
+
+      act(() => connector.update({ accounts: ['0x0000000000000000000000000000000000000000'] }))
+      ;({
+        result: { current: accounts },
+      } = renderHook(() => hooks.useAccounts()))
+      expect(accounts).toEqual(['0x0000000000000000000000000000000000000000'])
+    })
+
+    test('multiple', () => {
+      let {
+        result: { current: accounts },
+      } = renderHook(() => hooks.useAccounts())
+      expect(accounts).toBe(undefined)
+
+      act(() =>
+        connector.update({
+          accounts: ['0x0000000000000000000000000000000000000000', '0x0000000000000000000000000000000000000001'],
+        })
+      )
+      ;({
+        result: { current: accounts },
+      } = renderHook(() => hooks.useAccounts()))
+      expect(accounts).toEqual([
+        '0x0000000000000000000000000000000000000000',
+        '0x0000000000000000000000000000000000000001',
+      ])
+    })
   })
 
-  // #useActivating
-  afterEach(() => {
-    const { result } = renderHook(() => useConnector())
-    const {
+  test('#useIsActivating', async () => {
+    let {
       result: { current: activating },
-    } = renderHook(() => useActivating(useConnector))
-    expect(result.current.activating).toEqual(activating)
+    } = renderHook(() => hooks.useIsActivating())
+    expect(activating).toBe(false)
+
+    await act(() => connector.activate())
+    ;({
+      result: { current: activating },
+    } = renderHook(() => hooks.useIsActivating()))
+    expect(activating).toEqual(true)
   })
 
-  // #useActivating
-  afterEach(() => {
-    const { result } = renderHook(() => useConnector())
-    const {
+  test('#useError', () => {
+    let {
       result: { current: error },
-    } = renderHook(() => useError(useConnector))
-    expect(result.current.error).toEqual(error)
-  })
+    } = renderHook(() => hooks.useError())
+    expect(error).toBe(undefined)
 
-  test('initialized', () => {
-    expect(connector).toBeInstanceOf(Connector)
-    expect(connector).toBeInstanceOf(MockConnector)
-
-    const {
-      result: { current },
-    } = renderHook(() => useConnector())
-    expect(current).toEqual({
-      chainId: undefined,
-      accounts: undefined,
-      activating: false,
-      error: undefined,
-    })
-  })
-
-  test('chainId', () => {
-    connector.update({ chainId: 1 })
-  })
-
-  test('accounts (empty)', () => {
-    connector.update({ accounts: [] })
-  })
-
-  test('accounts (single)', () => {
-    connector.update({ accounts: ['0x0000000000000000000000000000000000000000'] })
-  })
-
-  test('accounts (empty)', () => {
-    connector.update({
-      accounts: ['0x0000000000000000000000000000000000000000', '0x0000000000000000000000000000000000000001'],
-    })
-  })
-
-  test('activating', () => {
-    connector.activate()
-  })
-
-  test('error', () => {
-    connector.reportError(new Error())
-  })
-
-  // TODO actually test this
-  test('#useProvider', () => {
-    const {
-      result: { current: provider },
-    } = renderHook(() => useProvider(connector, useConnector))
-    expect(provider).toBe(undefined)
-  })
-
-  // TODO actually test this
-  test('#useENSNames', () => {
-    const {
-      result: { current: names },
-    } = renderHook(() => useENSNames(connector, useConnector))
-    expect(names).toBe(undefined)
-  })
-
-  // TODO actually test this
-  test('#useENSName', () => {
-    const {
-      result: { current: name },
-    } = renderHook(() => useENSName(connector, useConnector))
-    expect(name).toBe(undefined)
+    act(() => connector.reportError(new Error()))
+    ;({
+      result: { current: error },
+    } = renderHook(() => hooks.useError()))
+    expect(error).toBeInstanceOf(Error)
   })
 })

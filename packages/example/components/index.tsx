@@ -6,6 +6,7 @@ import { BigNumber } from '@ethersproject/bignumber'
 import { formatEther } from '@ethersproject/units'
 import { Magic } from '@web3-react/magic'
 import { Network } from '@web3-react/network'
+import { WalletConnect } from '@web3-react/walletconnect'
 
 function Status({
   connector,
@@ -69,11 +70,16 @@ function useBalances(
   return balances
 }
 
-function Accounts({ hooks: { useAccounts, useProvider, useENSNames } }: { hooks: Web3ReactHooks }) {
+function Accounts({
+  useAnyNetwork,
+  hooks: { useAccounts, useProvider, useENSNames },
+}: {
+  useAnyNetwork: boolean
+  hooks: Web3ReactHooks
+}) {
+  const provider = useProvider(useAnyNetwork ? 'any' : undefined)
   const accounts = useAccounts()
-  const ENSNames = useENSNames()
-
-  const provider = useProvider()
+  const ENSNames = useENSNames(provider)
 
   const balances = useBalances(provider, accounts)
 
@@ -194,7 +200,7 @@ export function Connectors() {
             <Status connector={connector} hooks={hooks} />
             <br />
             <ChainId hooks={hooks} />
-            <Accounts hooks={hooks} />
+            <Accounts useAnyNetwork={connector instanceof WalletConnect} hooks={hooks} />
             <br />
           </div>
           <Connect connector={connector} hooks={hooks} />

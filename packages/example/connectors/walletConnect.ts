@@ -9,5 +9,6 @@ export const [walletConnect, hooks] = initializeConnector<WalletConnect>(
         accumulator[chainId] = URLS[chainId][0]
         return accumulator
       }, {}),
-    })
+    }),
+  Object.keys(URLS).map((chainId) => Number(chainId))
 )

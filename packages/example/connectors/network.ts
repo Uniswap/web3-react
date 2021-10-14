@@ -12,6 +12,7 @@ export const URLS = {
   5: [process.env.infuraKey ? `https://goerli.infura.io/v3/${process.env.infuraKey}` : undefined],
   42: [process.env.infuraKey ? `https://kovan.infura.io/v3/${process.env.infuraKey}` : undefined],
   10: [process.env.infuraKey ? `https://optimism-mainnet.infura.io/v3/${process.env.infuraKey}` : undefined],
+  137: [process.env.infuraKey ? `https://polygon-mainnet.infura.io/v3/${process.env.infuraKey}` : undefined],
   42161: [process.env.infuraKey ? `https://arbitrum-mainnet.infura.io/v3/${process.env.infuraKey}` : undefined],
 }
 
@@ -25,4 +26,7 @@ for (const chainId of Object.keys(URLS)) {
   }
 }
 
-export const [network, hooks] = initializeConnector<Network>((actions) => new Network(actions, URLS))
+export const [network, hooks] = initializeConnector<Network>(
+  (actions) => new Network(actions, URLS),
+  Object.keys(URLS).map((chainId) => Number(chainId))
+)

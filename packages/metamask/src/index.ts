@@ -14,26 +14,21 @@ function parseChainId(chainId: string) {
 }
 
 export class MetaMask extends Connector {
-  private readonly options?: NonNullable<Parameters<typeof detectEthereumProvider>[0]>
-  private providerPromise?: Promise<void>
+  private readonly options?: Parameters<typeof detectEthereumProvider>[0]
+  private eagerConnection?: Promise<void>
 
-  constructor(
-    actions: Actions,
-    options?: NonNullable<Parameters<typeof detectEthereumProvider>[0]>,
-    connectEagerly = true
-  ) {
+  constructor(actions: Actions, connectEagerly = true, options?: Parameters<typeof detectEthereumProvider>[0]) {
     super(actions)
     this.options = options
 
     if (connectEagerly) {
-      this.providerPromise = this.startListening(connectEagerly)
+      this.eagerConnection = this.initialize(true)
     }
   }
 
-  private async startListening(connectEagerly: boolean): Promise<void> {
-    await import('@metamask/detect-provider')
-      .then((m) => m.default)
-      .then((detectEthereumProvider) => detectEthereumProvider(this.options))
+  private async initialize(connectEagerly: boolean): Promise<void> {
+    return import('@metamask/detect-provider')
+      .then((m) => m.default(this.options))
       .then((provider) => {
         this.provider = (provider as Provider) ?? undefined
 
@@ -57,7 +52,7 @@ export class MetaMask extends Connector {
               this.provider.request({ method: 'eth_accounts' }) as Promise<string[]>,
             ])
               .then(([chainId, accounts]) => {
-                if (accounts.length > 0) {
+                if (accounts.length) {
                   this.actions.update({ chainId: parseChainId(chainId), accounts })
                 }
               })
@@ -72,18 +67,18 @@ export class MetaMask extends Connector {
   public async activate(): Promise<void> {
     this.actions.startActivation()
 
-    if (!this.providerPromise) {
-      this.providerPromise = this.startListening(false)
+    if (!this.eagerConnection) {
+      this.eagerConnection = this.initialize(false)
     }
-    await this.providerPromise
+    await this.eagerConnection
 
     if (this.provider) {
-      await Promise.all([
+      return Promise.all([
         this.provider.request({ method: 'eth_chainId' }) as Promise<string>,
         this.provider.request({ method: 'eth_requestAccounts' }) as Promise<string[]>,
       ])
         .then(([chainId, accounts]) => {
-          this.actions.update({ chainId: Number.parseInt(chainId, 16), accounts })
+          this.actions.update({ chainId: parseChainId(chainId), accounts })
         })
         .catch((error) => {
           this.actions.reportError(error)

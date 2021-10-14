@@ -64,39 +64,41 @@ describe('#createWeb3ReactStoreAndActions', () => {
       })
     })
 
-    test('accounts (empty)', () => {
-      const [store, actions] = createWeb3ReactStoreAndActions()
-      const accounts: string[] = []
-      actions.update({ accounts })
-      expect(store.getState()).toEqual({
-        chainId: undefined,
-        accounts,
-        activating: false,
-        error: undefined,
+    describe('accounts', () => {
+      test('empty', () => {
+        const [store, actions] = createWeb3ReactStoreAndActions()
+        const accounts: string[] = []
+        actions.update({ accounts })
+        expect(store.getState()).toEqual({
+          chainId: undefined,
+          accounts,
+          activating: false,
+          error: undefined,
+        })
       })
-    })
 
-    test('accounts (single)', () => {
-      const [store, actions] = createWeb3ReactStoreAndActions()
-      const accounts = ['0x0000000000000000000000000000000000000000']
-      actions.update({ accounts })
-      expect(store.getState()).toEqual({
-        chainId: undefined,
-        accounts,
-        activating: false,
-        error: undefined,
+      test('single', () => {
+        const [store, actions] = createWeb3ReactStoreAndActions()
+        const accounts = ['0x0000000000000000000000000000000000000000']
+        actions.update({ accounts })
+        expect(store.getState()).toEqual({
+          chainId: undefined,
+          accounts,
+          activating: false,
+          error: undefined,
+        })
       })
-    })
 
-    test('accounts (many)', () => {
-      const [store, actions] = createWeb3ReactStoreAndActions()
-      const accounts = ['0x0000000000000000000000000000000000000000', '0x0000000000000000000000000000000000000001']
-      actions.update({ accounts })
-      expect(store.getState()).toEqual({
-        chainId: undefined,
-        accounts,
-        activating: false,
-        error: undefined,
+      test('multiple', () => {
+        const [store, actions] = createWeb3ReactStoreAndActions()
+        const accounts = ['0x0000000000000000000000000000000000000000', '0x0000000000000000000000000000000000000001']
+        actions.update({ accounts })
+        expect(store.getState()).toEqual({
+          chainId: undefined,
+          accounts,
+          activating: false,
+          error: undefined,
+        })
       })
     })
 
