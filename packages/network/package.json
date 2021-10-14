@@ -3,7 +3,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "version": "8.0.5-alpha.0",
+  "version": "8.0.6-alpha.0",
   "type": "module",
   "exports": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -15,7 +15,7 @@
   "dependencies": {
     "@ethersproject/experimental": "^5.4.0",
     "@ethersproject/providers": "^5.4.5",
-    "@web3-react/types": "^8.0.5-alpha.0"
+    "@web3-react/types": "^8.0.6-alpha.0"
   },
   "gitHead": "9461726911d45849d76642bc60fec57e84234cd7"
 }
