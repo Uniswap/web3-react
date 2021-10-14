@@ -7,18 +7,15 @@ export const URLS = {
     process.env.alchemyKey ? `https://eth-mainnet.alchemyapi.io/v2/${process.env.alchemyKey}` : undefined,
     'https://cloudflare-eth.com',
   ],
-  3: [process.env.infuraKey ? `https://ropsten.infura.io/v3/${process.env.infuraKey}` : undefined].filter((url) => url),
-  4: [process.env.infuraKey ? `https://rinkeby.infura.io/v3/${process.env.infuraKey}` : undefined].filter((url) => url),
-  5: [process.env.infuraKey ? `https://goerli.infura.io/v3/${process.env.infuraKey}` : undefined].filter((url) => url),
-  42: [process.env.infuraKey ? `https://kovan.infura.io/v3/${process.env.infuraKey}` : undefined].filter((url) => url),
-  10: [process.env.infuraKey ? `https://optimism-mainnet.infura.io/v3/${process.env.infuraKey}` : undefined].filter(
-    (url) => url
-  ),
-  42161: [process.env.infuraKey ? `https://arbitrum-mainnet.infura.io/v3/${process.env.infuraKey}` : undefined].filter(
-    (url) => url
-  ),
+  3: [process.env.infuraKey ? `https://ropsten.infura.io/v3/${process.env.infuraKey}` : undefined],
+  4: [process.env.infuraKey ? `https://rinkeby.infura.io/v3/${process.env.infuraKey}` : undefined],
+  5: [process.env.infuraKey ? `https://goerli.infura.io/v3/${process.env.infuraKey}` : undefined],
+  42: [process.env.infuraKey ? `https://kovan.infura.io/v3/${process.env.infuraKey}` : undefined],
+  10: [process.env.infuraKey ? `https://optimism-mainnet.infura.io/v3/${process.env.infuraKey}` : undefined],
+  42161: [process.env.infuraKey ? `https://arbitrum-mainnet.infura.io/v3/${process.env.infuraKey}` : undefined],
 }
 
+// filter out invalid urls
 for (const chainId of Object.keys(URLS)) {
   const filtered: string[] = URLS[chainId].filter((url) => url)
   if (filtered.length === 0) {
@@ -28,4 +25,4 @@ for (const chainId of Object.keys(URLS)) {
   }
 }
 
-export const [network, useNetwork] = initializeConnector<Network>((actions) => new Network(actions, URLS))
+export const [network, hooks] = initializeConnector<Network>((actions) => new Network(actions, URLS))

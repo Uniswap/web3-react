@@ -1,7 +1,6 @@
-import { UseStore } from 'zustand/esm'
-import { Connector, Web3ReactState } from '@web3-react/types'
+import { Connector } from '@web3-react/types'
 import { connectors } from '../connectors'
-import { useChainId, useAccounts, useENSNames, useError, useActivating, useProvider } from '@web3-react/core'
+import { Web3ReactHooks } from '@web3-react/core'
 import { useEffect, useState } from 'react'
 import { BigNumber } from '@ethersproject/bignumber'
 import { formatEther } from '@ethersproject/units'
@@ -10,14 +9,14 @@ import { Network } from '@web3-react/network'
 
 function Status({
   connector,
-  useConnector,
+  hooks: { useChainId, useAccounts, useError },
 }: {
-  connector: InstanceType<typeof Connector>
-  useConnector: UseStore<Web3ReactState>
+  connector: Connector
+  hooks: Web3ReactHooks
 }) {
-  const chainId = useChainId(useConnector)
-  const accounts = useAccounts(useConnector)
-  const error = useError(useConnector)
+  const chainId = useChainId()
+  const accounts = useAccounts()
+  const error = useError()
 
   const connected = Boolean(chainId && accounts)
 
@@ -38,24 +37,18 @@ function Status({
   )
 }
 
-function ChainId({ useConnector }: { useConnector: UseStore<Web3ReactState> }) {
-  const chainId = useChainId(useConnector)
+function ChainId({ hooks: { useChainId } }: { hooks: Web3ReactHooks }) {
+  const chainId = useChainId()
 
   return <div>Chain Id: {chainId ? <b>{chainId}</b> : '-'}</div>
 }
 
-function Accounts({
-  connector,
-  useConnector,
-}: {
-  connector: InstanceType<typeof Connector>
-  useConnector: UseStore<Web3ReactState>
-}) {
-  const accounts = useAccounts(useConnector)
-  const ENSNames = useENSNames(connector, useConnector)
+function useBalances(
+  provider?: ReturnType<Web3ReactHooks['useProvider']>,
+  accounts?: string[]
+): BigNumber[] | undefined {
+  const [balances, setBalances] = useState<BigNumber[] | undefined>()
 
-  const provider = useProvider(connector, useConnector)
-  const [balances, setBalances] = useState<BigNumber[] | undefined>(undefined)
   useEffect(() => {
     if (provider && accounts?.length) {
       let stale = false
@@ -71,7 +64,18 @@ function Accounts({
         setBalances(undefined)
       }
     }
-  }, [accounts])
+  }, [provider, accounts])
+
+  return balances
+}
+
+function Accounts({ hooks: { useAccounts, useProvider, useENSNames } }: { hooks: Web3ReactHooks }) {
+  const accounts = useAccounts()
+  const ENSNames = useENSNames()
+
+  const provider = useProvider()
+
+  const balances = useBalances(provider, accounts)
 
   return (
     <div>
@@ -90,13 +94,18 @@ function Accounts({
   )
 }
 
-function Connect({ connector, useConnector }: { connector: Connector; useConnector: UseStore<Web3ReactState> }) {
-  const activating = useActivating(useConnector)
-  const error = useError(useConnector)
+function Connect({
+  connector,
+  hooks: { useChainId, useIsActivating, useError, useIsActive },
+}: {
+  connector: Connector
+  hooks: Web3ReactHooks
+}) {
+  const chainId = useChainId()
+  const isActivating = useIsActivating()
+  const error = useError()
 
-  const chainId = useChainId(useConnector)
-  const accounts = useAccounts(useConnector)
-  const connected = Boolean(chainId && accounts)
+  const active = useIsActive()
 
   const [activateArgs, setActivateArgs] = useState<any[]>([])
 
@@ -110,7 +119,7 @@ function Connect({ connector, useConnector }: { connector: Connector; useConnect
         Try Again?
       </button>
     )
-  } else if (connected) {
+  } else if (active) {
     return (
       <>
         {connector instanceof Network ? (
@@ -120,6 +129,7 @@ function Connect({ connector, useConnector }: { connector: Connector; useConnect
               <option value="1">Mainnet</option>
               <option value="3">Ropsten</option>
               <option value="4">Rinkeby</option>
+              <option value="5">Görli</option>
               <option value="42">Kovan</option>
               <option value="10">Optimism</option>
               <option value="42161">Arbitrum</option>
@@ -128,7 +138,7 @@ function Connect({ connector, useConnector }: { connector: Connector; useConnect
         ) : null}
         <button
           onClick={() => {
-            if (connector?.deactivate) {
+            if (connector.deactivate) {
               connector.deactivate()
             }
           }}
@@ -149,13 +159,13 @@ function Connect({ connector, useConnector }: { connector: Connector; useConnect
         ) : null}
         <button
           onClick={() => {
-            if (!activating) {
+            if (!isActivating) {
               connector.activate(...activateArgs)
             }
           }}
-          disabled={activating ? true : false}
+          disabled={isActivating ? true : false}
         >
-          {activating ? 'Connecting...' : 'Activate'}
+          {isActivating ? 'Connecting...' : 'Activate'}
         </button>
       </>
     )
@@ -165,7 +175,7 @@ function Connect({ connector, useConnector }: { connector: Connector; useConnect
 export function Connectors() {
   return (
     <div style={{ display: 'flex', flexFlow: 'wrap', fontFamily: 'sans-serif' }}>
-      {connectors.map(([connector, useConnector], i) => (
+      {connectors.map(([connector, hooks], i) => (
         <div
           key={i}
           style={{
@@ -181,13 +191,13 @@ export function Connectors() {
           }}
         >
           <div>
-            <Status connector={connector} useConnector={useConnector} />
+            <Status connector={connector} hooks={hooks} />
             <br />
-            <ChainId useConnector={useConnector} />
-            <Accounts connector={connector} useConnector={useConnector} />
+            <ChainId hooks={hooks} />
+            <Accounts hooks={hooks} />
             <br />
           </div>
-          <Connect connector={connector} useConnector={useConnector} />
+          <Connect connector={connector} hooks={hooks} />
         </div>
       ))}
     </div>

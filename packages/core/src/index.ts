@@ -4,65 +4,69 @@ import create, { UseStore } from 'zustand'
 import { useEffect, useMemo, useState } from 'react'
 import { Web3Provider } from '@ethersproject/providers'
 
-// https://stackoverflow.com/questions/24677592/generic-type-inference-with-class-argument/26696435#26696435
-interface IConstructor<T> {
-  new (...args: any[]): T
-}
+export type Web3ReactHooks = ReturnType<typeof getStateHooks> &
+  ReturnType<typeof getDerivedHooks> &
+  ReturnType<typeof getAugmentedHooks>
 
-export function initializeConnector<T extends Connector>(f: (actions: Actions) => T): [T, UseStore<Web3ReactState>] {
+export function initializeConnector<T extends Connector>(f: (actions: Actions) => T): [T, Web3ReactHooks] {
   const [store, actions] = createWeb3ReactStoreAndActions()
 
-  const instance = f(actions)
+  const connector = f(actions)
   const useConnector = create<Web3ReactState>(store)
 
-  return [instance, useConnector]
+  const stateHooks = getStateHooks(useConnector)
+  const derivedHooks = getDerivedHooks(stateHooks)
+
+  const augmentedHooks = getAugmentedHooks(connector, stateHooks, derivedHooks)
+
+  return [connector, { ...stateHooks, ...derivedHooks, ...augmentedHooks }]
 }
 
 const CHAIN_ID = (state: Web3ReactState) => state.chainId
-export function useChainId(useConnector: UseStore<Web3ReactState>): Web3ReactState['chainId'] {
-  return useConnector(CHAIN_ID)
-}
-
 const ACCOUNTS = (state: Web3ReactState) => state.accounts
-export function useAccounts(useConnector: UseStore<Web3ReactState>): Web3ReactState['accounts'] {
-  return useConnector(ACCOUNTS)
-}
-export function useAccount(useConnector: UseStore<Web3ReactState>): string | undefined {
-  return useConnector(ACCOUNTS)?.[0]
-}
-
 const ACTIVATING = (state: Web3ReactState) => state.activating
-export function useActivating(useConnector: UseStore<Web3ReactState>): Web3ReactState['activating'] {
-  return useConnector(ACTIVATING)
-}
-
 const ERROR = (state: Web3ReactState) => state.error
-export function useError(useConnector: UseStore<Web3ReactState>): Web3ReactState['error'] {
-  return useConnector(ERROR)
+
+function getStateHooks(useConnector: UseStore<Web3ReactState>) {
+  function useChainId(): Web3ReactState['chainId'] {
+    return useConnector(CHAIN_ID)
+  }
+
+  function useAccounts(): Web3ReactState['accounts'] {
+    return useConnector(ACCOUNTS)
+  }
+
+  function useIsActivating(): Web3ReactState['activating'] {
+    return useConnector(ACTIVATING)
+  }
+
+  function useError(): Web3ReactState['error'] {
+    return useConnector(ERROR)
+  }
+
+  return { useChainId, useAccounts, useIsActivating, useError }
 }
 
-export function useProvider(
-  connector: InstanceType<typeof Connector>,
-  useConnector: UseStore<Web3ReactState>
-): Web3Provider | undefined {
-  const chainId = useChainId(useConnector)
-  const accounts = useAccounts(useConnector)
+function getDerivedHooks({ useChainId, useAccounts, useIsActivating, useError }: ReturnType<typeof getStateHooks>) {
+  function useAccount(): string | undefined {
+    return useAccounts()?.[0]
+  }
 
-  return useMemo(() => {
-    if (chainId && accounts && connector.provider) {
-      return new Web3Provider(connector.provider)
-    }
-  }, [chainId, accounts, connector.provider])
+  function useIsActive(): boolean {
+    const chainId = useChainId()
+    const accounts = useAccounts()
+    const activating = useIsActivating()
+    const error = useError()
+
+    return Boolean(chainId && accounts && !activating && !error)
+  }
+
+  return { useAccount, useIsActive }
 }
 
-export function useENSNames(
-  connector: InstanceType<typeof Connector>,
-  useConnector: UseStore<Web3ReactState>
-): string[] | undefined {
-  const provider = useProvider(connector, useConnector)
-  const accounts = useAccounts(useConnector)
+function useENS(provider?: Web3Provider, accounts?: string[]): string[] | undefined {
+  const [ENSNames, setENSNames] = useState<string[] | undefined>()
 
-  const [ENSNames, setENSNames] = useState<string[] | undefined>(undefined)
   useEffect(() => {
     if (provider && accounts?.length) {
       let stale = false
@@ -87,35 +91,60 @@ export function useENSNames(
   return ENSNames
 }
 
-export function useENSName(
-  connector: InstanceType<typeof Connector>,
-  useConnector: UseStore<Web3ReactState>
-): string | undefined {
-  const provider = useProvider(connector, useConnector)
-  const account = useAccount(useConnector)
+function getAugmentedHooks<T extends Connector>(
+  connector: T,
+  { useChainId, useAccounts, useError }: ReturnType<typeof getStateHooks>,
+  { useAccount, useIsActive }: ReturnType<typeof getDerivedHooks>
+) {
+  function useProvider(): Web3Provider | undefined {
+    const isActive = useIsActive()
 
-  const [ENSName, setENSName] = useState<string | undefined>(undefined)
-  useEffect(() => {
-    if (provider && account) {
-      let stale = false
+    const chainId = useChainId()
+    const accounts = useChainId()
 
-      provider
-        .lookupAddress(account)
-        .then((ENSName) => {
-          if (!stale) {
-            setENSName(ENSName)
-          }
-        })
-        .catch((error) => {
-          console.debug('Could not fetch ENS name', error)
-        })
+    // we use chainId and accounts to re-render in case connector.provider changes in place
+    const { provider } = connector
 
-      return () => {
-        stale = true
-        setENSName(undefined)
+    return useMemo(() => {
+      if (isActive && provider) {
+        return new Web3Provider(provider)
       }
-    }
-  }, [provider, account])
+    }, [isActive, provider, chainId, accounts])
+  }
 
-  return ENSName
+  function useENSNames(): string[] | undefined {
+    const provider = useProvider()
+    const accounts = useAccounts()
+
+    return useENS(provider, accounts)
+  }
+
+  function useENSName(): string | undefined {
+    const provider = useProvider()
+    const account = useAccount()
+
+    return useENS(provider, typeof account === 'undefined' ? undefined : [account])?.[0]
+  }
+
+  // for backwards compatibility only
+  function useWeb3React() {
+    const chainId = useChainId()
+    const error = useError()
+
+    const account = useAccount()
+    const isActive = useIsActive()
+
+    const provider = useProvider()
+
+    return {
+      connector,
+      library: provider,
+      chainId,
+      account,
+      active: isActive,
+      error,
+    }
+  }
+
+  return { useProvider, useENSNames, useENSName, useWeb3React }
 }
