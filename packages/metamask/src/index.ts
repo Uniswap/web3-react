@@ -27,6 +27,10 @@ export class MetaMask extends Connector {
   }
 
   private async initialize(connectEagerly: boolean): Promise<void> {
+    if (connectEagerly) {
+      this.actions.startActivation()
+    }
+
     return import('@metamask/detect-provider')
       .then((m) => m.default(this.options))
       .then((provider) => {
@@ -54,10 +58,13 @@ export class MetaMask extends Connector {
               .then(([chainId, accounts]) => {
                 if (accounts.length) {
                   this.actions.update({ chainId: parseChainId(chainId), accounts })
+                } else {
+                  throw new Error('No accounts returned')
                 }
               })
               .catch((error) => {
                 console.debug('Could not connect eagerly', error)
+                this.actions.reset()
               })
           }
         }

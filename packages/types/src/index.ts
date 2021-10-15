@@ -10,10 +10,16 @@ export interface Web3ReactState extends State {
 
 export type Web3ReactStore = StoreApi<Web3ReactState>
 
+export interface Web3ReactStateUpdate {
+  chainId?: number
+  accounts?: string[]
+}
+
 export interface Actions {
   startActivation: () => void
-  update: (state: Partial<Pick<Web3ReactState, 'chainId' | 'accounts'>>) => void
+  update: (stateUpdate: Web3ReactStateUpdate) => void
   reportError: (error: Error) => void
+  reset: () => void
 }
 
 // per EIP-1193
@@ -28,13 +34,14 @@ export interface Provider extends EventEmitter {
 }
 
 export abstract class Connector {
+  public provider: Provider | undefined
+
   protected readonly actions: Actions
+
   constructor(actions: Actions) {
     this.actions = actions
   }
 
-  public provider: Provider | undefined
-
-  public abstract activate(...args: any[]): Promise<void>
-  public deactivate?(): Promise<void>
+  public abstract activate(...args: any[]): Promise<void> | void
+  public deactivate?(...args: any[]): Promise<void> | void
 }

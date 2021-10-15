@@ -23,22 +23,25 @@ export class WalletConnect extends Connector {
   }
 
   private async initialize(connectEagerly: boolean): Promise<void> {
-    return import('@walletconnect/ethereum-provider')
-      .then((m) => new m.default(this.options))
-      .then((provider) => {
-        this.provider = provider as unknown as MockWalletConnectProvider
+    if (connectEagerly) {
+      this.actions.startActivation()
+    }
 
-        this.provider.on('disconnect', (error: Error): void => {
-          this.actions.reportError(error)
-        })
-        this.provider.on('chainChanged', (chainId: number): void => {
-          this.actions.update({ chainId })
-        })
-        this.provider.on('accountsChanged', (accounts: string[]): void => {
-          this.actions.update({ accounts })
-        })
+    return import('@walletconnect/ethereum-provider').then((m) => {
+      this.provider = new m.default(this.options) as unknown as MockWalletConnectProvider
 
-        if (connectEagerly && this.provider.connected) {
+      this.provider.on('disconnect', (error: Error): void => {
+        this.actions.reportError(error)
+      })
+      this.provider.on('chainChanged', (chainId: number): void => {
+        this.actions.update({ chainId })
+      })
+      this.provider.on('accountsChanged', (accounts: string[]): void => {
+        this.actions.update({ accounts })
+      })
+
+      if (connectEagerly) {
+        if (this.provider.connected) {
           return Promise.all([
             this.provider.request({ method: 'eth_chainId' }) as Promise<number>,
             this.provider.request({ method: 'eth_accounts' }) as Promise<string[]>,
@@ -46,13 +49,19 @@ export class WalletConnect extends Connector {
             .then(([chainId, accounts]) => {
               if (accounts.length) {
                 this.actions.update({ chainId, accounts })
+              } else {
+                throw new Error('No accounts returned')
               }
             })
             .catch((error) => {
               console.debug('Could not connect eagerly', error)
+              this.actions.reset()
             })
+        } else {
+          this.actions.reset()
         }
-      })
+      }
+    })
   }
 
   public async activate(): Promise<void> {

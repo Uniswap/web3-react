@@ -170,7 +170,7 @@ describe('#createWeb3ReactStoreAndActions', () => {
     })
   })
 
-  test('reportError', () => {
+  test('#reportError', () => {
     const [store, actions] = createWeb3ReactStoreAndActions()
     const error = new Error()
     actions.reportError(error)
@@ -179,6 +179,18 @@ describe('#createWeb3ReactStoreAndActions', () => {
       accounts: undefined,
       activating: false,
       error,
+    })
+  })
+
+  test('#reset', () => {
+    const [store, actions] = createWeb3ReactStoreAndActions()
+    const error = new Error()
+    actions.reset()
+    expect(store.getState()).toEqual({
+      chainId: undefined,
+      accounts: undefined,
+      activating: false,
+      error: undefined,
     })
   })
 })

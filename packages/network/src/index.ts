@@ -24,6 +24,8 @@ export class Network extends Connector {
   }
 
   private async initialize(): Promise<void> {
+    this.actions.startActivation()
+
     // cache the desired chainId before async logic
     const chainId = this.chainId
 
@@ -76,8 +78,6 @@ export class Network extends Connector {
     }
     // set the connector's chainId to the target, to prevent race conditions
     this.chainId = desiredChainId
-
-    this.actions.startActivation()
 
     return this.initialize()
   }
