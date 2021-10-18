@@ -5,6 +5,7 @@
   },
   "version": "8.0.6-alpha.0",
   "type": "module",
+  "files": ["./dist"],
   "exports": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
