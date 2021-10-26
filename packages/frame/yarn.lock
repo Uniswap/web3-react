@@ -8,21 +8,21 @@ cookiejar@^2.1.1:
   integrity sha512-JxbCBUdrfr6AQjOXrxoTvAMJO4HBTUIlBzslcJPAz+/KT8yk53fXun51u+RenNYvad/+Vc2DIz5o9UxlCDymFQ==
 
 eth-provider@^0.9.4:
-  version "0.9.4"
-  resolved "https://registry.yarnpkg.com/eth-provider/-/eth-provider-0.9.4.tgz#ee523031e8e7340f257d669fbfc28037de8906b4"
-  integrity sha512-E54KIx4m84rJellKAzb42B0O2TKAjW24QMQZWooNEqFuj+R97uGzPt3GhLbQbQbaIM9nfwiWqnejU82PKJG9Ew==
+  version "0.9.7"
+  resolved "https://registry.yarnpkg.com/eth-provider/-/eth-provider-0.9.7.tgz#37ec899951e78a37431e8e6be1478713f52e3d87"
+  integrity sha512-gSMj0EHK2/CBxxnDP11nSpywDKHWhV5qbf/+JTncRuEvlXbf2APfpFFAfV7mfv/Bsv7htfVGEfM2QJR3jB+gqQ==
   dependencies:
-    ethereum-provider "0.4.4"
+    ethereum-provider "0.4.6"
     events "3.3.0"
     oboe "2.1.5"
     uuid "8.3.2"
-    ws "8.0.0"
+    ws "8.2.3"
     xhr2-cookies "1.1.0"
 
-ethereum-provider@0.4.4:
-  version "0.4.4"
-  resolved "https://registry.yarnpkg.com/ethereum-provider/-/ethereum-provider-0.4.4.tgz#1aed1c19460ca0ea2e7cfe4727022349fb8dc519"
-  integrity sha512-yrakFKeYnx+MMtL5Ngoy65Y6DqheG0sZRDLdvdLh0oIP5mIRj4He3P+QqKqm1yb57Th4ZbFljluqAY8ufgtfeA==
+ethereum-provider@0.4.6:
+  version "0.4.6"
+  resolved "https://registry.yarnpkg.com/ethereum-provider/-/ethereum-provider-0.4.6.tgz#e772749e7ecf280fdd632c5c12f185a87a154ca1"
+  integrity sha512-ZwXut+0sdscSkOIUfYM9ZKuIsFQf2xix5ibTYmwUCbWG1VkKHXeAWDf7sHadBXLWI/jbu1S6/b/lIucNAD+sAg==
   dependencies:
     events "3.3.0"
 
@@ -48,10 +48,10 @@ uuid@8.3.2:
   resolved "https://registry.yarnpkg.com/uuid/-/uuid-8.3.2.tgz#80d5b5ced271bb9af6c445f21a1a04c606cefbe2"
   integrity sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==
 
-ws@8.0.0:
-  version "8.0.0"
-  resolved "https://registry.yarnpkg.com/ws/-/ws-8.0.0.tgz#550605d13dfc1437c9ec1396975709c6d7ffc57d"
-  integrity sha512-6AcSIXpBlS0QvCVKk+3cWnWElLsA6SzC0lkQ43ciEglgXJXiCWK3/CGFEJ+Ybgp006CMibamAsqOlxE9s4AvYA==
+ws@8.2.3:
+  version "8.2.3"
+  resolved "https://registry.yarnpkg.com/ws/-/ws-8.2.3.tgz#63a56456db1b04367d0b721a0b80cae6d8becbba"
+  integrity sha512-wBuoj1BDpC6ZQ1B7DWQBYVLphPWkm8i9Y0/3YdHjHKHiohOJ1ws+3OccDWtH+PoC9DZD5WOTrJvNbWvjS6JWaA==
 
 xhr2-cookies@1.1.0:
   version "1.1.0"

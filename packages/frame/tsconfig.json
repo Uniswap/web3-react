@@ -2,8 +2,6 @@
   "extends": "../../tsconfig.json",
   "include": ["./src"],
   "compilerOptions": {
-    "outDir": "./dist",
-    "skipLibCheck": true,
-    "strict": false
+    "outDir": "./dist"
   }
 }

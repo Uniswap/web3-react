@@ -6,7 +6,10 @@
   "version": "8.0.6-alpha.0",
   "type": "module",
   "files": ["./dist"],
-  "exports": "./dist/index.js",
+  "exports": {
+    "import": "./dist/index.js"
+  },
+  "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
     "prebuild": "rm -rf dist",
