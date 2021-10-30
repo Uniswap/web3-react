@@ -1,10 +1,8 @@
-# `web3-react` 🧰
+# `web3-react` 🧰 (alpha)
 
 [![CI](https://github.com/NoahZinsmeister/web3-react/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/NoahZinsmeister/web3-react/actions/workflows/CI.yml)
 
 [Example](https://web3-react-mu.vercel.app/)
-
-Warning: alpha code!
 
 Tasks:
 - Write other connectors
