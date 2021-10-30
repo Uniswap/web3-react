@@ -33,10 +33,11 @@ describe('#createWeb3ReactStoreAndActions', () => {
     })
   })
 
+
   describe('#update', () => {
     test('throws on bad chainIds', () => {
       const [, actions] = createWeb3ReactStoreAndActions()
-      for (const chainId of [1.1, 0, Number.MAX_SAFE_INTEGER + 1]) {
+      for (const chainId of [1.1, 0, Number.MAX_SAFE_INTEGER + 1 ]) {
         expect(() => actions.update({ chainId })).toThrow(`Invalid chainId ${chainId}`)
       }
     })

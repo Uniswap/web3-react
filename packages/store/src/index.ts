@@ -13,10 +13,10 @@ import { getAddress } from '@ethersproject/address'
  * @see {@link https://git.io/JPBat}
  */
 
-const MAX_SAFE_CHAIN_ID = 4503599627370476
+export const MAX_SAFE_CHAIN_ID = 4503599627370476;
 
 function validateChainId(chainId: number): void {
-  if (!Number.isInteger(chainId) && chainId > 0 && chainId <= MAX_SAFE_CHAIN_ID) {
+  if (!Number.isInteger(chainId)  || chainId <= 0 || chainId > MAX_SAFE_CHAIN_ID) {
     throw new Error(`Invalid chainId ${chainId}`)
   }
 }
