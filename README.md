@@ -14,7 +14,6 @@ Tasks:
 - Tighten up experimental connectors
 - Address remaining TODOs in the code
 - More tests
-- Ensure dist/ files can be consumed in e.g. CRA
 - Docs
 - Test Node 12 support
 - Add Node 16 support once LTS
