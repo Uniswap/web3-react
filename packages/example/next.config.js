@@ -7,7 +7,6 @@ const nextConfig = {
     alchemyKey: '_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC',
     magicKey: 'pk_live_1F99B3C570C9B08F',
   },
-  esmExternals: true,
   webpack: (config) => {
     config.resolve.fallback = {
       events: require.resolve('events/'),
