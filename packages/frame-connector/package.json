@@ -37,8 +37,7 @@
   "dependencies": {
     "@web3-react/abstract-connector": "^6.0.7",
     "@web3-react/types": "^6.0.7",
-    "eth-provider": "^0.2.5",
-    "tiny-invariant": "^1.0.6"
+    "eth-provider": "^0.9.0"
   },
   "license": "GPL-3.0-or-later"
 }
