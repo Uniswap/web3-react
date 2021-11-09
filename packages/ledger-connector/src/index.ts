@@ -1,11 +1,11 @@
 import { ConnectorUpdate } from '@web3-react/types'
 import { AbstractConnector } from '@web3-react/abstract-connector'
 import Web3ProviderEngine from 'web3-provider-engine'
-import { ledgerEthereumBrowserClientFactoryAsync } from '@0x/subproviders/lib/src' // https://github.com/0xProject/0x-monorepo/issues/1400
 import { LedgerSubprovider } from '@0x/subproviders/lib/src/subproviders/ledger' // https://github.com/0xProject/0x-monorepo/issues/1400
 import CacheSubprovider from 'web3-provider-engine/subproviders/cache.js'
 import { RPCSubprovider } from '@0x/subproviders/lib/src/subproviders/rpc_subprovider' // https://github.com/0xProject/0x-monorepo/issues/1400
-
+import TransportUSB from '@ledgerhq/hw-transport-webusb'
+import EthApp from '@ledgerhq/hw-app-eth'
 interface LedgerConnectorArguments {
   chainId: number
   url: string
@@ -15,6 +15,10 @@ interface LedgerConnectorArguments {
   baseDerivationPath?: string
 }
 
+export enum LedgerPath {
+  Legacy = "44'/60'/0'",
+  Live = "44'/60'/0'/0"
+}
 export class LedgerConnector extends AbstractConnector {
   private readonly chainId: number
   private readonly url: string
@@ -22,6 +26,7 @@ export class LedgerConnector extends AbstractConnector {
   private readonly requestTimeoutMs?: number
   private readonly accountFetchingConfigs?: any
   private readonly baseDerivationPath?: string
+  private _selectedAccount?: string
 
   private provider: any
 
@@ -49,7 +54,7 @@ export class LedgerConnector extends AbstractConnector {
       engine.addProvider(
         new LedgerSubprovider({
           networkId: this.chainId,
-          ledgerEthereumClientFactoryAsync: ledgerEthereumBrowserClientFactoryAsync,
+          ledgerEthereumClientFactoryAsync: async () => new EthApp(await TransportUSB.create()),
           accountFetchingConfigs: this.accountFetchingConfigs,
           baseDerivationPath: this.baseDerivationPath
         })
@@ -72,12 +77,26 @@ export class LedgerConnector extends AbstractConnector {
     return this.chainId
   }
 
+  public async setPath(baseDerivationPath: LedgerPath) {
+    this.provider._providers[0].setPath(baseDerivationPath)
+    this._selectedAccount = undefined
+    this.emitUpdate({ account: await this.getAccount() })
+  }
+
   public async getAccounts(limit: number): Promise<string[]> {
     return this.provider._providers[0].getAccountsAsync(limit)
   }
 
+  public setAccount(account: string) {
+    this._selectedAccount = account
+    this.emitUpdate({ account: this._selectedAccount })
+  }
+
   public async getAccount(): Promise<null> {
-    return this.provider._providers[0].getAccountsAsync(1).then((accounts: string[]): string => accounts[0])
+    return (
+      this._selectedAccount ||
+      this.provider._providers[0].getAccountsAsync(1).then((accounts: string[]): string => accounts[0])
+    )
   }
 
   public deactivate() {
