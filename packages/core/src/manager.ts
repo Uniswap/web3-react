@@ -124,7 +124,7 @@ export function useWeb3ReactManager(): Web3ReactManagerReturn {
       connector: AbstractConnector,
       onError?: (error: Error) => void,
       throwErrors: boolean = false
-    ): Promise<void> => {
+    ): Promise<ConnectorUpdate> => {
       const updateBusterInitial = updateBusterRef.current
 
       let activated = false
@@ -142,6 +142,7 @@ export function useWeb3ReactManager(): Web3ReactManagerReturn {
           throw new StaleConnectorError()
         }
         dispatch({ type: ActionType.ACTIVATE_CONNECTOR, payload: { connector, ...augmentedUpdate, onError } })
+        return augmentedUpdate
       } catch (error) {
         if (error instanceof StaleConnectorError) {
           activated && connector.deactivate()
@@ -156,6 +157,7 @@ export function useWeb3ReactManager(): Web3ReactManagerReturn {
           // we don't call activated && connector.deactivate() here because it'll be handled in the useEffect
           dispatch({ type: ActionType.ERROR_FROM_ACTIVATION, payload: { connector, error } })
         }
+        throw error
       }
     },
     []

@@ -1,7 +1,8 @@
 import { AbstractConnector } from '@web3-react/abstract-connector'
+import { ConnectorUpdate } from '@web3-react/types'
 
 export interface Web3ReactManagerFunctions {
-  activate: (connector: AbstractConnector, onError?: (error: Error) => void, throwErrors?: boolean) => Promise<void>
+  activate: (connector: AbstractConnector, onError?: (error: Error) => void, throwErrors?: boolean) => Promise<ConnectorUpdate>
   setError: (error: Error) => void
   deactivate: () => void
 }
