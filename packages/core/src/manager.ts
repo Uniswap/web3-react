@@ -14,7 +14,7 @@ class StaleConnectorError extends Error {
 }
 
 export class UnsupportedChainIdError extends Error {
-  public constructor(unsupportedChainId: number, supportedChainIds?: readonly number[]) {
+  public constructor(unsupportedChainId: number | string, supportedChainIds?: readonly number[]) {
     super()
     this.name = this.constructor.name
     this.message = `Unsupported chain id: ${unsupportedChainId}. Supported chain ids are: ${supportedChainIds}.`
@@ -103,7 +103,13 @@ async function augmentConnectorUpdate(
     update.account === undefined ? connector.getAccount() : update.account
   ])) as [Required<ConnectorUpdate>['chainId'], Required<ConnectorUpdate>['account']]
 
-  const chainId = normalizeChainId(_chainId)
+  let chainId: number
+  try {
+    chainId = normalizeChainId(_chainId)
+  } catch {
+    throw new UnsupportedChainIdError(_chainId, connector.supportedChainIds);
+  }
+
   if (!!connector.supportedChainIds && !connector.supportedChainIds.includes(chainId)) {
     throw new UnsupportedChainIdError(chainId, connector.supportedChainIds)
   }
@@ -179,7 +185,16 @@ export function useWeb3ReactManager(): Web3ReactManagerReturn {
 
       // updates are handled differently depending on whether the connector is active vs in an error state
       if (!error) {
-        const chainId = update.chainId === undefined ? undefined : normalizeChainId(update.chainId)
+        let chainId: number | undefined
+        try {
+          chainId = update.chainId === undefined ? undefined : normalizeChainId(update.chainId)
+        } catch {
+          const error = new UnsupportedChainIdError(
+            update.chainId ?? 'unknown',
+            connector.supportedChainIds)
+          onError ? onError(error) : dispatch({ type: ActionType.ERROR, payload: { error } })
+          return
+        }
         if (chainId !== undefined && !!connector.supportedChainIds && !connector.supportedChainIds.includes(chainId)) {
           const error = new UnsupportedChainIdError(chainId, connector.supportedChainIds)
           onError ? onError(error) : dispatch({ type: ActionType.ERROR, payload: { error } })
