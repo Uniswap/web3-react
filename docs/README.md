@@ -170,7 +170,7 @@ function Component () {
 ## Understanding Error Bubbling
 Errors that occur during the initial activation of a connector (i.e. inside activate), are are handled in 1 of 4 ways:
 
-1) In the case where there's been 1 or more other updates to the `web3-react` context between when activate was called and when it resolved with the data required to complete the activation, errors are silently suppressed (in development mode, a warning will be logged to the console). This should really only happen in cases where activation takes a very long time and the user does something in the intervening time, such as activating another connector, deactivating the current connector, etc.
+1) In the case where there's been 1 or more other updates to the `web3-react` context between when 'activate' was called and when it resolved with the data required to complete the activation, errors are silently suppressed (in development mode, a warning will be logged to the console). In reality, only happen in cases where activation takes a very long time and the user does something in the intervening time, such as activating another connector, deactivating the current connector, etc.
 2) If `throwErrors` (the third argument to activate) is passed, errors will be thrown and should be handled in a .catch. No updates to the `web3-react` context will occur.
 3) If `onError` (the second argument to activate) is passed, that function is called with the error. No updates to the `web3-react` context will occur.
 4) Otherwise, the error will be set in the `web3-react` context (along with the connector).
