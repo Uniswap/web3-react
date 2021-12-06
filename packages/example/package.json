@@ -5,10 +5,14 @@
     "start": "next dev"
   },
   "dependencies": {
+    "@ethersproject/abstract-signer": "^5.5.0",
     "@ethersproject/bignumber": "^5.4.2",
+    "@ethersproject/experimental": "^5.5.0",
+    "@ethersproject/providers": "^5.5.1",
     "@ethersproject/units": "^5.4.0",
     "@walletconnect/ethereum-provider": "^1.6.5",
     "@web3-react/core": "8.0.10-alpha.0",
+    "@web3-react/eip1193": "8.0.10-alpha.0",
     "@web3-react/frame": "8.0.10-alpha.0",
     "@web3-react/magic": "8.0.10-alpha.0",
     "@web3-react/metamask": "8.0.10-alpha.0",

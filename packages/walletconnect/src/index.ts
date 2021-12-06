@@ -1,7 +1,7 @@
-import { Actions, Connector } from '@web3-react/types'
-import type { EventEmitter } from 'node:events'
 import type WalletConnectProvider from '@walletconnect/ethereum-provider'
 import type { IWCEthRpcConnectionOptions } from '@walletconnect/types'
+import { Actions, Connector } from '@web3-react/types'
+import type { EventEmitter } from 'node:events'
 
 interface MockWalletConnectProvider
   extends Omit<WalletConnectProvider, 'on' | 'off' | 'once' | 'removeListener'>,

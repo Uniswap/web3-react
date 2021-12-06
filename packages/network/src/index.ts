@@ -1,5 +1,5 @@
-import { Connector, Actions, Provider } from '@web3-react/types'
 import type { ConnectionInfo } from '@ethersproject/web'
+import { Actions, Connector, Provider } from '@web3-react/types'
 
 type url = string | ConnectionInfo
 

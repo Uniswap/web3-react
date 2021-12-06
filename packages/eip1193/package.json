@@ -1,0 +1,24 @@
+{
+  "name": "@web3-react/eip1193",
+  "publishConfig": {
+    "access": "public"
+  },
+  "version": "8.0.10-alpha.0",
+  "type": "module",
+  "files": [
+    "dist/*"
+  ],
+  "exports": {
+    "import": "./dist/index.js"
+  },
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "prebuild": "rm -rf dist",
+    "build": "tsc",
+    "start": "tsc --watch"
+  },
+  "dependencies": {
+    "@web3-react/types": "^8.0.10-alpha.0"
+  }
+}
