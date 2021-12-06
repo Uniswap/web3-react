@@ -1,8 +1,8 @@
-import { Connector, Actions } from '@web3-react/types'
+import { Actions, Connector } from '@web3-react/types'
 import type {
+  LoginWithMagicLinkConfiguration,
   Magic as MagicInstance,
   MagicSDKAdditionalConfiguration,
-  LoginWithMagicLinkConfiguration,
 } from 'magic-sdk'
 
 export interface MagicConnectorArguments extends MagicSDKAdditionalConfiguration {

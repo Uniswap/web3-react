@@ -1,9 +1,9 @@
-import { createWeb3ReactStoreAndActions } from '@web3-react/store'
-import { Connector, Web3ReactState, Actions } from '@web3-react/types'
-import create, { UseStore } from 'zustand'
-import { useEffect, useMemo, useState } from 'react'
-import { Web3Provider } from '@ethersproject/providers'
 import type { Networkish } from '@ethersproject/networks'
+import { Web3Provider } from '@ethersproject/providers'
+import { createWeb3ReactStoreAndActions } from '@web3-react/store'
+import { Actions, Connector, Web3ReactState } from '@web3-react/types'
+import { useEffect, useMemo, useState } from 'react'
+import create, { UseStore } from 'zustand'
 
 export type Web3ReactHooks = ReturnType<typeof getStateHooks> &
   ReturnType<typeof getDerivedHooks> &

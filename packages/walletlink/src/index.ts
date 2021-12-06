@@ -1,4 +1,4 @@
-import { Connector, Actions } from '@web3-react/types'
+import { Actions, Connector } from '@web3-react/types'
 import type { WalletLink as WalletLinkInstance, WalletLinkOptions } from 'walletlink/dist/WalletLink'
 
 function parseChainId(chainId: string) {

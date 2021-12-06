@@ -1,6 +1,6 @@
-import type { Web3ReactState, Web3ReactStore, Web3ReactStateUpdate, Actions } from '@web3-react/types'
-import create from 'zustand/vanilla'
 import { getAddress } from '@ethersproject/address'
+import type { Actions, Web3ReactState, Web3ReactStateUpdate, Web3ReactStore } from '@web3-react/types'
+import create from 'zustand/vanilla'
 
 function validateChainId(chainId: number): void {
   if (!Number.isInteger(chainId) || chainId <= 0 || chainId > Number.MAX_SAFE_INTEGER) {
