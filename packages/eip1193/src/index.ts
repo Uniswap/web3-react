@@ -31,7 +31,7 @@ export class EIP1193 extends Connector {
   }
 
   private async initialize() {
-    this.actions.startActivation()
+    const cancelActivation = this.actions.startActivation()
 
     Promise.all([
       this.provider.request({ method: 'eth_chainId' }) as Promise<string>,
@@ -42,7 +42,7 @@ export class EIP1193 extends Connector {
       })
       .catch((error) => {
         console.debug('Could not connect eagerly', error)
-        this.actions.reset()
+        cancelActivation()
       })
   }
 

@@ -1,8 +1,8 @@
+import { VoidSigner } from '@ethersproject/abstract-signer'
 import { Eip1193Bridge } from '@ethersproject/experimental'
 import { JsonRpcProvider } from '@ethersproject/providers'
 import { initializeConnector } from '@web3-react/core'
 import { EIP1193 } from '@web3-react/eip1193'
-import { VoidSigner } from 'ethers'
 import { URLS } from './network'
 
 const ethersProvider = new JsonRpcProvider(URLS[1][0], 1)

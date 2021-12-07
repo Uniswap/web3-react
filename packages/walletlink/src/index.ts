@@ -22,8 +22,9 @@ export class WalletLink extends Connector {
   }
 
   private async initialize(connectEagerly: boolean): Promise<void> {
+    let cancelActivation: () => void
     if (connectEagerly) {
-      this.actions.startActivation()
+      cancelActivation = this.actions.startActivation()
     }
 
     const { url, ...options } = this.options
@@ -51,7 +52,7 @@ export class WalletLink extends Connector {
           this.provider.request({ method: 'eth_accounts' }) as Promise<string[]>,
         ])
           .then(([chainId, accounts]) => {
-            if (accounts.length) {
+            if (accounts?.length) {
               this.actions.update({ chainId: parseChainId(chainId), accounts })
             } else {
               throw new Error('No accounts returned')
@@ -59,7 +60,7 @@ export class WalletLink extends Connector {
           })
           .catch((error) => {
             console.debug('Could not connect eagerly', error)
-            this.actions.reset()
+            cancelActivation()
           })
       }
     })

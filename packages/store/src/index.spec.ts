@@ -22,14 +22,29 @@ describe('#createWeb3ReactStoreAndActions', () => {
     })
   })
 
-  test('#startActivation', () => {
-    const [store, actions] = createWeb3ReactStoreAndActions()
-    actions.startActivation()
-    expect(store.getState()).toEqual({
-      chainId: undefined,
-      accounts: undefined,
-      activating: true,
-      error: undefined,
+  describe('#startActivation', () => {
+    test('#works', () => {
+      const [store, actions] = createWeb3ReactStoreAndActions()
+      actions.startActivation()
+      expect(store.getState()).toEqual({
+        chainId: undefined,
+        accounts: undefined,
+        activating: true,
+        error: undefined,
+      })
+    })
+    test('cancellation works', () => {
+      const [store, actions] = createWeb3ReactStoreAndActions()
+      const cancelActivation = actions.startActivation()
+
+      cancelActivation()
+
+      expect(store.getState()).toEqual({
+        chainId: undefined,
+        accounts: undefined,
+        activating: false,
+        error: undefined,
+      })
     })
   })
 
@@ -179,18 +194,6 @@ describe('#createWeb3ReactStoreAndActions', () => {
       accounts: undefined,
       activating: false,
       error,
-    })
-  })
-
-  test('#reset', () => {
-    const [store, actions] = createWeb3ReactStoreAndActions()
-    const error = new Error()
-    actions.reset()
-    expect(store.getState()).toEqual({
-      chainId: undefined,
-      accounts: undefined,
-      activating: false,
-      error: undefined,
     })
   })
 })

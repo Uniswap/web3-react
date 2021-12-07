@@ -3,7 +3,7 @@ import { Web3Provider } from '@ethersproject/providers'
 import { createWeb3ReactStoreAndActions } from '@web3-react/store'
 import { Actions, Connector, Web3ReactState } from '@web3-react/types'
 import { useEffect, useMemo, useState } from 'react'
-import create, { UseStore } from 'zustand'
+import create, { UseBoundStore } from 'zustand'
 
 export type Web3ReactHooks = ReturnType<typeof getStateHooks> &
   ReturnType<typeof getDerivedHooks> &
@@ -31,7 +31,7 @@ const ACCOUNTS = (state: Web3ReactState) => state.accounts
 const ACTIVATING = (state: Web3ReactState) => state.activating
 const ERROR = (state: Web3ReactState) => state.error
 
-function getStateHooks(useConnector: UseStore<Web3ReactState>) {
+function getStateHooks(useConnector: UseBoundStore<Web3ReactState>) {
   function useChainId(): Web3ReactState['chainId'] {
     return useConnector(CHAIN_ID)
   }
@@ -123,7 +123,7 @@ function getAugmentedHooks<T extends Connector>(
   function useENSName(provider: Web3Provider | undefined): (string | null) | undefined {
     const account = useAccount()
 
-    return useENS(provider, typeof account === 'undefined' ? undefined : [account])?.[0]
+    return useENS(provider, account === undefined ? undefined : [account])?.[0]
   }
 
   // for backwards compatibility only

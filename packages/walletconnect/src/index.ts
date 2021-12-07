@@ -23,8 +23,9 @@ export class WalletConnect extends Connector {
   }
 
   private async initialize(connectEagerly: boolean): Promise<void> {
+    let cancelActivation: () => void
     if (connectEagerly) {
-      this.actions.startActivation()
+      cancelActivation = this.actions.startActivation()
     }
 
     return import('@walletconnect/ethereum-provider').then((m) => {
@@ -47,7 +48,7 @@ export class WalletConnect extends Connector {
             this.provider.request({ method: 'eth_accounts' }) as Promise<string[]>,
           ])
             .then(([chainId, accounts]) => {
-              if (accounts.length) {
+              if (accounts?.length) {
                 this.actions.update({ chainId, accounts })
               } else {
                 throw new Error('No accounts returned')
@@ -55,10 +56,10 @@ export class WalletConnect extends Connector {
             })
             .catch((error) => {
               console.debug('Could not connect eagerly', error)
-              this.actions.reset()
+              cancelActivation()
             })
         } else {
-          this.actions.reset()
+          cancelActivation()
         }
       }
     })

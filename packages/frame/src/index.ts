@@ -64,7 +64,7 @@ export class Frame extends Connector {
           this.provider.request({ method: 'eth_accounts' }) as Promise<string[]>,
         ])
           .then(([chainId, accounts]) => {
-            if (accounts.length > 0) {
+            if (accounts?.length > 0) {
               this.actions.update({ chainId: parseChainId(chainId), accounts })
             }
           })
@@ -89,7 +89,7 @@ export class Frame extends Connector {
         this.provider.request({ method: 'eth_requestAccounts' }) as Promise<string[]>,
       ])
         .then(([chainId, accounts]) => {
-          this.actions.update({ chainId: Number.parseInt(chainId, 16), accounts })
+          this.actions.update({ chainId: parseChainId(chainId), accounts })
         })
         .catch((error) => {
           this.actions.reportError(error)

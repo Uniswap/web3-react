@@ -20,5 +20,8 @@
   },
   "dependencies": {
     "@web3-react/types": "^8.0.11-alpha.0"
+  },
+  "devDependencies": {
+    "@web3-react/store": "^8.0.11-alpha.0"
   }
 }

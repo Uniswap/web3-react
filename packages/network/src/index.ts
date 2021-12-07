@@ -73,7 +73,7 @@ export class Network extends Connector {
   }
 
   public async activate(desiredChainId: number = Number(Object.keys(this.urlMap)[0])): Promise<void> {
-    if (typeof this.urlMap[desiredChainId] === undefined) {
+    if (this.urlMap[desiredChainId] === undefined) {
       throw new Error(`no url(s) provided for desiredChainId ${desiredChainId}`)
     }
     // set the connector's chainId to the target, to prevent race conditions
