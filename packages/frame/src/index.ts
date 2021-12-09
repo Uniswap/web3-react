@@ -1,4 +1,4 @@
-import { Actions, Connector, Provider } from '@web3-react/types'
+import { Actions, Connector, Provider, ProviderConnectInfo, ProviderRpcError } from '@web3-react/types'
 
 export class NoFrameError extends Error {
   public constructor() {
@@ -45,10 +45,10 @@ export class Frame extends Connector {
     this.provider = provider
 
     if (this.provider) {
-      this.provider.on('connect', ({ chainId }: { chainId: string }): void => {
+      this.provider.on('connect', ({ chainId }: ProviderConnectInfo): void => {
         this.actions.update({ chainId: parseChainId(chainId) })
       })
-      this.provider.on('disconnect', (error: Error): void => {
+      this.provider.on('disconnect', (error: ProviderRpcError): void => {
         this.actions.reportError(error)
       })
       this.provider.on('chainChanged', (chainId: string): void => {

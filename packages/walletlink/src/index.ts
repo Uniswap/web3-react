@@ -1,4 +1,4 @@
-import { Actions, Connector } from '@web3-react/types'
+import { Actions, Connector, ProviderConnectInfo, ProviderRpcError } from '@web3-react/types'
 import type { WalletLink as WalletLinkInstance, WalletLinkOptions } from 'walletlink/dist/WalletLink'
 
 function parseChainId(chainId: string) {
@@ -33,10 +33,10 @@ export class WalletLink extends Connector {
       this.walletLink = new m.WalletLink(options)
       this.provider = this.walletLink.makeWeb3Provider(url)
 
-      this.provider.on('connect', ({ chainId }: { chainId: string }): void => {
+      this.provider.on('connect', ({ chainId }: ProviderConnectInfo): void => {
         this.actions.update({ chainId: parseChainId(chainId) })
       })
-      this.provider.on('disconnect', (error: Error): void => {
+      this.provider.on('disconnect', (error: ProviderRpcError): void => {
         this.actions.reportError(error)
       })
       this.provider.on('chainChanged', (chainId: string): void => {

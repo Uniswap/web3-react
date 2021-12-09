@@ -20,12 +20,12 @@
   },
   "dependencies": {
     "@web3-react/store": "^8.0.12-alpha.0",
-    "@web3-react/types": "^8.0.12-alpha.0"
+    "@web3-react/types": "^8.0.12-alpha.0",
+    "zustand": "^3.6.7"
   },
   "peerDependencies": {
     "@ethersproject/providers": "^5.4.5",
-    "react": ">=16.8",
-    "zustand": "^3.6.7"
+    "react": ">=16.8"
   },
   "devDependencies": {
     "@ethersproject/providers": "^5.4.5"

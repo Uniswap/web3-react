@@ -1,5 +1,7 @@
+import { Eip1193Bridge } from '@ethersproject/experimental'
+import { Web3Provider } from '@ethersproject/providers'
 import { createWeb3ReactStoreAndActions } from '@web3-react/store'
-import { Actions, RequestArguments, Web3ReactStore } from '@web3-react/types'
+import { Actions, ProviderRpcError, RequestArguments, Web3ReactStore } from '@web3-react/types'
 import { EventEmitter } from 'node:events'
 import { EIP1193 } from '.'
 
@@ -7,7 +9,15 @@ async function yieldThread() {
   await new Promise((resolve) => setTimeout(resolve, 0))
 }
 
-class MockProvider extends EventEmitter {
+class MockProviderRpcError extends Error {
+  public code: number
+  constructor() {
+    super('Mock Provider RPC Error')
+    this.code = 4200
+  }
+}
+
+export class MockEIP1193Provider extends EventEmitter {
   public chainId?: string
   public accounts?: string[]
 
@@ -32,7 +42,7 @@ class MockProvider extends EventEmitter {
     this.emit('connect', { chainId })
   }
 
-  public disconnect(error: Error) {
+  public disconnect(error: ProviderRpcError) {
     this.emit('disconnect', error)
   }
 
@@ -46,21 +56,51 @@ class MockProvider extends EventEmitter {
 }
 
 describe('EIP1193', () => {
-  let mockProvider: MockProvider
-
-  beforeEach(() => {
-    mockProvider = new MockProvider()
-  })
+  let mockProvider: MockEIP1193Provider
 
   let store: Web3ReactStore
   let actions: Actions
+
   let connector: EIP1193
+
+  beforeEach(() => {
+    mockProvider = new MockEIP1193Provider()
+    ;[store, actions] = createWeb3ReactStoreAndActions()
+  })
+
+  describe('ethers', () => {
+    afterEach(() => {
+      expect(mockProvider.eth_chainId.mock.calls.length).toBe(1)
+      expect(mockProvider.eth_accounts.mock.calls.length).toBe(0)
+      expect(mockProvider.eth_requestAccounts.mock.calls.length).toBe(1)
+    })
+
+    test('works', async () => {
+      const chainId = '0x1'
+      const accounts: string[] = []
+
+      mockProvider.chainId = chainId
+      mockProvider.accounts = accounts
+
+      const web3Provider = new Web3Provider(mockProvider)
+      const wrapped = new Eip1193Bridge(web3Provider.getSigner(), web3Provider)
+
+      connector = new EIP1193(actions, wrapped, false)
+
+      await connector.activate()
+
+      expect(store.getState()).toEqual({
+        chainId: 1,
+        accounts,
+        activating: false,
+        error: undefined,
+      })
+    })
+  })
 
   describe('functions', () => {
     describe('connectEagerly = true', () => {
-      beforeEach(() => {
-        ;[store, actions] = createWeb3ReactStoreAndActions()
-      })
+      beforeEach(() => {})
 
       beforeEach(() => {
         expect(mockProvider.eth_chainId.mock.calls.length).toBe(0)
@@ -115,7 +155,6 @@ describe('EIP1193', () => {
 
     describe('connectEagerly = false', () => {
       beforeEach(() => {
-        ;[store, actions] = createWeb3ReactStoreAndActions()
         connector = new EIP1193(actions, mockProvider, false)
       })
 
@@ -217,7 +256,6 @@ describe('EIP1193', () => {
 
   describe('events', () => {
     beforeEach(() => {
-      ;[store, actions] = createWeb3ReactStoreAndActions()
       connector = new EIP1193(actions, mockProvider, false)
     })
 
@@ -229,7 +267,7 @@ describe('EIP1193', () => {
 
     const chainId = '0x1'
     const accounts: string[] = []
-    const error = new Error()
+    const error = new MockProviderRpcError()
 
     test('#connect', async () => {
       mockProvider.connect(chainId)
@@ -275,8 +313,20 @@ describe('EIP1193', () => {
       })
     })
 
-    test('initializes', async () => {
+    test('initializes with connect', async () => {
       mockProvider.connect(chainId)
+      mockProvider.accountsChanged(accounts)
+
+      expect(store.getState()).toEqual({
+        chainId: 1,
+        accounts,
+        activating: false,
+        error: undefined,
+      })
+    })
+
+    test('initializes with chainChanged', async () => {
+      mockProvider.chainChanged(chainId)
       mockProvider.accountsChanged(accounts)
 
       expect(store.getState()).toEqual({

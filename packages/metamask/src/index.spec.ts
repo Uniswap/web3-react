@@ -1,35 +1,13 @@
 import { createWeb3ReactStoreAndActions } from '@web3-react/store'
-import { Actions, RequestArguments, Web3ReactStore } from '@web3-react/types'
-import { EventEmitter } from 'node:events'
+import { Actions, Web3ReactStore } from '@web3-react/types'
 import { MetaMask } from '.'
-
-class MockProvider extends EventEmitter {
-  public chainId?: string
-  public accounts?: string[]
-
-  public eth_chainId = jest.fn((chainId?: string) => chainId)
-  public eth_accounts = jest.fn((accounts?: string[]) => accounts)
-  public eth_requestAccounts = jest.fn((accounts?: string[]) => accounts)
-
-  public request(x: RequestArguments): Promise<unknown> {
-    switch (x.method) {
-      case 'eth_chainId':
-        return Promise.resolve(this.eth_chainId(this.chainId))
-      case 'eth_accounts':
-        return Promise.resolve(this.eth_accounts(this.accounts))
-      case 'eth_requestAccounts':
-        return Promise.resolve(this.eth_requestAccounts(this.accounts))
-      default:
-        throw new Error()
-    }
-  }
-}
+import { MockEIP1193Provider } from '../../eip1193/src/index.spec'
 
 describe('MetaMask', () => {
-  let mockProvider: MockProvider
+  let mockProvider: MockEIP1193Provider
 
   beforeEach(() => {
-    mockProvider = new MockProvider()
+    mockProvider = new MockEIP1193Provider()
   })
 
   let store: Web3ReactStore

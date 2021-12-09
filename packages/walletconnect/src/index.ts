@@ -1,6 +1,6 @@
 import type WalletConnectProvider from '@walletconnect/ethereum-provider'
 import type { IWCEthRpcConnectionOptions } from '@walletconnect/types'
-import { Actions, Connector } from '@web3-react/types'
+import { Actions, Connector, ProviderRpcError } from '@web3-react/types'
 import type { EventEmitter } from 'node:events'
 
 interface MockWalletConnectProvider
@@ -31,7 +31,7 @@ export class WalletConnect extends Connector {
     return import('@walletconnect/ethereum-provider').then((m) => {
       this.provider = new m.default(this.options) as unknown as MockWalletConnectProvider
 
-      this.provider.on('disconnect', (error: Error): void => {
+      this.provider.on('disconnect', (error: ProviderRpcError): void => {
         this.actions.reportError(error)
       })
       this.provider.on('chainChanged', (chainId: number): void => {

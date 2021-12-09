@@ -1,6 +1,5 @@
-import type { Web3ReactHooks } from '@web3-react/core'
+import { Web3ReactHooks } from '@web3-react/core'
 import { Connector } from '@web3-react/types'
-import { eip1993, hooks as eip1193Hooks } from './EIP1193'
 import { frame, hooks as frameHooks } from './frame'
 import { hooks as magicHooks, magic } from './magic'
 import { hooks as metaMaskHooks, metaMask } from './metaMask'
@@ -15,5 +14,4 @@ export const connectors: [Connector, Web3ReactHooks][] = [
   [walletLink, walletLinkHooks],
   [frame, frameHooks],
   [magic, magicHooks],
-  [eip1993, eip1193Hooks],
 ]

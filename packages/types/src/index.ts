@@ -32,6 +32,24 @@ export interface Provider extends EventEmitter {
   request(args: RequestArguments): Promise<unknown>
 }
 
+// per EIP-1193
+export interface ProviderConnectInfo {
+  readonly chainId: string
+}
+
+// per EIP-1193
+export interface ProviderRpcError extends Error {
+  message: string
+  code: number
+  data?: unknown
+}
+
+// per EIP-1193
+export interface ProviderMessage {
+  readonly type: string
+  readonly data: unknown
+}
+
 export abstract class Connector {
   public provider: Provider | undefined
 

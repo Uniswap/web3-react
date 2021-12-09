@@ -1,4 +1,4 @@
-import { ChainIdNotAllowedError, createWeb3ReactStoreAndActions } from './'
+import { ChainIdNotAllowedError, createWeb3ReactStoreAndActions } from '.'
 
 test('ChainIdNotAllowedError', () => {
   const error = new ChainIdNotAllowedError(1, [2])

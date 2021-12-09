@@ -1,4 +1,4 @@
-import { Actions, Connector, Provider } from '@web3-react/types'
+import { Actions, Connector, Provider, ProviderConnectInfo, ProviderRpcError } from '@web3-react/types'
 
 function parseChainId(chainId: string) {
   return Number.parseInt(chainId, 16)
@@ -12,10 +12,10 @@ export class EIP1193 extends Connector {
 
     this.provider = provider
 
-    this.provider.on('connect', ({ chainId }: { chainId: string }): void => {
+    this.provider.on('connect', ({ chainId }: ProviderConnectInfo): void => {
       this.actions.update({ chainId: parseChainId(chainId) })
     })
-    this.provider.on('disconnect', (error: Error): void => {
+    this.provider.on('disconnect', (error: ProviderRpcError): void => {
       this.actions.reportError(error)
     })
     this.provider.on('chainChanged', (chainId: string): void => {
@@ -26,24 +26,20 @@ export class EIP1193 extends Connector {
     })
 
     if (connectEagerly) {
-      this.initialize()
+      const cancelActivation = this.actions.startActivation()
+
+      Promise.all([
+        this.provider.request({ method: 'eth_chainId' }) as Promise<string>,
+        this.provider.request({ method: 'eth_accounts' }) as Promise<string[]>,
+      ])
+        .then(([chainId, accounts]) => {
+          this.actions.update({ chainId: parseChainId(chainId), accounts })
+        })
+        .catch((error) => {
+          console.debug('Could not connect eagerly', error)
+          cancelActivation()
+        })
     }
-  }
-
-  private async initialize() {
-    const cancelActivation = this.actions.startActivation()
-
-    Promise.all([
-      this.provider.request({ method: 'eth_chainId' }) as Promise<string>,
-      this.provider.request({ method: 'eth_accounts' }) as Promise<string[]>,
-    ])
-      .then(([chainId, accounts]) => {
-        this.actions.update({ chainId: parseChainId(chainId), accounts })
-      })
-      .catch((error) => {
-        console.debug('Could not connect eagerly', error)
-        cancelActivation()
-      })
   }
 
   public async activate(): Promise<void> {
