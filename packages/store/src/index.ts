@@ -10,7 +10,7 @@ function validateChainId(chainId: number): void {
 
 export class ChainIdNotAllowedError extends Error {
   public constructor(chainId: number, allowedChainIds: number[]) {
-    super(`chainId ${chainId} not included in ${allowedChainIds}`)
+    super(`chainId ${chainId} not included in ${allowedChainIds.toString()}`)
     this.name = ChainIdNotAllowedError.name
     Object.setPrototypeOf(this, ChainIdNotAllowedError.prototype)
   }
@@ -84,7 +84,7 @@ export function createWeb3ReactStoreAndActions(allowedChainIds?: number[]): [Web
 
         // warn if we're going to clobber existing error
         if (chainIdError && error) {
-          console.debug(`${error} is being clobbered by ${chainIdError}`)
+          console.debug(`${error.name} is being clobbered by ${chainIdError.name}`)
         }
 
         error = chainIdError

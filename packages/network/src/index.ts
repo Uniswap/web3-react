@@ -1,12 +1,14 @@
+import type { Eip1193Bridge } from '@ethersproject/experimental'
 import type { ConnectionInfo } from '@ethersproject/web'
-import { Actions, Connector, Provider } from '@web3-react/types'
+import type { Actions } from '@web3-react/types'
+import { Connector } from '@web3-react/types'
 
 type url = string | ConnectionInfo
 
 export class Network extends Connector {
   private urlMap: { [chainId: number]: url[] }
   private chainId: number
-  private providerCache: { [chainId: number]: Provider } = {}
+  private providerCache: { [chainId: number]: Eip1193Bridge } = {}
 
   constructor(actions: Actions, urlMap: { [chainId: number]: url | url[] }, connectEagerly = true) {
     super(actions)
@@ -19,7 +21,7 @@ export class Network extends Connector {
     this.chainId = Number(Object.keys(this.urlMap)[0])
 
     if (connectEagerly) {
-      this.initialize()
+      void this.initialize()
     }
   }
 
@@ -32,9 +34,12 @@ export class Network extends Connector {
     // populate the provider cache if necessary
     if (!this.providerCache[chainId]) {
       // instantiate new provider
-      const [{ JsonRpcProvider, FallbackProvider }, { Eip1193Bridge }] = await Promise.all([
-        import('@ethersproject/providers'),
-        import('@ethersproject/experimental'),
+      const [{ JsonRpcProvider, FallbackProvider }, Eip1193Bridge] = await Promise.all([
+        import('@ethersproject/providers').then(({ JsonRpcProvider, FallbackProvider }) => ({
+          JsonRpcProvider,
+          FallbackProvider,
+        })),
+        import('@ethersproject/experimental').then(({ Eip1193Bridge }) => Eip1193Bridge),
       ])
 
       const urls = this.urlMap[chainId]
@@ -55,7 +60,7 @@ export class Network extends Connector {
 
       return provider
         .request({ method: 'eth_chainId' })
-        .then((returnedChainId) => {
+        .then((returnedChainId: number) => {
           if (returnedChainId !== chainId) {
             // this means the returned chainId was unexpected, i.e. the provided url(s) were wrong
             throw new Error(`expected chainId ${chainId}, received ${returnedChainId}`)
@@ -66,13 +71,13 @@ export class Network extends Connector {
             this.actions.update({ chainId, accounts: [] })
           }
         })
-        .catch((error) => {
+        .catch((error: Error) => {
           this.actions.reportError(error)
         })
     }
   }
 
-  public async activate(desiredChainId: number = Number(Object.keys(this.urlMap)[0])): Promise<void> {
+  public async activate(desiredChainId = Number(Object.keys(this.urlMap)[0])): Promise<void> {
     if (this.urlMap[desiredChainId] === undefined) {
       throw new Error(`no url(s) provided for desiredChainId ${desiredChainId}`)
     }

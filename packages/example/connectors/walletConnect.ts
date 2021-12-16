@@ -6,7 +6,7 @@ export const [walletConnect, hooks] = initializeConnector<WalletConnect>(
   (actions) =>
     new WalletConnect(actions, {
       rpc: Object.keys(URLS).reduce((accumulator, chainId) => {
-        accumulator[chainId] = URLS[chainId][0]
+        accumulator[chainId] = URLS[Number(chainId)][0]
         return accumulator
       }, {}),
     }),

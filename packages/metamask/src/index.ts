@@ -1,5 +1,6 @@
 import type detectEthereumProvider from '@metamask/detect-provider'
-import { Actions, Connector, Provider, ProviderConnectInfo, ProviderRpcError } from '@web3-react/types'
+import type { Actions, Provider, ProviderConnectInfo, ProviderRpcError } from '@web3-react/types'
+import { Connector } from '@web3-react/types'
 
 export class NoMetaMaskError extends Error {
   public constructor() {
@@ -114,13 +115,15 @@ export class MetaMask extends Connector {
 
         // if we're here, we can try to switch networks
         const desiredChainIdHex = `0x${desiredChainId.toString(16)}`
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         return this.provider!.request({
           method: 'wallet_switchEthereumChain',
           params: [{ chainId: desiredChainIdHex }],
         })
-          .catch((error) => {
+          .catch((error: ProviderRpcError) => {
             if (error.code === 4902 && typeof desiredChainParameters !== 'number') {
               // if we're here, we can try to add a new network
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
               return this.provider!.request({
                 method: 'wallet_addEthereumChain',
                 params: [{ ...desiredChainParameters, chainId: desiredChainIdHex }],
@@ -129,11 +132,9 @@ export class MetaMask extends Connector {
               throw error
             }
           })
-          .then(() => {
-            this.activate(desiredChainId)
-          })
+          .then(() => this.activate(desiredChainId))
       })
-      .catch((error) => {
+      .catch((error: ProviderRpcError) => {
         this.actions.reportError(error)
       })
   }

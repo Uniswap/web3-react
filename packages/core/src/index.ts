@@ -1,7 +1,7 @@
 import type { Networkish } from '@ethersproject/networks'
 import { Web3Provider } from '@ethersproject/providers'
 import { createWeb3ReactStoreAndActions } from '@web3-react/store'
-import { Actions, Connector, Web3ReactState } from '@web3-react/types'
+import type { Actions, Connector, Web3ReactState } from '@web3-react/types'
 import { useEffect, useMemo, useState } from 'react'
 import create, { UseBoundStore } from 'zustand'
 
@@ -106,12 +106,12 @@ function getAugmentedHooks<T extends Connector>(
     const chainId = useChainId()
     const accounts = useChainId()
 
-    // we use chainId and accounts to re-render in case connector.provider changes in place
     return useMemo(() => {
-      if (isActive && connector.provider) {
+      // we use chainId and accounts to re-render in case connector.provider changes in place
+      if (isActive && connector.provider && chainId && accounts) {
         return new Web3Provider(connector.provider, network)
       }
-    }, [isActive, connector.provider, chainId, accounts])
+    }, [isActive, network, chainId, accounts])
   }
 
   function useENSNames(provider: Web3Provider | undefined): (string | null)[] | undefined {

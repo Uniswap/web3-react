@@ -1,5 +1,5 @@
-import { Web3ReactHooks } from '@web3-react/core'
-import { Connector } from '@web3-react/types'
+import type { Web3ReactHooks } from '@web3-react/core'
+import type { Connector } from '@web3-react/types'
 import { frame, hooks as frameHooks } from './frame'
 import { hooks as magicHooks, magic } from './magic'
 import { hooks as metaMaskHooks, metaMask } from './metaMask'

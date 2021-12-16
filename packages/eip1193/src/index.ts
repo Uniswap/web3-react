@@ -1,4 +1,5 @@
-import { Actions, Connector, Provider, ProviderConnectInfo, ProviderRpcError } from '@web3-react/types'
+import type { Actions, Provider, ProviderConnectInfo, ProviderRpcError } from '@web3-react/types'
+import { Connector } from '@web3-react/types'
 
 function parseChainId(chainId: string) {
   return Number.parseInt(chainId, 16)
@@ -52,7 +53,7 @@ export class EIP1193 extends Connector {
       .then(([chainId, accounts]) => {
         this.actions.update({ chainId: parseChainId(chainId), accounts })
       })
-      .catch((error) => {
+      .catch((error: Error) => {
         this.actions.reportError(error)
       })
   }

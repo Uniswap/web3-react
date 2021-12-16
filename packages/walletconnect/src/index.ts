@@ -1,6 +1,7 @@
 import type WalletConnectProvider from '@walletconnect/ethereum-provider'
 import type { IWCEthRpcConnectionOptions } from '@walletconnect/types'
-import { Actions, Connector, ProviderRpcError } from '@web3-react/types'
+import type { Actions, ProviderRpcError } from '@web3-react/types'
+import { Connector } from '@web3-react/types'
 import type { EventEmitter } from 'node:events'
 
 interface MockWalletConnectProvider
@@ -43,10 +44,12 @@ export class WalletConnect extends Connector {
 
       if (connectEagerly) {
         if (this.provider.connected) {
-          return Promise.all([
-            this.provider.request({ method: 'eth_chainId' }) as Promise<number>,
-            this.provider.request({ method: 'eth_accounts' }) as Promise<string[]>,
-          ])
+          return (
+            Promise.all([
+              this.provider.request({ method: 'eth_chainId' }),
+              this.provider.request({ method: 'eth_accounts' }),
+            ]) as Promise<[number, string[]]>
+          )
             .then(([chainId, accounts]) => {
               if (accounts?.length) {
                 this.actions.update({ chainId, accounts })
@@ -73,14 +76,18 @@ export class WalletConnect extends Connector {
     }
     await this.eagerConnection
 
-    return Promise.all([
-      this.provider!.request({ method: 'eth_chainId' }) as Promise<number>,
-      this.provider!.request({ method: 'eth_requestAccounts' }) as Promise<string[]>,
-    ])
+    return (
+      Promise.all([
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        this.provider!.request({ method: 'eth_chainId' }),
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        this.provider!.request({ method: 'eth_requestAccounts' }),
+      ]) as Promise<[number, string[]]>
+    )
       .then(([chainId, accounts]) => {
         this.actions.update({ chainId, accounts })
       })
-      .catch((error) => {
+      .catch((error: Error) => {
         this.actions.reportError(error)
       })
   }

@@ -1,4 +1,5 @@
-import { Actions, Connector, Provider, ProviderConnectInfo, ProviderRpcError } from '@web3-react/types'
+import type { Actions, Provider, ProviderConnectInfo, ProviderRpcError } from '@web3-react/types'
+import { Connector } from '@web3-react/types'
 
 export class NoFrameError extends Error {
   public constructor() {
@@ -18,6 +19,8 @@ interface FrameConnectorArguments {
   origin?: string
 }
 
+type FrameProvider = (a: 'frame', b?: FrameConnectorArguments) => Provider
+
 export class Frame extends Connector {
   private readonly options?: FrameConnectorArguments
   private providerPromise?: Promise<void>
@@ -32,17 +35,13 @@ export class Frame extends Connector {
   }
 
   private async startListening(connectEagerly: boolean): Promise<void> {
-    const ethProvider = await import('eth-provider').then((m) => m.default)
-
-    let provider: Provider | undefined
+    const ethProvider = await import('eth-provider').then((m: { default: FrameProvider }) => m.default)
 
     try {
-      provider = ethProvider('frame', this.options) as Provider
+      this.provider = ethProvider('frame', this.options)
     } catch (error) {
       this.actions.reportError(error as Error)
     }
-
-    this.provider = provider
 
     if (this.provider) {
       this.provider.on('connect', ({ chainId }: ProviderConnectInfo): void => {
@@ -91,7 +90,7 @@ export class Frame extends Connector {
         .then(([chainId, accounts]) => {
           this.actions.update({ chainId: parseChainId(chainId), accounts })
         })
-        .catch((error) => {
+        .catch((error: Error) => {
           this.actions.reportError(error)
         })
     } else {

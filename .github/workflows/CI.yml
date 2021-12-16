@@ -29,5 +29,6 @@ jobs:
 
       - run: yarn
       - run: yarn bootstrap
-      - run: yarn build
+      - run: yarn lint
       - run: yarn test
+      - run: yarn build

@@ -76,7 +76,7 @@ function useBalances(
     if (provider && accounts?.length) {
       let stale = false
 
-      Promise.all(accounts.map((account) => provider.getBalance(account))).then((balances) => {
+      void Promise.all(accounts.map((account) => provider.getBalance(account))).then((balances) => {
         if (!stale) {
           setBalances(balances)
         }
@@ -130,7 +130,7 @@ function MagicInput({ email, setEmail }: { email: string; setEmail?: (email: str
         type="email"
         value={email}
         onChange={setEmail ? (event) => setEmail(event.target.value) : undefined}
-        disabled={!!!setEmail}
+        disabled={!setEmail}
       />
     </label>
   )
@@ -154,13 +154,7 @@ function MagicConnect({
       <>
         <MagicInput email={email} setEmail={setEmail} />
         <br />
-        <button
-          onClick={() => {
-            connector.activate({ email })
-          }}
-        >
-          Try Again?
-        </button>
+        <button onClick={() => connector.activate({ email })}>Try Again?</button>
       </>
     )
   } else if (isActivating || active) {
@@ -176,13 +170,7 @@ function MagicConnect({
       <>
         <MagicInput email={email} setEmail={setEmail} />
         <br />
-        <button
-          onClick={() => {
-            connector.activate({ email })
-          }}
-        >
-          Connect
-        </button>
+        <button onClick={() => connector.activate({ email })}>Connect</button>
       </>
     )
   }
@@ -201,7 +189,7 @@ function MetaMaskSelect({ chainId, setChainId }: { chainId: number; setChainId?:
               }
             : undefined
         }
-        disabled={!!!setChainId}
+        disabled={!setChainId}
       >
         <option value={-1}>Default</option>
         {Object.keys(URLS).map((chainId) => (
@@ -232,7 +220,7 @@ function MetaMaskConnect({
     (chainId: number) => {
       setDesiredChainId(chainId)
       if (chainId !== -1 && chainId !== currentChainId) {
-        connector.activate(getAddChainParameters(chainId))
+        return connector.activate(getAddChainParameters(chainId))
       }
     },
     [setDesiredChainId, currentChainId, connector]
@@ -244,9 +232,7 @@ function MetaMaskConnect({
         <MetaMaskSelect chainId={desiredChainId} setChainId={setChainId} />
         <br />
         <button
-          onClick={() => {
-            connector.activate(desiredChainId === -1 ? undefined : getAddChainParameters(desiredChainId))
-          }}
+          onClick={() => connector.activate(desiredChainId === -1 ? undefined : getAddChainParameters(desiredChainId))}
         >
           Try Again?
         </button>
@@ -269,9 +255,7 @@ function MetaMaskConnect({
           onClick={
             isActivating
               ? undefined
-              : () => {
-                  connector.activate(desiredChainId === -1 ? undefined : getAddChainParameters(desiredChainId))
-                }
+              : () => connector.activate(desiredChainId === -1 ? undefined : getAddChainParameters(desiredChainId))
           }
           disabled={isActivating}
         >
@@ -295,7 +279,7 @@ function NetworkSelect({ chainId, setChainId }: { chainId: number; setChainId?: 
               }
             : undefined
         }
-        disabled={!!!setChainId}
+        disabled={!setChainId}
       >
         {Object.keys(URLS).map((chainId) => (
           <option key={chainId} value={chainId}>
@@ -323,7 +307,7 @@ function NetworkConnect({
   const setChainId = useCallback(
     (chainId: number) => {
       setDesiredChainId(chainId)
-      connector.activate(chainId)
+      return connector.activate(chainId)
     },
     [setDesiredChainId, connector]
   )
@@ -333,13 +317,7 @@ function NetworkConnect({
       <>
         <NetworkSelect chainId={desiredChainId} setChainId={setChainId} />
         <br />
-        <button
-          onClick={() => {
-            connector.activate(desiredChainId)
-          }}
-        >
-          Try Again?
-        </button>
+        <button onClick={() => connector.activate(desiredChainId)}>Try Again?</button>
       </>
     )
   } else if (active) {
@@ -375,42 +353,19 @@ function Connect({
   const active = useIsActive()
 
   if (error) {
-    return (
-      <button
-        onClick={() => {
-          connector.activate()
-        }}
-      >
-        Try Again?
-      </button>
-    )
+    return <button onClick={() => connector.activate()}>Try Again?</button>
   } else if (active) {
     return (
       <button
-        onClick={
-          connector.deactivate
-            ? () => {
-                connector.deactivate()
-              }
-            : undefined
-        }
-        disabled={!!!connector.deactivate}
+        onClick={connector.deactivate ? () => connector.deactivate() : undefined}
+        disabled={!connector.deactivate}
       >
         {connector.deactivate ? 'Disconnect' : 'Connected'}
       </button>
     )
   } else {
     return (
-      <button
-        onClick={
-          isActivating
-            ? undefined
-            : () => {
-                connector.activate()
-              }
-        }
-        disabled={isActivating}
-      >
+      <button onClick={isActivating ? undefined : () => connector.activate()} disabled={isActivating}>
         {isActivating ? 'Connecting...' : 'Connect'}
       </button>
     )

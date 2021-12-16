@@ -1,4 +1,6 @@
-import { Actions, Connector } from '@web3-react/types'
+import type { ExternalProvider } from '@ethersproject/providers'
+import type { Actions } from '@web3-react/types'
+import { Connector } from '@web3-react/types'
 import type {
   LoginWithMagicLinkConfiguration,
   Magic as MagicInstance,
@@ -21,27 +23,26 @@ export class Magic extends Connector {
   private async startListening(configuration: LoginWithMagicLinkConfiguration): Promise<void> {
     const { apiKey, ...options } = this.options
 
-    return import('magic-sdk')
-      .then((m) => m.Magic)
-      .then((Magic) => (this.magic = new Magic(apiKey, options)))
-      .then(async () => {
-        await this.magic!.auth.loginWithMagicLink(configuration)
+    return import('magic-sdk').then(async (m) => {
+      this.magic = new m.Magic(apiKey, options)
 
-        const [{ Web3Provider }, { Eip1193Bridge }] = await Promise.all([
-          import('@ethersproject/providers'),
-          import('@ethersproject/experimental'),
-        ])
+      await this.magic.auth.loginWithMagicLink(configuration)
 
-        const provider = new Web3Provider(this.magic!.rpcProvider as any)
+      const [Web3Provider, Eip1193Bridge] = await Promise.all([
+        import('@ethersproject/providers').then(({ Web3Provider }) => Web3Provider),
+        import('@ethersproject/experimental').then(({ Eip1193Bridge }) => Eip1193Bridge),
+      ])
 
-        this.provider = new Eip1193Bridge(provider.getSigner(), provider)
-      })
+      const provider = new Web3Provider(this.magic.rpcProvider as unknown as ExternalProvider)
+
+      this.provider = new Eip1193Bridge(provider.getSigner(), provider)
+    })
   }
 
   public async activate(configuration: LoginWithMagicLinkConfiguration): Promise<void> {
     this.actions.startActivation()
 
-    await this.startListening(configuration).catch((error) => {
+    await this.startListening(configuration).catch((error: Error) => {
       this.actions.reportError(error)
     })
 
@@ -53,7 +54,7 @@ export class Magic extends Connector {
         .then(([chainId, accounts]) => {
           this.actions.update({ chainId: Number.parseInt(chainId, 16), accounts })
         })
-        .catch((error) => {
+        .catch((error: Error) => {
           this.actions.reportError(error)
         })
     }

@@ -1,4 +1,5 @@
-import { Actions, Connector, ProviderConnectInfo, ProviderRpcError } from '@web3-react/types'
+import type { Actions, ProviderConnectInfo, ProviderRpcError } from '@web3-react/types'
+import { Connector } from '@web3-react/types'
 import type { WalletLink as WalletLinkInstance, WalletLinkOptions } from 'walletlink/dist/WalletLink'
 
 function parseChainId(chainId: string) {
@@ -47,10 +48,12 @@ export class WalletLink extends Connector {
       })
 
       if (connectEagerly) {
-        return Promise.all([
-          this.provider.request({ method: 'eth_chainId' }) as Promise<string>,
-          this.provider.request({ method: 'eth_accounts' }) as Promise<string[]>,
-        ])
+        return (
+          Promise.all([
+            this.provider.request({ method: 'eth_chainId' }),
+            this.provider.request({ method: 'eth_accounts' }),
+          ]) as Promise<[string, string[]]>
+        )
           .then(([chainId, accounts]) => {
             if (accounts?.length) {
               this.actions.update({ chainId: parseChainId(chainId), accounts })
@@ -74,14 +77,18 @@ export class WalletLink extends Connector {
     }
     await this.eagerConnection
 
-    return Promise.all([
-      this.provider!.request({ method: 'eth_chainId' }) as Promise<string>,
-      this.provider!.request({ method: 'eth_requestAccounts' }) as Promise<string[]>,
-    ])
+    return (
+      Promise.all([
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        this.provider!.request({ method: 'eth_chainId' }),
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        this.provider!.request({ method: 'eth_requestAccounts' }),
+      ]) as Promise<[string, string[]]>
+    )
       .then(([chainId, accounts]) => {
         this.actions.update({ chainId: parseChainId(chainId), accounts })
       })
-      .catch((error) => {
+      .catch((error: Error) => {
         this.actions.reportError(error)
       })
   }
