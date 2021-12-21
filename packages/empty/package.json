@@ -1,0 +1,27 @@
+{
+  "name": "@web3-react/empty",
+  "publishConfig": {
+    "access": "public"
+  },
+  "version": "8.0.14-alpha.0",
+  "type": "module",
+  "files": [
+    "dist/*"
+  ],
+  "exports": {
+    "types": "./dist/index.d.ts",
+    "import": "./dist/index.js",
+    "require": "./dist/cjs/index.js"
+  },
+  "types": "./dist/index.d.ts",
+  "module": "./dist/index.js",
+  "main": "./dist/cjs/index.js",
+  "scripts": {
+    "prebuild": "rm -rf dist",
+    "build": "tsc && tsc --project tsconfig.cjs.json",
+    "start": "tsc --watch"
+  },
+  "dependencies": {
+    "@web3-react/types": "^8.0.14-alpha.0"
+  }
+}
