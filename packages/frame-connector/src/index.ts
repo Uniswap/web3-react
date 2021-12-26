@@ -18,18 +18,11 @@ export class FrameConnector extends AbstractConnector {
     invariant(kwargs.supportedChainIds.length === 1, 'This connector only supports 1 chainId at the moment.')
     super(kwargs)
 
-    this.handleNetworkChanged = this.handleNetworkChanged.bind(this)
     this.handleChainChanged = this.handleChainChanged.bind(this)
     this.handleAccountsChanged = this.handleAccountsChanged.bind(this)
     this.handleClose = this.handleClose.bind(this)
   }
 
-  private handleNetworkChanged(networkId: string): void {
-    if (__DEV__) {
-      console.log("Handling 'networkChanged' event with payload", networkId)
-    }
-    this.emitUpdate({ provider: this.provider, chainId: networkId })
-  }
 
   private handleChainChanged(chainId: string): void {
     if (__DEV__) {
@@ -58,7 +51,6 @@ export class FrameConnector extends AbstractConnector {
     }
 
     this.provider
-      .on('networkChanged', this.handleNetworkChanged)
       .on('chainChanged', this.handleChainChanged)
       .on('accountsChanged', this.handleAccountsChanged)
       .on('close', this.handleClose)
@@ -91,7 +83,6 @@ export class FrameConnector extends AbstractConnector {
 
   public deactivate() {
     this.provider
-      .removeListener('networkChanged', this.handleNetworkChanged)
       .removeListener('chainChanged', this.handleChainChanged)
       .removeListener('accountsChanged', this.handleAccountsChanged)
       .removeListener('close', this.handleClose)
