@@ -3,7 +3,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "version": "8.0.14-alpha.0",
+  "version": "8.0.15-alpha.0",
   "type": "module",
   "files": [
     "dist/*"
@@ -23,10 +23,10 @@
   },
   "dependencies": {
     "@metamask/detect-provider": "^1.2.0",
-    "@web3-react/types": "^8.0.14-alpha.0"
+    "@web3-react/types": "^8.0.15-alpha.0"
   },
   "devDependencies": {
-    "@web3-react/store": "^8.0.14-alpha.0"
+    "@web3-react/store": "^8.0.15-alpha.0"
   },
   "gitHead": "9461726911d45849d76642bc60fec57e84234cd7"
 }
