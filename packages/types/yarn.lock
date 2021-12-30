@@ -2,7 +2,14 @@
 # yarn lockfile v1
 
 
-zustand@^3.6.7:
-  version "3.6.7"
-  resolved "https://registry.yarnpkg.com/zustand/-/zustand-3.6.7.tgz#aab5ac0a9d6d21dce752aecd390f373ed9c9d70a"
-  integrity sha512-bYWKXMfoJwZyliFgidcQ3tJC/F2f2hHq1+lhTk8dVPX2k28i4VnpnKjBGNxAd2QNliV0m455Vm+gDL8LShrV3g==
+use-sync-external-store@1.0.0-beta-96ca8d915-20211115:
+  version "1.0.0-beta-96ca8d915-20211115"
+  resolved "https://registry.yarnpkg.com/use-sync-external-store/-/use-sync-external-store-1.0.0-beta-96ca8d915-20211115.tgz#80777c497f60b57ca23f52de760ff22080814a3c"
+  integrity sha512-Xkzd7SoZv29jYc95GO0k1v69oSHUdC+4nNaBQ309zvFFyvzYn+I87ee+OD1RKF8SGRwkEJQxjyFzYRcncdpSSg==
+
+zustand@^4.0.0-beta.0:
+  version "4.0.0-beta.0"
+  resolved "https://registry.yarnpkg.com/zustand/-/zustand-4.0.0-beta.0.tgz#880bb21d9308ebc733a2ae07edd7c2c7b4f68eed"
+  integrity sha512-m7POAHkAeTEQqUdGC9M62/KXSsX6YQu6Gd4CiGZ6FOOTaUp1a0Hm9D8/fnBiMv8rGg0dfZu19JFSbRT9b+qQwA==
+  dependencies:
+    use-sync-external-store "1.0.0-beta-96ca8d915-20211115"

@@ -22,7 +22,7 @@
     "start": "tsc --watch"
   },
   "dependencies": {
-    "zustand": "^3.6.7"
+    "zustand": "^4.0.0-beta.0"
   },
   "gitHead": "9461726911d45849d76642bc60fec57e84234cd7"
 }
