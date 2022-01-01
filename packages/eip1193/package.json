@@ -1,5 +1,5 @@
 {
-  "name": "@web3-react/metamask",
+  "name": "@web3-react/eip1193",
   "publishConfig": {
     "access": "public"
   },
@@ -22,11 +22,11 @@
     "start": "tsc --watch"
   },
   "dependencies": {
-    "@metamask/detect-provider": "^1.2.0",
     "@web3-react/types": "^8.0.15-alpha.0"
   },
   "devDependencies": {
+    "@ethersproject/experimental": "^5.5.0",
+    "@ethersproject/providers": "^5.5.1",
     "@web3-react/store": "^8.0.15-alpha.0"
-  },
-  "gitHead": "9461726911d45849d76642bc60fec57e84234cd7"
+  }
 }

@@ -1,9 +1,9 @@
-import { createWeb3ReactStoreAndActions } from '@web3-react/store'
-import { Connector, Web3ReactState, Actions } from '@web3-react/types'
-import create, { UseStore } from 'zustand'
-import { useEffect, useMemo, useState } from 'react'
-import { Web3Provider } from '@ethersproject/providers'
 import type { Networkish } from '@ethersproject/networks'
+import { Web3Provider } from '@ethersproject/providers'
+import { createWeb3ReactStoreAndActions } from '@web3-react/store'
+import type { Actions, Connector, Web3ReactState } from '@web3-react/types'
+import { useEffect, useMemo, useState } from 'react'
+import create, { UseBoundStore } from 'zustand'
 
 export type Web3ReactHooks = ReturnType<typeof getStateHooks> &
   ReturnType<typeof getDerivedHooks> &
@@ -31,7 +31,7 @@ const ACCOUNTS = (state: Web3ReactState) => state.accounts
 const ACTIVATING = (state: Web3ReactState) => state.activating
 const ERROR = (state: Web3ReactState) => state.error
 
-function getStateHooks(useConnector: UseStore<Web3ReactState>) {
+function getStateHooks(useConnector: UseBoundStore<Web3ReactState>) {
   function useChainId(): Web3ReactState['chainId'] {
     return useConnector(CHAIN_ID)
   }
@@ -106,12 +106,12 @@ function getAugmentedHooks<T extends Connector>(
     const chainId = useChainId()
     const accounts = useChainId()
 
-    // we use chainId and accounts to re-render in case connector.provider changes in place
     return useMemo(() => {
-      if (isActive && connector.provider) {
+      // we use chainId and accounts to re-render in case connector.provider changes in place
+      if (isActive && connector.provider && chainId && accounts) {
         return new Web3Provider(connector.provider, network)
       }
-    }, [isActive, connector.provider, chainId, accounts])
+    }, [isActive, network, chainId, accounts])
   }
 
   function useENSNames(provider: Web3Provider | undefined): (string | null)[] | undefined {
@@ -123,7 +123,7 @@ function getAugmentedHooks<T extends Connector>(
   function useENSName(provider: Web3Provider | undefined): (string | null) | undefined {
     const account = useAccount()
 
-    return useENS(provider, typeof account === 'undefined' ? undefined : [account])?.[0]
+    return useENS(provider, account === undefined ? undefined : [account])?.[0]
   }
 
   // for backwards compatibility only

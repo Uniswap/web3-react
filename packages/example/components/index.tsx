@@ -1,15 +1,16 @@
-import { Connector } from '@web3-react/types'
-import { connectors } from '../connectors'
-import { Web3ReactHooks } from '@web3-react/core'
-import { useEffect, useState } from 'react'
 import { BigNumber } from '@ethersproject/bignumber'
 import { formatEther } from '@ethersproject/units'
-import { Magic } from '@web3-react/magic'
-import { Network } from '@web3-react/network'
-import { WalletConnect } from '@web3-react/walletconnect'
+import { Web3ReactHooks } from '@web3-react/core'
 import { Frame } from '@web3-react/frame'
+import { Magic } from '@web3-react/magic'
 import { MetaMask } from '@web3-react/metamask'
+import { Network } from '@web3-react/network'
+import { Connector } from '@web3-react/types'
+import { WalletConnect } from '@web3-react/walletconnect'
 import { WalletLink } from '@web3-react/walletlink'
+import { useCallback, useEffect, useState } from 'react'
+import { CHAINS, getAddChainParameters, URLS } from '../chains'
+import { connectors } from '../connectors'
 
 function getName(connector: Connector) {
   if (connector instanceof Frame) {
@@ -75,7 +76,7 @@ function useBalances(
     if (provider && accounts?.length) {
       let stale = false
 
-      Promise.all(accounts.map((account) => provider.getBalance(account))).then((balances) => {
+      void Promise.all(accounts.map((account) => provider.getBalance(account))).then((balances) => {
         if (!stale) {
           setBalances(balances)
         }
@@ -121,85 +122,257 @@ function Accounts({
   )
 }
 
-function Connect({
+function MagicInput({ email, setEmail }: { email: string; setEmail?: (email: string) => void }) {
+  return (
+    <label>
+      Email:{' '}
+      <input
+        type="email"
+        value={email}
+        onChange={setEmail ? (event) => setEmail(event.target.value) : undefined}
+        disabled={!setEmail}
+      />
+    </label>
+  )
+}
+
+function MagicConnect({
   connector,
-  hooks: { useChainId, useIsActivating, useError, useIsActive },
+  hooks: { useIsActivating, useError, useIsActive },
 }: {
-  connector: Connector
+  connector: Magic
   hooks: Web3ReactHooks
 }) {
-  const chainId = useChainId()
   const isActivating = useIsActivating()
   const error = useError()
-
   const active = useIsActive()
 
-  const [activateArgs, setActivateArgs] = useState<any[]>([])
+  const [email, setEmail] = useState<string>()
 
   if (error) {
     return (
-      <button
-        onClick={() => {
-          connector.activate()
-        }}
-      >
-        Try Again?
-      </button>
+      <>
+        <MagicInput email={email} setEmail={setEmail} />
+        <br />
+        <button onClick={() => connector.activate({ email })}>Try Again?</button>
+      </>
     )
-  } else if (active) {
+  } else if (isActivating || active) {
     return (
       <>
-        {connector instanceof Network ? (
-          <label>
-            Network:
-            <select value={`${chainId}`} onChange={(event) => connector.activate(Number(event.target.value))}>
-              <option value="1">Mainnet</option>
-              <option value="3">Ropsten</option>
-              <option value="4">Rinkeby</option>
-              <option value="5">Görli</option>
-              <option value="42">Kovan</option>
-              <option value="10">Optimism</option>
-              <option value="42161">Arbitrum</option>
-            </select>
-          </label>
-        ) : null}
-        <button
-          onClick={() => {
-            if (connector.deactivate) {
-              connector.deactivate()
-            }
-          }}
-          disabled={connector.deactivate ? false : true}
-        >
-          {connector.deactivate ? 'Disconnect' : 'Connected'}
-        </button>
+        <MagicInput email={email} />
+        <br />
+        <button disabled>{isActivating ? 'Connecting...' : 'Connected'}</button>
       </>
     )
   } else {
     return (
       <>
-        {connector instanceof Magic ? (
-          <label>
-            Email:{' '}
-            <input type="email" name="email" onChange={(event) => setActivateArgs([{ email: event.target.value }])} />
-          </label>
-        ) : null}
+        <MagicInput email={email} setEmail={setEmail} />
+        <br />
+        <button onClick={() => connector.activate({ email })}>Connect</button>
+      </>
+    )
+  }
+}
+
+function MetaMaskSelect({ chainId, setChainId }: { chainId: number; setChainId?: (chainId: number) => void }) {
+  return (
+    <label>
+      Chain:{' '}
+      <select
+        value={`${chainId}`}
+        onChange={
+          setChainId
+            ? (event) => {
+                setChainId(Number(event.target.value))
+              }
+            : undefined
+        }
+        disabled={!setChainId}
+      >
+        <option value={-1}>Default</option>
+        {Object.keys(URLS).map((chainId) => (
+          <option key={chainId} value={chainId}>
+            {CHAINS[Number(chainId)].name}
+          </option>
+        ))}
+      </select>
+    </label>
+  )
+}
+
+function MetaMaskConnect({
+  connector,
+  hooks: { useChainId, useIsActivating, useError, useIsActive },
+}: {
+  connector: MetaMask
+  hooks: Web3ReactHooks
+}) {
+  const currentChainId = useChainId()
+  const isActivating = useIsActivating()
+  const error = useError()
+  const active = useIsActive()
+
+  const [desiredChainId, setDesiredChainId] = useState<number>(-1)
+
+  const setChainId = useCallback(
+    (chainId: number) => {
+      setDesiredChainId(chainId)
+      if (chainId !== -1 && chainId !== currentChainId) {
+        return connector.activate(getAddChainParameters(chainId))
+      }
+    },
+    [setDesiredChainId, currentChainId, connector]
+  )
+
+  if (error) {
+    return (
+      <>
+        <MetaMaskSelect chainId={desiredChainId} setChainId={setChainId} />
+        <br />
         <button
-          onClick={() => {
-            if (!isActivating) {
-              connector.activate(...activateArgs)
-            }
-          }}
-          disabled={isActivating ? true : false}
+          onClick={() => connector.activate(desiredChainId === -1 ? undefined : getAddChainParameters(desiredChainId))}
         >
-          {isActivating ? 'Connecting...' : 'Activate'}
+          Try Again?
+        </button>
+      </>
+    )
+  } else if (active) {
+    return (
+      <>
+        <MetaMaskSelect chainId={desiredChainId === -1 ? -1 : currentChainId} setChainId={setChainId} />
+        <br />
+        <button disabled>Connected</button>
+      </>
+    )
+  } else {
+    return (
+      <>
+        <MetaMaskSelect chainId={desiredChainId} setChainId={isActivating ? undefined : setChainId} />
+        <br />
+        <button
+          onClick={
+            isActivating
+              ? undefined
+              : () => connector.activate(desiredChainId === -1 ? undefined : getAddChainParameters(desiredChainId))
+          }
+          disabled={isActivating}
+        >
+          {isActivating ? 'Connecting...' : 'Connect'}
         </button>
       </>
     )
   }
 }
 
-export function Connectors() {
+function NetworkSelect({ chainId, setChainId }: { chainId: number; setChainId?: (chainId: number) => void }) {
+  return (
+    <label>
+      Chain:{' '}
+      <select
+        value={`${chainId}`}
+        onChange={
+          setChainId
+            ? (event) => {
+                setChainId(Number(event.target.value))
+              }
+            : undefined
+        }
+        disabled={!setChainId}
+      >
+        {Object.keys(URLS).map((chainId) => (
+          <option key={chainId} value={chainId}>
+            {CHAINS[Number(chainId)].name}
+          </option>
+        ))}
+      </select>
+    </label>
+  )
+}
+
+function NetworkConnect({
+  connector,
+  hooks: { useChainId, useError, useIsActive },
+}: {
+  connector: Network
+  hooks: Web3ReactHooks
+}) {
+  const currentChainId = useChainId()
+  const error = useError()
+  const active = useIsActive()
+
+  const [desiredChainId, setDesiredChainId] = useState<number>(1)
+
+  const setChainId = useCallback(
+    (chainId: number) => {
+      setDesiredChainId(chainId)
+      return connector.activate(chainId)
+    },
+    [setDesiredChainId, connector]
+  )
+
+  if (error) {
+    return (
+      <>
+        <NetworkSelect chainId={desiredChainId} setChainId={setChainId} />
+        <br />
+        <button onClick={() => connector.activate(desiredChainId)}>Try Again?</button>
+      </>
+    )
+  } else if (active) {
+    return (
+      <>
+        <NetworkSelect chainId={currentChainId} setChainId={setChainId} />
+        <br />
+        <button disabled>Connected</button>
+      </>
+    )
+  } else {
+    // because network connector connects eagerly, we should only see this when activating
+    return (
+      <>
+        <NetworkSelect chainId={desiredChainId} />
+        <br />
+        <button disabled>Connecting...</button>
+      </>
+    )
+  }
+}
+
+function Connect({
+  connector,
+  hooks: { useIsActivating, useError, useIsActive },
+}: {
+  connector: Connector
+  hooks: Web3ReactHooks
+}) {
+  const isActivating = useIsActivating()
+  const error = useError()
+
+  const active = useIsActive()
+
+  if (error) {
+    return <button onClick={() => connector.activate()}>Try Again?</button>
+  } else if (active) {
+    return (
+      <button
+        onClick={connector.deactivate ? () => connector.deactivate() : undefined}
+        disabled={!connector.deactivate}
+      >
+        {connector.deactivate ? 'Disconnect' : 'Connected'}
+      </button>
+    )
+  } else {
+    return (
+      <button onClick={isActivating ? undefined : () => connector.activate()} disabled={isActivating}>
+        {isActivating ? 'Connecting...' : 'Connect'}
+      </button>
+    )
+  }
+}
+
+export default function Connectors() {
   return (
     <div style={{ display: 'flex', flexFlow: 'wrap', fontFamily: 'sans-serif' }}>
       {connectors.map(([connector, hooks], i) => (
@@ -224,7 +397,15 @@ export function Connectors() {
             <Accounts useAnyNetwork={connector instanceof WalletConnect} hooks={hooks} />
             <br />
           </div>
-          <Connect connector={connector} hooks={hooks} />
+          {connector instanceof Magic ? (
+            <MagicConnect connector={connector} hooks={hooks} />
+          ) : connector instanceof MetaMask ? (
+            <MetaMaskConnect connector={connector} hooks={hooks} />
+          ) : connector instanceof Network ? (
+            <NetworkConnect connector={connector} hooks={hooks} />
+          ) : (
+            <Connect connector={connector} hooks={hooks} />
+          )}
         </div>
       ))}
     </div>

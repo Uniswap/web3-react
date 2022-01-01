@@ -1,4 +1,5 @@
-import { Connector, Actions } from '@web3-react/types'
+import type { Actions, ProviderConnectInfo, ProviderRpcError } from '@web3-react/types'
+import { Connector } from '@web3-react/types'
 import type { WalletLink as WalletLinkInstance, WalletLinkOptions } from 'walletlink/dist/WalletLink'
 
 function parseChainId(chainId: string) {
@@ -22,8 +23,9 @@ export class WalletLink extends Connector {
   }
 
   private async initialize(connectEagerly: boolean): Promise<void> {
+    let cancelActivation: () => void
     if (connectEagerly) {
-      this.actions.startActivation()
+      cancelActivation = this.actions.startActivation()
     }
 
     const { url, ...options } = this.options
@@ -32,10 +34,10 @@ export class WalletLink extends Connector {
       this.walletLink = new m.WalletLink(options)
       this.provider = this.walletLink.makeWeb3Provider(url)
 
-      this.provider.on('connect', ({ chainId }: { chainId: string }): void => {
+      this.provider.on('connect', ({ chainId }: ProviderConnectInfo): void => {
         this.actions.update({ chainId: parseChainId(chainId) })
       })
-      this.provider.on('disconnect', (error: Error): void => {
+      this.provider.on('disconnect', (error: ProviderRpcError): void => {
         this.actions.reportError(error)
       })
       this.provider.on('chainChanged', (chainId: string): void => {
@@ -46,12 +48,14 @@ export class WalletLink extends Connector {
       })
 
       if (connectEagerly) {
-        return Promise.all([
-          this.provider.request({ method: 'eth_chainId' }) as Promise<string>,
-          this.provider.request({ method: 'eth_accounts' }) as Promise<string[]>,
-        ])
+        return (
+          Promise.all([
+            this.provider.request({ method: 'eth_chainId' }),
+            this.provider.request({ method: 'eth_accounts' }),
+          ]) as Promise<[string, string[]]>
+        )
           .then(([chainId, accounts]) => {
-            if (accounts.length) {
+            if (accounts?.length) {
               this.actions.update({ chainId: parseChainId(chainId), accounts })
             } else {
               throw new Error('No accounts returned')
@@ -59,7 +63,7 @@ export class WalletLink extends Connector {
           })
           .catch((error) => {
             console.debug('Could not connect eagerly', error)
-            this.actions.reset()
+            cancelActivation()
           })
       }
     })
@@ -73,14 +77,18 @@ export class WalletLink extends Connector {
     }
     await this.eagerConnection
 
-    return Promise.all([
-      this.provider!.request({ method: 'eth_chainId' }) as Promise<string>,
-      this.provider!.request({ method: 'eth_requestAccounts' }) as Promise<string[]>,
-    ])
+    return (
+      Promise.all([
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        this.provider!.request({ method: 'eth_chainId' }),
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        this.provider!.request({ method: 'eth_requestAccounts' }),
+      ]) as Promise<[string, string[]]>
+    )
       .then(([chainId, accounts]) => {
         this.actions.update({ chainId: parseChainId(chainId), accounts })
       })
-      .catch((error) => {
+      .catch((error: Error) => {
         this.actions.reportError(error)
       })
   }

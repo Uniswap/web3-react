@@ -1,4 +1,5 @@
-import { Connector, Actions, Provider } from '@web3-react/types'
+import type { Actions, Provider, ProviderConnectInfo, ProviderRpcError } from '@web3-react/types'
+import { Connector } from '@web3-react/types'
 
 export class NoFrameError extends Error {
   public constructor() {
@@ -18,6 +19,8 @@ interface FrameConnectorArguments {
   origin?: string
 }
 
+type FrameProvider = (a: 'frame', b?: FrameConnectorArguments) => Provider
+
 export class Frame extends Connector {
   private readonly options?: FrameConnectorArguments
   private providerPromise?: Promise<void>
@@ -32,23 +35,19 @@ export class Frame extends Connector {
   }
 
   private async startListening(connectEagerly: boolean): Promise<void> {
-    const ethProvider = await import('eth-provider').then((m) => m.default)
-
-    let provider: Provider | undefined
+    const ethProvider = await import('eth-provider').then((m: { default: FrameProvider }) => m.default)
 
     try {
-      provider = ethProvider('frame', this.options) as Provider
+      this.provider = ethProvider('frame', this.options)
     } catch (error) {
       this.actions.reportError(error as Error)
     }
 
-    this.provider = provider
-
     if (this.provider) {
-      this.provider.on('connect', ({ chainId }: { chainId: string }): void => {
+      this.provider.on('connect', ({ chainId }: ProviderConnectInfo): void => {
         this.actions.update({ chainId: parseChainId(chainId) })
       })
-      this.provider.on('disconnect', (error: Error): void => {
+      this.provider.on('disconnect', (error: ProviderRpcError): void => {
         this.actions.reportError(error)
       })
       this.provider.on('chainChanged', (chainId: string): void => {
@@ -64,7 +63,7 @@ export class Frame extends Connector {
           this.provider.request({ method: 'eth_accounts' }) as Promise<string[]>,
         ])
           .then(([chainId, accounts]) => {
-            if (accounts.length > 0) {
+            if (accounts?.length > 0) {
               this.actions.update({ chainId: parseChainId(chainId), accounts })
             }
           })
@@ -89,9 +88,9 @@ export class Frame extends Connector {
         this.provider.request({ method: 'eth_requestAccounts' }) as Promise<string[]>,
       ])
         .then(([chainId, accounts]) => {
-          this.actions.update({ chainId: Number.parseInt(chainId, 16), accounts })
+          this.actions.update({ chainId: parseChainId(chainId), accounts })
         })
-        .catch((error) => {
+        .catch((error: Error) => {
           this.actions.reportError(error)
         })
     } else {

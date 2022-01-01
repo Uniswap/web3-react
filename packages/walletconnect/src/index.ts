@@ -1,7 +1,8 @@
-import { Actions, Connector } from '@web3-react/types'
-import type { EventEmitter } from 'node:events'
 import type WalletConnectProvider from '@walletconnect/ethereum-provider'
 import type { IWCEthRpcConnectionOptions } from '@walletconnect/types'
+import type { Actions, ProviderRpcError } from '@web3-react/types'
+import { Connector } from '@web3-react/types'
+import type { EventEmitter } from 'node:events'
 
 interface MockWalletConnectProvider
   extends Omit<WalletConnectProvider, 'on' | 'off' | 'once' | 'removeListener'>,
@@ -23,14 +24,15 @@ export class WalletConnect extends Connector {
   }
 
   private async initialize(connectEagerly: boolean): Promise<void> {
+    let cancelActivation: () => void
     if (connectEagerly) {
-      this.actions.startActivation()
+      cancelActivation = this.actions.startActivation()
     }
 
     return import('@walletconnect/ethereum-provider').then((m) => {
       this.provider = new m.default(this.options) as unknown as MockWalletConnectProvider
 
-      this.provider.on('disconnect', (error: Error): void => {
+      this.provider.on('disconnect', (error: ProviderRpcError): void => {
         this.actions.reportError(error)
       })
       this.provider.on('chainChanged', (chainId: number): void => {
@@ -42,12 +44,14 @@ export class WalletConnect extends Connector {
 
       if (connectEagerly) {
         if (this.provider.connected) {
-          return Promise.all([
-            this.provider.request({ method: 'eth_chainId' }) as Promise<number>,
-            this.provider.request({ method: 'eth_accounts' }) as Promise<string[]>,
-          ])
+          return (
+            Promise.all([
+              this.provider.request({ method: 'eth_chainId' }),
+              this.provider.request({ method: 'eth_accounts' }),
+            ]) as Promise<[number, string[]]>
+          )
             .then(([chainId, accounts]) => {
-              if (accounts.length) {
+              if (accounts?.length) {
                 this.actions.update({ chainId, accounts })
               } else {
                 throw new Error('No accounts returned')
@@ -55,10 +59,10 @@ export class WalletConnect extends Connector {
             })
             .catch((error) => {
               console.debug('Could not connect eagerly', error)
-              this.actions.reset()
+              cancelActivation()
             })
         } else {
-          this.actions.reset()
+          cancelActivation()
         }
       }
     })
@@ -72,14 +76,18 @@ export class WalletConnect extends Connector {
     }
     await this.eagerConnection
 
-    return Promise.all([
-      this.provider!.request({ method: 'eth_chainId' }) as Promise<number>,
-      this.provider!.request({ method: 'eth_requestAccounts' }) as Promise<string[]>,
-    ])
+    return (
+      Promise.all([
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        this.provider!.request({ method: 'eth_chainId' }),
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        this.provider!.request({ method: 'eth_requestAccounts' }),
+      ]) as Promise<[number, string[]]>
+    )
       .then(([chainId, accounts]) => {
         this.actions.update({ chainId, accounts })
       })
-      .catch((error) => {
+      .catch((error: Error) => {
         this.actions.reportError(error)
       })
   }
