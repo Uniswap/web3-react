@@ -6,6 +6,8 @@ import { Connector } from '@web3-react/types'
 type url = string | ConnectionInfo
 
 export class Network extends Connector {
+  provider: Eip1193Bridge | undefined
+
   private urlMap: { [chainId: number]: url[] }
   private chainId: number
   private providerCache: { [chainId: number]: Eip1193Bridge } = {}
@@ -26,6 +28,7 @@ export class Network extends Connector {
   }
 
   private async initialize(): Promise<void> {
+    this.provider = undefined
     this.actions.startActivation()
 
     // cache the desired chainId before async logic
@@ -56,9 +59,9 @@ export class Network extends Connector {
     // once we're here, the cache is guaranteed to be initialized
     // so, if the current chainId still matches the one at the beginning of the call, update
     if (chainId === this.chainId) {
-      const provider = this.providerCache[chainId]
+      this.provider = this.providerCache[chainId]
 
-      return provider
+      return this.provider
         .request({ method: 'eth_chainId' })
         .then((returnedChainId: number) => {
           if (returnedChainId !== chainId) {
@@ -81,6 +84,7 @@ export class Network extends Connector {
     if (this.urlMap[desiredChainId] === undefined) {
       throw new Error(`no url(s) provided for desiredChainId ${desiredChainId}`)
     }
+
     // set the connector's chainId to the target, to prevent race conditions
     this.chainId = desiredChainId
 

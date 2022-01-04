@@ -5,7 +5,7 @@ import type { Actions, ProviderRpcError, RequestArguments, Web3ReactStore } from
 import { EventEmitter } from 'node:events'
 import { EIP1193 } from '.'
 
-async function yieldThread() {
+export async function yieldThread() {
   await new Promise((resolve) => setTimeout(resolve, 0))
 }
 
@@ -38,19 +38,19 @@ export class MockEIP1193Provider extends EventEmitter {
     }
   }
 
-  public connect(chainId: string) {
+  public emitConnect(chainId: string) {
     this.emit('connect', { chainId })
   }
 
-  public disconnect(error: ProviderRpcError) {
+  public emitDisconnect(error: ProviderRpcError) {
     this.emit('disconnect', error)
   }
 
-  public chainChanged(chainId: string) {
+  public emitChainChanged(chainId: string) {
     this.emit('chainChanged', chainId)
   }
 
-  public accountsChanged(accounts: string[]) {
+  public emitAccountsChanged(accounts: string[]) {
     this.emit('accountsChanged', accounts)
   }
 }
@@ -270,7 +270,7 @@ describe('EIP1193', () => {
     const error = new MockProviderRpcError()
 
     test('#connect', async () => {
-      mockProvider.connect(chainId)
+      mockProvider.emitConnect(chainId)
 
       expect(store.getState()).toEqual({
         chainId: 1,
@@ -281,7 +281,7 @@ describe('EIP1193', () => {
     })
 
     test('#disconnect', async () => {
-      mockProvider.disconnect(error)
+      mockProvider.emitDisconnect(error)
 
       expect(store.getState()).toEqual({
         chainId: undefined,
@@ -292,7 +292,7 @@ describe('EIP1193', () => {
     })
 
     test('#chainChanged', async () => {
-      mockProvider.chainChanged(chainId)
+      mockProvider.emitChainChanged(chainId)
 
       expect(store.getState()).toEqual({
         chainId: 1,
@@ -303,7 +303,7 @@ describe('EIP1193', () => {
     })
 
     test('#accountsChanged', async () => {
-      mockProvider.accountsChanged(accounts)
+      mockProvider.emitAccountsChanged(accounts)
 
       expect(store.getState()).toEqual({
         chainId: undefined,
@@ -314,8 +314,8 @@ describe('EIP1193', () => {
     })
 
     test('initializes with connect', async () => {
-      mockProvider.connect(chainId)
-      mockProvider.accountsChanged(accounts)
+      mockProvider.emitConnect(chainId)
+      mockProvider.emitAccountsChanged(accounts)
 
       expect(store.getState()).toEqual({
         chainId: 1,
@@ -326,8 +326,8 @@ describe('EIP1193', () => {
     })
 
     test('initializes with chainChanged', async () => {
-      mockProvider.chainChanged(chainId)
-      mockProvider.accountsChanged(accounts)
+      mockProvider.emitChainChanged(chainId)
+      mockProvider.emitAccountsChanged(accounts)
 
       expect(store.getState()).toEqual({
         chainId: 1,
