@@ -15,7 +15,7 @@
     "@web3-react/frame": "8.0.15-alpha.0",
     "@web3-react/magic": "8.0.15-alpha.0",
     "@web3-react/metamask": "8.0.15-alpha.0",
-    "@web3-react/network": "8.0.15-alpha.0",
+    "@web3-react/network": "8.0.16-alpha.0",
     "@web3-react/store": "8.0.15-alpha.0",
     "@web3-react/types": "8.0.15-alpha.0",
     "@web3-react/walletconnect": "8.0.15-alpha.0",
