@@ -25,6 +25,7 @@
     "@web3-react/types": "^8.0.15-alpha.0"
   },
   "devDependencies": {
+    "@web3-react/store": "^8.0.15-alpha.0",
     "walletlink": "^2.4.0"
   },
   "peerDependencies": {

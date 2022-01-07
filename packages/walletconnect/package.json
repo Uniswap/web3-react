@@ -28,7 +28,8 @@
     "@walletconnect/ethereum-provider": "^1.7.0"
   },
   "devDependencies": {
-    "@walletconnect/ethereum-provider": "^1.7.0"
+    "@walletconnect/ethereum-provider": "^1.7.0",
+    "@web3-react/store": "^8.0.15-alpha.0"
   },
   "gitHead": "9461726911d45849d76642bc60fec57e84234cd7"
 }
