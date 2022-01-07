@@ -20,11 +20,13 @@
     "@web3-react/types": "8.0.15-alpha.0",
     "@web3-react/walletconnect": "8.0.15-alpha.0",
     "@web3-react/walletlink": "8.0.15-alpha.0",
+    "buffer": "^6.0.3",
     "eth-provider": "^0.9.4",
     "events": "^3.3.0",
     "next": "^12.0.2",
     "process": "^0.11.10",
     "react-dom": "^17.0.2",
+    "util": "^0.12.4",
     "walletlink": "^2.1.11"
   }
 }

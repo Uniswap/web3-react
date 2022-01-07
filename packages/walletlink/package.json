@@ -25,10 +25,10 @@
     "@web3-react/types": "^8.0.15-alpha.0"
   },
   "devDependencies": {
-    "walletlink": "^2.1.11"
+    "walletlink": "^2.4.0"
   },
   "peerDependencies": {
-    "walletlink": "^2.1.11"
+    "walletlink": "^2.4.0"
   },
   "gitHead": "9461726911d45849d76642bc60fec57e84234cd7"
 }

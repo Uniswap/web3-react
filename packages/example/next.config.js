@@ -11,6 +11,8 @@ const nextConfig = {
     config.resolve.fallback = {
       events: require.resolve('events/'),
       process: require.resolve('process/browser'),
+      buffer: require.resolve('buffer/'),
+      util: require.resolve('util/'),
       bufferutil: false,
       'utf-8-validate': false,
     }

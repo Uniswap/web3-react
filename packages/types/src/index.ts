@@ -18,7 +18,7 @@ export interface Web3ReactStateUpdate {
 export interface Actions {
   startActivation: () => () => void
   update: (stateUpdate: Web3ReactStateUpdate) => void
-  reportError: (error: Error) => void
+  reportError: (error: Error | undefined) => void
 }
 
 // per EIP-1193

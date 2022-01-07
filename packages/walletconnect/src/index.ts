@@ -12,7 +12,7 @@ export class WalletConnect extends Connector {
   private readonly options?: IWCEthRpcConnectionOptions
   private eagerConnection?: Promise<void>
 
-  public provider: MockWalletConnectProvider | undefined
+  provider: MockWalletConnectProvider | undefined
 
   constructor(actions: Actions, options: IWCEthRpcConnectionOptions, connectEagerly = true) {
     super(actions)
@@ -21,6 +21,18 @@ export class WalletConnect extends Connector {
     if (connectEagerly) {
       this.eagerConnection = this.initialize(true)
     }
+  }
+
+  private disconnectListener = (error: ProviderRpcError | undefined): void => {
+    this.actions.reportError(error)
+  }
+
+  private chainChangedListener = (chainId: number): void => {
+    this.actions.update({ chainId })
+  }
+
+  private accountsChangedListener = (accounts: string[]): void => {
+    this.actions.update({ accounts })
   }
 
   private async initialize(connectEagerly: boolean): Promise<void> {
@@ -32,15 +44,9 @@ export class WalletConnect extends Connector {
     return import('@walletconnect/ethereum-provider').then((m) => {
       this.provider = new m.default(this.options) as unknown as MockWalletConnectProvider
 
-      this.provider.on('disconnect', (error: ProviderRpcError): void => {
-        this.actions.reportError(error)
-      })
-      this.provider.on('chainChanged', (chainId: number): void => {
-        this.actions.update({ chainId })
-      })
-      this.provider.on('accountsChanged', (accounts: string[]): void => {
-        this.actions.update({ accounts })
-      })
+      this.provider.on('disconnect', this.disconnectListener)
+      this.provider.on('chainChanged', this.chainChangedListener)
+      this.provider.on('accountsChanged', this.accountsChangedListener)
 
       if (connectEagerly) {
         if (this.provider.connected) {
@@ -94,7 +100,12 @@ export class WalletConnect extends Connector {
 
   public async deactivate(): Promise<void> {
     if (this.provider) {
-      return this.provider.disconnect()
+      await this.provider.disconnect()
+      this.provider.off('disconnect', this.disconnectListener)
+      this.provider.off('chainChanged', this.chainChangedListener)
+      this.provider.off('accountsChanged', this.accountsChangedListener)
+      this.provider = undefined
+      this.eagerConnection = undefined
     }
   }
 }

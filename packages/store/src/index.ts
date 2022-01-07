@@ -9,8 +9,11 @@ function validateChainId(chainId: number): void {
 }
 
 export class ChainIdNotAllowedError extends Error {
+  public readonly chainId: number
+
   public constructor(chainId: number, allowedChainIds: number[]) {
     super(`chainId ${chainId} not included in ${allowedChainIds.toString()}`)
+    this.chainId = chainId
     this.name = ChainIdNotAllowedError.name
     Object.setPrototypeOf(this, ChainIdNotAllowedError.prototype)
   }
@@ -84,7 +87,9 @@ export function createWeb3ReactStoreAndActions(allowedChainIds?: number[]): [Web
 
         // warn if we're going to clobber existing error
         if (chainIdError && error) {
-          console.debug(`${error.name} is being clobbered by ${chainIdError.name}`)
+          if (!(error instanceof ChainIdNotAllowedError) || error.chainId !== chainIdError.chainId) {
+            console.debug(`${error.name} is being clobbered by ${chainIdError.name}`)
+          }
         }
 
         error = chainIdError
@@ -105,7 +110,7 @@ export function createWeb3ReactStoreAndActions(allowedChainIds?: number[]): [Web
     })
   }
 
-  function reportError(error: Error) {
+  function reportError(error: Error | undefined) {
     nullifier++
 
     store.setState(() => ({ ...DEFAULT_STATE, error }))

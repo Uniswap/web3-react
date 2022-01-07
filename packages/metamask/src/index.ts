@@ -82,6 +82,8 @@ export class MetaMask extends Connector {
                 cancelActivation()
               })
           }
+        } else if (connectEagerly) {
+          cancelActivation()
         }
       })
   }
