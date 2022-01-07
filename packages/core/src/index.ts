@@ -3,7 +3,8 @@ import { Web3Provider } from '@ethersproject/providers'
 import { createWeb3ReactStoreAndActions } from '@web3-react/store'
 import type { Actions, Connector, Web3ReactState } from '@web3-react/types'
 import { useEffect, useMemo, useState } from 'react'
-import create, { UseBoundStore } from 'zustand'
+import type { EqualityChecker, UseBoundStore } from 'zustand'
+import create from 'zustand'
 
 export type Web3ReactHooks = ReturnType<typeof getStateHooks> &
   ReturnType<typeof getDerivedHooks> &
@@ -20,7 +21,6 @@ export function initializeConnector<T extends Connector>(
 
   const stateHooks = getStateHooks(useConnector)
   const derivedHooks = getDerivedHooks(stateHooks)
-
   const augmentedHooks = getAugmentedHooks(connector, stateHooks, derivedHooks)
 
   return [connector, { ...stateHooks, ...derivedHooks, ...augmentedHooks }]
@@ -28,6 +28,12 @@ export function initializeConnector<T extends Connector>(
 
 const CHAIN_ID = (state: Web3ReactState) => state.chainId
 const ACCOUNTS = (state: Web3ReactState) => state.accounts
+const ACCOUNTS_EQUALITY_CHECKER: EqualityChecker<Web3ReactState['accounts']> = (oldAccounts, newAccounts) =>
+  (oldAccounts === undefined && newAccounts === undefined) ||
+  (oldAccounts !== undefined &&
+    newAccounts !== undefined &&
+    oldAccounts.length === newAccounts.length &&
+    oldAccounts.every((oldAccount, i) => oldAccount === newAccounts[i]))
 const ACTIVATING = (state: Web3ReactState) => state.activating
 const ERROR = (state: Web3ReactState) => state.error
 
@@ -37,7 +43,7 @@ function getStateHooks(useConnector: UseBoundStore<Web3ReactState>) {
   }
 
   function useAccounts(): Web3ReactState['accounts'] {
-    return useConnector(ACCOUNTS)
+    return useConnector(ACCOUNTS, ACCOUNTS_EQUALITY_CHECKER)
   }
 
   function useIsActivating(): Web3ReactState['activating'] {
@@ -104,7 +110,7 @@ function getAugmentedHooks<T extends Connector>(
     const isActive = useIsActive()
 
     const chainId = useChainId()
-    const accounts = useChainId()
+    const accounts = useAccounts()
 
     return useMemo(() => {
       // we use chainId and accounts to re-render in case connector.provider changes in place
@@ -134,14 +140,17 @@ function getAugmentedHooks<T extends Connector>(
     const account = useAccount()
     const isActive = useIsActive()
 
-    return {
-      connector,
-      library: provider,
-      chainId,
-      account,
-      active: isActive,
-      error,
-    }
+    return useMemo(
+      () => ({
+        connector,
+        library: provider,
+        chainId,
+        account,
+        active: isActive,
+        error,
+      }),
+      [provider, chainId, account, isActive, error]
+    )
   }
 
   return { useProvider, useENSNames, useENSName, useWeb3React }

@@ -86,9 +86,11 @@ export class MetaMask extends Connector {
       })
   }
 
-  public async activate(desiredChainParameters?: number | AddEthereumChainParameter): Promise<void> {
+  public async activate(desiredChainIdOrChainParameters?: number | AddEthereumChainParameter): Promise<void> {
     const desiredChainId =
-      typeof desiredChainParameters === 'number' ? desiredChainParameters : desiredChainParameters?.chainId
+      typeof desiredChainIdOrChainParameters === 'number'
+        ? desiredChainIdOrChainParameters
+        : desiredChainIdOrChainParameters?.chainId
 
     this.actions.startActivation()
 
@@ -121,12 +123,12 @@ export class MetaMask extends Connector {
           params: [{ chainId: desiredChainIdHex }],
         })
           .catch((error: ProviderRpcError) => {
-            if (error.code === 4902 && typeof desiredChainParameters !== 'number') {
+            if (error.code === 4902 && typeof desiredChainIdOrChainParameters !== 'number') {
               // if we're here, we can try to add a new network
               // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
               return this.provider!.request({
                 method: 'wallet_addEthereumChain',
-                params: [{ ...desiredChainParameters, chainId: desiredChainIdHex }],
+                params: [{ ...desiredChainIdOrChainParameters, chainId: desiredChainIdHex }],
               })
             } else {
               throw error
