@@ -26,7 +26,7 @@
   },
   "devDependencies": {
     "@web3-react/store": "^8.0.16-alpha.0",
-    "walletlink": "^2.4.0"
+    "walletlink": "^2.4.1"
   },
   "peerDependencies": {
     "walletlink": "^2.4.0"
