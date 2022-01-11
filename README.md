@@ -36,6 +36,14 @@ In addition to compiling each package in watch mode, this will also spin up the 
 
 - `yarn test --watch`
 
+## Documentation
+
+This version of web3-react is still in beta, so unfortunately documentation is pretty sparse at the moment. The example repository and the source code itself are your best bets to get an idea of what's going on. More thorough documentation is a priority as development continues, however!
+
+## Adding Connectors
+
+If you're interested in using web3-react with a particular wallet solution that doesn't have an "official" connector package, you're in luck! This library was specifically written to be extremely modular, and you should be able to draw inspiration from the existing connectors to write your own! That code can live inside your codebase, or even be published as a standalone package. From time to time, if there's sufficient interest and desire, PRs adding new connectors may be accepted, but it's probably worth bringing up in an issue for discussion beforehand.
+
 ## Useful Commands
 
 ### Add a dependency
