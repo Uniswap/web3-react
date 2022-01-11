@@ -60,7 +60,10 @@ class MiniRpcProvider implements AsyncSendable {
         id: 1,
         method,
         params
-      })
+      }),
+      headers: {
+        'Content-Type': 'application/json'
+      }
     })
     if (!response.ok) throw new RequestError(`${response.status}: ${response.statusText}`, -32000)
     const body = await response.json()
