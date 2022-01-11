@@ -5,12 +5,12 @@
     "walletlink"
   ],
   "author": "Noah Zinsmeister <noahwz@gmail.com>",
-  "license": "GPL-3.0-or-later",  
+  "license": "GPL-3.0-or-later",
   "repository": "github:NoahZinsmeister/web3-react",
   "publishConfig": {
     "access": "public"
   },
-  "version": "8.0.16-alpha.0",
+  "version": "8.0.0-beta.0",
   "type": "module",
   "files": [
     "dist/*"
@@ -29,12 +29,12 @@
     "start": "tsc --watch"
   },
   "dependencies": {
-    "@web3-react/types": "^8.0.16-alpha.0"
+    "@web3-react/types": "^8.0.0-beta.0"
   },
   "peerDependencies": {
     "walletlink": "^2.4.0"
   },
   "devDependencies": {
-    "@web3-react/store": "^8.0.16-alpha.0"
+    "@web3-react/store": "^8.0.0-beta.0"
   }
 }
