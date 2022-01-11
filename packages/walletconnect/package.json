@@ -32,7 +32,7 @@
     "@web3-react/types": "^8.0.0-beta.0"
   },
   "peerDependencies": {
-    "@walletconnect/ethereum-provider": "^1.7.0"
+    "@walletconnect/ethereum-provider": "^1.7.1"
   },
   "devDependencies": {
     "@web3-react/store": "^8.0.0-beta.0"
