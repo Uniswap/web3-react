@@ -5,7 +5,7 @@
   "author": "Noah Zinsmeister <noahwz@gmail.com>",
   "license": "GPL-3.0-or-later",
   "engines": {
-    "node": "^14"
+    "node": "^14 || ^16"
   },
   "scripts": {
     "bootstrap": "lerna bootstrap",
