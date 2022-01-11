@@ -8034,7 +8034,7 @@ walker@^1.0.7:
   dependencies:
     makeerror "1.0.12"
 
-walletlink@^2.4.0:
+walletlink@^2.4.1:
   version "2.4.1"
   resolved "https://registry.yarnpkg.com/walletlink/-/walletlink-2.4.1.tgz#8fd6c5f154b1305bc928860907a3372c5f3b5225"
   integrity sha512-KSeAJOjimJVD5r7XnpmwO84ZFe8pp2K3q8PpxO7cABMwngOYlZfo5zzFa2HIHZehoAskavL5lRXxqawGj6T1cQ==
