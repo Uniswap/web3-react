@@ -44,6 +44,10 @@ This version of web3-react is still in beta, so unfortunately documentation is p
 
 If you're interested in using web3-react with a particular wallet solution that doesn't have an "official" connector package, you're in luck! This library was specifically written to be extremely modular, and you should be able to draw inspiration from the existing connectors to write your own! That code can live inside your codebase, or even be published as a standalone package. From time to time, if there's sufficient interest and desire, PRs adding new connectors may be accepted, but it's probably worth bringing up in an issue for discussion beforehand.
 
+## Upgrading from v6
+
+While the internals of web3-react have changed fairly dramatically between v6 and v8, the hope is that usage don't have to change too much when upgrading. Once you've migrated to the new connectors and state management patterns, you should be able to use the hooks defined in @web3-react/core, in particular `useWeb3React`, as more-or-less drop-in replacements for the v6 hooks. The big benefit in v8 is that hooks are now per-connector, as opposed to global, so no more juggling between connectors/multiple roots! Instead, you should be able to use a higher-level hook that selects amongst all connectors based on whether they're active, have errors, etc. and return the appropriate provider/account/etc. for usage elsewhere in your application.
+
 ## Useful Commands
 
 ### Add a dependency
