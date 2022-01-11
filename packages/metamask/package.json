@@ -1,5 +1,12 @@
 {
   "name": "@web3-react/metamask",
+  "keywords": [
+    "web3-react",
+    "metamask"
+  ],
+  "author": "Noah Zinsmeister <noahwz@gmail.com>",
+  "license": "GPL-3.0-or-later",
+  "repository": "github:NoahZinsmeister/web3-react",
   "publishConfig": {
     "access": "public"
   },
@@ -27,6 +34,5 @@
   },
   "devDependencies": {
     "@web3-react/store": "^8.0.16-alpha.0"
-  },
-  "gitHead": "9461726911d45849d76642bc60fec57e84234cd7"
+  }
 }

@@ -9,8 +9,8 @@ import { Connector } from '@web3-react/types'
 import { WalletConnect } from '@web3-react/walletconnect'
 import { WalletLink } from '@web3-react/walletlink'
 import { useCallback, useEffect, useState } from 'react'
-import { CHAINS, getAddChainParameters, URLS } from '../chains'
-import { connectors } from '../connectors'
+import { CHAINS, getAddChainParameters, URLS } from './chains'
+import { connectors } from './connectors'
 
 function getName(connector: Connector) {
   if (connector instanceof Frame) {
@@ -372,7 +372,7 @@ function Connect({
   }
 }
 
-export default function Connectors() {
+export default function App() {
   return (
     <div style={{ display: 'flex', flexFlow: 'wrap', fontFamily: 'sans-serif' }}>
       {connectors.map(([connector, hooks], i) => (

@@ -1,5 +1,12 @@
 {
   "name": "@web3-react/magic",
+  "keywords": [
+    "web3-react",
+    "magic"
+  ],
+  "author": "Noah Zinsmeister <noahwz@gmail.com>",
+  "license": "GPL-3.0-or-later",
+  "repository": "github:NoahZinsmeister/web3-react",
   "publishConfig": {
     "access": "public"
   },
@@ -22,12 +29,9 @@
     "start": "tsc --watch"
   },
   "dependencies": {
-    "@ethersproject/experimental": "^5.4.0",
-    "@ethersproject/providers": "^5.4.5",
+    "@ethersproject/experimental": "^5.5.0",
+    "@ethersproject/providers": "^5.5.1",
     "@web3-react/types": "^8.0.16-alpha.0"
-  },
-  "devDependencies": {
-    "magic-sdk": "^6.1.0"
   },
   "peerDependencies": {
     "magic-sdk": "^6.1.0"

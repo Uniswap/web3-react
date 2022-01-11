@@ -1,5 +1,11 @@
 {
   "name": "@web3-react/url",
+  "keywords": [
+    "web3-react"
+  ],
+  "author": "Noah Zinsmeister <noahwz@gmail.com>",
+  "license": "GPL-3.0-or-later",
+  "repository": "github:NoahZinsmeister/web3-react",
   "publishConfig": {
     "access": "public"
   },
@@ -22,12 +28,11 @@
     "start": "tsc --watch"
   },
   "dependencies": {
-    "@ethersproject/experimental": "^5.4.0",
-    "@ethersproject/providers": "^5.4.5",
+    "@ethersproject/experimental": "^5.5.0",
+    "@ethersproject/providers": "^5.5.1",
     "@web3-react/types": "^8.0.16-alpha.0"
   },
   "devDependencies": {
     "@web3-react/store": "^8.0.16-alpha.0"
-  },
-  "gitHead": "9461726911d45849d76642bc60fec57e84234cd7"
+  }
 }

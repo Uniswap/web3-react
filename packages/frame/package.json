@@ -1,5 +1,12 @@
 {
   "name": "@web3-react/frame",
+  "keywords": [
+    "web3-react",
+    "frame"
+  ],
+  "author": "Noah Zinsmeister <noahwz@gmail.com>",
+  "license": "GPL-3.0-or-later",
+  "repository": "github:NoahZinsmeister/web3-react",
   "publishConfig": {
     "access": "public"
   },
@@ -26,9 +33,5 @@
   },
   "peerDependencies": {
     "eth-provider": "^0.9.4"
-  },
-  "devDependencies": {
-    "eth-provider": "^0.9.4"
-  },
-  "gitHead": "9461726911d45849d76642bc60fec57e84234cd7"
+  }
 }

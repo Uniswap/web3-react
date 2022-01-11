@@ -68,7 +68,6 @@ export const CHAINS: { [chainId: number]: BasicChainInformation | ExtendedChainI
     urls: [process.env.infuraKey ? `https://kovan.infura.io/v3/${process.env.infuraKey}` : undefined],
     name: 'Kovan',
   },
-
   // Optimism
   10: {
     urls: [
@@ -88,7 +87,6 @@ export const CHAINS: { [chainId: number]: BasicChainInformation | ExtendedChainI
     nativeCurrency: ETH,
     blockExplorerUrls: ['https://kovan-optimistic.etherscan.io'],
   },
-
   // Arbitrum
   42161: {
     urls: [
@@ -108,7 +106,6 @@ export const CHAINS: { [chainId: number]: BasicChainInformation | ExtendedChainI
     nativeCurrency: ETH,
     blockExplorerUrls: ['https://testnet.arbiscan.io'],
   },
-
   // Polygon
   137: {
     urls: [
@@ -120,10 +117,7 @@ export const CHAINS: { [chainId: number]: BasicChainInformation | ExtendedChainI
     blockExplorerUrls: ['https://polygonscan.com'],
   },
   80001: {
-    urls: [
-      process.env.infuraKey ? `https://polygon-mumbai.infura.io/v3/${process.env.infuraKey}` : undefined,
-      'https://rpc-mumbai.maticvigil.com',
-    ],
+    urls: [process.env.infuraKey ? `https://polygon-mumbai.infura.io/v3/${process.env.infuraKey}` : undefined],
     name: 'Polygon Mumbai',
     nativeCurrency: MATIC,
     blockExplorerUrls: ['https://mumbai.polygonscan.com'],

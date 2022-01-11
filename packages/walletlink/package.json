@@ -1,5 +1,12 @@
 {
   "name": "@web3-react/walletlink",
+  "keywords": [
+    "web3-react",
+    "walletlink"
+  ],
+  "author": "Noah Zinsmeister <noahwz@gmail.com>",
+  "license": "GPL-3.0-or-later",  
+  "repository": "github:NoahZinsmeister/web3-react",
   "publishConfig": {
     "access": "public"
   },
@@ -24,12 +31,10 @@
   "dependencies": {
     "@web3-react/types": "^8.0.16-alpha.0"
   },
-  "devDependencies": {
-    "@web3-react/store": "^8.0.16-alpha.0",
-    "walletlink": "^2.4.0"
-  },
   "peerDependencies": {
     "walletlink": "^2.4.0"
   },
-  "gitHead": "9461726911d45849d76642bc60fec57e84234cd7"
+  "devDependencies": {
+    "@web3-react/store": "^8.0.16-alpha.0"
+  }
 }
