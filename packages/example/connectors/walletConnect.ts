@@ -2,7 +2,7 @@ import { initializeConnector } from '@web3-react/core'
 import { WalletConnect } from '@web3-react/walletconnect'
 import { URLS } from '../chains'
 
-export const [walletConnect, hooks] = initializeConnector<WalletConnect>(
+export const [walletConnect, hooks, store] = initializeConnector<WalletConnect>(
   (actions) =>
     new WalletConnect(actions, {
       rpc: Object.keys(URLS).reduce((accumulator, chainId) => {
