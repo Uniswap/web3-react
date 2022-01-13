@@ -1,7 +1,6 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { formatEther } from '@ethersproject/units'
 import type { Web3ReactHooks } from '@web3-react/core'
-import { useHighestPriorityConnector } from '@web3-react/core'
 import { Frame } from '@web3-react/frame'
 import { Magic } from '@web3-react/magic'
 import { MetaMask } from '@web3-react/metamask'
@@ -380,9 +379,6 @@ function Connect({ connector, hooks }: { connector: Connector; hooks: Web3ReactH
 }
 
 export default function App() {
-  const [connector] = useHighestPriorityConnector(connectors)
-  console.log(`highest priority connector is ${getName(connector)}`)
-
   return (
     <div style={{ display: 'flex', flexFlow: 'wrap', fontFamily: 'sans-serif' }}>
       {connectors.map(([connector, hooks], i) => (
