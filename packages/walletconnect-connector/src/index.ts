@@ -4,6 +4,10 @@ import { IWalletConnectProviderOptions } from '@walletconnect/types'
 
 export const URI_AVAILABLE = 'URI_AVAILABLE'
 
+export interface WalletConnectConnectorArguments extends IWalletConnectProviderOptions {
+  supportedChainIds?: number[]
+}
+
 export class UserRejectedRequestError extends Error {
   public constructor() {
     super()
@@ -12,11 +16,21 @@ export class UserRejectedRequestError extends Error {
   }
 }
 
+function getSupportedChains({ supportedChainIds, rpc }: WalletConnectConnectorArguments): number[] | undefined {
+  if (supportedChainIds) {
+    return supportedChainIds
+  }
+
+  return rpc ? Object.keys(rpc).map((k) => Number(k)) : undefined
+}
+
 export class WalletConnectConnector extends AbstractConnector {
   public walletConnectProvider?: any
+  private readonly config: WalletConnectConnectorArguments
 
-  constructor(private readonly opts: IWalletConnectProviderOptions) {
-    super({ supportedChainIds: Object.keys(opts.rpc || {}).map(k => Number(k)) })
+  constructor(config: WalletConnectConnectorArguments) {
+    super({ supportedChainIds: getSupportedChains(config) })
+    this.config = config
 
     this.handleChainChanged = this.handleChainChanged.bind(this)
     this.handleAccountsChanged = this.handleAccountsChanged.bind(this)
@@ -41,7 +55,6 @@ export class WalletConnectConnector extends AbstractConnector {
     if (__DEV__) {
       console.log("Handling 'disconnect' event")
     }
-    this.emitDeactivate()
     // we have to do this because of a @walletconnect/web3-provider bug
     if (this.walletConnectProvider) {
       this.walletConnectProvider.stop()
@@ -49,19 +62,20 @@ export class WalletConnectConnector extends AbstractConnector {
       this.walletConnectProvider.removeListener('accountsChanged', this.handleAccountsChanged)
       this.walletConnectProvider = undefined
     }
-
     this.emitDeactivate()
   }
 
   public async activate(): Promise<ConnectorUpdate> {
     if (!this.walletConnectProvider) {
-      const WalletConnectProvider = await import('@walletconnect/web3-provider').then(m => m?.default ?? m)
-      this.walletConnectProvider = new WalletConnectProvider(this.opts)
+      const WalletConnectProvider = await import('@walletconnect/web3-provider').then((m) => m?.default ?? m)
+      this.walletConnectProvider = new WalletConnectProvider(this.config)
     }
 
     // ensure that the uri is going to be available, and emit an event if there's a new uri
     if (!this.walletConnectProvider.wc.connected) {
-      await this.walletConnectProvider.wc.createSession(this.opts.chainId ? { chainId: this.opts.chainId } : undefined)
+      await this.walletConnectProvider.wc.createSession(
+        this.config.chainId ? { chainId: this.config.chainId } : undefined
+      )
       this.emit(URI_AVAILABLE, this.walletConnectProvider.wc.uri)
     }
 
@@ -92,7 +106,7 @@ export class WalletConnectConnector extends AbstractConnector {
           }
           reject(error)
         })
-    }).catch(err => {
+    }).catch((err) => {
       throw err
     })
 
@@ -108,23 +122,23 @@ export class WalletConnectConnector extends AbstractConnector {
   }
 
   public async getChainId(): Promise<number | string> {
-    return this.walletConnectProvider.send('eth_chainId')
+    return Promise.resolve(this.walletConnectProvider.chainId)
   }
 
   public async getAccount(): Promise<null | string> {
-    return this.walletConnectProvider.send('eth_accounts').then((accounts: string[]): string => accounts[0])
+    return Promise.resolve(this.walletConnectProvider.accounts).then((accounts: string[]): string => accounts[0])
   }
 
   public deactivate() {
     if (this.walletConnectProvider) {
-      this.walletConnectProvider.stop()
       this.walletConnectProvider.removeListener('disconnect', this.handleDisconnect)
       this.walletConnectProvider.removeListener('chainChanged', this.handleChainChanged)
       this.walletConnectProvider.removeListener('accountsChanged', this.handleAccountsChanged)
+      this.walletConnectProvider.disconnect()
     }
   }
 
   public async close() {
-    await this.walletConnectProvider?.close()
+    this.emitDeactivate()
   }
 }
