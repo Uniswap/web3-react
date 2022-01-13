@@ -41,7 +41,7 @@ export function useHighestPriorityConnector(
       !areActiveNew.every((isActive, i) => isActive === areActive.current[i])
     ) {
       areActive.current = areActiveNew
-      setCounter((counter) => counter + 1)
+      setCounter((counter) => ++counter)
     }
 
     const unsubscribes = connectorHooksAndStores.map(([, , store], i) =>
@@ -49,7 +49,7 @@ export function useHighestPriorityConnector(
         const isActive = computeIsActive(state)
         if (isActive !== areActive.current[i]) {
           areActive.current.splice(i, 1, isActive)
-          setCounter((counter) => counter + 1)
+          setCounter((counter) => ++counter)
         }
       })
     )
