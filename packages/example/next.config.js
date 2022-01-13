@@ -3,9 +3,9 @@
  */
 const nextConfig = {
   env: {
-    infuraKey: '84842078b09946638c03157f83405213',
-    alchemyKey: '_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC',
-    magicKey: 'pk_live_1F99B3C570C9B08F',
+    infuraKey: process.env.INFURA_KEY,
+    alchemyKey: process.env.ALCHEMY_KEY,
+    magicKey: process.env.MAGIC_KEY,
   },
   webpack: (config) => {
     config.resolve.fallback = {

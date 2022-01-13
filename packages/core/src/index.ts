@@ -10,6 +10,10 @@ export type Web3ReactHooks = ReturnType<typeof getStateHooks> &
   ReturnType<typeof getDerivedHooks> &
   ReturnType<typeof getAugmentedHooks>
 
+function computeIsActive({ chainId, accounts, activating, error }: Web3ReactState) {
+  return Boolean(chainId && accounts && !activating && !error)
+}
+
 export function initializeConnector<T extends Connector>(
   f: (actions: Actions) => T,
   allowedChainIds?: number[]
@@ -38,7 +42,7 @@ export function useHighestPriorityConnector(
     // only re-render if necessary
     if (
       areActiveNew.length !== areActive.current.length ||
-      !areActiveNew.every((isActive, i) => isActive === areActive.current[i])
+      areActiveNew.some((isActive, i) => isActive !== areActive.current[i])
     ) {
       areActive.current = areActiveNew
       setCounter((counter) => ++counter)
@@ -91,10 +95,6 @@ function getStateHooks(useConnector: UseBoundStore<Web3ReactState>) {
   }
 
   return { useChainId, useAccounts, useIsActivating, useError }
-}
-
-function computeIsActive({ chainId, accounts, activating, error }: Web3ReactState) {
-  return Boolean(chainId && accounts && !activating && !error)
 }
 
 function getDerivedHooks({ useChainId, useAccounts, useIsActivating, useError }: ReturnType<typeof getStateHooks>) {

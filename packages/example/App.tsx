@@ -93,14 +93,8 @@ function useBalances(
   return balances
 }
 
-function Accounts({
-  useAnyNetwork,
-  hooks: { useAccounts, useProvider, useENSNames },
-}: {
-  useAnyNetwork: boolean
-  hooks: Web3ReactHooks
-}) {
-  const provider = useProvider(useAnyNetwork ? 'any' : undefined)
+function Accounts({ hooks: { useAccounts, useProvider, useENSNames } }: { hooks: Web3ReactHooks }) {
+  const provider = useProvider()
   const accounts = useAccounts()
   const ENSNames = useENSNames(provider)
 
@@ -341,7 +335,7 @@ function NetworkConnect({
   }
 }
 
-function Connect({
+function GenericConnect({
   connector,
   hooks: { useIsActivating, useError, useIsActive },
 }: {
@@ -373,6 +367,18 @@ function Connect({
   }
 }
 
+function Connect({ connector, hooks }: { connector: Connector; hooks: Web3ReactHooks }) {
+  return connector instanceof Magic ? (
+    <MagicConnect connector={connector} hooks={hooks} />
+  ) : connector instanceof MetaMask ? (
+    <MetaMaskConnect connector={connector} hooks={hooks} />
+  ) : connector instanceof Network ? (
+    <NetworkConnect connector={connector} hooks={hooks} />
+  ) : (
+    <GenericConnect connector={connector} hooks={hooks} />
+  )
+}
+
 export default function App() {
   const [connector] = useHighestPriorityConnector(connectors)
   console.log(`highest priority connector is ${getName(connector)}`)
@@ -398,18 +404,10 @@ export default function App() {
             <Status connector={connector} hooks={hooks} />
             <br />
             <ChainId hooks={hooks} />
-            <Accounts useAnyNetwork={connector instanceof WalletConnect} hooks={hooks} />
+            <Accounts hooks={hooks} />
             <br />
           </div>
-          {connector instanceof Magic ? (
-            <MagicConnect connector={connector} hooks={hooks} />
-          ) : connector instanceof MetaMask ? (
-            <MetaMaskConnect connector={connector} hooks={hooks} />
-          ) : connector instanceof Network ? (
-            <NetworkConnect connector={connector} hooks={hooks} />
-          ) : (
-            <Connect connector={connector} hooks={hooks} />
-          )}
+          <Connect connector={connector} hooks={hooks} />
         </div>
       ))}
     </div>
