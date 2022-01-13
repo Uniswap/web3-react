@@ -62,7 +62,12 @@ export class MetaMask extends Connector {
             this.actions.update({ chainId: parseChainId(chainId) })
           })
           this.provider.on('accountsChanged', (accounts: string[]): void => {
-            this.actions.update({ accounts })
+            if (accounts.length === 0) {
+              // handle this edge case by disconnecting
+              this.actions.reportError(undefined)
+            } else {
+              this.actions.update({ accounts })
+            }
           })
 
           if (connectEagerly) {
