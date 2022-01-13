@@ -1,8 +1,8 @@
 import type { Networkish } from '@ethersproject/networks'
 import { Web3Provider } from '@ethersproject/providers'
 import { createWeb3ReactStoreAndActions } from '@web3-react/store'
-import type { Actions, Connector, Web3ReactState } from '@web3-react/types'
-import { useEffect, useMemo, useState } from 'react'
+import type { Actions, Connector, Web3ReactState, Web3ReactStore } from '@web3-react/types'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import type { EqualityChecker, UseBoundStore } from 'zustand'
 import create from 'zustand'
 
@@ -10,10 +10,14 @@ export type Web3ReactHooks = ReturnType<typeof getStateHooks> &
   ReturnType<typeof getDerivedHooks> &
   ReturnType<typeof getAugmentedHooks>
 
+function computeIsActive({ chainId, accounts, activating, error }: Web3ReactState) {
+  return Boolean(chainId && accounts && !activating && !error)
+}
+
 export function initializeConnector<T extends Connector>(
   f: (actions: Actions) => T,
   allowedChainIds?: number[]
-): [T, Web3ReactHooks] {
+): [T, Web3ReactHooks, Web3ReactStore] {
   const [store, actions] = createWeb3ReactStoreAndActions(allowedChainIds)
 
   const connector = f(actions)
@@ -23,7 +27,44 @@ export function initializeConnector<T extends Connector>(
   const derivedHooks = getDerivedHooks(stateHooks)
   const augmentedHooks = getAugmentedHooks(connector, stateHooks, derivedHooks)
 
-  return [connector, { ...stateHooks, ...derivedHooks, ...augmentedHooks }]
+  return [connector, { ...stateHooks, ...derivedHooks, ...augmentedHooks }, store]
+}
+
+export function useHighestPriorityConnector(
+  connectorHooksAndStores: ReturnType<typeof initializeConnector>[]
+): ReturnType<typeof initializeConnector> {
+  // used to force re-renders
+  const [, setCounter] = useState(0)
+  const areActive = useRef<boolean[]>(connectorHooksAndStores.map(([, , store]) => computeIsActive(store.getState())))
+
+  useEffect(() => {
+    const areActiveNew = connectorHooksAndStores.map(([, , store]) => computeIsActive(store.getState()))
+    // only re-render if necessary
+    if (
+      areActiveNew.length !== areActive.current.length ||
+      areActiveNew.some((isActive, i) => isActive !== areActive.current[i])
+    ) {
+      areActive.current = areActiveNew
+      setCounter((counter) => ++counter)
+    }
+
+    const unsubscribes = connectorHooksAndStores.map(([, , store], i) =>
+      store.subscribe((state) => {
+        const isActive = computeIsActive(state)
+        if (isActive !== areActive.current[i]) {
+          areActive.current.splice(i, 1, isActive)
+          setCounter((counter) => ++counter)
+        }
+      })
+    )
+
+    return () => {
+      unsubscribes.forEach((unsubscribe) => unsubscribe())
+    }
+  }, [connectorHooksAndStores])
+
+  const firstActiveIndex = areActive.current.findIndex((isActive) => isActive)
+  return connectorHooksAndStores[firstActiveIndex === -1 ? 0 : firstActiveIndex]
 }
 
 const CHAIN_ID = (state: Web3ReactState) => state.chainId
@@ -31,8 +72,7 @@ const ACCOUNTS = (state: Web3ReactState) => state.accounts
 const ACCOUNTS_EQUALITY_CHECKER: EqualityChecker<Web3ReactState['accounts']> = (oldAccounts, newAccounts) =>
   (oldAccounts === undefined && newAccounts === undefined) ||
   (oldAccounts !== undefined &&
-    newAccounts !== undefined &&
-    oldAccounts.length === newAccounts.length &&
+    oldAccounts.length === newAccounts?.length &&
     oldAccounts.every((oldAccount, i) => oldAccount === newAccounts[i]))
 const ACTIVATING = (state: Web3ReactState) => state.activating
 const ERROR = (state: Web3ReactState) => state.error
@@ -68,7 +108,12 @@ function getDerivedHooks({ useChainId, useAccounts, useIsActivating, useError }:
     const activating = useIsActivating()
     const error = useError()
 
-    return Boolean(chainId && accounts && !activating && !error)
+    return computeIsActive({
+      chainId,
+      accounts,
+      activating,
+      error,
+    })
   }
 
   return { useAccount, useIsActive }

@@ -1,11 +1,11 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { formatEther } from '@ethersproject/units'
-import { Web3ReactHooks } from '@web3-react/core'
+import type { Web3ReactHooks } from '@web3-react/core'
 import { Frame } from '@web3-react/frame'
 import { Magic } from '@web3-react/magic'
 import { MetaMask } from '@web3-react/metamask'
 import { Network } from '@web3-react/network'
-import { Connector } from '@web3-react/types'
+import type { Connector } from '@web3-react/types'
 import { WalletConnect } from '@web3-react/walletconnect'
 import { WalletLink } from '@web3-react/walletlink'
 import { useCallback, useEffect, useState } from 'react'
@@ -92,14 +92,8 @@ function useBalances(
   return balances
 }
 
-function Accounts({
-  useAnyNetwork,
-  hooks: { useAccounts, useProvider, useENSNames },
-}: {
-  useAnyNetwork: boolean
-  hooks: Web3ReactHooks
-}) {
-  const provider = useProvider(useAnyNetwork ? 'any' : undefined)
+function Accounts({ hooks: { useAccounts, useProvider, useENSNames } }: { hooks: Web3ReactHooks }) {
+  const provider = useProvider()
   const accounts = useAccounts()
   const ENSNames = useENSNames(provider)
 
@@ -340,7 +334,7 @@ function NetworkConnect({
   }
 }
 
-function Connect({
+function GenericConnect({
   connector,
   hooks: { useIsActivating, useError, useIsActive },
 }: {
@@ -372,6 +366,18 @@ function Connect({
   }
 }
 
+function Connect({ connector, hooks }: { connector: Connector; hooks: Web3ReactHooks }) {
+  return connector instanceof Magic ? (
+    <MagicConnect connector={connector} hooks={hooks} />
+  ) : connector instanceof MetaMask ? (
+    <MetaMaskConnect connector={connector} hooks={hooks} />
+  ) : connector instanceof Network ? (
+    <NetworkConnect connector={connector} hooks={hooks} />
+  ) : (
+    <GenericConnect connector={connector} hooks={hooks} />
+  )
+}
+
 export default function App() {
   return (
     <div style={{ display: 'flex', flexFlow: 'wrap', fontFamily: 'sans-serif' }}>
@@ -394,18 +400,10 @@ export default function App() {
             <Status connector={connector} hooks={hooks} />
             <br />
             <ChainId hooks={hooks} />
-            <Accounts useAnyNetwork={connector instanceof WalletConnect} hooks={hooks} />
+            <Accounts hooks={hooks} />
             <br />
           </div>
-          {connector instanceof Magic ? (
-            <MagicConnect connector={connector} hooks={hooks} />
-          ) : connector instanceof MetaMask ? (
-            <MetaMaskConnect connector={connector} hooks={hooks} />
-          ) : connector instanceof Network ? (
-            <NetworkConnect connector={connector} hooks={hooks} />
-          ) : (
-            <Connect connector={connector} hooks={hooks} />
-          )}
+          <Connect connector={connector} hooks={hooks} />
         </div>
       ))}
     </div>
