@@ -47,6 +47,7 @@ export class WalletLink extends Connector {
 
     const { url, ...options } = this.options
 
+    // @ts-ignore
     return import('walletlink').then((m) => {
       if (!this.walletLink) {
         this.walletLink = new m.WalletLink(options)
@@ -80,7 +81,12 @@ export class WalletLink extends Connector {
     })
   }
 
-  public async activate(): Promise<void> {
+  public async activate(desiredChainIdOrChainParameters?: number | AddEthereumChainParameter): Promise<void> {
+    const desiredChainId =
+      typeof desiredChainIdOrChainParameters === 'number'
+        ? desiredChainIdOrChainParameters
+        : desiredChainIdOrChainParameters?.chainId
+
     this.actions.startActivation()
 
     if (!this.eagerConnection) {
@@ -88,16 +94,38 @@ export class WalletLink extends Connector {
     }
     await this.eagerConnection
 
-    return (
-      Promise.all([
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        this.provider!.request({ method: 'eth_chainId' }),
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        this.provider!.request({ method: 'eth_requestAccounts' }),
-      ]) as Promise<[string, string[]]>
-    )
+    return Promise.all([
+      this.provider!.request({ method: 'eth_chainId' }) as Promise<string>,
+      this.provider!.request({ method: 'eth_requestAccounts' }) as Promise<string[]>,
+    ])
       .then(([chainId, accounts]) => {
-        this.actions.update({ chainId: parseChainId(chainId), accounts })
+        const receivedChainId = parseChainId(chainId)
+
+        // if there's no desired chain, or it's equal to the received, update
+        if (!desiredChainId || receivedChainId === desiredChainId) {
+          return this.actions.update({ chainId: receivedChainId, accounts })
+        }
+
+        // if we're here, we can try to switch networks
+        const desiredChainIdHex = `0x${desiredChainId.toString(16)}`
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        return this.provider!.request({
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId: desiredChainIdHex }],
+        })
+          .catch((error: ProviderRpcError) => {
+            if (error.code === 4902 && typeof desiredChainIdOrChainParameters !== 'number') {
+              // if we're here, we can try to add a new network
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              return this.provider!.request({
+                method: 'wallet_addEthereumChain',
+                params: [{ ...desiredChainIdOrChainParameters, chainId: desiredChainIdHex }],
+              })
+            } else {
+              throw error
+            }
+          })
+          .then(() => this.activate(desiredChainId))
       })
       .catch((error: Error) => {
         this.actions.reportError(error)
@@ -116,4 +144,17 @@ export class WalletLink extends Connector {
       this.walletLink!.disconnect()
     }
   }
+}
+
+export interface AddEthereumChainParameter {
+  chainId: number
+  chainName: string
+  nativeCurrency: {
+    name: string
+    symbol: string // 2-6 characters long
+    decimals: 18
+  }
+  rpcUrls: string[]
+  blockExplorerUrls?: string[]
+  iconUrls?: string[] // Currently ignored.
 }
