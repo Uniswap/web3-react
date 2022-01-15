@@ -33,5 +33,8 @@
   },
   "peerDependencies": {
     "eth-provider": "^0.9.4"
+  },
+  "devDependencies": {
+    "@web3-react/store": "^8.0.0-beta.0"
   }
 }
