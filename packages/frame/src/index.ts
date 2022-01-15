@@ -23,18 +23,18 @@ type FrameProvider = (a: 'frame', b?: FrameConnectorArguments) => Provider
 
 export class Frame extends Connector {
   private readonly options?: FrameConnectorArguments
-  private providerPromise?: Promise<void>
+  private eagerConnection?: Promise<void>
 
   constructor(actions: Actions, options?: FrameConnectorArguments, connectEagerly = true) {
     super(actions)
     this.options = options
 
     if (connectEagerly) {
-      this.providerPromise = this.startListening(connectEagerly)
+      this.eagerConnection = this.initialize(connectEagerly)
     }
   }
 
-  private async startListening(connectEagerly: boolean): Promise<void> {
+  private async initialize(connectEagerly: boolean): Promise<void> {
     const ethProvider = await import('eth-provider').then((m: { default: FrameProvider }) => m.default)
 
     try {
@@ -77,24 +77,26 @@ export class Frame extends Connector {
   public async activate(): Promise<void> {
     this.actions.startActivation()
 
-    if (!this.providerPromise) {
-      this.providerPromise = this.startListening(false)
+    if (!this.eagerConnection) {
+      this.eagerConnection = this.initialize(false)
     }
-    await this.providerPromise
+    await this.eagerConnection
 
-    if (this.provider) {
-      await Promise.all([
-        this.provider.request({ method: 'eth_chainId' }) as Promise<string>,
-        this.provider.request({ method: 'eth_requestAccounts' }) as Promise<string[]>,
-      ])
-        .then(([chainId, accounts]) => {
-          this.actions.update({ chainId: parseChainId(chainId), accounts })
-        })
-        .catch((error: Error) => {
-          this.actions.reportError(error)
-        })
-    } else {
-      this.actions.reportError(new NoFrameError())
+    if (!this.provider) {
+      return this.actions.reportError(new NoFrameError())
     }
+
+    return Promise.all([
+      this.provider.request({ method: 'eth_chainId' }) as Promise<string>,
+      this.provider.request({ method: 'eth_requestAccounts' }) as Promise<string[]>,
+    ])
+      .then(([chainId, accounts]) => {
+        const receivedChainId = parseChainId(chainId)
+
+        this.actions.update({ chainId: receivedChainId, accounts })
+      })
+      .catch((error: Error) => {
+        this.actions.reportError(error)
+      })
   }
 }
