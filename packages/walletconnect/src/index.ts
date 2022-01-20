@@ -93,7 +93,14 @@ export class WalletConnect extends Connector {
       .then(([chainId, accounts]) => {
         this.actions.update({ chainId, accounts })
       })
-      .catch((error: Error) => {
+      .catch(async (error: Error) => {
+        // this first condition is a bit of a hack :/
+        // if a user triggers the walletconnect modal, closes it, and then tries to connect again, the modal will not trigger.
+        // the logic below prevents this from happening
+        if (error.message === 'User closed modal') {
+          await this.deactivate()
+        }
+
         this.actions.reportError(error)
       })
   }
