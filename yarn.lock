@@ -8034,10 +8034,10 @@ walker@^1.0.7:
   dependencies:
     makeerror "1.0.12"
 
-walletlink@^2.4.1:
-  version "2.4.1"
-  resolved "https://registry.yarnpkg.com/walletlink/-/walletlink-2.4.1.tgz#8fd6c5f154b1305bc928860907a3372c5f3b5225"
-  integrity sha512-KSeAJOjimJVD5r7XnpmwO84ZFe8pp2K3q8PpxO7cABMwngOYlZfo5zzFa2HIHZehoAskavL5lRXxqawGj6T1cQ==
+walletlink@^2.4.4:
+  version "2.4.4"
+  resolved "https://registry.yarnpkg.com/walletlink/-/walletlink-2.4.4.tgz#dc2a71d1d235335ef844cfb83da7eb9c264521d0"
+  integrity sha512-BzEfSXhykuVYv0Ltv0nQtxkCzBGQk7tJ1D46wF7N/P23USiJap48i8YXa1o+5WmcxonWwA3//HWVkguJ6vHwMg==
   dependencies:
     "@metamask/safe-event-emitter" "2.0.0"
     bind-decorator "^1.0.11"
