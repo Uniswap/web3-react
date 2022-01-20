@@ -116,8 +116,7 @@ export class WalletLink extends Connector {
           .catch((error: ProviderRpcError) => {
             if (error.code === 4902 && typeof desiredChainIdOrChainParameters !== 'number') {
               // if we're here, we can try to add a new network
-              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-              return this.provider!.request({
+              return this.provider?.request({
                 method: 'wallet_addEthereumChain',
                 params: [{ ...desiredChainIdOrChainParameters, chainId: desiredChainIdHex }],
               })
@@ -140,8 +139,7 @@ export class WalletLink extends Connector {
       this.provider.off('accountsChanged', this.accountsChangedListener)
       this.provider = undefined
       this.eagerConnection = undefined
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      this.walletLink!.disconnect()
+      this.walletLink?.disconnect()
     }
   }
 }
