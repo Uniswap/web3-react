@@ -82,20 +82,25 @@ export class WalletConnect extends Connector {
     }
     await this.eagerConnection
 
-    return (
-      Promise.all([
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        this.provider!.request({ method: 'eth_chainId' }),
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        this.provider!.request({ method: 'eth_requestAccounts' }),
-      ]) as Promise<[number, string[]]>
-    )
-      .then(([chainId, accounts]) => {
-        this.actions.update({ chainId, accounts })
-      })
-      .catch((error: Error) => {
-        this.actions.reportError(error)
-      })
+    try {
+      // these are sequential instead of parallel because otherwise, chainId defaults to 1 even
+      // if the connecting wallet isn't on mainnet
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const accounts: string[] = await this.provider!.request({ method: 'eth_requestAccounts' })
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const chainId: number = await this.provider!.request({ method: 'eth_chainId' })
+
+      this.actions.update({ chainId, accounts })
+    } catch (error) {
+      // this condition is a bit of a hack :/
+      // if a user triggers the walletconnect modal, closes it, and then tries to connect again, the modal will not trigger.
+      // the logic below prevents this from happening
+      if ((error as Error).message === 'User closed modal') {
+        await this.deactivate()
+      }
+
+      this.actions.reportError(error as Error)
+    }
   }
 
   public async deactivate(): Promise<void> {
