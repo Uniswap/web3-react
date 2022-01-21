@@ -22,7 +22,9 @@ const chainIdToNetwork: { [network: number]: string } = {
   1337: 'devChain',
   31337: 'hardhat',
   137: 'matic',
-  80001: 'maticMumbai'
+  80001: 'maticMumbai',
+  288: 'boba',
+  28: 'bobaRinkeby'
 }
 
 type Network = number | { chainId: string; [key: string]: any }
