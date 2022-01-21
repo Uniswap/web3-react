@@ -1,6 +1,6 @@
 import type { BigNumber } from '@ethersproject/bignumber'
 import { formatEther } from '@ethersproject/units'
-import { Web3ReactHooks } from '@web3-react/core'
+import type { Web3ReactHooks } from '@web3-react/core'
 import { useEffect, useState } from 'react'
 
 function useBalances(

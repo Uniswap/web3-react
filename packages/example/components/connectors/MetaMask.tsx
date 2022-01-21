@@ -1,4 +1,4 @@
-import { Web3ReactHooks } from '@web3-react/core'
+import type { Web3ReactHooks } from '@web3-react/core'
 import { useCallback, useState } from 'react'
 import { CHAINS, getAddChainParameters, URLS } from '../../chains'
 import { hooks, metaMask } from '../../connectors/metaMask'
