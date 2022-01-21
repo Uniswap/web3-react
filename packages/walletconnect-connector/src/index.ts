@@ -1,6 +1,6 @@
-import { ConnectorUpdate } from '@web3-react/types'
-import { AbstractConnector } from '@web3-react/abstract-connector'
 import { IWCEthRpcConnectionOptions } from '@walletconnect/types'
+import { AbstractConnector } from '@web3-react/abstract-connector'
+import { ConnectorUpdate } from '@web3-react/types'
 
 export const URI_AVAILABLE = 'URI_AVAILABLE'
 
@@ -25,13 +25,11 @@ function getSupportedChains({ supportedChainIds, rpc }: WalletConnectConnectorAr
 }
 
 export class WalletConnectConnector extends AbstractConnector {
-  private readonly config: WalletConnectConnectorArguments
-
   public walletConnectProvider?: any
+  private readonly config: WalletConnectConnectorArguments
 
   constructor(config: WalletConnectConnectorArguments) {
     super({ supportedChainIds: getSupportedChains(config) })
-
     this.config = config
 
     this.handleChainChanged = this.handleChainChanged.bind(this)
@@ -57,6 +55,13 @@ export class WalletConnectConnector extends AbstractConnector {
     if (__DEV__) {
       console.log("Handling 'disconnect' event")
     }
+    // we have to do this because of a @walletconnect/web3-provider bug
+    if (this.walletConnectProvider) {
+      this.walletConnectProvider.stop()
+      this.walletConnectProvider.removeListener('chainChanged', this.handleChainChanged)
+      this.walletConnectProvider.removeListener('accountsChanged', this.handleAccountsChanged)
+      this.walletConnectProvider = undefined
+    }
     this.emitDeactivate()
   }
 
@@ -66,21 +71,48 @@ export class WalletConnectConnector extends AbstractConnector {
       this.walletConnectProvider = new WalletConnectProvider(this.config)
     }
 
+    // ensure that the uri is going to be available, and emit an event if there's a new uri
+    if (!this.walletConnectProvider.wc.connected) {
+      await this.walletConnectProvider.wc.createSession(
+        this.config.chainId ? { chainId: this.config.chainId } : undefined
+      )
+      this.emit(URI_AVAILABLE, this.walletConnectProvider.wc.uri)
+    }
+
+    let account: string
+    account = await new Promise<string>((resolve, reject) => {
+      const userReject = () => {
+        // Erase the provider manually
+        this.walletConnectProvider = undefined
+        reject(new UserRejectedRequestError())
+      }
+
+      // Workaround to bubble up the error when user reject the connection
+      this.walletConnectProvider.wc.on('disconnect', () => {
+        // Check provider has not been enabled to prevent this event callback from being called in the future
+        if (!account) {
+          userReject()
+        }
+      })
+
+      this.walletConnectProvider
+        .enable()
+        .then((accounts: string[]) => resolve(accounts[0]))
+        .catch((error: Error): void => {
+          // TODO ideally this would be a better check
+          if (error.message === 'User closed modal') {
+            userReject()
+            return
+          }
+          reject(error)
+        })
+    }).catch(err => {
+      throw err
+    })
+
+    this.walletConnectProvider.on('disconnect', this.handleDisconnect)
     this.walletConnectProvider.on('chainChanged', this.handleChainChanged)
     this.walletConnectProvider.on('accountsChanged', this.handleAccountsChanged)
-    this.walletConnectProvider.on('disconnect', this.handleDisconnect)
-
-    const account = await this.walletConnectProvider
-      .enable()
-      .then((accounts: string[]): string => accounts[0])
-      .catch((error: Error): void => {
-        // TODO ideally this would be a better check
-        if (error.message === 'User closed modal') {
-          throw new UserRejectedRequestError()
-        }
-
-        throw error
-      })
 
     return { provider: this.walletConnectProvider, account }
   }

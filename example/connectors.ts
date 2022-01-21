@@ -1,16 +1,16 @@
-import { InjectedConnector } from '@web3-react/injected-connector'
-import { NetworkConnector } from '@web3-react/network-connector'
-import { WalletConnectConnector } from '@web3-react/walletconnect-connector'
-import { WalletLinkConnector } from '@web3-react/walletlink-connector'
-import { LedgerConnector } from '@web3-react/ledger-connector'
-import { TrezorConnector } from '@web3-react/trezor-connector'
-import { LatticeConnector } from '@web3-react/lattice-connector'
-import { FrameConnector } from '@web3-react/frame-connector'
 import { AuthereumConnector } from '@web3-react/authereum-connector'
 import { FortmaticConnector } from '@web3-react/fortmatic-connector'
+import { FrameConnector } from '@web3-react/frame-connector'
+import { InjectedConnector } from '@web3-react/injected-connector'
+import { LatticeConnector } from '@web3-react/lattice-connector'
+import { LedgerConnector } from '@web3-react/ledger-connector'
 import { MagicConnector } from '@web3-react/magic-connector'
+import { NetworkConnector } from '@web3-react/network-connector'
 import { PortisConnector } from '@web3-react/portis-connector'
 import { TorusConnector } from '@web3-react/torus-connector'
+import { TrezorConnector } from '@web3-react/trezor-connector'
+import { WalletConnectConnector } from '@web3-react/walletconnect-connector'
+import { WalletLinkConnector } from '@web3-react/walletlink-connector'
 
 const POLLING_INTERVAL = 12000
 const RPC_URLS: { [chainId: number]: string } = {
@@ -26,7 +26,9 @@ export const network = new NetworkConnector({
 })
 
 export const walletconnect = new WalletConnectConnector({
-  rpc: { 1: RPC_URLS[1] },
+  rpc: RPC_URLS,
+  chainId: 1,
+  bridge: 'https://bridge.walletconnect.org',
   qrcode: true
 })
 
