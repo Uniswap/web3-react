@@ -1,10 +1,10 @@
-import { IWalletConnectProviderOptions } from '@walletconnect/types'
+import { IWCEthRpcConnectionOptions } from '@walletconnect/types'
 import { AbstractConnector } from '@web3-react/abstract-connector'
 import { ConnectorUpdate } from '@web3-react/types'
 
 export const URI_AVAILABLE = 'URI_AVAILABLE'
 
-export interface WalletConnectConnectorArguments extends IWalletConnectProviderOptions {
+export interface WalletConnectConnectorArguments extends IWCEthRpcConnectionOptions {
   supportedChainIds?: number[]
 }
 
@@ -21,7 +21,7 @@ function getSupportedChains({ supportedChainIds, rpc }: WalletConnectConnectorAr
     return supportedChainIds
   }
 
-  return rpc ? Object.keys(rpc).map(k => Number(k)) : undefined
+  return rpc ? Object.keys(rpc).map((k) => Number(k)) : undefined
 }
 
 export class WalletConnectConnector extends AbstractConnector {
@@ -67,7 +67,7 @@ export class WalletConnectConnector extends AbstractConnector {
 
   public async activate(): Promise<ConnectorUpdate> {
     if (!this.walletConnectProvider) {
-      const WalletConnectProvider = await import('@walletconnect/web3-provider').then(m => m?.default ?? m)
+      const WalletConnectProvider = await import('@walletconnect/ethereum-provider').then((m) => m?.default ?? m)
       this.walletConnectProvider = new WalletConnectProvider(this.config)
     }
 
@@ -106,7 +106,7 @@ export class WalletConnectConnector extends AbstractConnector {
           }
           reject(error)
         })
-    }).catch(err => {
+    }).catch((err) => {
       throw err
     })
 
