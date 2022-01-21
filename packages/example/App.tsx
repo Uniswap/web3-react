@@ -237,7 +237,7 @@ function MetaMaskConnect({
       <>
         <MetaMaskSelect chainId={desiredChainId === -1 ? -1 : currentChainId} setChainId={setChainId} />
         <br />
-        <button disabled>Connected</button>
+        <button onClick={() => connector.deactivate()}>Disconnect</button>
       </>
     )
   } else {
@@ -287,11 +287,12 @@ function NetworkSelect({ chainId, setChainId }: { chainId: number; setChainId?: 
 
 function NetworkConnect({
   connector,
-  hooks: { useChainId, useError, useIsActive },
+  hooks: { useIsActivating, useChainId, useError, useIsActive },
 }: {
   connector: Network
   hooks: Web3ReactHooks
 }) {
+  const isActivating = useIsActivating()
   const currentChainId = useChainId()
   const error = useError()
   const active = useIsActive()
@@ -319,16 +320,17 @@ function NetworkConnect({
       <>
         <NetworkSelect chainId={currentChainId} setChainId={setChainId} />
         <br />
-        <button disabled>Connected</button>
+        <button onClick={() => connector.deactivate()}>Disconnect</button>
       </>
     )
   } else {
-    // because network connector connects eagerly, we should only see this when activating
     return (
       <>
-        <NetworkSelect chainId={desiredChainId} />
+        <NetworkSelect chainId={desiredChainId} setChainId={isActivating ? undefined : setChainId} />
         <br />
-        <button disabled>Connecting...</button>
+        <button onClick={isActivating ? undefined : () => connector.activate(desiredChainId)} disabled={isActivating}>
+          {isActivating ? 'Connecting...' : 'Connect'}
+        </button>
       </>
     )
   }
@@ -349,14 +351,7 @@ function GenericConnect({
   if (error) {
     return <button onClick={() => connector.activate()}>Try Again?</button>
   } else if (active) {
-    return (
-      <button
-        onClick={connector.deactivate ? () => connector.deactivate() : undefined}
-        disabled={!connector.deactivate}
-      >
-        {connector.deactivate ? 'Disconnect' : 'Connected'}
-      </button>
-    )
+    return <button onClick={() => connector.deactivate()}>Disconnect</button>
   } else {
     return (
       <button onClick={isActivating ? undefined : () => connector.activate()} disabled={isActivating}>

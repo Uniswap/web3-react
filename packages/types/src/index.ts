@@ -60,5 +60,8 @@ export abstract class Connector {
   }
 
   public abstract activate(...args: unknown[]): Promise<void> | void
-  public deactivate?(...args: unknown[]): Promise<void> | void
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public deactivate(...args: unknown[]): Promise<void> | void {
+    this.actions.reportError(undefined)
+  }
 }
