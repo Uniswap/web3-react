@@ -2,17 +2,13 @@ import type { Networkish } from '@ethersproject/networks'
 import { Web3Provider } from '@ethersproject/providers'
 import { createWeb3ReactStoreAndActions } from '@web3-react/store'
 import type { Actions, Connector, Web3ReactState, Web3ReactStore } from '@web3-react/types'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import type { EqualityChecker, UseBoundStore } from 'zustand'
 import create from 'zustand'
 
 export type Web3ReactHooks = ReturnType<typeof getStateHooks> &
   ReturnType<typeof getDerivedHooks> &
   ReturnType<typeof getAugmentedHooks>
-
-function computeIsActive({ chainId, accounts, activating, error }: Web3ReactState) {
-  return Boolean(chainId && accounts && !activating && !error)
-}
 
 export function initializeConnector<T extends Connector>(
   f: (actions: Actions) => T,
@@ -30,41 +26,76 @@ export function initializeConnector<T extends Connector>(
   return [connector, { ...stateHooks, ...derivedHooks, ...augmentedHooks }, store]
 }
 
-export function useHighestPriorityConnector(
-  connectorHooksAndStores: ReturnType<typeof initializeConnector>[]
-): ReturnType<typeof initializeConnector> {
-  // used to force re-renders
-  const [, setCounter] = useState(0)
-  const areActive = useRef<boolean[]>(connectorHooksAndStores.map(([, , store]) => computeIsActive(store.getState())))
+function computeIsActive({ chainId, accounts, activating, error }: Web3ReactState) {
+  return Boolean(chainId && accounts && !activating && !error)
+}
 
-  useEffect(() => {
-    const areActiveNew = connectorHooksAndStores.map(([, , store]) => computeIsActive(store.getState()))
-    // only re-render if necessary
-    if (
-      areActiveNew.length !== areActive.current.length ||
-      areActiveNew.some((isActive, i) => isActive !== areActive.current[i])
-    ) {
-      areActive.current = areActiveNew
-      setCounter((counter) => ++counter)
-    }
+export function getPriorityConnector(...initializedConnectors: [Connector, Web3ReactHooks][]) {
+  function useActiveIndex() {
+    // the following is ok because initializedConnectors never changes so the hooks are always the same
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const areActive = initializedConnectors.map(([, { useIsActive }]) => useIsActive())
+    const index = areActive.findIndex((isActive) => isActive)
+    return index === -1 ? undefined : index
+  }
 
-    const unsubscribes = connectorHooksAndStores.map(([, , store], i) =>
-      store.subscribe((state) => {
-        const isActive = computeIsActive(state)
-        if (isActive !== areActive.current[i]) {
-          areActive.current.splice(i, 1, isActive)
-          setCounter((counter) => ++counter)
-        }
-      })
-    )
+  function usePriorityConnector() {
+    return initializedConnectors[useActiveIndex() ?? 0][0]
+  }
 
-    return () => {
-      unsubscribes.forEach((unsubscribe) => unsubscribe())
-    }
-  }, [connectorHooksAndStores])
+  function usePriorityChainId() {
+    return initializedConnectors[useActiveIndex() ?? 0][1].useChainId()
+  }
 
-  const firstActiveIndex = areActive.current.findIndex((isActive) => isActive)
-  return connectorHooksAndStores[firstActiveIndex === -1 ? 0 : firstActiveIndex]
+  function usePriorityAccounts() {
+    return initializedConnectors[useActiveIndex() ?? 0][1].useAccounts()
+  }
+
+  function usePriorityIsActivating() {
+    return initializedConnectors[useActiveIndex() ?? 0][1].useIsActivating()
+  }
+
+  function usePriorityError() {
+    return initializedConnectors[useActiveIndex() ?? 0][1].useError()
+  }
+
+  function usePriorityAccount() {
+    return initializedConnectors[useActiveIndex() ?? 0][1].useAccount()
+  }
+
+  function usePriorityIsActive() {
+    return initializedConnectors[useActiveIndex() ?? 0][1].useIsActive()
+  }
+
+  function usePriorityProvider(...args: Parameters<Web3ReactHooks['useProvider']>) {
+    return initializedConnectors[useActiveIndex() ?? 0][1].useProvider(...args)
+  }
+
+  function usePriorityENSNames(...args: Parameters<Web3ReactHooks['useENSNames']>) {
+    return initializedConnectors[useActiveIndex() ?? 0][1].useENSNames(...args)
+  }
+
+  function usePriorityENSName(...args: Parameters<Web3ReactHooks['useENSName']>) {
+    return initializedConnectors[useActiveIndex() ?? 0][1].useENSName(...args)
+  }
+
+  function usePriorityWeb3React(...args: Parameters<Web3ReactHooks['useWeb3React']>) {
+    return initializedConnectors[useActiveIndex() ?? 0][1].useWeb3React(...args)
+  }
+
+  return {
+    usePriorityConnector,
+    usePriorityChainId,
+    usePriorityAccounts,
+    usePriorityIsActivating,
+    usePriorityError,
+    usePriorityAccount,
+    usePriorityIsActive,
+    usePriorityProvider,
+    usePriorityENSNames,
+    usePriorityENSName,
+    usePriorityWeb3React,
+  }
 }
 
 const CHAIN_ID = (state: Web3ReactState) => state.chainId
@@ -173,8 +204,8 @@ function getAugmentedHooks<T extends Connector>(
 
   function useENSName(provider: Web3Provider | undefined): (string | null) | undefined {
     const account = useAccount()
-
-    return useENS(provider, account === undefined ? undefined : [account])?.[0]
+    const accounts = useMemo(() => (account === undefined ? undefined : [account]), [account])
+    return useENS(provider, accounts)?.[0]
   }
 
   // for backwards compatibility only

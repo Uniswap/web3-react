@@ -74,7 +74,7 @@ function Connect({
   }
 }
 
-export function NetworkCard() {
+export default function NetworkCard() {
   const chainId = useChainId()
   const accounts = useAccounts()
   const error = useError()
