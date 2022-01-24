@@ -33,11 +33,14 @@ function computeIsActive({ chainId, accounts, activating, error }: Web3ReactStat
 }
 
 export function getPriorityConnector(...initializedConnectors: [Connector, Web3ReactHooks][]) {
+  // the following code calls hooks in a map a lot, which technically violates the eslint rule.
+  // this is ok, though, because initializedConnectors never changes, so the same number of hooks
+  // are always called, and they're always the same
+
   function useActiveIndex() {
-    // the following is ok because initializedConnectors never changes so the hooks are always the same
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    const areActive = initializedConnectors.map(([, { useIsActive }]) => useIsActive())
-    const index = areActive.findIndex((isActive) => isActive)
+    const values = initializedConnectors.map(([, { useIsActive }]) => useIsActive())
+    const index = values.findIndex((isActive) => isActive)
     return index === -1 ? undefined : index
   }
 
@@ -46,43 +49,77 @@ export function getPriorityConnector(...initializedConnectors: [Connector, Web3R
   }
 
   function usePriorityChainId() {
-    return initializedConnectors[useActiveIndex() ?? 0][1].useChainId()
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const values = initializedConnectors.map(([, { useChainId }]) => useChainId())
+    const index = useActiveIndex()
+    return values[index ?? 0]
   }
 
   function usePriorityAccounts() {
-    return initializedConnectors[useActiveIndex() ?? 0][1].useAccounts()
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const values = initializedConnectors.map(([, { useAccounts }]) => useAccounts())
+    const index = useActiveIndex()
+    return values[index ?? 0]
   }
 
   function usePriorityIsActivating() {
-    return initializedConnectors[useActiveIndex() ?? 0][1].useIsActivating()
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const values = initializedConnectors.map(([, { useIsActivating }]) => useIsActivating())
+    const index = useActiveIndex()
+    return values[index ?? 0]
   }
 
   function usePriorityError() {
-    return initializedConnectors[useActiveIndex() ?? 0][1].useError()
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const values = initializedConnectors.map(([, { useError }]) => useError())
+    const index = useActiveIndex()
+    return values[index ?? 0]
   }
 
   function usePriorityAccount() {
-    return initializedConnectors[useActiveIndex() ?? 0][1].useAccount()
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const values = initializedConnectors.map(([, { useAccount }]) => useAccount())
+    const index = useActiveIndex()
+    return values[index ?? 0]
   }
 
   function usePriorityIsActive() {
-    return initializedConnectors[useActiveIndex() ?? 0][1].useIsActive()
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const values = initializedConnectors.map(([, { useIsActive }]) => useIsActive())
+    const index = useActiveIndex()
+    return values[index ?? 0]
   }
 
-  function usePriorityProvider(...args: Parameters<Web3ReactHooks['useProvider']>) {
-    return initializedConnectors[useActiveIndex() ?? 0][1].useProvider(...args)
+  function usePriorityProvider(network?: Networkish) {
+    const index = useActiveIndex()
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const values = initializedConnectors.map(([, { useProvider }], i) => useProvider(network, i === index))
+    return values[index ?? 0]
   }
 
-  function usePriorityENSNames(...args: Parameters<Web3ReactHooks['useENSNames']>) {
-    return initializedConnectors[useActiveIndex() ?? 0][1].useENSNames(...args)
+  function usePriorityENSNames(provider: Web3Provider | undefined) {
+    const index = useActiveIndex()
+    const values = initializedConnectors.map(([, { useENSNames }], i) =>
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      useENSNames(i === index ? provider : undefined)
+    )
+    return values[index ?? 0]
   }
 
-  function usePriorityENSName(...args: Parameters<Web3ReactHooks['useENSName']>) {
-    return initializedConnectors[useActiveIndex() ?? 0][1].useENSName(...args)
+  function usePriorityENSName(provider: Web3Provider | undefined) {
+    const index = useActiveIndex()
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const values = initializedConnectors.map(([, { useENSName }], i) => useENSName(i === index ? provider : undefined))
+    return values[index ?? 0]
   }
 
-  function usePriorityWeb3React(...args: Parameters<Web3ReactHooks['useWeb3React']>) {
-    return initializedConnectors[useActiveIndex() ?? 0][1].useWeb3React(...args)
+  function usePriorityWeb3React(provider: Web3Provider | undefined) {
+    const index = useActiveIndex()
+    const values = initializedConnectors.map(([, { useWeb3React }], i) =>
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      useWeb3React(i === index ? provider : undefined)
+    )
+    return values[index ?? 0]
   }
 
   return {
@@ -184,7 +221,7 @@ function getAugmentedHooks<T extends Connector>(
   { useChainId, useAccounts, useError }: ReturnType<typeof getStateHooks>,
   { useAccount, useIsActive }: ReturnType<typeof getDerivedHooks>
 ) {
-  function useProvider(network?: Networkish): Web3Provider | undefined {
+  function useProvider(network?: Networkish, enabled = true): Web3Provider | undefined {
     const isActive = useIsActive()
 
     const chainId = useChainId()
@@ -192,30 +229,30 @@ function getAugmentedHooks<T extends Connector>(
 
     return useMemo(() => {
       // we use chainId and accounts to re-render in case connector.provider changes in place
-      if (isActive && connector.provider && chainId && accounts) {
+      if (enabled && isActive && connector.provider && chainId && accounts) {
         return new Web3Provider(connector.provider, network)
       }
-    }, [isActive, network, chainId, accounts])
+    }, [enabled, isActive, network, chainId, accounts])
   }
 
   function useENSNames(provider: Web3Provider | undefined): (string | null)[] | undefined {
     const accounts = useAccounts()
-
     return useENS(provider, accounts)
   }
 
   function useENSName(provider: Web3Provider | undefined): (string | null) | undefined {
     const account = useAccount()
     const accounts = useMemo(() => (account === undefined ? undefined : [account]), [account])
+
     return useENS(provider, accounts)?.[0]
   }
 
   // for backwards compatibility only
   function useWeb3React(provider: Web3Provider | undefined) {
     const chainId = useChainId()
+    const account = useAccount()
     const error = useError()
 
-    const account = useAccount()
     const isActive = useIsActive()
 
     return useMemo(
