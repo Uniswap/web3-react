@@ -10,6 +10,8 @@ export type Web3ReactHooks = ReturnType<typeof getStateHooks> &
   ReturnType<typeof getDerivedHooks> &
   ReturnType<typeof getAugmentedHooks>
 
+export type Web3ReactPriorityHooks = ReturnType<typeof getPriorityConnector>
+
 export function initializeConnector<T extends Connector>(
   f: (actions: Actions) => T,
   allowedChainIds?: number[]

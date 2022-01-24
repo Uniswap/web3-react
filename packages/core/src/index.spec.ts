@@ -1,7 +1,8 @@
 import { act, renderHook } from '@testing-library/react-hooks'
 import type { Actions, Web3ReactStore } from '@web3-react/types'
 import { Connector } from '@web3-react/types'
-import { initializeConnector, useHighestPriorityConnector, Web3ReactHooks } from '.'
+import type { Web3ReactHooks, Web3ReactPriorityHooks } from '.'
+import { getPriorityConnector, initializeConnector } from '.'
 
 class MockConnector extends Connector {
   constructor(actions: Actions) {
@@ -125,79 +126,50 @@ describe('#useHighestPriorityConnector', () => {
   let hooks2: Web3ReactHooks
   let store2: Web3ReactStore
 
+  let priorityConnectorHooks: Web3ReactPriorityHooks
+
   beforeEach(() => {
     ;[connector, hooks, store] = initializeConnector((actions) => new MockConnector(actions))
     ;[connector2, hooks2, store2] = initializeConnector((actions) => new MockConnector2(actions))
+
+    priorityConnectorHooks = getPriorityConnector([connector, hooks], [connector2, hooks2])
   })
 
   test('returns first connector if both are uninitialized', () => {
     const {
-      result: { current: highestPriorityConnector },
-    } = renderHook(() =>
-      useHighestPriorityConnector([
-        [connector, hooks, store],
-        [connector2, hooks2, store2],
-      ])
-    )
+      result: { current: priorityConnector },
+    } = renderHook(() => priorityConnectorHooks.usePriorityConnector())
 
-    expect(highestPriorityConnector[0]).toBeInstanceOf(MockConnector)
-    expect(highestPriorityConnector[0]).not.toBeInstanceOf(MockConnector2)
+    expect(priorityConnector).toBeInstanceOf(MockConnector)
+    expect(priorityConnector).not.toBeInstanceOf(MockConnector2)
   })
 
   test('returns first connector if it is initialized', () => {
-    let {
-      result: { current: highestPriorityConnector },
-    } = renderHook(() =>
-      useHighestPriorityConnector([
-        [connector, hooks, store],
-        [connector2, hooks2, store2],
-      ])
-    )
-
     act(() => connector.update({ chainId: 1, accounts: [] }))
-    ;({
-      result: { current: highestPriorityConnector },
-    } = renderHook(() =>
-      useHighestPriorityConnector([
-        [connector, hooks, store],
-        [connector2, hooks2, store2],
-      ])
-    ))
+    const {
+      result: { current: priorityConnector },
+    } = renderHook(() => priorityConnectorHooks.usePriorityConnector())
 
     const {
       result: { current: isActive },
-    } = renderHook(() => highestPriorityConnector[1].useIsActive())
+    } = renderHook(() => priorityConnectorHooks.usePriorityIsActive())
+    expect(isActive).toBe(true)
 
-    expect(highestPriorityConnector[0]).toBeInstanceOf(MockConnector)
-    expect(highestPriorityConnector[0]).not.toBeInstanceOf(MockConnector2)
-    expect(isActive).toEqual(true)
+    expect(priorityConnector).toBeInstanceOf(MockConnector)
+    expect(priorityConnector).not.toBeInstanceOf(MockConnector2)
   })
 
   test('returns second connector if it is initialized', () => {
-    let {
-      result: { current: highestPriorityConnector },
-    } = renderHook(() =>
-      useHighestPriorityConnector([
-        [connector, hooks, store],
-        [connector2, hooks2, store2],
-      ])
-    )
-
     act(() => connector2.update({ chainId: 1, accounts: [] }))
-    ;({
-      result: { current: highestPriorityConnector },
-    } = renderHook(() =>
-      useHighestPriorityConnector([
-        [connector, hooks, store],
-        [connector2, hooks2, store2],
-      ])
-    ))
+    const {
+      result: { current: priorityConnector },
+    } = renderHook(() => priorityConnectorHooks.usePriorityConnector())
 
     const {
       result: { current: isActive },
-    } = renderHook(() => highestPriorityConnector[1].useIsActive())
+    } = renderHook(() => priorityConnectorHooks.usePriorityIsActive())
+    expect(isActive).toBe(true)
 
-    expect(highestPriorityConnector[0]).toBeInstanceOf(MockConnector2)
-    expect(isActive).toEqual(true)
+    expect(priorityConnector).toBeInstanceOf(MockConnector2)
   })
 })
