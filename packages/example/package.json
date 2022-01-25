@@ -5,15 +5,17 @@
     "start": "next dev"
   },
   "dependencies": {
-    "@ethersproject/abstract-signer": "^5.5.0",
     "@ethersproject/bignumber": "^5.4.2",
     "@ethersproject/experimental": "^5.5.0",
     "@ethersproject/providers": "^5.5.1",
     "@ethersproject/units": "^5.4.0",
     "@web3-react/core": "8.0.5-beta.0",
+    "@web3-react/eip1193": "8.0.1-beta.0",
+    "@web3-react/empty": "8.0.1-beta.0",
     "@web3-react/metamask": "8.0.2-beta.0",
     "@web3-react/network": "8.0.1-beta.0",
     "@web3-react/types": "8.0.1-beta.0",
+    "@web3-react/url": "8.0.1-beta.0",
     "@web3-react/walletconnect": "8.0.3-beta.0",
     "@web3-react/walletlink": "8.0.3-beta.0",
     "buffer": "^6.0.3",

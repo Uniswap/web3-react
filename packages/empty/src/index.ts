@@ -1,6 +1,6 @@
 import { Connector } from '@web3-react/types'
 
-class Empty extends Connector {
+export class Empty extends Connector {
   /** {@inheritdoc Connector.provider} */
   provider: undefined
 
