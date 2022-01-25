@@ -12,6 +12,17 @@ export type Web3ReactHooks = ReturnType<typeof getStateHooks> &
 
 export type Web3ReactPriorityHooks = ReturnType<typeof getPriorityConnector>
 
+/**
+ * Wraps the initialization of a `connector`. Creates a zustand `store` with `actions` bound to it, and then passes
+ * these to the connector as specified in `f`. Also creates a variety of `hooks` bound to this `store`.
+ *
+ * @typeParam T - The type of the `connector` returned from `f`.
+ * @param f - A function which is called with `actions` bound to the returned `store`.
+ * @param allowedChainIds - An optional array of chainIds which the `connector` may connect to. If the `connector` is
+ * connected to a chainId which is not allowed, a ChainIdNotAllowedError error will be reported.
+ * If this argument is unspecified, the `connector` may connect to any chainId.
+ * @returns [connector, hooks, store] - The initialized connector, a variety of hooks, and a zustand store.
+ */
 export function initializeConnector<T extends Connector>(
   f: (actions: Actions) => T,
   allowedChainIds?: number[]
@@ -32,10 +43,16 @@ function computeIsActive({ chainId, accounts, activating, error }: Web3ReactStat
   return Boolean(chainId && accounts && !activating && !error)
 }
 
+/**
+ * Creates a variety of convenience `hooks` that return data associated with the first of the `initializedConnectors`
+ * that is active.
+ *
+ * @param initializedConnectors - Two or more [connector, hooks] arrays, as returned from initializeConnector.
+ * @returns hooks - A variety of convenience hooks that wrap the hooks returned from initializeConnector.
+ */
 export function getPriorityConnector(...initializedConnectors: [Connector, Web3ReactHooks][]) {
-  // the following code calls hooks in a map a lot, which technically violates the eslint rule.
-  // this is ok, though, because initializedConnectors never changes, so the same number of hooks
-  // are always called, and they're always the same
+  // the following code calls hooks in a map a lot, which violates the eslint rule.
+  // this is ok, though, because initializedConnectors never changes, so the same hooks are called each time
 
   function useActiveIndex() {
     // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -51,43 +68,37 @@ export function getPriorityConnector(...initializedConnectors: [Connector, Web3R
   function usePriorityChainId() {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const values = initializedConnectors.map(([, { useChainId }]) => useChainId())
-    const index = useActiveIndex()
-    return values[index ?? 0]
+    return values[useActiveIndex() ?? 0]
   }
 
   function usePriorityAccounts() {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const values = initializedConnectors.map(([, { useAccounts }]) => useAccounts())
-    const index = useActiveIndex()
-    return values[index ?? 0]
+    return values[useActiveIndex() ?? 0]
   }
 
   function usePriorityIsActivating() {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const values = initializedConnectors.map(([, { useIsActivating }]) => useIsActivating())
-    const index = useActiveIndex()
-    return values[index ?? 0]
+    return values[useActiveIndex() ?? 0]
   }
 
   function usePriorityError() {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const values = initializedConnectors.map(([, { useError }]) => useError())
-    const index = useActiveIndex()
-    return values[index ?? 0]
+    return values[useActiveIndex() ?? 0]
   }
 
   function usePriorityAccount() {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const values = initializedConnectors.map(([, { useAccount }]) => useAccount())
-    const index = useActiveIndex()
-    return values[index ?? 0]
+    return values[useActiveIndex() ?? 0]
   }
 
   function usePriorityIsActive() {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const values = initializedConnectors.map(([, { useIsActive }]) => useIsActive())
-    const index = useActiveIndex()
-    return values[index ?? 0]
+    return values[useActiveIndex() ?? 0]
   }
 
   function usePriorityProvider(network?: Networkish) {

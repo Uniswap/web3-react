@@ -8,12 +8,21 @@ function parseChainId(chainId: string) {
 }
 
 export class WalletLink extends Connector {
+  /** {@inheritdoc Connector.provider} */
+  public provider: ReturnType<WalletLinkInstance['makeWeb3Provider']> | undefined
+
   private readonly options: WalletLinkOptions & { url: string }
   private eagerConnection?: Promise<void>
 
+  /**
+   * A `walletlink` instance.
+   */
   public walletLink: WalletLinkInstance | undefined
-  public provider: ReturnType<WalletLinkInstance['makeWeb3Provider']> | undefined
 
+  /**
+   * @param options - Options to pass to `walletlink`
+   * @param connectEagerly - A flag indicating whether connection should be initiated when the class is constructed.
+   */
   constructor(actions: Actions, options: WalletLinkOptions & { url: string }, connectEagerly = true) {
     super(actions)
     this.options = options
@@ -80,6 +89,7 @@ export class WalletLink extends Connector {
     })
   }
 
+  /** {@inheritdoc Connector.activate} */
   public async activate(): Promise<void> {
     this.actions.startActivation()
 
@@ -104,6 +114,7 @@ export class WalletLink extends Connector {
       })
   }
 
+  /** {@inheritdoc Connector.deactivate} */
   public deactivate(): void {
     if (this.provider) {
       this.provider.off('connect', this.disconnectListener)

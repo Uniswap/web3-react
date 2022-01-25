@@ -7,7 +7,7 @@
   "scripts": {
     "bootstrap": "lerna bootstrap",
     "clean": "lerna clean --yes",
-    "lint": "yarn run eslint . --ext .ts,.tsx",
+    "lint": "yarn run eslint --ext .ts,.tsx .",
     "test": "jest",
     "build": "lerna run build",
     "prestart": "yarn build",
@@ -25,6 +25,7 @@
     "@walletconnect/ethereum-provider": "^1.7.1",
     "eslint": "^8.4.1",
     "eslint-plugin-react-hooks": "^4.3.0",
+    "eslint-plugin-tsdoc": "^0.2.14",
     "eth-provider": "^0.9.4",
     "jest": "^27.2.4",
     "lerna": "^4.0.0",

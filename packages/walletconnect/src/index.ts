@@ -9,11 +9,16 @@ interface MockWalletConnectProvider
     EventEmitter {}
 
 export class WalletConnect extends Connector {
+  /** {@inheritdoc Connector.provider} */
+  provider: MockWalletConnectProvider | undefined
+
   private readonly options?: IWCEthRpcConnectionOptions
   private eagerConnection?: Promise<void>
 
-  provider: MockWalletConnectProvider | undefined
-
+  /**
+   * @param options - Options to pass to `@walletconnect/ethereum-provider`
+   * @param connectEagerly - A flag indicating whether connection should be initiated when the class is constructed.
+   */
   constructor(actions: Actions, options: IWCEthRpcConnectionOptions, connectEagerly = true) {
     super(actions)
     this.options = options
@@ -74,6 +79,7 @@ export class WalletConnect extends Connector {
     })
   }
 
+  /** {@inheritdoc Connector.activate} */
   public async activate(): Promise<void> {
     this.actions.startActivation()
 
@@ -103,6 +109,7 @@ export class WalletConnect extends Connector {
     }
   }
 
+  /** {@inheritdoc Connector.deactivate} */
   public async deactivate(): Promise<void> {
     if (this.provider) {
       await this.provider.disconnect()
