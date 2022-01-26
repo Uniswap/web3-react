@@ -1,11 +1,16 @@
-import type { Actions } from '@web3-react/types'
 import { Connector } from '@web3-react/types'
 
 export class Empty extends Connector {
-  constructor(actions: Actions) {
-    super(actions)
-  }
+  /** {@inheritdoc Connector.provider} */
+  provider: undefined
 
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  public async activate(): Promise<void> {}
+  /**
+   * No-op. May be called if it simplifies application code.
+   */
+  public activate() {
+    void 0
+  }
 }
+
+// @ts-expect-error actions aren't validated and are only used to set a protected property, so this is ok
+export const EMPTY = new Empty()

@@ -6,8 +6,13 @@ function parseChainId(chainId: string) {
 }
 
 export class EIP1193 extends Connector {
+  /** {@inheritdoc Connector.provider} */
   provider: Provider
 
+  /**
+   * @param provider - An EIP-1193 ({@link https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1193.md}) provider.
+   * @param connectEagerly - A flag indicating whether connection should be initiated when the class is constructed.
+   */
   constructor(actions: Actions, provider: Provider, connectEagerly = true) {
     super(actions)
 
@@ -43,6 +48,7 @@ export class EIP1193 extends Connector {
     }
   }
 
+  /** {@inheritdoc Connector.activate} */
   public async activate(): Promise<void> {
     this.actions.startActivation()
 

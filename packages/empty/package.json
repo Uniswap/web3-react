@@ -1,9 +1,15 @@
 {
   "name": "@web3-react/empty",
+  "keywords": [
+    "web3-react"
+  ],
+  "author": "Noah Zinsmeister <noahwz@gmail.com>",
+  "license": "GPL-3.0-or-later",
+  "repository": "github:NoahZinsmeister/web3-react",
   "publishConfig": {
     "access": "public"
   },
-  "version": "8.0.15-alpha.0",
+  "version": "8.0.2-beta.0",
   "type": "module",
   "files": [
     "dist/*"
@@ -22,6 +28,6 @@
     "start": "tsc --watch"
   },
   "dependencies": {
-    "@web3-react/types": "^8.0.15-alpha.0"
+    "@web3-react/types": "^8.0.2-beta.0"
   }
 }

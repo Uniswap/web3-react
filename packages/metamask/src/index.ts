@@ -31,6 +31,10 @@ export class MetaMask extends Connector {
   private readonly options?: Parameters<typeof detectEthereumProvider>[0]
   private eagerConnection?: Promise<void>
 
+  /**
+   * @param connectEagerly - A flag indicating whether connection should be initiated when the class is constructed.
+   * @param options - Options to pass to `@metamask/detect-provider`
+   */
   constructor(actions: Actions, connectEagerly = true, options?: Parameters<typeof detectEthereumProvider>[0]) {
     super(actions)
     this.options = options
@@ -62,7 +66,12 @@ export class MetaMask extends Connector {
             this.actions.update({ chainId: parseChainId(chainId) })
           })
           this.provider.on('accountsChanged', (accounts: string[]): void => {
-            this.actions.update({ accounts })
+            if (accounts.length === 0) {
+              // handle this edge case by disconnecting
+              this.actions.reportError(undefined)
+            } else {
+              this.actions.update({ accounts })
+            }
           })
 
           if (connectEagerly) {
@@ -82,13 +91,26 @@ export class MetaMask extends Connector {
                 cancelActivation()
               })
           }
+        } else if (connectEagerly) {
+          cancelActivation()
         }
       })
   }
 
-  public async activate(desiredChainParameters?: number | AddEthereumChainParameter): Promise<void> {
+  /**
+   * Initiates a connection.
+   *
+   * @param desiredChainIdOrChainParameters - If defined, indicates the desired chain to connect to. If the user is
+   * already connected to this chain, no additional steps will be taken. Otherwise, the user will be prompted to switch
+   * to the chain, if one of two conditions is met: either they already have it added in their extension, or the
+   * argument is of type AddEthereumChainParameter, in which case the user will be prompted to add the chain with the
+   * specified parameters first, before being prompted to switch.
+   */
+  public async activate(desiredChainIdOrChainParameters?: number | AddEthereumChainParameter): Promise<void> {
     const desiredChainId =
-      typeof desiredChainParameters === 'number' ? desiredChainParameters : desiredChainParameters?.chainId
+      typeof desiredChainIdOrChainParameters === 'number'
+        ? desiredChainIdOrChainParameters
+        : desiredChainIdOrChainParameters?.chainId
 
     this.actions.startActivation()
 
@@ -121,12 +143,12 @@ export class MetaMask extends Connector {
           params: [{ chainId: desiredChainIdHex }],
         })
           .catch((error: ProviderRpcError) => {
-            if (error.code === 4902 && typeof desiredChainParameters !== 'number') {
+            if (error.code === 4902 && typeof desiredChainIdOrChainParameters !== 'number') {
               // if we're here, we can try to add a new network
               // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
               return this.provider!.request({
                 method: 'wallet_addEthereumChain',
-                params: [{ ...desiredChainParameters, chainId: desiredChainIdHex }],
+                params: [{ ...desiredChainIdOrChainParameters, chainId: desiredChainIdHex }],
               })
             } else {
               throw error

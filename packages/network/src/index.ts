@@ -6,10 +6,17 @@ import { Connector } from '@web3-react/types'
 type url = string | ConnectionInfo
 
 export class Network extends Connector {
+  /** {@inheritdoc Connector.provider} */
+  provider: Eip1193Bridge | undefined
+
   private urlMap: { [chainId: number]: url[] }
   private chainId: number
   private providerCache: { [chainId: number]: Eip1193Bridge } = {}
 
+  /**
+   * @param urlMap - A mapping from chainIds to RPC urls.
+   * @param connectEagerly - A flag indicating whether connection should be initiated when the class is constructed.
+   */
   constructor(actions: Actions, urlMap: { [chainId: number]: url | url[] }, connectEagerly = true) {
     super(actions)
     this.urlMap = Object.keys(urlMap).reduce<{ [chainId: number]: url[] }>((accumulator, chainId) => {
@@ -26,6 +33,7 @@ export class Network extends Connector {
   }
 
   private async initialize(): Promise<void> {
+    this.provider = undefined
     this.actions.startActivation()
 
     // cache the desired chainId before async logic
@@ -56,9 +64,9 @@ export class Network extends Connector {
     // once we're here, the cache is guaranteed to be initialized
     // so, if the current chainId still matches the one at the beginning of the call, update
     if (chainId === this.chainId) {
-      const provider = this.providerCache[chainId]
+      this.provider = this.providerCache[chainId]
 
-      return provider
+      return this.provider
         .request({ method: 'eth_chainId' })
         .then((returnedChainId: number) => {
           if (returnedChainId !== chainId) {
@@ -77,10 +85,16 @@ export class Network extends Connector {
     }
   }
 
+  /**
+   * Initiates a connection.
+   *
+   * @param desiredChainId - The desired chain to connect to.
+   */
   public async activate(desiredChainId = Number(Object.keys(this.urlMap)[0])): Promise<void> {
     if (this.urlMap[desiredChainId] === undefined) {
       throw new Error(`no url(s) provided for desiredChainId ${desiredChainId}`)
     }
+
     // set the connector's chainId to the target, to prevent race conditions
     this.chainId = desiredChainId
 

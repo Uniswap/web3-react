@@ -5,8 +5,8 @@ import { URLS } from '../chains'
 export const [walletConnect, hooks] = initializeConnector<WalletConnect>(
   (actions) =>
     new WalletConnect(actions, {
-      rpc: Object.keys(URLS).reduce((accumulator, chainId) => {
-        accumulator[chainId] = URLS[Number(chainId)][0]
+      rpc: Object.keys(URLS).reduce<{ [chainId: number]: string }>((accumulator, chainId) => {
+        accumulator[Number(chainId)] = URLS[Number(chainId)][0]
         return accumulator
       }, {}),
     }),

@@ -1,18 +1,28 @@
 import type { Actions, ProviderConnectInfo, ProviderRpcError } from '@web3-react/types'
 import { Connector } from '@web3-react/types'
-import type { WalletLink as WalletLinkInstance, WalletLinkOptions } from 'walletlink/dist/WalletLink'
+import type { WalletLink as WalletLinkInstance } from 'walletlink'
+import type { WalletLinkOptions } from 'walletlink/dist/WalletLink'
 
 function parseChainId(chainId: string) {
   return Number.parseInt(chainId, 16)
 }
 
 export class WalletLink extends Connector {
+  /** {@inheritdoc Connector.provider} */
+  public provider: ReturnType<WalletLinkInstance['makeWeb3Provider']> | undefined
+
   private readonly options: WalletLinkOptions & { url: string }
   private eagerConnection?: Promise<void>
 
+  /**
+   * A `walletlink` instance.
+   */
   public walletLink: WalletLinkInstance | undefined
-  public provider: ReturnType<WalletLinkInstance['makeWeb3Provider']> | undefined
 
+  /**
+   * @param options - Options to pass to `walletlink`
+   * @param connectEagerly - A flag indicating whether connection should be initiated when the class is constructed.
+   */
   constructor(actions: Actions, options: WalletLinkOptions & { url: string }, connectEagerly = true) {
     super(actions)
     this.options = options
@@ -20,6 +30,22 @@ export class WalletLink extends Connector {
     if (connectEagerly) {
       this.eagerConnection = this.initialize(true)
     }
+  }
+
+  private connectListener = ({ chainId }: ProviderConnectInfo): void => {
+    this.actions.update({ chainId: parseChainId(chainId) })
+  }
+
+  private disconnectListener = (error: ProviderRpcError): void => {
+    this.actions.reportError(error)
+  }
+
+  private chainChangedListener = (chainId: string): void => {
+    this.actions.update({ chainId: parseChainId(chainId) })
+  }
+
+  private accountsChangedListener = (accounts: string[]): void => {
+    this.actions.update({ accounts })
   }
 
   private async initialize(connectEagerly: boolean): Promise<void> {
@@ -31,21 +57,15 @@ export class WalletLink extends Connector {
     const { url, ...options } = this.options
 
     return import('walletlink').then((m) => {
-      this.walletLink = new m.WalletLink(options)
+      if (!this.walletLink) {
+        this.walletLink = new m.WalletLink(options)
+      }
       this.provider = this.walletLink.makeWeb3Provider(url)
 
-      this.provider.on('connect', ({ chainId }: ProviderConnectInfo): void => {
-        this.actions.update({ chainId: parseChainId(chainId) })
-      })
-      this.provider.on('disconnect', (error: ProviderRpcError): void => {
-        this.actions.reportError(error)
-      })
-      this.provider.on('chainChanged', (chainId: string): void => {
-        this.actions.update({ chainId: parseChainId(chainId) })
-      })
-      this.provider.on('accountsChanged', (accounts: string[]): void => {
-        this.actions.update({ accounts })
-      })
+      this.provider.on('connect', this.connectListener)
+      this.provider.on('disconnect', this.disconnectListener)
+      this.provider.on('chainChanged', this.chainChangedListener)
+      this.provider.on('accountsChanged', this.accountsChangedListener)
 
       if (connectEagerly) {
         return (
@@ -69,6 +89,7 @@ export class WalletLink extends Connector {
     })
   }
 
+  /** {@inheritdoc Connector.activate} */
   public async activate(): Promise<void> {
     this.actions.startActivation()
 
@@ -93,9 +114,17 @@ export class WalletLink extends Connector {
       })
   }
 
+  /** {@inheritdoc Connector.deactivate} */
   public deactivate(): void {
-    if (this.walletLink) {
-      this.walletLink.disconnect()
+    if (this.provider) {
+      this.provider.off('connect', this.disconnectListener)
+      this.provider.off('disconnect', this.disconnectListener)
+      this.provider.off('chainChanged', this.chainChangedListener)
+      this.provider.off('accountsChanged', this.accountsChangedListener)
+      this.provider = undefined
+      this.eagerConnection = undefined
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      this.walletLink!.disconnect()
     }
   }
 }
