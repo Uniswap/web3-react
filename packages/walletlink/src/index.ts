@@ -95,8 +95,8 @@ export class WalletLink extends Connector {
     await this.eagerConnection
 
     return Promise.all([
-      this.provider!.request({ method: 'eth_chainId' }) as Promise<string>,
-      this.provider!.request({ method: 'eth_requestAccounts' }) as Promise<string[]>,
+      this.provider?.request({ method: 'eth_chainId' }) as Promise<string>,
+      this.provider?.request({ method: 'eth_requestAccounts' }) as Promise<string[]>,
     ])
       .then(([chainId, accounts]) => {
         const receivedChainId = parseChainId(chainId)
