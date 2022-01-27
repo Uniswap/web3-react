@@ -46,6 +46,12 @@ export function createWeb3ReactStoreAndActions(allowedChainIds?: number[]): [Web
   // flag for tracking updates so we don't clobber data when cancelling activation
   let nullifier = 0
 
+  /**
+   * Sets activating to true, indicating that an update is in progress.
+   *
+   * @returns cancelActivation - A function that cancels the activation by setting activating to false,
+   * as long as there haven't been any intervening updates.
+   */
   function startActivation(): () => void {
     const nullifierCached = ++nullifier
 
@@ -59,6 +65,13 @@ export function createWeb3ReactStoreAndActions(allowedChainIds?: number[]): [Web
     }
   }
 
+  /**
+   * Used to report a `stateUpdate` which is merged with existing state. The first `stateUpdate` that results in chainId
+   * and accounts being set will also set activating to false, indicating a successful connection. Similarly, if an
+   * error is set, the first `stateUpdate` that results in chainId and accounts being set will clear this error.
+   *
+   * @param stateUpdate - The state update to report.
+   */
   function update(stateUpdate: Web3ReactStateUpdate): void {
     // validate chainId statically, independent of existing state
     if (stateUpdate.chainId !== undefined) {
@@ -110,7 +123,12 @@ export function createWeb3ReactStoreAndActions(allowedChainIds?: number[]): [Web
     })
   }
 
-  function reportError(error: Error | undefined) {
+  /**
+   * Used to report an `error`, which clears all existing state.
+   *
+   * @param error - The error to report. If undefined, the state will be reset to its default value.
+   */
+  function reportError(error: Error | undefined): void {
     nullifier++
 
     store.setState(() => ({ ...DEFAULT_STATE, error }))

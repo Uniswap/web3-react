@@ -6,12 +6,17 @@ import { Connector } from '@web3-react/types'
 type url = string | ConnectionInfo
 
 export class Network extends Connector {
+  /** {@inheritdoc Connector.provider} */
   provider: Eip1193Bridge | undefined
 
   private urlMap: { [chainId: number]: url[] }
   private chainId: number
   private providerCache: { [chainId: number]: Eip1193Bridge } = {}
 
+  /**
+   * @param urlMap - A mapping from chainIds to RPC urls.
+   * @param connectEagerly - A flag indicating whether connection should be initiated when the class is constructed.
+   */
   constructor(actions: Actions, urlMap: { [chainId: number]: url | url[] }, connectEagerly = true) {
     super(actions)
     this.urlMap = Object.keys(urlMap).reduce<{ [chainId: number]: url[] }>((accumulator, chainId) => {
@@ -80,6 +85,11 @@ export class Network extends Connector {
     }
   }
 
+  /**
+   * Initiates a connection.
+   *
+   * @param desiredChainId - The desired chain to connect to.
+   */
   public async activate(desiredChainId = Number(Object.keys(this.urlMap)[0])): Promise<void> {
     if (this.urlMap[desiredChainId] === undefined) {
       throw new Error(`no url(s) provided for desiredChainId ${desiredChainId}`)

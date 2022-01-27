@@ -31,6 +31,10 @@ export class MetaMask extends Connector {
   private readonly options?: Parameters<typeof detectEthereumProvider>[0]
   private eagerConnection?: Promise<void>
 
+  /**
+   * @param connectEagerly - A flag indicating whether connection should be initiated when the class is constructed.
+   * @param options - Options to pass to `@metamask/detect-provider`
+   */
   constructor(actions: Actions, connectEagerly = true, options?: Parameters<typeof detectEthereumProvider>[0]) {
     super(actions)
     this.options = options
@@ -93,6 +97,15 @@ export class MetaMask extends Connector {
       })
   }
 
+  /**
+   * Initiates a connection.
+   *
+   * @param desiredChainIdOrChainParameters - If defined, indicates the desired chain to connect to. If the user is
+   * already connected to this chain, no additional steps will be taken. Otherwise, the user will be prompted to switch
+   * to the chain, if one of two conditions is met: either they already have it added in their extension, or the
+   * argument is of type AddEthereumChainParameter, in which case the user will be prompted to add the chain with the
+   * specified parameters first, before being prompted to switch.
+   */
   public async activate(desiredChainIdOrChainParameters?: number | AddEthereumChainParameter): Promise<void> {
     const desiredChainId =
       typeof desiredChainIdOrChainParameters === 'number'
