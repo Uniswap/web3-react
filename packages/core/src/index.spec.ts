@@ -1,8 +1,8 @@
 import { act, renderHook } from '@testing-library/react-hooks'
-import type { Actions, Web3ReactStore } from '@web3-react/types'
+import type { Actions } from '@web3-react/types'
 import { Connector } from '@web3-react/types'
-import type { Web3ReactHooks, Web3ReactPriorityHooks } from '.'
-import { getPriorityConnector, initializeConnector } from '.'
+import type { Web3ReactHooks, Web3ReactPriorityHooks, Web3ReactSelectedHooks } from '.'
+import { getPriorityConnector, getSelectedConnector, initializeConnector } from '.'
 
 class MockConnector extends Connector {
   constructor(actions: Actions) {
@@ -117,20 +117,79 @@ describe('#initializeConnector', () => {
   })
 })
 
-describe('#useHighestPriorityConnector', () => {
+describe('#getSelectedConnector', () => {
   let connector: MockConnector
   let hooks: Web3ReactHooks
-  let store: Web3ReactStore
 
   let connector2: MockConnector
   let hooks2: Web3ReactHooks
-  let store2: Web3ReactStore
+
+  let selectedConnectorHooks: Web3ReactSelectedHooks
+
+  beforeEach(() => {
+    ;[connector, hooks] = initializeConnector((actions) => new MockConnector(actions))
+    ;[connector2, hooks2] = initializeConnector((actions) => new MockConnector2(actions))
+
+    selectedConnectorHooks = getSelectedConnector([connector, hooks], [connector2, hooks2])
+  })
+
+  test('isActive is false for connector', () => {
+    const {
+      result: { current: isActive },
+    } = renderHook(() => selectedConnectorHooks.useSelectedIsActive(connector))
+
+    expect(isActive).toBe(false)
+  })
+
+  test('isActive is false for connector2', () => {
+    const {
+      result: { current: isActive },
+    } = renderHook(() => selectedConnectorHooks.useSelectedIsActive(connector2))
+
+    expect(isActive).toBe(false)
+  })
+
+  test('connector active', () => {
+    act(() => connector.update({ chainId: 1, accounts: [] }))
+    const {
+      result: { current: isActive },
+    } = renderHook(() => selectedConnectorHooks.useSelectedIsActive(connector))
+
+    const {
+      result: { current: isActive2 },
+    } = renderHook(() => selectedConnectorHooks.useSelectedIsActive(connector2))
+
+    expect(isActive).toBe(true)
+    expect(isActive2).toBe(false)
+  })
+
+  test('connector2 active', () => {
+    act(() => connector2.update({ chainId: 1, accounts: [] }))
+    const {
+      result: { current: isActive },
+    } = renderHook(() => selectedConnectorHooks.useSelectedIsActive(connector))
+
+    const {
+      result: { current: isActive2 },
+    } = renderHook(() => selectedConnectorHooks.useSelectedIsActive(connector2))
+
+    expect(isActive).toBe(false)
+    expect(isActive2).toBe(true)
+  })
+})
+
+describe('#getPriorityConnector', () => {
+  let connector: MockConnector
+  let hooks: Web3ReactHooks
+
+  let connector2: MockConnector
+  let hooks2: Web3ReactHooks
 
   let priorityConnectorHooks: Web3ReactPriorityHooks
 
   beforeEach(() => {
-    ;[connector, hooks, store] = initializeConnector((actions) => new MockConnector(actions))
-    ;[connector2, hooks2, store2] = initializeConnector((actions) => new MockConnector2(actions))
+    ;[connector, hooks] = initializeConnector((actions) => new MockConnector(actions))
+    ;[connector2, hooks2] = initializeConnector((actions) => new MockConnector2(actions))
 
     priorityConnectorHooks = getPriorityConnector([connector, hooks], [connector2, hooks2])
   })
