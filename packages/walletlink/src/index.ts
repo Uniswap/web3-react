@@ -1,4 +1,4 @@
-import type { Actions, ProviderConnectInfo, ProviderRpcError } from '@web3-react/types'
+import type { Actions, AddEthereumChainParameter, ProviderConnectInfo, ProviderRpcError } from '@web3-react/types'
 import { Connector } from '@web3-react/types'
 import type { WalletLink as WalletLinkInstance } from 'walletlink'
 import type { WalletLinkOptions } from 'walletlink/dist/WalletLink'
@@ -56,7 +56,6 @@ export class WalletLink extends Connector {
 
     const { url, ...options } = this.options
 
-    // @ts-ignore
     return import('walletlink').then((m) => {
       if (!this.walletLink) {
         this.walletLink = new m.WalletLink(options)
@@ -90,7 +89,15 @@ export class WalletLink extends Connector {
     })
   }
 
-  /** {@inheritdoc Connector.activate} */
+  /**
+   * Initiates a connection.
+   *
+   * @param desiredChainIdOrChainParameters - If defined, indicates the desired chain to connect to. If the user is
+   * already connected to this chain, no additional steps will be taken. Otherwise, the user will be prompted to switch
+   * to the chain, if one of two conditions is met: either they already have it added, or the argument is of type
+   * AddEthereumChainParameter, in which case the user will be prompted to add the chain with the specified parameters
+   * first, before being prompted to switch.
+   */
   public async activate(desiredChainIdOrChainParameters?: number | AddEthereumChainParameter): Promise<void> {
     const desiredChainId =
       typeof desiredChainIdOrChainParameters === 'number'
@@ -104,10 +111,14 @@ export class WalletLink extends Connector {
     }
     await this.eagerConnection
 
-    return Promise.all([
-      this.provider?.request({ method: 'eth_chainId' }) as Promise<string>,
-      this.provider?.request({ method: 'eth_requestAccounts' }) as Promise<string[]>,
-    ])
+    return (
+      Promise.all([
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        this.provider!.request({ method: 'eth_chainId' }),
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        this.provider!.request({ method: 'eth_requestAccounts' }),
+      ]) as Promise<[string, string[]]>
+    )
       .then(([chainId, accounts]) => {
         const receivedChainId = parseChainId(chainId)
 
@@ -126,7 +137,8 @@ export class WalletLink extends Connector {
           .catch((error: ProviderRpcError) => {
             if (error.code === 4902 && typeof desiredChainIdOrChainParameters !== 'number') {
               // if we're here, we can try to add a new network
-              return this.provider?.request({
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              return this.provider!.request({
                 method: 'wallet_addEthereumChain',
                 params: [{ ...desiredChainIdOrChainParameters, chainId: desiredChainIdHex }],
               })
@@ -153,17 +165,4 @@ export class WalletLink extends Connector {
       this.walletLink?.disconnect()
     }
   }
-}
-
-export interface AddEthereumChainParameter {
-  chainId: number
-  chainName: string
-  nativeCurrency: {
-    name: string
-    symbol: string // 2-6 characters long
-    decimals: 18
-  }
-  rpcUrls: string[]
-  blockExplorerUrls?: string[]
-  iconUrls?: string[] // Currently ignored.
 }
