@@ -2,8 +2,21 @@ import { getAddress } from '@ethersproject/address'
 import type { Actions, Web3ReactState, Web3ReactStateUpdate, Web3ReactStore } from '@web3-react/types'
 import create from 'zustand/vanilla'
 
+
+/**
+ * @notice MAX_SAFE_CHAIN_ID establishes the upper bound limit on what can be accepted for `chainId`
+ * @summary
+ * ```
+ *   MAX_SAFE_CHAIN_ID = floor( ( 2**53 - 39 ) / 2 ) = 4503599627370476
+ * ```
+ *
+ * @const MAX_SAFE_CHAIN_ID The maximum integer value that metamask will accept as a chainId
+ * @see {@link https://github.com/MetaMask/metamask-extension/blob/b6673731e2367e119a5fee9a454dd40bd4968948/shared/constants/network.js#L31}
+ */
+export const MAX_SAFE_CHAIN_ID = 4503599627370476
+
 function validateChainId(chainId: number): void {
-  if (!Number.isInteger(chainId) || chainId <= 0 || chainId > Number.MAX_SAFE_INTEGER) {
+  if (!Number.isInteger(chainId) || chainId <= 0 || chainId > MAX_SAFE_CHAIN_ID) {
     throw new Error(`Invalid chainId ${chainId}`)
   }
 }
