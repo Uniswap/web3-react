@@ -11,9 +11,8 @@ import create from 'zustand/vanilla'
  * ```
  *
  * @const MAX_SAFE_CHAIN_ID The maximum integer value that metamask will accept as a chainId
- * @see {@link https://git.io/JPBat}
+ * @see {@link https://github.com/MetaMask/metamask-extension/blob/b6673731e2367e119a5fee9a454dd40bd4968948/shared/constants/network.js#L31}
  */
-
 export const MAX_SAFE_CHAIN_ID = 4503599627370476
 
 function validateChainId(chainId: number): void {
