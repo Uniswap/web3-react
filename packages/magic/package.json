@@ -10,7 +10,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "version": "8.0.2-beta.0",
+  "version": "8.0.3-beta.0",
   "type": "module",
   "files": [
     "dist/*"
@@ -31,7 +31,7 @@
   "dependencies": {
     "@ethersproject/experimental": "^5.5.0",
     "@ethersproject/providers": "^5.5.1",
-    "@web3-react/types": "^8.0.2-beta.0"
+    "@web3-react/types": "^8.0.3-beta.0"
   },
   "peerDependencies": {
     "magic-sdk": "^6.1.0"
