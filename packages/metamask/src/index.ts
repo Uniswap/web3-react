@@ -1,5 +1,11 @@
 import type detectEthereumProvider from '@metamask/detect-provider'
-import type { Actions, Provider, ProviderConnectInfo, ProviderRpcError } from '@web3-react/types'
+import type {
+  Actions,
+  AddEthereumChainParameter,
+  Provider,
+  ProviderConnectInfo,
+  ProviderRpcError,
+} from '@web3-react/types'
 import { Connector } from '@web3-react/types'
 
 export class NoMetaMaskError extends Error {
@@ -12,19 +18,6 @@ export class NoMetaMaskError extends Error {
 
 function parseChainId(chainId: string) {
   return Number.parseInt(chainId, 16)
-}
-
-export interface AddEthereumChainParameter {
-  chainId: number
-  chainName: string
-  nativeCurrency: {
-    name: string
-    symbol: string // 2-6 characters long
-    decimals: 18
-  }
-  rpcUrls: string[]
-  blockExplorerUrls?: string[]
-  iconUrls?: string[] // Currently ignored.
 }
 
 export class MetaMask extends Connector {

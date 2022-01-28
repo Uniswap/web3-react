@@ -53,11 +53,26 @@ export interface ProviderRpcError extends Error {
   data?: unknown
 }
 
+// per EIP-3085
+export interface AddEthereumChainParameter {
+  chainId: number
+  chainName: string
+  nativeCurrency: {
+    name: string
+    symbol: string // 2-6 characters long
+    decimals: 18
+  }
+  rpcUrls: string[]
+  blockExplorerUrls?: string[]
+  iconUrls?: string[] // Currently ignored.
+}
+
 export abstract class Connector {
   /**
    * An
    * EIP-1193 ({@link https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1193.md}) and
    * EIP-1102 ({@link https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1102.md}) compliant provider.
+   * May also comply with EIP-3085 ({@link https://github.com/ethereum/EIPs/blob/master/EIPS/eip-3085.md}).
    * This property must be defined while the connector is active.
    */
   public provider: Provider | undefined
