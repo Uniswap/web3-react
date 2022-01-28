@@ -129,16 +129,15 @@ export class WalletLink extends Connector {
 
         // if we're here, we can try to switch networks
         const desiredChainIdHex = `0x${desiredChainId.toString(16)}`
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        return this.provider!.request({
-          method: 'wallet_switchEthereumChain',
-          params: [{ chainId: desiredChainIdHex }],
-        })
+        return this.provider
+          ?.request({
+            method: 'wallet_switchEthereumChain',
+            params: [{ chainId: desiredChainIdHex }],
+          })
           .catch((error: ProviderRpcError) => {
             if (error.code === 4902 && typeof desiredChainIdOrChainParameters !== 'number') {
               // if we're here, we can try to add a new network
-              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-              return this.provider!.request({
+              return this.provider?.request({
                 method: 'wallet_addEthereumChain',
                 params: [{ ...desiredChainIdOrChainParameters, chainId: desiredChainIdHex }],
               })
@@ -162,7 +161,8 @@ export class WalletLink extends Connector {
       this.provider.off('accountsChanged', this.accountsChangedListener)
       this.provider = undefined
       this.eagerConnection = undefined
-      this.walletLink?.disconnect()
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      this.walletLink!.disconnect()
     }
   }
 }
