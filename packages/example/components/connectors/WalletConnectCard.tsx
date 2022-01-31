@@ -2,7 +2,7 @@ import { hooks, walletConnect } from '../../connectors/walletConnect'
 import { Accounts } from '../Accounts'
 import { Card } from '../Card'
 import { Chain } from '../Chain'
-import { Connect } from '../Connect'
+import { ConnectWithSelect } from '../ConnectWithSelect'
 import { Status } from '../Status'
 
 const { useChainId, useAccounts, useError, useIsActivating, useIsActive, useProvider, useENSNames } = hooks
@@ -28,9 +28,9 @@ export default function WalletConnectCard() {
         <Accounts accounts={accounts} provider={provider} ENSNames={ENSNames} />
       </div>
       <div style={{ marginBottom: '1rem' }} />
-      <Connect
-        activate={() => walletConnect.activate()}
-        deactivate={() => walletConnect.deactivate()}
+      <ConnectWithSelect
+        connector={walletConnect}
+        chainId={chainId}
         isActivating={isActivating}
         error={error}
         isActive={isActive}
