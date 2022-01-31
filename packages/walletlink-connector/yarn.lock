@@ -841,9 +841,9 @@ util-deprecate@^1.0.1:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/util-deprecate/-/util-deprecate-1.0.2.tgz#450d4dc9fa70de732762fbd2d4a28981419a0ccf"
 
-walletlink@^2.4.5:
-  version "2.4.5"
-  resolved "https://registry.yarnpkg.com/walletlink/-/walletlink-2.4.5.tgz#551ecec6589bf18fa2bc57252e47102aa58e6693"
+walletlink@^2.4.6:
+  version "2.4.6"
+  resolved "https://registry.yarnpkg.com/walletlink/-/walletlink-2.4.6.tgz#efaa950c16447bf34e186495b55755b3d7157725"
   dependencies:
     "@metamask/safe-event-emitter" "2.0.0"
     bind-decorator "^1.0.11"
