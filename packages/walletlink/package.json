@@ -10,7 +10,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "version": "8.0.7-beta.0",
+  "version": "8.0.8-beta.0",
   "type": "module",
   "files": [
     "dist/*"
@@ -35,6 +35,6 @@
     "walletlink": "^2.4.5"
   },
   "devDependencies": {
-    "@web3-react/store": "^8.0.4-beta.0"
+    "@web3-react/store": "^8.0.5-beta.0"
   }
 }
