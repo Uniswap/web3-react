@@ -104,7 +104,7 @@ export class WalletConnect extends Connector {
     // this early return clause catches some common cases if we're already connected
     if (this.provider?.connected) {
       if (!desiredChainId) return
-      if (desiredChainId === this.provider?.chainId) return
+      if (desiredChainId === this.provider.chainId) return
 
       const desiredChainIdHex = `0x${desiredChainId.toString(16)}`
       return this.provider
