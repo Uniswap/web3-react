@@ -3,8 +3,8 @@ import { Connector } from '@web3-react/types'
 import type { WalletLink as WalletLinkInstance } from 'walletlink'
 import type { WalletLinkOptions } from 'walletlink/dist/WalletLink'
 
-function parseChainId(chainId: string) {
-  return Number.parseInt(chainId, 16)
+function parseChainId(chainId: string | number) {
+  return typeof chainId === 'number' ? chainId : Number.parseInt(chainId, chainId.startsWith('0x') ? 16 : 10)
 }
 
 export class WalletLink extends Connector {
