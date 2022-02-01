@@ -57,10 +57,15 @@ export function ConnectWithSelect({
   const switchChain = useCallback(
     async (desiredChainId: number) => {
       setDesiredChainId(desiredChainId)
+      // if we're already connected to the desired chain, return
+      if (desiredChainId === chainId) return
+      // if they want to connect to the default chain and we're already connected, return
+      if (desiredChainId === -1 && chainId !== undefined) return
+
       if (connector instanceof WalletConnect || connector instanceof Network) {
-        await connector.activate(desiredChainId)
-      } else if (desiredChainId !== -1 && desiredChainId !== chainId) {
-        await connector.activate(getAddChainParameters(desiredChainId))
+        await connector.activate(desiredChainId === -1 ? undefined : desiredChainId)
+      } else {
+        await connector.activate(desiredChainId === -1 ? undefined : getAddChainParameters(desiredChainId))
       }
     },
     [connector, chainId]
@@ -79,7 +84,7 @@ export function ConnectWithSelect({
         <button
           onClick={() =>
             connector instanceof WalletConnect || connector instanceof Network
-              ? connector.activate(desiredChainId)
+              ? connector.activate(desiredChainId === -1 ? undefined : desiredChainId)
               : connector.activate(desiredChainId === -1 ? undefined : getAddChainParameters(desiredChainId))
           }
         >
@@ -116,7 +121,7 @@ export function ConnectWithSelect({
               ? undefined
               : () =>
                   connector instanceof WalletConnect || connector instanceof Network
-                    ? connector.activate(desiredChainId)
+                    ? connector.activate(desiredChainId === -1 ? undefined : desiredChainId)
                     : connector.activate(desiredChainId === -1 ? undefined : getAddChainParameters(desiredChainId))
           }
           disabled={isActivating}
