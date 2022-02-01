@@ -101,8 +101,24 @@ export class WalletConnect extends Connector {
    * to the chain, if their wallet supports it.
    */
   public async activate(desiredChainId?: number): Promise<void> {
-    // if we're trying to connect to a specific chain, and we're not connected, we have to re-initialize
-    if (desiredChainId && !this.provider?.connected && this.provider?.chainId !== desiredChainId) {
+    // this early return clause catches some common cases if we're already connected
+    if (this.provider?.connected) {
+      if (!desiredChainId) return
+      if (desiredChainId === this.provider?.chainId) return
+
+      const desiredChainIdHex = `0x${desiredChainId.toString(16)}`
+      return this.provider
+        .request<void>({
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId: desiredChainIdHex }],
+        })
+        .catch(() => {
+          void 0
+        })
+    }
+
+    // if we're trying to connect to a specific chain, we may have to re-initialize
+    if (desiredChainId && desiredChainId !== this.provider?.chainId) {
       await this.deactivate()
     }
 
@@ -113,6 +129,8 @@ export class WalletConnect extends Connector {
     }
     await this.eagerConnection
 
+    const wasConnected = !!this.provider?.connected
+
     try {
       // these are sequential instead of parallel because otherwise, chainId defaults to 1 even
       // if the connecting wallet isn't on mainnet
@@ -121,19 +139,28 @@ export class WalletConnect extends Connector {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const chainId = parseChainId(await this.provider!.request<string | number>({ method: 'eth_chainId' }))
 
-      // if there's no desired chain, or it's equal to the received, update
-      if (!desiredChainId || chainId === desiredChainId) {
+      if (!desiredChainId || desiredChainId === chainId) {
         return this.actions.update({ chainId, accounts })
       }
 
-      // if we're here, we can try to switch networks
-      const desiredChainIdHex = `0x${desiredChainId.toString(16)}`
+      // because e.g. metamask doesn't support wallet_switchEthereumChain, we have to report first-time connections,
+      // even if the chainId isn't necessarily the desired one. this is ok because in e.g. rainbow,
+      // we won't report a connection to the wrong chain while the switch is pending because of the re-initialization
+      // logic above, which ensures first-time connections are to the correct chain in the first place
+      if (!wasConnected) this.actions.update({ chainId, accounts })
 
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      return this.provider!.request<void>({
-        method: 'wallet_switchEthereumChain',
-        params: [{ chainId: desiredChainIdHex }],
-      })
+      // try to switch to the desired chain, ignoring errors
+      if (desiredChainId && desiredChainId !== chainId) {
+        const desiredChainIdHex = `0x${desiredChainId.toString(16)}`
+        return this.provider
+          ?.request<void>({
+            method: 'wallet_switchEthereumChain',
+            params: [{ chainId: desiredChainIdHex }],
+          })
+          .catch(() => {
+            void 0
+          })
+      }
     } catch (error) {
       // this condition is a bit of a hack :/
       // if a user triggers the walletconnect modal, closes it, and then tries to connect again, the modal will not trigger.
@@ -148,14 +175,12 @@ export class WalletConnect extends Connector {
 
   /** {@inheritdoc Connector.deactivate} */
   public async deactivate(error?: Error): Promise<void> {
-    if (this.provider) {
-      this.provider.off('disconnect', this.disconnectListener)
-      this.provider.off('chainChanged', this.chainChangedListener)
-      this.provider.off('accountsChanged', this.accountsChangedListener)
-      await this.provider.disconnect()
-      this.provider = undefined
-      this.eagerConnection = undefined
-      this.actions.reportError(error)
-    }
+    this.provider?.off('disconnect', this.disconnectListener)
+    this.provider?.off('chainChanged', this.chainChangedListener)
+    this.provider?.off('accountsChanged', this.accountsChangedListener)
+    await this.provider?.disconnect()
+    this.provider = undefined
+    this.eagerConnection = undefined
+    this.actions.reportError(error)
   }
 }
