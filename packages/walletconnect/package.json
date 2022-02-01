@@ -10,7 +10,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "version": "8.0.7-beta.0",
+  "version": "8.0.8-beta.0",
   "type": "module",
   "files": [
     "dist/*"
