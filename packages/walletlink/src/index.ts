@@ -104,6 +104,30 @@ export class WalletLink extends Connector {
         ? desiredChainIdOrChainParameters
         : desiredChainIdOrChainParameters?.chainId
 
+    // the `connected` property, is bugged, but this works as a hack to check connection status
+    if (this.provider?.selectedAddress) {
+      if (!desiredChainId) return
+      if (desiredChainId === parseChainId(this.provider.chainId)) return
+
+      const desiredChainIdHex = `0x${desiredChainId.toString(16)}`
+      return this.provider
+        .request<void>({
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId: desiredChainIdHex }],
+        })
+        .catch(async (error: ProviderRpcError) => {
+          if (error.code === 4902 && typeof desiredChainIdOrChainParameters !== 'number') {
+            // if we're here, we can try to add a new network
+            await this.provider?.request({
+              method: 'wallet_addEthereumChain',
+              params: [{ ...desiredChainIdOrChainParameters, chainId: desiredChainIdHex }],
+            })
+          } else {
+            this.actions.reportError(error)
+          }
+        })
+    }
+
     this.actions.startActivation()
 
     if (!this.eagerConnection) {
@@ -130,14 +154,14 @@ export class WalletLink extends Connector {
         // if we're here, we can try to switch networks
         const desiredChainIdHex = `0x${desiredChainId.toString(16)}`
         return this.provider
-          ?.request({
+          ?.request<void>({
             method: 'wallet_switchEthereumChain',
             params: [{ chainId: desiredChainIdHex }],
           })
-          .catch((error: ProviderRpcError) => {
+          .catch(async (error: ProviderRpcError) => {
             if (error.code === 4902 && typeof desiredChainIdOrChainParameters !== 'number') {
               // if we're here, we can try to add a new network
-              return this.provider?.request({
+              await this.provider?.request({
                 method: 'wallet_addEthereumChain',
                 params: [{ ...desiredChainIdOrChainParameters, chainId: desiredChainIdHex }],
               })
@@ -145,7 +169,6 @@ export class WalletLink extends Connector {
               throw error
             }
           })
-          .then(() => this.activate(desiredChainId))
       })
       .catch((error: Error) => {
         this.actions.reportError(error)
@@ -154,15 +177,12 @@ export class WalletLink extends Connector {
 
   /** {@inheritdoc Connector.deactivate} */
   public deactivate(): void {
-    if (this.provider) {
-      this.provider.off('connect', this.disconnectListener)
-      this.provider.off('disconnect', this.disconnectListener)
-      this.provider.off('chainChanged', this.chainChangedListener)
-      this.provider.off('accountsChanged', this.accountsChangedListener)
-      this.provider = undefined
-      this.eagerConnection = undefined
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      this.walletLink!.disconnect()
-    }
+    this.provider?.off('connect', this.disconnectListener)
+    this.provider?.off('disconnect', this.disconnectListener)
+    this.provider?.off('chainChanged', this.chainChangedListener)
+    this.provider?.off('accountsChanged', this.accountsChangedListener)
+    this.provider = undefined
+    this.eagerConnection = undefined
+    this.walletLink?.disconnect()
   }
 }
