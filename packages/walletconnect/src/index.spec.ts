@@ -4,7 +4,7 @@ import { WalletConnect } from '.'
 import { MockEIP1193Provider } from '../../eip1193/src/index.spec'
 
 // necessary because walletconnect returns chainId as a number
-export class MockMockWalletConnectProvider extends MockEIP1193Provider {
+class MockMockWalletConnectProvider extends MockEIP1193Provider {
   public eth_chainId_number = jest.fn((chainId?: string) =>
     chainId === undefined ? chainId : Number.parseInt(chainId, 16)
   )
@@ -32,7 +32,7 @@ describe('WalletConnect', () => {
     beforeEach(() => {
       let actions: Actions
       ;[store, actions] = createWeb3ReactStoreAndActions()
-      connector = new WalletConnect(actions, {})
+      connector = new WalletConnect(actions, { rpc: {} })
     })
 
     beforeEach(async () => {

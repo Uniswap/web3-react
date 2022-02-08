@@ -3,6 +3,7 @@ import type { IWCEthRpcConnectionOptions } from '@walletconnect/types'
 import type { Actions, ProviderRpcError } from '@web3-react/types'
 import { Connector } from '@web3-react/types'
 import type { EventEmitter } from 'node:events'
+import { getBestUrl } from './utils'
 
 interface MockWalletConnectProvider
   extends Omit<WalletConnectProvider, 'on' | 'off' | 'once' | 'removeListener'>,
@@ -12,11 +13,16 @@ function parseChainId(chainId: string | number) {
   return typeof chainId === 'string' ? Number.parseInt(chainId) : chainId
 }
 
+type WalletConnectOptions = Omit<IWCEthRpcConnectionOptions, 'rpc' | 'infuraId' | 'chainId'> & {
+  rpc: { [chainId: number]: string | string[] }
+}
+
 export class WalletConnect extends Connector {
   /** {@inheritdoc Connector.provider} */
   provider: MockWalletConnectProvider | undefined
 
-  private readonly options?: IWCEthRpcConnectionOptions
+  private readonly options: Omit<WalletConnectOptions, 'rpc'>
+  private readonly rpc: { [chainId: number]: string[] }
   private eagerConnection?: Promise<void>
   private treatModalCloseAsError: boolean
 
@@ -24,18 +30,19 @@ export class WalletConnect extends Connector {
    * @param options - Options to pass to `@walletconnect/ethereum-provider`
    * @param connectEagerly - A flag indicating whether connection should be initiated when the class is constructed.
    */
-  constructor(
-    actions: Actions,
-    options: IWCEthRpcConnectionOptions,
-    connectEagerly = true,
-    treatModalCloseAsError = true
-  ) {
+  constructor(actions: Actions, options: WalletConnectOptions, connectEagerly = true, treatModalCloseAsError = true) {
     super(actions)
-    this.options = options
+    const { rpc, ...rest } = options
+    this.rpc = Object.keys(rpc).reduce<{ [chainId: number]: string[] }>((accumulator, chainId) => {
+      const value = rpc[Number(chainId)]
+      accumulator[Number(chainId)] = Array.isArray(value) ? value : [value]
+      return accumulator
+    }, {})
+    this.options = rest
     this.treatModalCloseAsError = treatModalCloseAsError
 
     if (connectEagerly) {
-      this.eagerConnection = this.initialize(true)
+      this.eagerConnection = this.initialize(true, Number(Object.keys(this.rpc)[0]))
     }
   }
 
@@ -51,16 +58,29 @@ export class WalletConnect extends Connector {
     this.actions.update({ accounts })
   }
 
-  private async initialize(connectEagerly: boolean, chainId?: number): Promise<void> {
+  private async initialize(connectEagerly: boolean, chainId: number): Promise<void> {
     let cancelActivation: () => void
     if (connectEagerly) {
       cancelActivation = this.actions.startActivation()
     }
 
-    return import('@walletconnect/ethereum-provider').then((m) => {
+    // because we can only use 1 url per chainId, we need to decide between multiple, where necessary
+    const rpc = Promise.all(
+      Object.keys(this.rpc).map(
+        async (chainId): Promise<[number, string]> => [Number(chainId), await getBestUrl(this.rpc[Number(chainId)])]
+      )
+    ).then((results) =>
+      results.reduce<{ [chainId: number]: string }>((accumulator, [chainId, url]) => {
+        accumulator[chainId] = url
+        return accumulator
+      }, {})
+    )
+
+    return import('@walletconnect/ethereum-provider').then(async (m) => {
       this.provider = new m.default({
         ...this.options,
-        ...(chainId ? { chainId } : undefined),
+        chainId,
+        rpc: await rpc,
       }) as unknown as MockWalletConnectProvider
 
       this.provider.on('disconnect', this.disconnectListener)
@@ -101,6 +121,10 @@ export class WalletConnect extends Connector {
    * to the chain, if their wallet supports it.
    */
   public async activate(desiredChainId?: number): Promise<void> {
+    if (desiredChainId && this.rpc[desiredChainId] === undefined) {
+      throw new Error(`no url(s) provided for desiredChainId ${desiredChainId}`)
+    }
+
     // this early return clause catches some common cases if we're already connected
     if (this.provider?.connected) {
       if (!desiredChainId) return
@@ -125,7 +149,7 @@ export class WalletConnect extends Connector {
     this.actions.startActivation()
 
     if (!this.eagerConnection) {
-      this.eagerConnection = this.initialize(false, desiredChainId)
+      this.eagerConnection = this.initialize(false, desiredChainId ?? Number(Object.keys(this.rpc)[0]))
     }
     await this.eagerConnection
 
