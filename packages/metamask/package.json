@@ -10,7 +10,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "version": "8.0.6-beta.0",
+  "version": "8.0.7-beta.0",
   "type": "module",
   "files": [
     "dist/*"
@@ -30,9 +30,9 @@
   },
   "dependencies": {
     "@metamask/detect-provider": "^1.2.0",
-    "@web3-react/types": "^8.0.3-beta.0"
+    "@web3-react/types": "^8.0.4-beta.0"
   },
   "devDependencies": {
-    "@web3-react/store": "^8.0.5-beta.0"
+    "@web3-react/store": "^8.0.6-beta.0"
   }
 }
