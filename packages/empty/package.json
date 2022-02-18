@@ -24,7 +24,7 @@
   "main": "./dist/cjs/index.js",
   "scripts": {
     "prebuild": "rm -rf dist",
-    "build": "tsc && tsc --project tsconfig.cjs.json",
+    "build": "tsc && tsc --project tsconfig.cjs.json && find ./dist/cjs/ -depth -name \"*.js\" -exec sh -c 'mv \"$1\" \"${1%.js}.cjs\"' _ {} \\;",
     "start": "tsc --watch"
   },
   "dependencies": {
