@@ -1,7 +1,7 @@
-import { IWCEthRpcConnectionOptions } from '@walletconnect/types'
-import { AbstractConnector } from '@web3-react/abstract-connector'
-import { ConnectorUpdate } from '@web3-react/types'
 import type WalletConnectProvider from "@walletconnect/ethereum-provider";
+import { IWCEthRpcConnectionOptions } from '@walletconnect/types';
+import { AbstractConnector } from '@web3-react/abstract-connector';
+import { ConnectorUpdate } from '@web3-react/types';
 
 export const URI_AVAILABLE = 'URI_AVAILABLE'
 
@@ -58,7 +58,6 @@ export class WalletConnectConnector extends AbstractConnector {
     }
     // we have to do this because of a @walletconnect/web3-provider bug
     if (this.walletConnectProvider) {
-      this.walletConnectProvider.stop?.()
       this.walletConnectProvider.removeListener('chainChanged', this.handleChainChanged)
       this.walletConnectProvider.removeListener('accountsChanged', this.handleAccountsChanged)
       this.walletConnectProvider = undefined
@@ -89,14 +88,14 @@ export class WalletConnectConnector extends AbstractConnector {
       }
 
       // Workaround to bubble up the error when user reject the connection
-      this.walletConnectProvider.connector.on('disconnect', () => {
+      this.walletConnectProvider!.connector.on('disconnect', () => {
         // Check provider has not been enabled to prevent this event callback from being called in the future
         if (!account) {
           userReject()
         }
       })
 
-      this.walletConnectProvider
+      this.walletConnectProvider!
         .enable()
         .then((accounts: string[]) => resolve(accounts[0]))
         .catch((error: Error): void => {
@@ -123,11 +122,11 @@ export class WalletConnectConnector extends AbstractConnector {
   }
 
   public async getChainId(): Promise<number | string> {
-    return Promise.resolve(this.walletConnectProvider.chainId)
+    return Promise.resolve(this.walletConnectProvider!.chainId)
   }
 
   public async getAccount(): Promise<null | string> {
-    return Promise.resolve(this.walletConnectProvider.accounts).then((accounts: string[]): string => accounts[0])
+    return Promise.resolve(this.walletConnectProvider!.accounts).then((accounts: string[]): string => accounts[0])
   }
 
   public deactivate() {
