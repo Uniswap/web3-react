@@ -10,8 +10,7 @@ export class Network extends Connector {
   public provider: Eip1193Bridge | undefined
 
   private urlMap: Record<number, url[]>
-  private desiredChainId: number
-  private providerCache: Partial<Record<number, Promise<Eip1193Bridge>>> = {}
+  private providerCache: Record<number, Promise<Eip1193Bridge> | undefined> = {}
 
   /**
    * @param urlMap - A mapping from chainIds to RPC urls.
@@ -29,15 +28,14 @@ export class Network extends Connector {
       accumulator[Number(chainId)] = Array.isArray(urls) ? urls : [urls]
       return accumulator
     }, {})
-    this.desiredChainId = Number(Object.keys(this.urlMap)[0])
 
     if (connectEagerly) void this.activate()
   }
 
-  private async isomorphicInitialize(chainId: number) {
-    if (this.providerCache[chainId]) return this.providerCache[chainId]
+  private async isomorphicInitialize(chainId: number): Promise<Eip1193Bridge> {
+    if (this.providerCache[chainId]) return this.providerCache[chainId] as Promise<Eip1193Bridge>
 
-    await (this.providerCache[chainId] = Promise.all([
+    return (this.providerCache[chainId] = Promise.all([
       import('@ethersproject/providers').then(({ JsonRpcProvider, FallbackProvider }) => ({
         JsonRpcProvider,
         FallbackProvider,
@@ -60,26 +58,15 @@ export class Network extends Connector {
    *
    * @param desiredChainId - The desired chain to connect to.
    */
-  public async activate(desiredChainId = this.desiredChainId): Promise<void> {
-    const cancelActivation = this.actions.startActivation()
+  public async activate(desiredChainId = Number(Object.keys(this.urlMap)[0])): Promise<void> {
+    this.actions.startActivation()
 
-    this.desiredChainId = desiredChainId
-    await this.isomorphicInitialize(desiredChainId)
-    const provider = await this.providerCache[desiredChainId]
+    this.provider = await this.isomorphicInitialize(desiredChainId)
 
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    return provider!
+    return this.provider
       .request({ method: 'eth_chainId' })
-      .then((returnedChainId: number) => {
-        // ensure the returned chainId is as expected, i.e. the provided url(s) are correct
-        if (returnedChainId !== desiredChainId)
-          throw new Error(`expected chainId ${desiredChainId}, received ${returnedChainId}`)
-
-        if (this.desiredChainId === desiredChainId) {
-          this.actions.update({ chainId: desiredChainId, accounts: [] })
-        } else {
-          cancelActivation()
-        }
+      .then((chainId: number) => {
+        this.actions.update({ chainId, accounts: [] })
       })
       .catch((error: Error) => {
         this.actions.reportError(error)

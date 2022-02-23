@@ -47,7 +47,7 @@ describe('Url', () => {
     beforeEach(() => {
       let actions: Actions
       ;[store, actions] = createWeb3ReactStoreAndActions()
-      connector = new Url(actions, 'https://mock.url')
+      connector = new Url(actions, 'https://mock.url', true)
     })
 
     beforeEach(async () => {

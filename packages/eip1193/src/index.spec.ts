@@ -121,7 +121,7 @@ describe('EIP1193', () => {
       })
 
       test('fails silently', async () => {
-        connector = new EIP1193(actions, mockProvider)
+        connector = new EIP1193(actions, mockProvider, true)
         await yieldThread()
 
         expect(store.getState()).toEqual({
@@ -136,7 +136,7 @@ describe('EIP1193', () => {
         mockProvider.chainId = chainId
         mockProvider.accounts = accounts
 
-        connector = new EIP1193(actions, mockProvider)
+        connector = new EIP1193(actions, mockProvider, true)
         await yieldThread()
 
         expect(store.getState()).toEqual({

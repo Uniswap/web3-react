@@ -13,7 +13,7 @@ export class EIP1193 extends Connector {
    * @param provider - An EIP-1193 ({@link https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1193.md}) provider.
    * @param connectEagerly - A flag indicating whether connection should be initiated when the class is constructed.
    */
-  constructor(actions: Actions, provider: Provider, connectEagerly = true) {
+  constructor(actions: Actions, provider: Provider, connectEagerly = false) {
     super(actions)
 
     if (connectEagerly && typeof window === 'undefined') {
@@ -37,6 +37,8 @@ export class EIP1193 extends Connector {
     this.provider.on('accountsChanged', (accounts: string[]): void => {
       this.actions.update({ accounts })
     })
+
+    if (connectEagerly) void this.connectEagerly()
   }
 
   /** {@inheritdoc Connector.connectEagerly} */

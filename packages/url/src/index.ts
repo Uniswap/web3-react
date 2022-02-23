@@ -16,7 +16,7 @@ export class Url extends Connector {
    * @param url - An RPC url.
    * @param connectEagerly - A flag indicating whether connection should be initiated when the class is constructed.
    */
-  constructor(actions: Actions, url: url, connectEagerly = true) {
+  constructor(actions: Actions, url: url, connectEagerly = false) {
     super(actions)
 
     if (connectEagerly && typeof window === 'undefined') {
