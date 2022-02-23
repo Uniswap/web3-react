@@ -41,7 +41,7 @@ export class WalletLink extends Connector {
   }
 
   private async isomorphicInitialize(): Promise<void> {
-    if (this.eagerConnection) return await this.eagerConnection
+    if (this.eagerConnection) return this.eagerConnection
 
     await (this.eagerConnection = import('walletlink').then((m) => {
       const { url, ...options } = this.options
@@ -66,6 +66,7 @@ export class WalletLink extends Connector {
     }))
   }
 
+  /** {@inheritdoc Connector.connectEagerly} */
   public async connectEagerly(): Promise<void> {
     const cancelActivation = this.actions.startActivation()
 

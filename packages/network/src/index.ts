@@ -21,7 +21,7 @@ export class Network extends Connector {
     super(actions)
 
     if (connectEagerly && typeof window === 'undefined') {
-      throw new Error('connectEagerly = true is invalid for SSR, instead use the connectEagerly method in a useEffect')
+      throw new Error('connectEagerly = true is invalid for SSR, instead use the activate method in a useEffect')
     }
 
     this.urlMap = Object.keys(urlMap).reduce<{ [chainId: number]: url[] }>((accumulator, chainId) => {
@@ -35,7 +35,7 @@ export class Network extends Connector {
   }
 
   private async isomorphicInitialize(chainId: number) {
-    if (this.providerCache[chainId]) return await this.providerCache[chainId]
+    if (this.providerCache[chainId]) return this.providerCache[chainId]
 
     await (this.providerCache[chainId] = Promise.all([
       import('@ethersproject/providers').then(({ JsonRpcProvider, FallbackProvider }) => ({

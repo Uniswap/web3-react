@@ -41,7 +41,7 @@ export class MetaMask extends Connector {
   }
 
   private async isomorphicInitialize(): Promise<void> {
-    if (this.eagerConnection) return await this.eagerConnection
+    if (this.eagerConnection) return this.eagerConnection
 
     await (this.eagerConnection = import('@metamask/detect-provider')
       .then((m) => m.default(this.options))
@@ -73,6 +73,7 @@ export class MetaMask extends Connector {
       }))
   }
 
+  /** {@inheritdoc Connector.connectEagerly} */
   public async connectEagerly(): Promise<void> {
     const cancelActivation = this.actions.startActivation()
 

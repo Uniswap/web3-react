@@ -55,7 +55,7 @@ export class WalletConnect extends Connector {
   }
 
   private async isomorphicInitialize(chainId?: number): Promise<void> {
-    if (this.eagerConnection) return await this.eagerConnection
+    if (this.eagerConnection) return this.eagerConnection
 
     await (this.eagerConnection = import('@walletconnect/ethereum-provider').then((m) => {
       this.provider = new m.default({
@@ -69,6 +69,7 @@ export class WalletConnect extends Connector {
     }))
   }
 
+  /** {@inheritdoc Connector.connectEagerly} */
   public async connectEagerly(): Promise<void> {
     const cancelActivation = this.actions.startActivation()
 

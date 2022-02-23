@@ -16,36 +16,44 @@ export class EIP1193 extends Connector {
   constructor(actions: Actions, provider: Provider, connectEagerly = true) {
     super(actions)
 
+    if (connectEagerly && typeof window === 'undefined') {
+      throw new Error('connectEagerly = true is invalid for SSR, instead use the connectEagerly method in a useEffect')
+    }
+
     this.provider = provider
 
     this.provider.on('connect', ({ chainId }: ProviderConnectInfo): void => {
       this.actions.update({ chainId: parseChainId(chainId) })
     })
+
     this.provider.on('disconnect', (error: ProviderRpcError): void => {
       this.actions.reportError(error)
     })
+
     this.provider.on('chainChanged', (chainId: string): void => {
       this.actions.update({ chainId: parseChainId(chainId) })
     })
+
     this.provider.on('accountsChanged', (accounts: string[]): void => {
       this.actions.update({ accounts })
     })
+  }
 
-    if (connectEagerly) {
-      const cancelActivation = this.actions.startActivation()
+  /** {@inheritdoc Connector.connectEagerly} */
+  public async connectEagerly(): Promise<void> {
+    const cancelActivation = this.actions.startActivation()
 
-      Promise.all([
-        this.provider.request({ method: 'eth_chainId' }) as Promise<string>,
-        this.provider.request({ method: 'eth_accounts' }) as Promise<string[]>,
-      ])
-        .then(([chainId, accounts]) => {
-          this.actions.update({ chainId: parseChainId(chainId), accounts })
-        })
-        .catch((error) => {
-          console.debug('Could not connect eagerly', error)
-          cancelActivation()
-        })
-    }
+    return Promise.all([
+      this.provider.request({ method: 'eth_chainId' }) as Promise<string>,
+      this.provider.request({ method: 'eth_accounts' }) as Promise<string[]>,
+    ])
+      .then(([chainId, accounts]) => {
+        this.actions.update({ chainId: parseChainId(chainId), accounts })
+      })
+      .catch((error) => {
+        console.debug('Could not connect eagerly', error)
+        cancelActivation()
+      })
   }
 
   /** {@inheritdoc Connector.activate} */
