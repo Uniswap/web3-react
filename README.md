@@ -2,6 +2,8 @@
 
 [![CI](https://github.com/NoahZinsmeister/web3-react/actions/workflows/CI.yml/badge.svg)](https://github.com/NoahZinsmeister/web3-react/actions/workflows/CI.yml)
 
+_Looking for the prior version of this library? It's available on the [v6 branch](https://github.com/NoahZinsmeister/web3-react/tree/v6)._
+
 ## [Example](https://web3-react-mu.vercel.app/)
 
 This is a hosted version of [packages/example](packages/example).
@@ -24,7 +26,6 @@ This is a hosted version of [packages/example](packages/example).
 | **Experimental Connectors**                           |                                                                                                                                           |                                                                                                                                                              | Not stable                                                                |
 | [`@web3-react/frame`](packages/frame)                 | [![npm](https://img.shields.io/npm/v/@web3-react/frame/beta.svg)](https://www.npmjs.com/package/@web3-react/frame/v/beta)                 | [![minzip](https://img.shields.io/bundlephobia/minzip/@web3-react/frame/beta.svg)](https://bundlephobia.com/result?p=@web3-react/frame@beta)                 | [Frame](https://frame.sh/)                                                |
 | [`@web3-react/magic`](packages/magic)                 | [![npm](https://img.shields.io/npm/v/@web3-react/magic/beta.svg)](https://www.npmjs.com/package/@web3-react/magic/v/beta)                 | [![minzip](https://img.shields.io/bundlephobia/minzip/@web3-react/magic/beta.svg)](https://bundlephobia.com/result?p=@web3-react/magic@beta)                 | [Magic](https://magic.link/)                                              |
-
 
 ## Getting Started
 
