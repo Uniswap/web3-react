@@ -23,70 +23,74 @@ export class WalletLink extends Connector {
    * @param options - Options to pass to `walletlink`
    * @param connectEagerly - A flag indicating whether connection should be initiated when the class is constructed.
    */
-  constructor(actions: Actions, options: WalletLinkOptions & { url: string }, connectEagerly = true) {
+  constructor(actions: Actions, options: WalletLinkOptions & { url: string }, connectEagerly = false) {
     super(actions)
+
+    if (connectEagerly && typeof window === 'undefined') {
+      throw new Error('connectEagerly = true is invalid for SSR, instead use the connectEagerly method in a useEffect')
+    }
+
     this.options = options
 
-    if (connectEagerly) {
-      this.eagerConnection = this.initialize(true)
-    }
+    if (connectEagerly) void this.connectEagerly()
   }
 
-  private connectListener = ({ chainId }: ProviderConnectInfo): void => {
-    this.actions.update({ chainId: parseChainId(chainId) })
+  // the `connected` property, is bugged, but this works as a hack to check connection status
+  private get connected() {
+    return !!this.provider?.selectedAddress
   }
 
-  private disconnectListener = (error: ProviderRpcError): void => {
-    this.actions.reportError(error)
-  }
+  private async isomorphicInitialize(): Promise<void> {
+    if (this.eagerConnection) return this.eagerConnection
 
-  private chainChangedListener = (chainId: string): void => {
-    this.actions.update({ chainId: parseChainId(chainId) })
-  }
-
-  private accountsChangedListener = (accounts: string[]): void => {
-    this.actions.update({ accounts })
-  }
-
-  private async initialize(connectEagerly: boolean): Promise<void> {
-    let cancelActivation: () => void
-    if (connectEagerly) {
-      cancelActivation = this.actions.startActivation()
-    }
-
-    const { url, ...options } = this.options
-
-    return import('walletlink').then((m) => {
-      if (!this.walletLink) {
-        this.walletLink = new m.WalletLink(options)
-      }
+    await (this.eagerConnection = import('walletlink').then((m) => {
+      const { url, ...options } = this.options
+      this.walletLink = new m.WalletLink(options)
       this.provider = this.walletLink.makeWeb3Provider(url)
 
-      this.provider.on('connect', this.connectListener)
-      this.provider.on('disconnect', this.disconnectListener)
-      this.provider.on('chainChanged', this.chainChangedListener)
-      this.provider.on('accountsChanged', this.accountsChangedListener)
+      this.provider.on('connect', ({ chainId }: ProviderConnectInfo): void => {
+        this.actions.update({ chainId: parseChainId(chainId) })
+      })
 
-      if (connectEagerly) {
-        return (
-          Promise.all([
-            this.provider.request({ method: 'eth_chainId' }),
-            this.provider.request({ method: 'eth_accounts' }),
-          ]) as Promise<[string, string[]]>
-        )
-          .then(([chainId, accounts]) => {
-            if (accounts?.length) {
-              this.actions.update({ chainId: parseChainId(chainId), accounts })
-            } else {
-              throw new Error('No accounts returned')
-            }
-          })
-          .catch((error) => {
-            console.debug('Could not connect eagerly', error)
-            cancelActivation()
-          })
-      }
-    })
+      this.provider.on('disconnect', (error: ProviderRpcError): void => {
+        this.actions.reportError(error)
+      })
+
+      this.provider.on('chainChanged', (chainId: string): void => {
+        this.actions.update({ chainId: parseChainId(chainId) })
+      })
+
+      this.provider.on('accountsChanged', (accounts: string[]): void => {
+        this.actions.update({ accounts })
+      })
+    }))
+  }
+
+  /** {@inheritdoc Connector.connectEagerly} */
+  public async connectEagerly(): Promise<void> {
+    const cancelActivation = this.actions.startActivation()
+
+    await this.isomorphicInitialize()
+
+    if (this.connected) {
+      return Promise.all([
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        this.provider!.request<string>({ method: 'eth_chainId' }),
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        this.provider!.request<string[]>({ method: 'eth_accounts' }),
+      ])
+        .then(([chainId, accounts]) => {
+          if (accounts.length) {
+            this.actions.update({ chainId: parseChainId(chainId), accounts })
+          } else {
+            throw new Error('No accounts returned')
+          }
+        })
+        .catch((error) => {
+          console.debug('Could not connect eagerly', error)
+          cancelActivation()
+        })
+    }
   }
 
   /**
@@ -104,50 +108,46 @@ export class WalletLink extends Connector {
         ? desiredChainIdOrChainParameters
         : desiredChainIdOrChainParameters?.chainId
 
-    // the `connected` property, is bugged, but this works as a hack to check connection status
-    if (this.provider?.selectedAddress) {
-      if (!desiredChainId) return
-      if (desiredChainId === parseChainId(this.provider.chainId)) return
+    if (this.connected) {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      if (!desiredChainId || desiredChainId === parseChainId(this.provider!.chainId)) return
 
       const desiredChainIdHex = `0x${desiredChainId.toString(16)}`
-      return this.provider
-        .request<void>({
-          method: 'wallet_switchEthereumChain',
-          params: [{ chainId: desiredChainIdHex }],
-        })
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      return this.provider!.request<void>({
+        method: 'wallet_switchEthereumChain',
+        params: [{ chainId: desiredChainIdHex }],
+      })
         .catch(async (error: ProviderRpcError) => {
           if (error.code === 4902 && typeof desiredChainIdOrChainParameters !== 'number') {
             // if we're here, we can try to add a new network
-            await this.provider?.request({
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            return this.provider!.request<void>({
               method: 'wallet_addEthereumChain',
               params: [{ ...desiredChainIdOrChainParameters, chainId: desiredChainIdHex }],
             })
           } else {
-            this.actions.reportError(error)
+            throw error
           }
+        })
+        .catch((error: ProviderRpcError) => {
+          this.actions.reportError(error)
         })
     }
 
     this.actions.startActivation()
+    await this.isomorphicInitialize()
 
-    if (!this.eagerConnection) {
-      this.eagerConnection = this.initialize(false)
-    }
-    await this.eagerConnection
-
-    return (
-      Promise.all([
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        this.provider!.request({ method: 'eth_chainId' }),
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        this.provider!.request({ method: 'eth_requestAccounts' }),
-      ]) as Promise<[string, string[]]>
-    )
+    return Promise.all([
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      this.provider!.request<string>({ method: 'eth_chainId' }),
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      this.provider!.request<string[]>({ method: 'eth_requestAccounts' }),
+    ])
       .then(([chainId, accounts]) => {
         const receivedChainId = parseChainId(chainId)
 
-        // if there's no desired chain, or it's equal to the received, update
-        if (!desiredChainId || receivedChainId === desiredChainId) {
+        if (!desiredChainId || desiredChainId === receivedChainId) {
           return this.actions.update({ chainId: receivedChainId, accounts })
         }
 
@@ -161,7 +161,8 @@ export class WalletLink extends Connector {
           .catch(async (error: ProviderRpcError) => {
             if (error.code === 4902 && typeof desiredChainIdOrChainParameters !== 'number') {
               // if we're here, we can try to add a new network
-              await this.provider?.request({
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              return this.provider!.request<void>({
                 method: 'wallet_addEthereumChain',
                 params: [{ ...desiredChainIdOrChainParameters, chainId: desiredChainIdHex }],
               })
@@ -177,12 +178,6 @@ export class WalletLink extends Connector {
 
   /** {@inheritdoc Connector.deactivate} */
   public deactivate(): void {
-    this.provider?.off('connect', this.disconnectListener)
-    this.provider?.off('disconnect', this.disconnectListener)
-    this.provider?.off('chainChanged', this.chainChangedListener)
-    this.provider?.off('accountsChanged', this.accountsChangedListener)
-    this.provider = undefined
-    this.eagerConnection = undefined
     this.walletLink?.disconnect()
   }
 }

@@ -7,50 +7,52 @@ type url = string | ConnectionInfo
 
 export class Url extends Connector {
   /** {@inheritdoc Connector.provider} */
-  provider: Eip1193Bridge | undefined
+  public provider: Eip1193Bridge | undefined
 
+  private eagerConnection?: Promise<void>
   private url: url
 
   /**
    * @param url - An RPC url.
    * @param connectEagerly - A flag indicating whether connection should be initiated when the class is constructed.
    */
-  constructor(actions: Actions, url: url, connectEagerly = true) {
+  constructor(actions: Actions, url: url, connectEagerly = false) {
     super(actions)
+
+    if (connectEagerly && typeof window === 'undefined') {
+      throw new Error('connectEagerly = true is invalid for SSR, instead use the activate method in a useEffect')
+    }
+
     this.url = url
 
-    if (connectEagerly) {
-      void this.initialize()
-    }
+    if (connectEagerly) void this.activate()
   }
 
-  private async initialize(): Promise<void> {
-    this.actions.startActivation()
+  private async isomorphicInitialize() {
+    if (this.eagerConnection) return this.eagerConnection
 
-    // create the provider if necessary
-    if (!this.provider) {
-      // instantiate new provider
-      const [JsonRpcProvider, Eip1193Bridge] = await Promise.all([
-        import('@ethersproject/providers').then(({ JsonRpcProvider }) => JsonRpcProvider),
-        import('@ethersproject/experimental').then(({ Eip1193Bridge }) => Eip1193Bridge),
-      ])
-
+    await (this.eagerConnection = Promise.all([
+      import('@ethersproject/providers').then(({ JsonRpcProvider }) => JsonRpcProvider),
+      import('@ethersproject/experimental').then(({ Eip1193Bridge }) => Eip1193Bridge),
+    ]).then(([JsonRpcProvider, Eip1193Bridge]) => {
       const provider = new JsonRpcProvider(this.url)
       this.provider = new Eip1193Bridge(provider.getSigner(), provider)
-    }
+    }))
+  }
 
-    return this.provider
-      .request({ method: 'eth_chainId' })
+  /** {@inheritdoc Connector.activate} */
+  public async activate(): Promise<void> {
+    this.actions.startActivation()
+
+    await this.isomorphicInitialize()
+
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    return this.provider!.request({ method: 'eth_chainId' })
       .then((chainId: number) => {
         this.actions.update({ chainId, accounts: [] })
       })
       .catch((error: Error) => {
         this.actions.reportError(error)
       })
-  }
-
-  /** {@inheritdoc Connector.activate} */
-  public async activate(): Promise<void> {
-    return this.initialize()
   }
 }
