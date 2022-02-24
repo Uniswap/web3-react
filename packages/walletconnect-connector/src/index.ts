@@ -1,3 +1,4 @@
+import WalletConnectProvider from '@walletconnect/ethereum-provider'
 import { IWCEthRpcConnectionOptions } from '@walletconnect/types'
 import { AbstractConnector } from '@web3-react/abstract-connector'
 import { ConnectorUpdate } from '@web3-react/types'
@@ -25,7 +26,7 @@ function getSupportedChains({ supportedChainIds, rpc }: WalletConnectConnectorAr
 }
 
 export class WalletConnectConnector extends AbstractConnector {
-  public walletConnectProvider?: any
+  public walletConnectProvider?: WalletConnectProvider
   private readonly config: WalletConnectConnectorArguments
 
   constructor(config: WalletConnectConnectorArguments) {
@@ -57,7 +58,6 @@ export class WalletConnectConnector extends AbstractConnector {
     }
     // we have to do this because of a @walletconnect/web3-provider bug
     if (this.walletConnectProvider) {
-      this.walletConnectProvider.stop()
       this.walletConnectProvider.removeListener('chainChanged', this.handleChainChanged)
       this.walletConnectProvider.removeListener('accountsChanged', this.handleAccountsChanged)
       this.walletConnectProvider = undefined
@@ -72,11 +72,11 @@ export class WalletConnectConnector extends AbstractConnector {
     }
 
     // ensure that the uri is going to be available, and emit an event if there's a new uri
-    if (!this.walletConnectProvider.wc.connected) {
-      await this.walletConnectProvider.wc.createSession(
+    if (!this.walletConnectProvider.connector.connected) {
+      await this.walletConnectProvider.connector.createSession(
         this.config.chainId ? { chainId: this.config.chainId } : undefined
       )
-      this.emit(URI_AVAILABLE, this.walletConnectProvider.wc.uri)
+      this.emit(URI_AVAILABLE, this.walletConnectProvider.connector.uri)
     }
 
     let account: string
@@ -88,15 +88,14 @@ export class WalletConnectConnector extends AbstractConnector {
       }
 
       // Workaround to bubble up the error when user reject the connection
-      this.walletConnectProvider.wc.on('disconnect', () => {
+      this.walletConnectProvider!.connector.on('disconnect', () => {
         // Check provider has not been enabled to prevent this event callback from being called in the future
         if (!account) {
           userReject()
         }
       })
 
-      this.walletConnectProvider
-        .enable()
+      this.walletConnectProvider!.enable()
         .then((accounts: string[]) => resolve(accounts[0]))
         .catch((error: Error): void => {
           // TODO ideally this would be a better check
@@ -122,11 +121,11 @@ export class WalletConnectConnector extends AbstractConnector {
   }
 
   public async getChainId(): Promise<number | string> {
-    return Promise.resolve(this.walletConnectProvider.chainId)
+    return Promise.resolve(this.walletConnectProvider!.chainId)
   }
 
   public async getAccount(): Promise<null | string> {
-    return Promise.resolve(this.walletConnectProvider.accounts).then((accounts: string[]): string => accounts[0])
+    return Promise.resolve(this.walletConnectProvider!.accounts).then((accounts: string[]): string => accounts[0])
   }
 
   public deactivate() {
