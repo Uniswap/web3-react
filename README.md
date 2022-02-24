@@ -40,7 +40,11 @@ In addition to compiling each package in watch mode, this will also spin up [pac
 
 ## Documentation
 
-This version of web3-react is still in beta, so unfortunately documentation is pretty sparse at the moment. The [packages/example](packages/example), TSDoc comments, and the source itself are the best ways to get an idea of what's going on. More thorough documentation is a priority as development continues!
+This version of web3-react is still in beta, so unfortunately documentation is pretty sparse at the moment. [packages/example](packages/example), TSDoc comments, and the source code itself are the best ways to get an idea of what's going on. More thorough documentation is a priority as development continues!
+
+## Upgrading Connector Dependencies
+
+Some connectors have one or more dependencies that are specific to the connection method in question. For example, the walletconnect connector relies on `@walletconnect/ethereum-provider` package to handle a lot of the connection logic. Often, you may wish to upgrade to the latest version of a client package, to take advantage of the latest features. web3-react makes the process of upgrading client packages fairly painless by specifying them as [`peerDependencies`](https://docs.npmjs.com/cli/v8/configuring-npm/package-json#peerdependencies). This means that you have to explicitly install client packages, and therefore may transparently switch between any version that agrees with the semver specified in the connector (usually any matching major).
 
 ## Adding Connectors
 
