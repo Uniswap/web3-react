@@ -14,7 +14,7 @@ function parseChainId(chainId: string | number) {
 
 export class WalletConnect extends Connector {
   /** {@inheritdoc Connector.provider} */
-  provider: MockWalletConnectProvider | undefined
+  public provider: MockWalletConnectProvider | undefined
 
   private readonly options?: IWCEthRpcConnectionOptions
   private eagerConnection?: Promise<void>
@@ -27,16 +27,19 @@ export class WalletConnect extends Connector {
   constructor(
     actions: Actions,
     options: IWCEthRpcConnectionOptions,
-    connectEagerly = true,
+    connectEagerly = false,
     treatModalCloseAsError = true
   ) {
     super(actions)
+
+    if (connectEagerly && typeof window === 'undefined') {
+      throw new Error('connectEagerly = true is invalid for SSR, instead use the connectEagerly method in a useEffect')
+    }
+
     this.options = options
     this.treatModalCloseAsError = treatModalCloseAsError
 
-    if (connectEagerly) {
-      this.eagerConnection = this.initialize(true)
-    }
+    if (connectEagerly) void this.connectEagerly()
   }
 
   private disconnectListener = (error: ProviderRpcError | undefined): void => {
@@ -51,13 +54,10 @@ export class WalletConnect extends Connector {
     this.actions.update({ accounts })
   }
 
-  private async initialize(connectEagerly: boolean, chainId?: number): Promise<void> {
-    let cancelActivation: () => void
-    if (connectEagerly) {
-      cancelActivation = this.actions.startActivation()
-    }
+  private async isomorphicInitialize(chainId?: number): Promise<void> {
+    if (this.eagerConnection) return this.eagerConnection
 
-    return import('@walletconnect/ethereum-provider').then((m) => {
+    await (this.eagerConnection = import('@walletconnect/ethereum-provider').then((m) => {
       this.provider = new m.default({
         ...this.options,
         ...(chainId ? { chainId } : undefined),
@@ -66,31 +66,35 @@ export class WalletConnect extends Connector {
       this.provider.on('disconnect', this.disconnectListener)
       this.provider.on('chainChanged', this.chainChangedListener)
       this.provider.on('accountsChanged', this.accountsChangedListener)
+    }))
+  }
 
-      if (connectEagerly) {
-        if (this.provider.connected) {
-          return (
-            Promise.all([
-              this.provider.request({ method: 'eth_chainId' }),
-              this.provider.request({ method: 'eth_accounts' }),
-            ]) as Promise<[number | string, string[]]>
-          )
-            .then(([chainId, accounts]) => {
-              if (accounts?.length) {
-                this.actions.update({ chainId: parseChainId(chainId), accounts })
-              } else {
-                throw new Error('No accounts returned')
-              }
-            })
-            .catch((error) => {
-              console.debug('Could not connect eagerly', error)
-              cancelActivation()
-            })
+  /** {@inheritdoc Connector.connectEagerly} */
+  public async connectEagerly(): Promise<void> {
+    const cancelActivation = this.actions.startActivation()
+
+    await this.isomorphicInitialize()
+
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    if (this.provider!.connected) {
+      try {
+        // for walletconnect, we always use sequential instead of parallel fetches because otherwise
+        // chainId defaults to 1 even if the connecting wallet isn't on mainnet
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        const accounts = await this.provider!.request<string[]>({ method: 'eth_accounts' })
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        const chainId = parseChainId(await this.provider!.request<string | number>({ method: 'eth_chainId' }))
+
+        if (accounts.length) {
+          this.actions.update({ chainId, accounts })
         } else {
-          cancelActivation()
+          throw new Error('No accounts returned')
         }
+      } catch (error) {
+        console.debug('Could not connect eagerly', error)
+        cancelActivation()
       }
-    })
+    }
   }
 
   /**
@@ -101,10 +105,9 @@ export class WalletConnect extends Connector {
    * to the chain, if their wallet supports it.
    */
   public async activate(desiredChainId?: number): Promise<void> {
-    // this early return clause catches some common cases if we're already connected
+    // this early return clause handles all cases if we're already connected
     if (this.provider?.connected) {
-      if (!desiredChainId) return
-      if (desiredChainId === this.provider.chainId) return
+      if (!desiredChainId || desiredChainId === this.provider.chainId) return
 
       const desiredChainIdHex = `0x${desiredChainId.toString(16)}`
       return this.provider
@@ -112,28 +115,16 @@ export class WalletConnect extends Connector {
           method: 'wallet_switchEthereumChain',
           params: [{ chainId: desiredChainIdHex }],
         })
-        .catch(() => {
-          void 0
-        })
-    }
-
-    // if we're trying to connect to a specific chain, we may have to re-initialize
-    if (desiredChainId && desiredChainId !== this.provider?.chainId) {
-      await this.deactivate()
+        .catch(() => void 0)
     }
 
     this.actions.startActivation()
 
-    if (!this.eagerConnection) {
-      this.eagerConnection = this.initialize(false, desiredChainId)
-    }
-    await this.eagerConnection
-
-    const wasConnected = !!this.provider?.connected
+    // if we're trying to connect to a specific chain that we're not already initialized for, we have to re-initialize
+    if (desiredChainId && desiredChainId !== this.provider?.chainId) await this.deactivate()
+    await this.isomorphicInitialize(desiredChainId)
 
     try {
-      // these are sequential instead of parallel because otherwise, chainId defaults to 1 even
-      // if the connecting wallet isn't on mainnet
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const accounts = await this.provider!.request<string[]>({ method: 'eth_requestAccounts' })
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -143,28 +134,24 @@ export class WalletConnect extends Connector {
         return this.actions.update({ chainId, accounts })
       }
 
-      // because e.g. metamask doesn't support wallet_switchEthereumChain, we have to report first-time connections,
+      // because e.g. metamask doesn't support wallet_switchEthereumChain, we have to report connections,
       // even if the chainId isn't necessarily the desired one. this is ok because in e.g. rainbow,
       // we won't report a connection to the wrong chain while the switch is pending because of the re-initialization
       // logic above, which ensures first-time connections are to the correct chain in the first place
-      if (!wasConnected) this.actions.update({ chainId, accounts })
+      this.actions.update({ chainId, accounts })
 
-      // try to switch to the desired chain, ignoring errors
-      if (desiredChainId && desiredChainId !== chainId) {
-        const desiredChainIdHex = `0x${desiredChainId.toString(16)}`
-        return this.provider
-          ?.request<void>({
-            method: 'wallet_switchEthereumChain',
-            params: [{ chainId: desiredChainIdHex }],
-          })
-          .catch(() => {
-            void 0
-          })
-      }
+      // if we're here, we can try to switch networks, ignoring errors
+      const desiredChainIdHex = `0x${desiredChainId.toString(16)}`
+      return this.provider
+        ?.request<void>({
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId: desiredChainIdHex }],
+        })
+        .catch(() => void 0)
     } catch (error) {
       // this condition is a bit of a hack :/
-      // if a user triggers the walletconnect modal, closes it, and then tries to connect again, the modal will not trigger.
-      // the logic below prevents this from happening
+      // if a user triggers the walletconnect modal, closes it, and then tries to connect again,
+      // the modal will not trigger. the logic below prevents this from happening
       if ((error as Error).message === 'User closed modal') {
         await this.deactivate(this.treatModalCloseAsError ? (error as Error) : undefined)
       } else {

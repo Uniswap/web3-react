@@ -23,7 +23,7 @@ jest.mock('@walletconnect/ethereum-provider', () => MockMockWalletConnectProvide
 const chainId = '0x1'
 const accounts: string[] = []
 
-describe('WalletConnect', () => {
+describe.only('WalletConnect', () => {
   let store: Web3ReactStore
   let connector: WalletConnect
   let mockConnector: MockMockWalletConnectProvider
@@ -32,7 +32,7 @@ describe('WalletConnect', () => {
     beforeEach(() => {
       let actions: Actions
       ;[store, actions] = createWeb3ReactStoreAndActions()
-      connector = new WalletConnect(actions, {})
+      connector = new WalletConnect(actions, {}, true)
     })
 
     beforeEach(async () => {

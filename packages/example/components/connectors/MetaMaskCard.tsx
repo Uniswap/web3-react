@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { hooks, metaMask } from '../../connectors/metaMask'
 import { Accounts } from '../Accounts'
 import { Card } from '../Card'
@@ -17,6 +18,11 @@ export default function MetaMaskCard() {
 
   const provider = useProvider()
   const ENSNames = useENSNames(provider)
+
+  // attempt to connect eagerly on mount
+  useEffect(() => {
+    void metaMask.connectEagerly()
+  }, [])
 
   return (
     <Card>

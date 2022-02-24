@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { hooks, walletLink } from '../../connectors/walletLink'
 import { Accounts } from '../Accounts'
 import { Card } from '../Card'
@@ -17,6 +18,11 @@ export default function WalletLinkCard() {
 
   const provider = useProvider()
   const ENSNames = useENSNames(provider)
+
+  // attempt to connect eagerly on mount
+  useEffect(() => {
+    void walletLink.connectEagerly()
+  }, [])
 
   return (
     <Card>

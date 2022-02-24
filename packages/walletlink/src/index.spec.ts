@@ -23,10 +23,14 @@ describe('WalletLink', () => {
     beforeEach(() => {
       let actions: Actions
       ;[store, actions] = createWeb3ReactStoreAndActions()
-      connector = new WalletLink(actions, {
-        appName: 'test',
-        url: 'https://mock.url',
-      })
+      connector = new WalletLink(
+        actions,
+        {
+          appName: 'test',
+          url: 'https://mock.url',
+        },
+        true
+      )
     })
 
     beforeEach(async () => {
