@@ -1,10 +1,13 @@
 import { createWeb3ReactStoreAndActions } from '@web3-react/store'
 import type { Actions, RequestArguments, Web3ReactStore } from '@web3-react/types'
+import EventEmitter from 'node:events'
 import { WalletConnect } from '.'
 import { MockEIP1193Provider } from '../../eip1193/src/index.spec'
 
 // necessary because walletconnect returns chainId as a number
 class MockMockWalletConnectProvider extends MockEIP1193Provider {
+  public connector = new EventEmitter()
+
   public eth_chainId_number = jest.fn((chainId?: string) =>
     chainId === undefined ? chainId : Number.parseInt(chainId, 16)
   )
