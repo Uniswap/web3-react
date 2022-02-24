@@ -1,7 +1,7 @@
-import type WalletConnectProvider from "@walletconnect/ethereum-provider";
-import { IWCEthRpcConnectionOptions } from '@walletconnect/types';
-import { AbstractConnector } from '@web3-react/abstract-connector';
-import { ConnectorUpdate } from '@web3-react/types';
+import WalletConnectProvider from '@walletconnect/ethereum-provider'
+import { IWCEthRpcConnectionOptions } from '@walletconnect/types'
+import { AbstractConnector } from '@web3-react/abstract-connector'
+import { ConnectorUpdate } from '@web3-react/types'
 
 export const URI_AVAILABLE = 'URI_AVAILABLE'
 
@@ -95,8 +95,7 @@ export class WalletConnectConnector extends AbstractConnector {
         }
       })
 
-      this.walletConnectProvider!
-        .enable()
+      this.walletConnectProvider!.enable()
         .then((accounts: string[]) => resolve(accounts[0]))
         .catch((error: Error): void => {
           // TODO ideally this would be a better check
