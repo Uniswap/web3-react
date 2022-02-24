@@ -90,6 +90,8 @@ export class WalletLink extends Connector {
           console.debug('Could not connect eagerly', error)
           cancelActivation()
         })
+    } else {
+      cancelActivation()
     }
   }
 
