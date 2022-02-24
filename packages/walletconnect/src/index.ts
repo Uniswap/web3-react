@@ -3,6 +3,7 @@ import type { IWCEthRpcConnectionOptions } from '@walletconnect/types'
 import type { Actions, ProviderRpcError } from '@web3-react/types'
 import { Connector } from '@web3-react/types'
 import type { EventEmitter } from 'node:events'
+import { getBestUrl } from './utils'
 
 interface MockWalletConnectProvider
   extends Omit<WalletConnectProvider, 'on' | 'off' | 'once' | 'removeListener'>,
@@ -12,11 +13,16 @@ function parseChainId(chainId: string | number) {
   return typeof chainId === 'string' ? Number.parseInt(chainId) : chainId
 }
 
+type WalletConnectOptions = Omit<IWCEthRpcConnectionOptions, 'rpc' | 'infuraId' | 'chainId'> & {
+  rpc: { [chainId: number]: string | string[] }
+}
+
 export class WalletConnect extends Connector {
   /** {@inheritdoc Connector.provider} */
   public provider: MockWalletConnectProvider | undefined
 
-  private readonly options?: IWCEthRpcConnectionOptions
+  private readonly options: Omit<WalletConnectOptions, 'rpc'>
+  private readonly rpc: { [chainId: number]: string[] }
   private eagerConnection?: Promise<void>
   private treatModalCloseAsError: boolean
 
@@ -24,19 +30,20 @@ export class WalletConnect extends Connector {
    * @param options - Options to pass to `@walletconnect/ethereum-provider`
    * @param connectEagerly - A flag indicating whether connection should be initiated when the class is constructed.
    */
-  constructor(
-    actions: Actions,
-    options: IWCEthRpcConnectionOptions,
-    connectEagerly = false,
-    treatModalCloseAsError = true
-  ) {
+  constructor(actions: Actions, options: WalletConnectOptions, connectEagerly = false, treatModalCloseAsError = true) {
     super(actions)
 
     if (connectEagerly && typeof window === 'undefined') {
       throw new Error('connectEagerly = true is invalid for SSR, instead use the connectEagerly method in a useEffect')
     }
 
-    this.options = options
+    const { rpc, ...rest } = options
+    this.rpc = Object.keys(rpc).reduce<{ [chainId: number]: string[] }>((accumulator, chainId) => {
+      const value = rpc[Number(chainId)]
+      accumulator[Number(chainId)] = Array.isArray(value) ? value : [value]
+      return accumulator
+    }, {})
+    this.options = rest
     this.treatModalCloseAsError = treatModalCloseAsError
 
     if (connectEagerly) void this.connectEagerly()
@@ -54,13 +61,26 @@ export class WalletConnect extends Connector {
     this.actions.update({ accounts })
   }
 
-  private async isomorphicInitialize(chainId?: number): Promise<void> {
+  private async isomorphicInitialize(chainId = Number(Object.keys(this.rpc)[0])): Promise<void> {
     if (this.eagerConnection) return this.eagerConnection
 
-    await (this.eagerConnection = import('@walletconnect/ethereum-provider').then((m) => {
+    // because we can only use 1 url per chainId, we need to decide between multiple, where necessary
+    const rpc = Promise.all(
+      Object.keys(this.rpc).map(
+        async (chainId): Promise<[number, string]> => [Number(chainId), await getBestUrl(this.rpc[Number(chainId)])]
+      )
+    ).then((results) =>
+      results.reduce<{ [chainId: number]: string }>((accumulator, [chainId, url]) => {
+        accumulator[chainId] = url
+        return accumulator
+      }, {})
+    )
+
+    await (this.eagerConnection = import('@walletconnect/ethereum-provider').then(async (m) => {
       this.provider = new m.default({
         ...this.options,
-        ...(chainId ? { chainId } : undefined),
+        chainId,
+        rpc: await rpc,
       }) as unknown as MockWalletConnectProvider
 
       this.provider.on('disconnect', this.disconnectListener)
@@ -105,7 +125,11 @@ export class WalletConnect extends Connector {
    * to the chain, if their wallet supports it.
    */
   public async activate(desiredChainId?: number): Promise<void> {
-    // this early return clause handles all cases if we're already connected
+    if (desiredChainId && this.rpc[desiredChainId] === undefined) {
+      throw new Error(`no url(s) provided for desiredChainId ${desiredChainId}`)
+    }
+
+    // this early return clause catches some common cases if we're already connected
     if (this.provider?.connected) {
       if (!desiredChainId || desiredChainId === this.provider.chainId) return
 
