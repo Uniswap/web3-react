@@ -10,13 +10,20 @@ export class Network extends Connector {
   public provider: Eip1193Bridge | undefined
 
   private urlMap: Record<number, url[]>
+  private defaultChainId: number
   private providerCache: Record<number, Promise<Eip1193Bridge> | undefined> = {}
 
   /**
    * @param urlMap - A mapping from chainIds to RPC urls.
    * @param connectEagerly - A flag indicating whether connection should be initiated when the class is constructed.
+   * @param defaultChainId - The chainId to connect to if connectEagerly is true.
    */
-  constructor(actions: Actions, urlMap: { [chainId: number]: url | url[] }, connectEagerly = false) {
+  constructor(
+    actions: Actions,
+    urlMap: { [chainId: number]: url | url[] },
+    connectEagerly = false,
+    defaultChainId = Number(Object.keys(urlMap)[0])
+  ) {
     super(actions)
 
     if (connectEagerly && typeof window === 'undefined') {
@@ -28,6 +35,7 @@ export class Network extends Connector {
       accumulator[Number(chainId)] = Array.isArray(urls) ? urls : [urls]
       return accumulator
     }, {})
+    this.defaultChainId = defaultChainId
 
     if (connectEagerly) void this.activate()
   }
@@ -58,7 +66,7 @@ export class Network extends Connector {
    *
    * @param desiredChainId - The desired chain to connect to.
    */
-  public async activate(desiredChainId = Number(Object.keys(this.urlMap)[0])): Promise<void> {
+  public async activate(desiredChainId = this.defaultChainId): Promise<void> {
     this.actions.startActivation()
 
     this.provider = await this.isomorphicInitialize(desiredChainId)
