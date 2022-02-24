@@ -2,12 +2,13 @@ import type WalletConnectProvider from '@walletconnect/ethereum-provider'
 import type { IWCEthRpcConnectionOptions } from '@walletconnect/types'
 import type { Actions, ProviderRpcError } from '@web3-react/types'
 import { Connector } from '@web3-react/types'
+import EventEmitter3 from 'eventemitter3'
 import type { EventEmitter } from 'node:events'
 import { getBestUrl } from './utils'
 
-interface MockWalletConnectProvider
-  extends Omit<WalletConnectProvider, 'on' | 'off' | 'once' | 'removeListener'>,
-    EventEmitter {}
+export const URI_AVAILABLE = 'URI_AVAILABLE'
+
+type MockWalletConnectProvider = WalletConnectProvider & EventEmitter
 
 function parseChainId(chainId: string | number) {
   return typeof chainId === 'string' ? Number.parseInt(chainId) : chainId
@@ -20,6 +21,7 @@ type WalletConnectOptions = Omit<IWCEthRpcConnectionOptions, 'rpc' | 'infuraId' 
 export class WalletConnect extends Connector {
   /** {@inheritdoc Connector.provider} */
   public provider: MockWalletConnectProvider | undefined
+  public readonly events = new EventEmitter3()
 
   private readonly options: Omit<WalletConnectOptions, 'rpc'>
   private readonly rpc: { [chainId: number]: string[] }
@@ -61,6 +63,10 @@ export class WalletConnect extends Connector {
     this.actions.update({ accounts })
   }
 
+  private URIListener = (_: Error | null, payload: { params: string[] }): void => {
+    this.events.emit(URI_AVAILABLE, payload.params[0])
+  }
+
   private async isomorphicInitialize(chainId = Number(Object.keys(this.rpc)[0])): Promise<void> {
     if (this.eagerConnection) return this.eagerConnection
 
@@ -86,6 +92,7 @@ export class WalletConnect extends Connector {
       this.provider.on('disconnect', this.disconnectListener)
       this.provider.on('chainChanged', this.chainChangedListener)
       this.provider.on('accountsChanged', this.accountsChangedListener)
+      this.provider.connector.on('display_uri', this.URIListener)
     }))
   }
 
@@ -191,6 +198,7 @@ export class WalletConnect extends Connector {
     this.provider?.off('disconnect', this.disconnectListener)
     this.provider?.off('chainChanged', this.chainChangedListener)
     this.provider?.off('accountsChanged', this.accountsChangedListener)
+    ;(this.provider?.connector as unknown as EventEmitter | undefined)?.off('display_uri', this.URIListener)
     await this.provider?.disconnect()
     this.provider = undefined
     this.eagerConnection = undefined
