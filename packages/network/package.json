@@ -10,14 +10,13 @@
     "access": "public"
   },
   "version": "8.0.9-beta.0",
-  "type": "module",
   "files": [
     "dist/*"
   ],
   "exports": {
     "types": "./dist/index.d.ts",
     "import": "./dist/index.js",
-    "require": "./dist/cjs/index.js"
+    "require": "./dist/cjs/index.cjs"
   },
   "types": "./dist/index.d.ts",
   "main": "./dist/cjs/index.cjs",
