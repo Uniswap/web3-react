@@ -11,7 +11,6 @@
     "access": "public"
   },
   "version": "8.0.9-beta.0",
-  "type": "module",
   "files": [
     "dist/*"
   ],
@@ -24,7 +23,8 @@
   "main": "./dist/cjs/index.cjs",
   "scripts": {
     "prebuild": "rm -rf dist",
-    "build": "tsc && tsc --project tsconfig.cjs.json && find dist/cjs -depth -name \"*.js\" -exec sh -c 'mv \"$1\" \"${1%.js}.cjs\"' _ {} \\;",
+    "build": "tsc && tsc --project tsconfig.cjs.json",
+    "postbuild": "mv dist/cjs/index.js dist/cjs/index.cjs",
     "start": "tsc --watch"
   },
   "dependencies": {
