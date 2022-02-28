@@ -6,7 +6,7 @@ _Looking for the prior version of this library? It's available on the [v6 branch
 
 ## [Example](https://web3-react-mu.vercel.app/)
 
-This is a hosted version of [packages/example](packages/example).
+This is a hosted version of [packages/example-next](packages/example-next).
 
 ## Packages
 
@@ -33,7 +33,7 @@ This is a hosted version of [packages/example](packages/example).
 - `yarn bootstrap`
 - `yarn start`
 
-In addition to compiling each package in watch mode, this will also spin up [packages/example](packages/example) on [localhost:3000](http://localhost:3000/).
+In addition to compiling each package in watch mode, this will also spin up [packages/example-next](packages/example-next) on [localhost:3000](http://localhost:3000/).
 
 ## Running Tests
 
@@ -41,7 +41,7 @@ In addition to compiling each package in watch mode, this will also spin up [pac
 
 ## Documentation
 
-This version of web3-react is still in beta, so unfortunately documentation is pretty sparse at the moment. [packages/example](packages/example), TSDoc comments, and the source code itself are the best ways to get an idea of what's going on. More thorough documentation is a priority as development continues!
+This version of web3-react is still in beta, so unfortunately documentation is pretty sparse at the moment. [packages/example-next](packages/example-next), TSDoc comments, and the source code itself are the best ways to get an idea of what's going on. More thorough documentation is a priority as development continues!
 
 ## Upgrading Connector Dependencies
 
