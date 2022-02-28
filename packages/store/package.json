@@ -9,27 +9,27 @@
   "publishConfig": {
     "access": "public"
   },
-  "version": "8.0.7-beta.0",
-  "type": "module",
+  "version": "8.0.9-beta.0",
   "files": [
     "dist/*"
   ],
   "exports": {
-    "types": "./dist/index.d.ts",
-    "import": "./dist/index.js",
-    "require": "./dist/cjs/index.js"
+    "types": "./dist/esm/index.d.ts",
+    "import": "./dist/esm/index.mjs",
+    "require": "./dist/cjs/index.cjs"
   },
-  "types": "./dist/index.d.ts",
-  "module": "./dist/index.js",
-  "main": "./dist/cjs/index.js",
+  "types": "./dist/esm/index.d.ts",
+  "module": "./dist/esm/index.mjs",
+  "main": "./dist/cjs/index.cjs",
   "scripts": {
     "prebuild": "rm -rf dist",
     "build": "tsc && tsc --project tsconfig.cjs.json",
+    "postbuild": "mv dist/esm/index.js dist/esm/index.mjs && mv dist/cjs/index.js dist/cjs/index.cjs",
     "start": "tsc --watch"
   },
   "dependencies": {
     "@ethersproject/address": "^5.4.0",
-    "@web3-react/types": "^8.0.5-beta.0",
+    "@web3-react/types": "^8.0.7-beta.0",
     "zustand": "^4.0.0-beta.2"
   }
 }
