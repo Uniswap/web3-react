@@ -33,7 +33,7 @@ This is a hosted version of [packages/example-next](packages/example-next).
 - `yarn bootstrap`
 - `yarn start`
 
-In addition to compiling each package in watch mode, this will also spin up [packages/example-next](packages/example-next) on [localhost:3000](http://localhost:3000/).
+In addition to compiling each package in watch mode, this will also spin up [packages/example-next](packages/example-next) on [localhost:3000](http://localhost:3000/). (It will also spin up [packages/example-cra](packages/example-cra) on [localhost:3001](http://localhost:3001/), but this is just a skeleton app for testing compatibility.)
 
 ## Running Tests
 
