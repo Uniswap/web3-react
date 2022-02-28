@@ -14,18 +14,13 @@
   "files": [
     "dist/*"
   ],
-  "exports": {
-    "types": "./dist/esm/index.d.ts",
-    "import": "./dist/esm/index.mjs",
-    "require": "./dist/cjs/index.js"
-  },
-  "types": "./dist/esm/index.d.ts",
-  "module": "./dist/esm/index.mjs",
-  "main": "./dist/cjs/index.js",
+  "type": "commonjs",
+  "types": "./dist/index.d.ts",
+  "main": "./dist/index.js",
+  "exports": "./dist/index.js",
   "scripts": {
     "prebuild": "rm -rf dist",
-    "build": "tsc && tsc --project tsconfig.cjs.json",
-    "postbuild": "mv dist/esm/index.js dist/esm/index.mjs",
+    "build": "tsc",
     "start": "tsc --watch"
   },
   "dependencies": {
