@@ -1,0 +1,25 @@
+{
+  "private": true,
+  "name": "example-cra",
+  "scripts": {
+    "start": "react-scripts start"
+  },
+  "dependencies": {
+    "@web3-react/core": "8.0.15-beta.0",
+    "@web3-react/empty": "8.0.8-beta.0",
+    "react-scripts": "^5.0.0",
+    "react-dom": "^17.0.2"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}
