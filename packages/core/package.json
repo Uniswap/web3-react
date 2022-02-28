@@ -30,7 +30,7 @@
   "dependencies": {
     "@web3-react/store": "^8.0.7-beta.0",
     "@web3-react/types": "^8.0.5-beta.0",
-    "zustand": "^4.0.0-beta.1"
+    "zustand": "^4.0.0-beta.2"
   },
   "peerDependencies": {
     "react": ">=16.8"
