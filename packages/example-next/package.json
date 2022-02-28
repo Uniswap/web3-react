@@ -2,9 +2,7 @@
   "private": true,
   "name": "example-next",
   "scripts": {
-    "start": "next dev",
-    "build": "next build",
-    "export": "next export"
+    "start": "next dev"
   },
   "dependencies": {
     "@ethersproject/bignumber": "^5.4.2",
