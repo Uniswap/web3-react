@@ -67,7 +67,7 @@ export class Network extends Connector {
    * @param desiredChainId - The desired chain to connect to.
    */
   public async activate(desiredChainId = this.defaultChainId): Promise<void> {
-    this.actions.startActivation()
+    if (!this.provider) this.actions.startActivation()
 
     this.provider = await this.isomorphicInitialize(desiredChainId)
 

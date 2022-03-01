@@ -42,7 +42,7 @@ export class Url extends Connector {
 
   /** {@inheritdoc Connector.activate} */
   public async activate(): Promise<void> {
-    this.actions.startActivation()
+    if (!this.provider) this.actions.startActivation()
 
     await this.isomorphicInitialize()
 

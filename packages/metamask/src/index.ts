@@ -8,6 +8,8 @@ import type {
 } from '@web3-react/types'
 import { Connector } from '@web3-react/types'
 
+type MetaMaskProvider = Provider & { isConnected?: () => boolean }
+
 export class NoMetaMaskError extends Error {
   public constructor() {
     super('MetaMask not installed')
@@ -21,6 +23,9 @@ function parseChainId(chainId: string) {
 }
 
 export class MetaMask extends Connector {
+  /** {@inheritdoc Connector.provider} */
+  public provider: MetaMaskProvider | undefined
+
   private readonly options?: Parameters<typeof detectEthereumProvider>[0]
   private eagerConnection?: Promise<void>
 
@@ -47,7 +52,7 @@ export class MetaMask extends Connector {
       .then((m) => m.default(this.options))
       .then((provider) => {
         if (provider) {
-          this.provider = provider as Provider
+          this.provider = provider as MetaMaskProvider
 
           this.provider.on('connect', ({ chainId }: ProviderConnectInfo): void => {
             this.actions.update({ chainId: parseChainId(chainId) })
@@ -107,7 +112,7 @@ export class MetaMask extends Connector {
    * specified parameters first, before being prompted to switch.
    */
   public async activate(desiredChainIdOrChainParameters?: number | AddEthereumChainParameter): Promise<void> {
-    this.actions.startActivation()
+    if (!this.provider?.isConnected?.()) this.actions.startActivation()
 
     await this.isomorphicInitialize()
     if (!this.provider) return this.actions.reportError(new NoMetaMaskError())

@@ -67,9 +67,7 @@ export function createWeb3ReactStoreAndActions(allowedChainIds?: number[]): [Web
 
     // return a function that cancels the activation iff nothing else has happened
     return () => {
-      if (nullifier === nullifierCached) {
-        store.setState({ ...DEFAULT_STATE, activating: false })
-      }
+      if (nullifier === nullifierCached) store.setState({ activating: false })
     }
   }
 

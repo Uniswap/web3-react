@@ -26,6 +26,9 @@ export class MockEIP1193Provider extends EventEmitter {
   public eth_requestAccounts = jest.fn((accounts?: string[]) => accounts)
 
   public request(x: RequestArguments): Promise<unknown> {
+    // make sure to throw if we're "not connected"
+    if (!this.chainId) return Promise.reject(new Error())
+
     switch (x.method) {
       case 'eth_chainId':
         return Promise.resolve(this.eth_chainId(this.chainId))
@@ -106,12 +109,6 @@ describe('EIP1193', () => {
         expect(mockProvider.eth_requestAccounts.mock.calls.length).toBe(0)
       })
 
-      afterEach(() => {
-        expect(mockProvider.eth_chainId.mock.calls.length).toBe(1)
-        expect(mockProvider.eth_accounts.mock.calls.length).toBe(1)
-        expect(mockProvider.eth_requestAccounts.mock.calls.length).toBe(0)
-      })
-
       // suppress console.debugs in this block
       beforeEach(() => {
         jest.spyOn(console, 'debug').mockImplementation(() => {})
@@ -130,6 +127,10 @@ describe('EIP1193', () => {
           activating: false,
           error: undefined,
         })
+
+        expect(mockProvider.eth_chainId.mock.calls.length).toBe(0)
+        expect(mockProvider.eth_accounts.mock.calls.length).toBe(0)
+        expect(mockProvider.eth_requestAccounts.mock.calls.length).toBe(0)
       })
 
       test('succeeds', async () => {
@@ -145,6 +146,10 @@ describe('EIP1193', () => {
           activating: false,
           error: undefined,
         })
+
+        expect(mockProvider.eth_chainId.mock.calls.length).toBe(1)
+        expect(mockProvider.eth_accounts.mock.calls.length).toBe(1)
+        expect(mockProvider.eth_requestAccounts.mock.calls.length).toBe(0)
       })
     })
 
