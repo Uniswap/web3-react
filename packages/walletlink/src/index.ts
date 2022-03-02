@@ -1,29 +1,30 @@
+import type { CoinbaseWalletProvider, CoinbaseWalletSDK } from '@coinbase/wallet-sdk'
 import type { Actions, AddEthereumChainParameter, ProviderConnectInfo, ProviderRpcError } from '@web3-react/types'
 import { Connector } from '@web3-react/types'
-import type { WalletLink as WalletLinkInstance } from 'walletlink'
-import type { WalletLinkOptions } from 'walletlink/dist/WalletLink'
 
 function parseChainId(chainId: string | number) {
   return typeof chainId === 'number' ? chainId : Number.parseInt(chainId, chainId.startsWith('0x') ? 16 : 10)
 }
 
+type CoinbaseWalletSDKOptions = ConstructorParameters<typeof CoinbaseWalletSDK>[0] & { url: string }
+
 export class WalletLink extends Connector {
   /** {@inheritdoc Connector.provider} */
-  public provider: ReturnType<WalletLinkInstance['makeWeb3Provider']> | undefined
+  public provider: CoinbaseWalletProvider | undefined
 
-  private readonly options: WalletLinkOptions & { url: string }
+  private readonly options: CoinbaseWalletSDKOptions
   private eagerConnection?: Promise<void>
 
   /**
    * A `walletlink` instance.
    */
-  public walletLink: WalletLinkInstance | undefined
+  public walletLink: CoinbaseWalletSDK | undefined
 
   /**
    * @param options - Options to pass to `walletlink`
    * @param connectEagerly - A flag indicating whether connection should be initiated when the class is constructed.
    */
-  constructor(actions: Actions, options: WalletLinkOptions & { url: string }, connectEagerly = false) {
+  constructor(actions: Actions, options: CoinbaseWalletSDKOptions, connectEagerly = false) {
     super(actions)
 
     if (connectEagerly && typeof window === 'undefined') {
@@ -43,9 +44,9 @@ export class WalletLink extends Connector {
   private async isomorphicInitialize(): Promise<void> {
     if (this.eagerConnection) return this.eagerConnection
 
-    await (this.eagerConnection = import('walletlink').then((m) => {
+    await (this.eagerConnection = import('@coinbase/wallet-sdk').then((m) => {
       const { url, ...options } = this.options
-      this.walletLink = new m.WalletLink(options)
+      this.walletLink = new m.default(options)
       this.provider = this.walletLink.makeWeb3Provider(url)
 
       this.provider.on('connect', ({ chainId }: ProviderConnectInfo): void => {

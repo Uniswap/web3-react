@@ -3,13 +3,15 @@ import type { Actions, Web3ReactStore } from '@web3-react/types'
 import { WalletLink } from '.'
 import { MockEIP1193Provider } from '../../eip1193/src/index.spec'
 
-jest.mock('walletlink', () => ({
-  WalletLink: class MockWalletLink {
-    makeWeb3Provider() {
-      return new MockEIP1193Provider()
+jest.mock(
+  '@coinbase/wallet-sdk',
+  () =>
+    class MockWalletLink {
+      makeWeb3Provider() {
+        return new MockEIP1193Provider()
+      }
     }
-  },
-}))
+)
 
 const chainId = '0x1'
 const accounts: string[] = []
