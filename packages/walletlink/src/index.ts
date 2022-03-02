@@ -45,7 +45,7 @@ export class WalletLink extends Connector {
 
     await (this.eagerConnection = import('@coinbase/wallet-sdk').then((m) => {
       const { url, ...options } = this.options
-      this.walletLink = new m.CoinbaseWalletSDK(options)
+      this.walletLink = new (m.default ?? m.CoinbaseWalletSDK)(options)
       this.provider = this.walletLink.makeWeb3Provider(url)
 
       this.provider.on('connect', ({ chainId }: ProviderConnectInfo): void => {
