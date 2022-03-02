@@ -3,7 +3,7 @@ import type { Actions, Web3ReactStore } from '@web3-react/types'
 import { WalletLink } from '.'
 import { MockEIP1193Provider } from '../../eip1193/src/index.spec'
 
-jest.mock('walletlink', () => ({
+jest.mock('@coinbase/wallet-sdk', () => ({
   WalletLink: class MockWalletLink {
     makeWeb3Provider() {
       return new MockEIP1193Provider()
