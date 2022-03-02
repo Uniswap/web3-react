@@ -1,17 +1,18 @@
+import type { CoinbaseWalletProvider, CoinbaseWalletSDK } from '@coinbase/wallet-sdk'
 import type { Actions, AddEthereumChainParameter, ProviderConnectInfo, ProviderRpcError } from '@web3-react/types'
 import { Connector } from '@web3-react/types'
-import type { CoinbaseWalletSDK, CoinbaseWalletProvider } from '@coinbase/wallet-sdk'
-import type { CoinbaseWalletSDKOptions } from '@coinbase/wallet-sdk/dist/CoinbaseWalletSDK'
 
 function parseChainId(chainId: string | number) {
   return typeof chainId === 'number' ? chainId : Number.parseInt(chainId, chainId.startsWith('0x') ? 16 : 10)
 }
 
+type CoinbaseWalletSDKOptions = ConstructorParameters<typeof CoinbaseWalletSDK>[0] & { url: string }
+
 export class WalletLink extends Connector {
   /** {@inheritdoc Connector.provider} */
   public provider: CoinbaseWalletProvider | undefined
 
-  private readonly options: CoinbaseWalletSDKOptions & { url: string }
+  private readonly options: CoinbaseWalletSDKOptions
   private eagerConnection?: Promise<void>
 
   /**
@@ -23,7 +24,7 @@ export class WalletLink extends Connector {
    * @param options - Options to pass to `walletlink`
    * @param connectEagerly - A flag indicating whether connection should be initiated when the class is constructed.
    */
-  constructor(actions: Actions, options: CoinbaseWalletSDKOptions & { url: string }, connectEagerly = false) {
+  constructor(actions: Actions, options: CoinbaseWalletSDKOptions, connectEagerly = false) {
     super(actions)
 
     if (connectEagerly && typeof window === 'undefined') {
@@ -45,7 +46,7 @@ export class WalletLink extends Connector {
 
     await (this.eagerConnection = import('@coinbase/wallet-sdk').then((m) => {
       const { url, ...options } = this.options
-      this.walletLink = new (m.default ?? m.CoinbaseWalletSDK)(options)
+      this.walletLink = new m.default(options)
       this.provider = this.walletLink.makeWeb3Provider(url)
 
       this.provider.on('connect', ({ chainId }: ProviderConnectInfo): void => {
