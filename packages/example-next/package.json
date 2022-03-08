@@ -16,7 +16,7 @@
     "@web3-react/network": "8.0.14-beta.0",
     "@web3-react/types": "8.0.10-beta.0",
     "@web3-react/url": "8.0.13-beta.0",
-    "@web3-react/walletconnect": "8.0.19-beta.0",
+    "@web3-react/walletconnect": "8.0.21-beta.0",
     "@web3-react/walletlink": "8.0.20-beta.0",
     "next": "^12.1.0",
     "react-dom": "^17.0.2"
