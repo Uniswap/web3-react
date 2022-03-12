@@ -5,10 +5,8 @@
     "start": "next dev"
   },
   "dependencies": {
-    "@ethersproject/bignumber": "^5.4.2",
-    "@ethersproject/experimental": "^5.5.0",
-    "@ethersproject/providers": "^5.5.1",
-    "@ethersproject/units": "^5.4.0",
+    "@coinbase/wallet-sdk": "^3.0.4",
+    "@walletconnect/ethereum-provider": "^1.7.4",
     "@web3-react/core": "8.0.18-beta.0",
     "@web3-react/eip1193": "8.0.13-beta.0",
     "@web3-react/empty": "8.0.10-beta.0",
@@ -19,6 +17,18 @@
     "@web3-react/walletconnect": "8.0.21-beta.0",
     "@web3-react/walletlink": "8.0.20-beta.0",
     "next": "^12.1.0",
+    "react": "^17.0.2",
     "react-dom": "^17.0.2"
+  },
+  "devDependencies": {
+    "@types/node": "^17.0.21",
+    "@types/react": "^17.0.40",
+    "typescript": "^4.6.2"
+  },
+  "resolutions": {
+    "@ethersproject/bignumber": "5.5.0",
+    "@ethersproject/experimental": "5.5.0",
+    "@ethersproject/providers": "5.5.0",
+    "@ethersproject/units": "5.5.0"
   }
 }
