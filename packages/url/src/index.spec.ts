@@ -1,22 +1,7 @@
 import { createWeb3ReactStoreAndActions } from '@web3-react/store'
-import type { Actions, RequestArguments, Web3ReactStore } from '@web3-react/types'
+import type { Actions, Web3ReactStore } from '@web3-react/types'
 import { Url } from '.'
 import { MockEIP1193Provider } from '../../eip1193/src/index.spec'
-
-// necessary because ethers' Eip1193Bridge returns chainId as a number
-export class MockEip1193Bridge extends MockEIP1193Provider {
-  public eth_chainId_number = jest.fn((chainId?: string) =>
-    chainId === undefined ? chainId : Number.parseInt(chainId, 16)
-  )
-
-  public request(x: RequestArguments): Promise<unknown> {
-    if (x.method === 'eth_chainId') {
-      return Promise.resolve(this.eth_chainId_number(this.chainId))
-    } else {
-      return super.request(x)
-    }
-  }
-}
 
 jest.mock('@ethersproject/providers', () => ({
   JsonRpcProvider: class MockJsonRpcProvider {
@@ -25,7 +10,7 @@ jest.mock('@ethersproject/providers', () => ({
 }))
 
 jest.mock('@ethersproject/experimental', () => ({
-  Eip1193Bridge: MockEip1193Bridge,
+  Eip1193Bridge: MockEIP1193Provider,
 }))
 
 const chainId = '0x1'
@@ -41,7 +26,7 @@ const HALF_INITIALIZED_STATE_BECAUSE_OF_MOCKS = {
 describe('Url', () => {
   let store: Web3ReactStore
   let connector: Url
-  let mockConnector: MockEip1193Bridge
+  let mockConnector: MockEIP1193Provider
 
   describe('connectEagerly = true', () => {
     beforeEach(() => {
@@ -51,13 +36,9 @@ describe('Url', () => {
     })
 
     beforeEach(async () => {
-      mockConnector = connector.provider as unknown as MockEip1193Bridge
+      mockConnector = connector.provider as unknown as MockEIP1193Provider
       mockConnector.chainId = chainId
       mockConnector.accounts = accounts
-    })
-
-    test('is half-initialized', async () => {
-      expect(store.getState()).toEqual(HALF_INITIALIZED_STATE_BECAUSE_OF_MOCKS)
     })
 
     test('#activate', async () => {
@@ -92,13 +73,9 @@ describe('Url', () => {
       beforeEach(async () => {
         // testing hack to ensure the provider is set
         await connector.activate()
-        mockConnector = connector.provider as unknown as MockEip1193Bridge
+        mockConnector = connector.provider as unknown as MockEIP1193Provider
         mockConnector.chainId = chainId
         mockConnector.accounts = accounts
-      })
-
-      test('is half-initialized because of mock weirdness', async () => {
-        expect(store.getState()).toEqual(HALF_INITIALIZED_STATE_BECAUSE_OF_MOCKS)
       })
 
       test('works', async () => {

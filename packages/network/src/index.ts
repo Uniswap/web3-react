@@ -77,7 +77,7 @@ export class Network extends Connector {
 
     return this.provider
       .request({ method: 'eth_chainId' })
-      .then((chainId) => {
+      .then((chainId: string) => {
         this.actions.update({ chainId: parseChainId(chainId), accounts: [] })
       })
       .catch((error: Error) => {

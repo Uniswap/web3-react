@@ -27,8 +27,8 @@
     "@web3-react/types": "^8.0.10-beta.0"
   },
   "devDependencies": {
-    "@ethersproject/experimental": "^5.5.0",
-    "@ethersproject/providers": "^5.5.1",
+    "@ethersproject/experimental": "^5.6.0",
+    "@ethersproject/providers": "^5.6.0",
     "@web3-react/store": "^8.0.13-beta.0"
   }
 }

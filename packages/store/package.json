@@ -23,7 +23,7 @@
     "start": "tsc --watch"
   },
   "dependencies": {
-    "@ethersproject/address": "^5.4.0",
+    "@ethersproject/address": "^5.6.0",
     "@web3-react/types": "^8.0.10-beta.0",
     "zustand": "^4.0.0-beta.2"
   }
