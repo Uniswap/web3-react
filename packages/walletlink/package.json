@@ -10,7 +10,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "version": "8.0.20-beta.0",
+  "version": "8.0.21-beta.0",
   "files": [
     "dist/*"
   ],
@@ -30,6 +30,6 @@
     "@coinbase/wallet-sdk": "^3.0.1"
   },
   "devDependencies": {
-    "@web3-react/store": "^8.0.13-beta.0"
+    "@web3-react/store": "^8.0.14-beta.0"
   }
 }
