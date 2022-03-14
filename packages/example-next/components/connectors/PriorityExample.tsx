@@ -3,16 +3,16 @@ import { MetaMask } from '@web3-react/metamask'
 import { Network } from '@web3-react/network'
 import type { Connector } from '@web3-react/types'
 import { WalletConnect } from '@web3-react/walletconnect'
-import { WalletLink } from '@web3-react/walletlink'
+import { CoinbaseWalletSDK } from '@web3-react/coinbasewallet'
 import { hooks as metaMaskHooks, metaMask } from '../../connectors/metaMask'
 import { hooks as networkHooks, network } from '../../connectors/network'
 import { hooks as walletConnectHooks, walletConnect } from '../../connectors/walletConnect'
-import { hooks as walletLinkHooks, walletLink } from '../../connectors/walletLink'
+import { hooks as coinbaseWalletHooks, coinbaseWallet } from '../../connectors/coinbaseWallet'
 
 function getName(connector: Connector) {
   if (connector instanceof MetaMask) return 'MetaMask'
   if (connector instanceof WalletConnect) return 'WalletConnect'
-  if (connector instanceof WalletLink) return 'WalletLink'
+  if (connector instanceof CoinbaseWalletSDK) return 'CoinbaseWallet'
   if (connector instanceof Network) return 'Network'
   return 'Unknown'
 }
@@ -20,7 +20,7 @@ function getName(connector: Connector) {
 const { usePriorityConnector } = getPriorityConnector(
   [metaMask, metaMaskHooks],
   [walletConnect, walletConnectHooks],
-  [walletLink, walletLinkHooks],
+  [coinbaseWallet, coinbaseWalletHooks],
   [network, networkHooks]
 )
 
