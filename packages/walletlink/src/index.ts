@@ -1,3 +1,6 @@
+/**
+ * This package has been deprecated and renamed to @web-react/coinbasewallet.
+ */
 import type { CoinbaseWalletProvider, CoinbaseWalletSDK } from '@coinbase/wallet-sdk'
 import type { Actions, AddEthereumChainParameter, ProviderConnectInfo, ProviderRpcError } from '@web3-react/types'
 import { Connector } from '@web3-react/types'
