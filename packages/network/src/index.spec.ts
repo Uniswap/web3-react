@@ -1,6 +1,6 @@
 import { createWeb3ReactStoreAndActions } from '@web3-react/store'
 import type { Actions, Web3ReactStore } from '@web3-react/types'
-import { MockEip1193Bridge } from '../../url/src/index.spec'
+import { MockEIP1193Provider } from '../../eip1193/src/index.spec'
 import { Network } from './'
 
 jest.mock('@ethersproject/providers', () => ({
@@ -11,7 +11,7 @@ jest.mock('@ethersproject/providers', () => ({
 }))
 
 jest.mock('@ethersproject/experimental', () => ({
-  Eip1193Bridge: MockEip1193Bridge,
+  Eip1193Bridge: MockEIP1193Provider,
 }))
 
 const chainId = '0x1'
@@ -20,7 +20,7 @@ const accounts: string[] = []
 describe('Network', () => {
   let store: Web3ReactStore
   let connector: Network
-  let mockConnector: MockEip1193Bridge
+  let mockConnector: MockEIP1193Provider
 
   describe('connectEagerly = true', () => {
     beforeEach(() => {
@@ -30,7 +30,7 @@ describe('Network', () => {
     })
 
     beforeEach(async () => {
-      mockConnector = connector.provider as unknown as MockEip1193Bridge
+      mockConnector = connector.provider as unknown as MockEIP1193Provider
       mockConnector.chainId = chainId
       mockConnector.accounts = accounts
     })
@@ -67,7 +67,7 @@ describe('Network', () => {
       beforeEach(async () => {
         // testing hack to ensure the provider is set
         await connector.activate()
-        mockConnector = connector.provider as unknown as MockEip1193Bridge
+        mockConnector = connector.provider as unknown as MockEIP1193Provider
         mockConnector.chainId = chainId
         mockConnector.accounts = accounts
       })
@@ -93,7 +93,7 @@ describe('Network', () => {
     })
 
     beforeEach(async () => {
-      mockConnector = connector.provider as unknown as MockEip1193Bridge
+      mockConnector = connector.provider as unknown as MockEIP1193Provider
       mockConnector.chainId = chainId
       mockConnector.accounts = accounts
     })
@@ -118,14 +118,14 @@ describe('Network', () => {
     })
 
     beforeEach(async () => {
-      mockConnector = connector.provider as unknown as MockEip1193Bridge
+      mockConnector = connector.provider as unknown as MockEIP1193Provider
       mockConnector.chainId = chainId
       mockConnector.accounts = accounts
     })
 
     describe('#activate', () => {
       test('chainId = 1', async () => {
-        mockConnector = connector.provider as unknown as MockEip1193Bridge
+        mockConnector = connector.provider as unknown as MockEIP1193Provider
         mockConnector.chainId = chainId
         mockConnector.accounts = accounts
         await connector.activate()
@@ -141,7 +141,7 @@ describe('Network', () => {
       test('chainId = 2', async () => {
         // testing hack to ensure the provider is set
         await connector.activate(2)
-        mockConnector = connector.provider as unknown as MockEip1193Bridge
+        mockConnector = connector.provider as unknown as MockEIP1193Provider
         mockConnector.chainId = '0x2'
         mockConnector.accounts = accounts
 

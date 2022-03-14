@@ -5,6 +5,10 @@ import { Connector } from '@web3-react/types'
 
 type url = string | ConnectionInfo
 
+function parseChainId(chainId: string) {
+  return Number.parseInt(chainId, 16)
+}
+
 export class Network extends Connector {
   /** {@inheritdoc Connector.provider} */
   public provider: Eip1193Bridge | undefined
@@ -73,8 +77,8 @@ export class Network extends Connector {
 
     return this.provider
       .request({ method: 'eth_chainId' })
-      .then((chainId: number) => {
-        this.actions.update({ chainId, accounts: [] })
+      .then((chainId: string) => {
+        this.actions.update({ chainId: parseChainId(chainId), accounts: [] })
       })
       .catch((error: Error) => {
         this.actions.reportError(error)
