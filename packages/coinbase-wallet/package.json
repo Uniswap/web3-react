@@ -1,8 +1,8 @@
 {
-  "name": "@web3-react/walletlink",
+  "name": "@web3-react/coinbase-wallet",
   "keywords": [
     "web3-react",
-    "walletlink"
+    "coinbase-wallet"
   ],
   "author": "Noah Zinsmeister <noahwz@gmail.com>",
   "license": "GPL-3.0-or-later",

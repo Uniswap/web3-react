@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { hooks, walletLink } from '../../connectors/walletLink'
+import { coinbaseWallet, hooks } from '../../connectors/coinbaseWallet'
 import { Accounts } from '../Accounts'
 import { Card } from '../Card'
 import { Chain } from '../Chain'
@@ -8,7 +8,7 @@ import { Status } from '../Status'
 
 const { useChainId, useAccounts, useError, useIsActivating, useIsActive, useProvider, useENSNames } = hooks
 
-export default function WalletLinkCard() {
+export default function CoinbaseWalletCard() {
   const chainId = useChainId()
   const accounts = useAccounts()
   const error = useError()
@@ -21,13 +21,13 @@ export default function WalletLinkCard() {
 
   // attempt to connect eagerly on mount
   useEffect(() => {
-    void walletLink.connectEagerly()
+    void coinbaseWallet.connectEagerly()
   }, [])
 
   return (
     <Card>
       <div>
-        <b>WalletLink</b>
+        <b>Coinbase Wallet</b>
         <Status isActivating={isActivating} error={error} isActive={isActive} />
         <div style={{ marginBottom: '1rem' }} />
         <Chain chainId={chainId} />
@@ -35,7 +35,7 @@ export default function WalletLinkCard() {
       </div>
       <div style={{ marginBottom: '1rem' }} />
       <ConnectWithSelect
-        connector={walletLink}
+        connector={coinbaseWallet}
         chainId={chainId}
         isActivating={isActivating}
         error={error}

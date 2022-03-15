@@ -1,12 +1,12 @@
 import { createWeb3ReactStoreAndActions } from '@web3-react/store'
 import type { Actions, Web3ReactStore } from '@web3-react/types'
-import { WalletLink } from '.'
+import { CoinbaseWallet } from '.'
 import { MockEIP1193Provider } from '../../eip1193/src/index.spec'
 
 jest.mock(
   '@coinbase/wallet-sdk',
   () =>
-    class MockWalletLink {
+    class MockCoinbaseWallet {
       makeWeb3Provider() {
         return new MockEIP1193Provider()
       }
@@ -16,16 +16,16 @@ jest.mock(
 const chainId = '0x1'
 const accounts: string[] = []
 
-describe('WalletLink', () => {
+describe('Coinbase Wallet', () => {
   let store: Web3ReactStore
-  let connector: WalletLink
+  let connector: CoinbaseWallet
   let mockConnector: MockEIP1193Provider
 
   describe('connectEagerly = true', () => {
     beforeEach(() => {
       let actions: Actions
       ;[store, actions] = createWeb3ReactStoreAndActions()
-      connector = new WalletLink(
+      connector = new CoinbaseWallet(
         actions,
         {
           appName: 'test',
