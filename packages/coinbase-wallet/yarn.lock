@@ -50,6 +50,15 @@
     "@ethersproject/bytes" "^5.6.0"
     "@ethersproject/logger" "^5.6.0"
 
+"@web3-react/store@^8.0.14-beta.0":
+  version "8.0.14-beta.0"
+  resolved "https://registry.yarnpkg.com/@web3-react/store/-/store-8.0.14-beta.0.tgz#302a5275f50323d63cd3a9f075414e5b63164f55"
+  integrity sha512-Z6ja+ilt7NWeL4wMcDLzD15255i0hcDySzvMwggqkEYs+hY3+w/R3dlR3FZDApr+MsxDq3wDukaQVUdKYA+Oqw==
+  dependencies:
+    "@ethersproject/address" "^5.6.0"
+    "@web3-react/types" "^8.0.10-beta.0"
+    zustand "^4.0.0-beta.2"
+
 "@web3-react/types@^8.0.10-beta.0":
   version "8.0.10-beta.0"
   resolved "https://registry.yarnpkg.com/@web3-react/types/-/types-8.0.10-beta.0.tgz#8ed9f1b5e40dcbe2a08be5ce9dd9e3ef2b2a6908"

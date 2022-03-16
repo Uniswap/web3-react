@@ -14,6 +14,15 @@ export type Web3ReactSelectedHooks = ReturnType<typeof getSelectedConnector>
 
 export type Web3ReactPriorityHooks = ReturnType<typeof getPriorityConnector>
 
+export interface Web3ReactValues {
+  connector: Connector | undefined
+  library: Web3Provider | undefined
+  chainId: number | undefined
+  account: string | undefined
+  active: boolean | undefined
+  error: Error | undefined
+}
+
 /**
  * Wraps the initialization of a `connector`. Creates a zustand `store` with `actions` bound to it, and then passes
  * these to the connector as specified in `f`. Also creates a variety of `hooks` bound to this `store`.
@@ -142,10 +151,16 @@ export function getSelectedConnector(...initializedConnectors: [Connector, Web3R
   }
 }
 
-// ReturnType<typeof getAugmentedHooks['useWeb3React']
-const Web3Contextext = createContext(null)
+const Web3Context = createContext<Web3ReactValues>({
+  connector: undefined,
+  chainId: undefined,
+  account: undefined,
+  active: false,
+  error: undefined,
+  library: undefined,
+})
 
-export function Web3Provider({
+export function Web3Manager({
   children,
   connectors,
 }: {
@@ -154,11 +169,11 @@ export function Web3Provider({
 }) {
   const { usePriorityWeb3React, usePriorityProvider } = getPriorityConnector(...connectors)
   const value = usePriorityWeb3React(usePriorityProvider())
-  return Web3Contextext.Provider({ value, children })
+  return Web3Context.Provider({ value, children })
 }
 
 export function useWeb3Context() {
-  return useContext(Web3Contextext)
+  return useContext(Web3Context)
 }
 
 /**
@@ -373,7 +388,7 @@ function getAugmentedHooks<T extends Connector>(
   }
 
   // for backwards compatibility only
-  function useWeb3React(provider: Web3Provider | undefined) {
+  function useWeb3React(provider: Web3Provider | undefined): Web3ReactValues {
     const chainId = useChainId()
     const account = useAccount()
     const error = useError()
