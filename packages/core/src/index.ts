@@ -172,7 +172,7 @@ export function Web3Manager({
   return Web3Context.Provider({ value, children })
 }
 
-export function useWeb3Context() {
+export function useWeb3React() {
   return useContext(Web3Context)
 }
 
