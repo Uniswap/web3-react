@@ -2,7 +2,7 @@ import type { Networkish } from '@ethersproject/networks'
 import type { Web3Provider } from '@ethersproject/providers'
 import { createWeb3ReactStoreAndActions } from '@web3-react/store'
 import type { Actions, Connector, Web3ReactState, Web3ReactStore } from '@web3-react/types'
-import { useEffect, useMemo, useState } from 'react'
+import { createContext, useContext, useEffect, useMemo, useState } from 'react'
 import type { EqualityChecker, UseBoundStore } from 'zustand'
 import create from 'zustand'
 
@@ -140,6 +140,25 @@ export function getSelectedConnector(...initializedConnectors: [Connector, Web3R
     useSelectedENSName,
     useSelectedWeb3React,
   }
+}
+
+// ReturnType<typeof getAugmentedHooks['useWeb3React']
+const Web3Contextext = createContext(null)
+
+export function Web3Provider({
+  children,
+  connectors,
+}: {
+  children: React.ReactNode
+  connectors: [Connector, Web3ReactHooks][]
+}) {
+  const { usePriorityWeb3React, usePriorityProvider } = getPriorityConnector(...connectors)
+  const value = usePriorityWeb3React(usePriorityProvider())
+  return Web3Contextext.Provider({ value, children })
+}
+
+export function useWeb3Context() {
+  return useContext(Web3Contextext)
 }
 
 /**
