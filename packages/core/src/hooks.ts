@@ -2,7 +2,7 @@ import type { Networkish } from '@ethersproject/networks'
 import type { Web3Provider } from '@ethersproject/providers'
 import { createWeb3ReactStoreAndActions } from '@web3-react/store'
 import type { Actions, Connector, Web3ReactState, Web3ReactStore } from '@web3-react/types'
-import { createContext, useContext, useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import type { EqualityChecker, UseBoundStore } from 'zustand'
 import create from 'zustand'
 
@@ -14,14 +14,8 @@ export type Web3ReactSelectedHooks = ReturnType<typeof getSelectedConnector>
 
 export type Web3ReactPriorityHooks = ReturnType<typeof getPriorityConnector>
 
-export interface Web3ReactValues {
-  connector: Connector | undefined
-  library: Web3Provider | undefined
-  chainId: number | undefined
-  account: string | undefined
-  active: boolean | undefined
-  error: Error | undefined
-}
+export type Web3ReactHookValues = ReturnType<ReturnType<typeof getAugmentedHooks>["useWeb3React"]>
+
 
 /**
  * Wraps the initialization of a `connector`. Creates a zustand `store` with `actions` bound to it, and then passes
@@ -149,31 +143,6 @@ export function getSelectedConnector(...initializedConnectors: [Connector, Web3R
     useSelectedENSName,
     useSelectedWeb3React,
   }
-}
-
-const Web3Context = createContext<Web3ReactValues>({
-  connector: undefined,
-  chainId: undefined,
-  account: undefined,
-  active: false,
-  error: undefined,
-  library: undefined,
-})
-
-export function Web3Manager({
-  children,
-  connectors,
-}: {
-  children: React.ReactNode
-  connectors: [Connector, Web3ReactHooks][]
-}) {
-  const { usePriorityWeb3React, usePriorityProvider } = getPriorityConnector(...connectors)
-  const value = usePriorityWeb3React(usePriorityProvider())
-  return Web3Context.Provider({ value, children })
-}
-
-export function useWeb3React() {
-  return useContext(Web3Context)
 }
 
 /**
@@ -388,7 +357,7 @@ function getAugmentedHooks<T extends Connector>(
   }
 
   // for backwards compatibility only
-  function useWeb3React(provider: Web3Provider | undefined): Web3ReactValues {
+  function useWeb3React(provider: Web3Provider | undefined) {
     const chainId = useChainId()
     const account = useAccount()
     const error = useError()

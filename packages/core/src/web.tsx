@@ -1,43 +1,41 @@
 import React from 'react'
-import type { Web3Provider } from '@ethersproject/providers'
-import type { Web3ReactHooks } from './hooks'
+
+import type { Web3ReactHooks, Web3ReactHookValues } from './hooks'
 import { Connector } from '@web3-react/types'
-import { createContext, useContext } from 'react'
 import { getPriorityConnector } from './hooks'
 
-// should this be in the types package?
-// types doesn't have the ethersproject/provider dependency however, not sure if installing would polute the types package
-export interface Web3ReactValues {
-  connector: Connector | undefined
-  library: Web3Provider | undefined
-  chainId: number | undefined
-  account: string | undefined
-  active: boolean | undefined
-  error: Error | undefined
-}
-
-const Web3Context = createContext<Web3ReactValues>({
-  connector: undefined,
-  chainId: undefined,
-  account: undefined,
-  active: false,
-  error: undefined,
-  library: undefined,
+const Web3Context = React.createContext({
+  // connector: null,
+  chainId: 0,
+  // account: '',
+  // active: false,
+  // error: null,
+  // library: null,
 })
 
-export function Web3Manager({
+export function Web3ReactProvider({
   children,
   connectors,
 }: {
   children: React.ReactNode
   connectors: [Connector, Web3ReactHooks][]
 }) {
-  const { usePriorityWeb3React, usePriorityProvider } = getPriorityConnector(...connectors)
-  const value = usePriorityWeb3React(usePriorityProvider())
+  // console.log({ connectors })
+  // const { usePriorityWeb3React, usePriorityProvider } = getPriorityConnector(...connectors)
+  // const value = usePriorityWeb3React(usePriorityProvider())
 
-  return <Web3Context.Provider value={value}>{children}</Web3Context.Provider>
+  // console.log('here2', value)
+
+  return <Web3Context.Provider value={{ chainId: 4 }}>{children}</Web3Context.Provider>
+  // return <div>{children}</div>
 }
 
 export function useWeb3React() {
-  return useContext(Web3Context)
+  const web3 = React.useContext(Web3Context)
+  if (!web3) throw `Web3React hooks can only be used within the Web3ReactProvider component!`
+  return web3
+}
+
+export function Test({ children }: { children: React.ReactNode }) {
+  return <div style={{ backgroundColor: 'blue' }}>{children}</div>
 }
