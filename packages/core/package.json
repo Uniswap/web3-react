@@ -9,7 +9,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "version": "8.0.19-beta.0",
+  "version": "8.0.20-beta.0",
   "files": [
     "dist/*"
   ],
@@ -22,6 +22,9 @@
     "build": "tsc",
     "start": "tsc --watch"
   },
+  "include": [
+    "./src/**/*"
+],
   "dependencies": {
     "@web3-react/store": "^8.0.14-beta.0",
     "@web3-react/types": "^8.0.10-beta.0",
