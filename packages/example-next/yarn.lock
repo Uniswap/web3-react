@@ -423,10 +423,8 @@
   dependencies:
     "@web3-react/types" "^8.0.10-beta.0"
 
-"@web3-react/core@8.0.19-beta.0":
-  version "8.0.19-beta.0"
-  resolved "https://registry.yarnpkg.com/@web3-react/core/-/core-8.0.19-beta.0.tgz#3ee060c528705a8d86877c35fa0d154345132614"
-  integrity sha512-KgwYtbsbg8oFZijGgqLEMuP752KgCAyYn+CoVrju1v45f5HCfqLrMa5Tc7ybskYeIon7mwWhS2FGTZJVoDbq0w==
+"@web3-react/core@file:/Users/alex/code/web3-react/packages/core":
+  version "8.0.20-beta.0"
   dependencies:
     "@web3-react/store" "^8.0.14-beta.0"
     "@web3-react/types" "^8.0.10-beta.0"

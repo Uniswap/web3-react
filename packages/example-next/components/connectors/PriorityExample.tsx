@@ -1,5 +1,5 @@
 import { CoinbaseWallet } from '@web3-react/coinbase-wallet'
-import { getPriorityConnector } from '@web3-react/core'
+import { getPriorityConnector, useWeb3React } from '@web3-react/core'
 import { MetaMask } from '@web3-react/metamask'
 import { Network } from '@web3-react/network'
 import type { Connector } from '@web3-react/types'
@@ -25,7 +25,10 @@ const { usePriorityConnector } = getPriorityConnector(
 )
 
 export default function PriorityExample() {
+  const { chainId } = useWeb3React()
+
+  console.log({ chainId })
   const priorityConnector = usePriorityConnector()
-  console.log(`Priority Connector: ${getName(priorityConnector)}`)
+  console.log(`Priority Connector is : ${getName(priorityConnector)}`)
   return null
 }
