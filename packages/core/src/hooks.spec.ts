@@ -1,8 +1,8 @@
 import { act, renderHook } from '@testing-library/react-hooks'
 import type { Actions } from '@web3-react/types'
 import { Connector } from '@web3-react/types'
-import type { Web3ReactHooks, Web3ReactPriorityHooks, Web3ReactSelectedHooks } from '.'
-import { getPriorityConnector, getSelectedConnector, initializeConnector } from '.'
+import type { Web3ReactHooks, Web3ReactPriorityHooks, Web3ReactSelectedHooks } from './hooks'
+import { getPriorityConnector, getSelectedConnector, initializeConnector } from './hooks'
 
 class MockConnector extends Connector {
   constructor(actions: Actions) {
