@@ -25,9 +25,8 @@ const { usePriorityConnector } = getPriorityConnector(
 )
 
 export default function PriorityExample() {
-  const { chainId } = useWeb3React()
-
-  console.log({ chainId })
+  const { chainId, account} = useWeb3React()
+  console.log({ account, chainId })
   const priorityConnector = usePriorityConnector()
   console.log(`Priority Connector is : ${getName(priorityConnector)}`)
   return null

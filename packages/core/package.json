@@ -11,22 +11,18 @@
   },
   "version": "8.0.20-beta.0",
   "files": [
-    "dist/*"
+    "dist"
   ],
-  "type": "commonjs",
-  "types": "./dist/index.d.ts",
-  "main": "./dist/index.js",
-  "exports": "./dist/index.js",
+  "types": "dist/types/index.d.ts",
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
   "scripts": {
     "prebuild": "rm -rf dist",
     "build": "tsc",
     "start": "tsc --watch",
-    "ts-types": "tsc",
-    "esbuild": "yarn ts-types && esbuild ./src/index.tsx --bundle --outfile=./dist/index.js --sourcemap --minify"
+    "ts-types": "tsc --emitDeclarationOnly --outDir dist/types",
+    "esbuild": "rimraf dist && node ./esbuild.mjs && npm run ts-types"
   },
-  "include": [
-    "./src/**/*"
-  ],
   "dependencies": {
     "@web3-react/store": "^8.0.14-beta.0",
     "@web3-react/types": "^8.0.10-beta.0",
@@ -40,6 +36,8 @@
   },
   "devDependencies": {
     "esbuild": "^0.14.27",
+    "esbuild-node-externals": "^1.4.1",
+    "rimraf": "^3.0.2",
     "typescript": "^4.6.2"
   }
 }

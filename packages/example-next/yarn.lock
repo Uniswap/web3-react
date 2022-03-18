@@ -423,7 +423,7 @@
   dependencies:
     "@web3-react/types" "^8.0.10-beta.0"
 
-"@web3-react/core@file:/Users/alex/code/web3-react/packages/core":
+"@web3-react/core@file:../core":
   version "8.0.20-beta.0"
   dependencies:
     "@web3-react/store" "^8.0.14-beta.0"
