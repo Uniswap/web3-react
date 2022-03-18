@@ -1,20 +1,8 @@
 {
   "extends": "../../tsconfig.json",
-  "include": ["src"],
-  "exclude": ["node_modules", "dist"],
+  "include": ["./src"],
   "compilerOptions": {
-    "target": "esnext",
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "strict": true,
-    "skipLibCheck": true,
-    "jsx": "react-jsx",
-    "module": "esnext",
-    "declarationDir": "dist/types",
-    "declaration": true,
-    "sourceMap": true,
-    "outDir": "dist",
-    "moduleResolution": "node",
-    "allowSyntheticDefaultImports": true
-}
+    "jsx": "react",
+    "outDir": "./dist"
+  }
 }

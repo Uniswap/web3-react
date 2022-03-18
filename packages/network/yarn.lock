@@ -351,22 +351,6 @@
     "@ethersproject/properties" "^5.6.0"
     "@ethersproject/strings" "^5.6.0"
 
-"@web3-react/store@^8.0.14-beta.0":
-  version "8.0.14-beta.0"
-  resolved "https://registry.yarnpkg.com/@web3-react/store/-/store-8.0.14-beta.0.tgz#302a5275f50323d63cd3a9f075414e5b63164f55"
-  integrity sha512-Z6ja+ilt7NWeL4wMcDLzD15255i0hcDySzvMwggqkEYs+hY3+w/R3dlR3FZDApr+MsxDq3wDukaQVUdKYA+Oqw==
-  dependencies:
-    "@ethersproject/address" "^5.6.0"
-    "@web3-react/types" "^8.0.10-beta.0"
-    zustand "^4.0.0-beta.2"
-
-"@web3-react/types@^8.0.10-beta.0":
-  version "8.0.10-beta.0"
-  resolved "https://registry.yarnpkg.com/@web3-react/types/-/types-8.0.10-beta.0.tgz#8ed9f1b5e40dcbe2a08be5ce9dd9e3ef2b2a6908"
-  integrity sha512-HitBmoKHyLDeRrJgtkImPddb8nzsb/FroAdiaYA15gAwAE3Y/p7Nd/TN8IANlgKcMkuyGyUjPD27fE7Mvw9rEA==
-  dependencies:
-    zustand "^4.0.0-beta.2"
-
 aes-js@3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/aes-js/-/aes-js-3.0.0.tgz#e21df10ad6c2053295bcbb8dab40b09dbea87e4d"
@@ -478,19 +462,7 @@ scrypt-js@3.0.1:
   resolved "https://registry.yarnpkg.com/scrypt-js/-/scrypt-js-3.0.1.tgz#d314a57c2aef69d1ad98a138a21fe9eafa9ee312"
   integrity sha512-cdwTTnqPu0Hyvf5in5asVdZocVDTNRmR7XEcJuIzMjJeSHybHl7vpB66AzwTaIg6CLSbtjcxc8fqcySfnTkccA==
 
-use-sync-external-store@1.0.0-rc.1-next-629036a9c-20220224:
-  version "1.0.0-rc.1-next-629036a9c-20220224"
-  resolved "https://registry.yarnpkg.com/use-sync-external-store/-/use-sync-external-store-1.0.0-rc.1-next-629036a9c-20220224.tgz#40cf472454789403c2de6c8471d177459d184dc1"
-  integrity sha512-IhuMl0apVVYsT3XPfV+0nuwf0T6+3d4YxQXV4tDRsGpSQcYVG4zoWwfX4zdtouUfuelYg4t2SEmFifIMrxPfIw==
-
 ws@7.4.6:
   version "7.4.6"
   resolved "https://registry.yarnpkg.com/ws/-/ws-7.4.6.tgz#5654ca8ecdeee47c33a9a4bf6d28e2be2980377c"
   integrity sha512-YmhHDO4MzaDLB+M9ym/mDA5z0naX8j7SIlT8f8z+I0VtzsRbekxEutHSme7NPS2qE8StCYQNUnfWdXta/Yu85A==
-
-zustand@^4.0.0-beta.2:
-  version "4.0.0-beta.2"
-  resolved "https://registry.yarnpkg.com/zustand/-/zustand-4.0.0-beta.2.tgz#27fdc32b62225cc18976c0cf8866ecee9a9f4a98"
-  integrity sha512-aJ5ypnOwPIa/uSjdZv/oHChTWPplpFOG/hvWwzkR5ahFiPI5R6ifyObf8Fz1Vi6Obz2wY1N32fT2pNrpT2hzPw==
-  dependencies:
-    use-sync-external-store "1.0.0-rc.1-next-629036a9c-20220224"

@@ -1,11 +1,11 @@
 import { CoinbaseWallet } from '@web3-react/coinbase-wallet'
-import { getPriorityConnector, useWeb3React } from '@web3-react/core'
+import { useWeb3React, Web3ReactHooks, Web3ReactProvider } from '@web3-react/core'
 import { MetaMask } from '@web3-react/metamask'
 import { Network } from '@web3-react/network'
 import type { Connector } from '@web3-react/types'
 import { WalletConnect } from '@web3-react/walletconnect'
 import { coinbaseWallet, hooks as coinbaseWalletHooks } from '../../connectors/coinbaseWallet'
-import { hooks as metaMaskHooks, metaMask } from '../../connectors/metaMask'
+import { hooks as metamaskHooks, metaMask } from '../../connectors/metaMask'
 import { hooks as networkHooks, network } from '../../connectors/network'
 import { hooks as walletConnectHooks, walletConnect } from '../../connectors/walletConnect'
 
@@ -17,17 +17,23 @@ function getName(connector: Connector) {
   return 'Unknown'
 }
 
-const { usePriorityConnector } = getPriorityConnector(
-  [metaMask, metaMaskHooks],
+const connectors: [MetaMask | WalletConnect | CoinbaseWallet | Network, Web3ReactHooks][] = [
+  [metaMask, metamaskHooks],
   [walletConnect, walletConnectHooks],
   [coinbaseWallet, coinbaseWalletHooks],
-  [network, networkHooks]
-)
+  [network, networkHooks],
+]
 
-export default function PriorityExample() {
-  const { chainId, account} = useWeb3React()
-  console.log({ account, chainId })
-  const priorityConnector = usePriorityConnector()
-  console.log(`Priority Connector is : ${getName(priorityConnector)}`)
+function Child() {
+  const { connector } = useWeb3React()
+  console.log(`Priority Connector is: ${getName(connector)}`)
   return null
+}
+
+export default function ProviderExample() {
+  return (
+    <Web3ReactProvider connectors={connectors}>
+      <Child />
+    </Web3ReactProvider>
+  )
 }

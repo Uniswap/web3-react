@@ -50,13 +50,6 @@
     "@ethersproject/bytes" "^5.6.0"
     "@ethersproject/logger" "^5.6.0"
 
-"@web3-react/types@^8.0.10-beta.0":
-  version "8.0.10-beta.0"
-  resolved "https://registry.yarnpkg.com/@web3-react/types/-/types-8.0.10-beta.0.tgz#8ed9f1b5e40dcbe2a08be5ce9dd9e3ef2b2a6908"
-  integrity sha512-HitBmoKHyLDeRrJgtkImPddb8nzsb/FroAdiaYA15gAwAE3Y/p7Nd/TN8IANlgKcMkuyGyUjPD27fE7Mvw9rEA==
-  dependencies:
-    zustand "^4.0.0-beta.2"
-
 bn.js@^4.11.9:
   version "4.12.0"
   resolved "https://registry.yarnpkg.com/bn.js/-/bn.js-4.12.0.tgz#775b3f278efbb9718eec7361f483fb36fbbfea88"
