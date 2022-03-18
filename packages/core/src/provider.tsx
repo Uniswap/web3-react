@@ -1,5 +1,5 @@
 import type { Networkish } from '@ethersproject/networks'
-import { Connector } from '@web3-react/types'
+import type { Connector } from '@web3-react/types'
 import type { ReactNode } from 'react'
 import React, { createContext, useContext } from 'react'
 import type { Web3ReactHooks, Web3ReactPriorityHooks } from './hooks'

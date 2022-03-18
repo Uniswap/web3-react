@@ -1,8 +1,8 @@
 import CoinbaseWalletCard from '../components/connectors/CoinbaseWalletCard'
 import MetaMaskCard from '../components/connectors/MetaMaskCard'
 import NetworkCard from '../components/connectors/NetworkCard'
-import ProviderExample from '../components/connectors/ProviderExample'
 import WalletConnectCard from '../components/connectors/WalletConnectCard'
+import ProviderExample from '../components/ProviderExample'
 
 export default function Home() {
   return (

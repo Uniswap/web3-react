@@ -4,10 +4,10 @@ import { MetaMask } from '@web3-react/metamask'
 import { Network } from '@web3-react/network'
 import type { Connector } from '@web3-react/types'
 import { WalletConnect } from '@web3-react/walletconnect'
-import { coinbaseWallet, hooks as coinbaseWalletHooks } from '../../connectors/coinbaseWallet'
-import { hooks as metamaskHooks, metaMask } from '../../connectors/metaMask'
-import { hooks as networkHooks, network } from '../../connectors/network'
-import { hooks as walletConnectHooks, walletConnect } from '../../connectors/walletConnect'
+import { coinbaseWallet, hooks as coinbaseWalletHooks } from '../connectors/coinbaseWallet'
+import { hooks as metaMaskHooks, metaMask } from '../connectors/metaMask'
+import { hooks as networkHooks, network } from '../connectors/network'
+import { hooks as walletConnectHooks, walletConnect } from '../connectors/walletConnect'
 
 function getName(connector: Connector) {
   if (connector instanceof MetaMask) return 'MetaMask'
@@ -18,7 +18,7 @@ function getName(connector: Connector) {
 }
 
 const connectors: [MetaMask | WalletConnect | CoinbaseWallet | Network, Web3ReactHooks][] = [
-  [metaMask, metamaskHooks],
+  [metaMask, metaMaskHooks],
   [walletConnect, walletConnectHooks],
   [coinbaseWallet, coinbaseWalletHooks],
   [network, networkHooks],
