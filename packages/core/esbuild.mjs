@@ -7,7 +7,8 @@ esbuild
     outdir: 'dist/esm',
     bundle: true,
     sourcemap: true,
-    minify: true,
+    // let cdns or other bundlers handle minification
+    minify: false,
     splitting: true,
     format: 'esm',
     target: 'esnext',
@@ -21,7 +22,8 @@ esbuild
     outdir: 'dist/cjs',
     bundle: true,
     sourcemap: true,
-    minify: true,
+    // let cdns or other bundlers handle minification
+    minify: false,
     format: 'cjs',
     target: 'esnext',
     plugins: [nodeExternalsPlugin()],
