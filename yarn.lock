@@ -319,10 +319,10 @@
   resolved "https://registry.yarnpkg.com/@bcoe/v8-coverage/-/v8-coverage-0.2.3.tgz#75a2e8b51cb758a7553d6804a5932d7aace75c39"
   integrity sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==
 
-"@coinbase/wallet-sdk@^3.0.1":
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/@coinbase/wallet-sdk/-/wallet-sdk-3.0.1.tgz#799b10e12f484caa8d2aefe3b4b7bc4ae13e996d"
-  integrity sha512-wHCoOhT7/34xK2XKRvOBA2ZINsrQLbkLftvN31RwHtscHy21B8AGBbhxetUdJvOeBTqAxQKwWTDKYxvl2Rn5gg==
+"@coinbase/wallet-sdk@^3.0.4":
+  version "3.0.4"
+  resolved "https://registry.yarnpkg.com/@coinbase/wallet-sdk/-/wallet-sdk-3.0.4.tgz#8da05b6221b8a13fae90a5fb1a20f1f8d8e62129"
+  integrity sha512-v5+zQB3Q8HXVs67l6uXwqq+BYP2Z1H4Sc0XdSdBGbq1Yn/A7AX94sAOcp66gNu0cySgOYoPZcenCueBlPVhQTA==
   dependencies:
     "@metamask/safe-event-emitter" "2.0.0"
     bind-decorator "^1.0.11"

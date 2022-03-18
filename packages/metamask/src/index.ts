@@ -8,7 +8,7 @@ import type {
 } from '@web3-react/types'
 import { Connector } from '@web3-react/types'
 
-type MetaMaskProvider = Provider & { isConnected?: () => boolean }
+type MetaMaskProvider = Provider & { isMetaMask?: boolean; isConnected?: () => boolean; providers?: MetaMaskProvider[] }
 
 export class NoMetaMaskError extends Error {
   public constructor() {
@@ -53,6 +53,11 @@ export class MetaMask extends Connector {
       .then((provider) => {
         if (provider) {
           this.provider = provider as MetaMaskProvider
+
+          // edge case if e.g. metamask and coinbase wallet are both installed
+          if (this.provider.providers?.length) {
+            this.provider = this.provider.providers.find((p) => p.isMetaMask) ?? this.provider.providers[0]
+          }
 
           this.provider.on('connect', ({ chainId }: ProviderConnectInfo): void => {
             this.actions.update({ chainId: parseChainId(chainId) })
