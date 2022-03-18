@@ -416,10 +416,10 @@
   resolved "https://registry.yarnpkg.com/@next/swc-win32-x64-msvc/-/swc-win32-x64-msvc-12.1.0.tgz#d27e7e76c87a460a4da99c5bfdb1618dcd6cd064"
   integrity sha512-aBvcbMwuanDH4EMrL2TthNJy+4nP59Bimn8egqv6GHMVj0a44cU6Au4PjOhLNqEh9l+IpRGBqMTzec94UdC5xg==
 
-"@web3-react/coinbase-wallet@8.0.22-beta.0":
-  version "8.0.22-beta.0"
-  resolved "https://registry.yarnpkg.com/@web3-react/coinbase-wallet/-/coinbase-wallet-8.0.22-beta.0.tgz#71feb8b3f91077a7141a2c770a9c0f9ffb8bd306"
-  integrity sha512-dabgu/5t/7rugp43cdKe6HCD3ZR1BmkJkIyZeXNXp7e+I4iQH5GXuGLXJS6VO7S0vYN8NhQdjjLQ+kTfUV+CrA==
+"@web3-react/coinbase-wallet@8.0.23-beta.0":
+  version "8.0.23-beta.0"
+  resolved "https://registry.yarnpkg.com/@web3-react/coinbase-wallet/-/coinbase-wallet-8.0.23-beta.0.tgz#19c092cdfa26044cf35a8e0f5c813dabba93cc5b"
+  integrity sha512-SaOSsLaLTbcW6wACHFHcjuMwp1JJv3e0ZoGlSac6k8DTkqg3nKeiop5wYV8iO42BOblDDWDYQYb2kTf/q2Ll5A==
   dependencies:
     "@web3-react/types" "^8.0.10-beta.0"
 
@@ -446,10 +446,10 @@
   dependencies:
     "@web3-react/types" "^8.0.10-beta.0"
 
-"@web3-react/metamask@8.0.15-beta.0":
-  version "8.0.15-beta.0"
-  resolved "https://registry.yarnpkg.com/@web3-react/metamask/-/metamask-8.0.15-beta.0.tgz#3d4701d78c1865508d3b6d4752b5b74821d202a2"
-  integrity sha512-3x5752McWFfxRsYMa4Ii2uBwJ82PcOqMhr3ua2hm1Sl/O31HBV+n1nK6h5YzaeUMhucDoRHFb0UW7CRwXxzzeQ==
+"@web3-react/metamask@8.0.16-beta.0":
+  version "8.0.16-beta.0"
+  resolved "https://registry.yarnpkg.com/@web3-react/metamask/-/metamask-8.0.16-beta.0.tgz#66ec1131a0d09774ebdb9e9a98aba8c70e39ae74"
+  integrity sha512-YuI2UY7ka+VJt8m7K3SmpXouyORZIIcNyAERc50ipZPeWro9j/a0qDavFZ0OnE8nhGrgBA+kJq+hMTvZrggCZQ==
   dependencies:
     "@metamask/detect-provider" "^1.2.0"
     "@web3-react/types" "^8.0.10-beta.0"
