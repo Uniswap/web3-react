@@ -14,11 +14,6 @@ export type Web3ReactSelectedHooks = ReturnType<typeof getSelectedConnector>
 
 export type Web3ReactPriorityHooks = ReturnType<typeof getPriorityConnector>
 
-export type Web3ReactHookValues = Omit<
-  ReturnType<ReturnType<typeof getAugmentedHooks>['useWeb3React']>,
-  'connector'
-> & { connector: Connector | undefined }
-
 /**
  * Wraps the initialization of a `connector`. Creates a zustand `store` with `actions` bound to it, and then passes
  * these to the connector as specified in `f`. Also creates a variety of `hooks` bound to this `store`.
