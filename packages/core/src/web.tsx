@@ -37,3 +37,7 @@ export const ContextTest = React.createContext({ chainId: 100 })
 
 export const ContextTestProv = (props: any) => <ContextTest.Provider value={{ chainId: 200 }} {...props} />
 export const useContextTest = () => React.useContext(ContextTest)
+
+function Test() {
+  return React.createElement(ContextTestProv, null, React.createElement(ContextTestProv, null))
+}
