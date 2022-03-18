@@ -51,11 +51,19 @@ function computeIsActive({ chainId, accounts, activating, error }: Web3ReactStat
  * @param initializedConnectors - Two or more [connector, hooks] arrays, as returned from initializeConnector.
  * @returns hooks - A variety of convenience hooks that wrap the hooks returned from initializeConnector.
  */
-export function getSelectedConnector(...initializedConnectors: [Connector, Web3ReactHooks][]) {
+export function getSelectedConnector(
+  ...initializedConnectors: [Connector, Web3ReactHooks][] | [Connector, Web3ReactHooks, Web3ReactStore][]
+) {
   function getIndex(connector: Connector) {
     const index = initializedConnectors.findIndex(([initializedConnector]) => connector === initializedConnector)
     if (index === -1) throw new Error('Connector not found')
     return index
+  }
+
+  function useSelectedStore(connector: Connector) {
+    const store = initializedConnectors[getIndex(connector)][2]
+    if (!store) throw new Error('Stores not passed')
+    return store
   }
 
   // the following code calls hooks in a map a lot, which violates the eslint rule.
@@ -119,16 +127,8 @@ export function getSelectedConnector(...initializedConnectors: [Connector, Web3R
     return values[index]
   }
 
-  function useSelectedWeb3React(connector: Connector, provider: Web3Provider | undefined) {
-    const index = getIndex(connector)
-    const values = initializedConnectors.map(([, { useWeb3React }], i) =>
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      useWeb3React(i === index ? provider : undefined)
-    )
-    return values[index]
-  }
-
   return {
+    useSelectedStore,
     useSelectedChainId,
     useSelectedAccounts,
     useSelectedIsActivating,
@@ -138,7 +138,6 @@ export function getSelectedConnector(...initializedConnectors: [Connector, Web3R
     useSelectedProvider,
     useSelectedENSNames,
     useSelectedENSName,
-    useSelectedWeb3React,
   }
 }
 
@@ -149,8 +148,11 @@ export function getSelectedConnector(...initializedConnectors: [Connector, Web3R
  * @param initializedConnectors - Two or more [connector, hooks] arrays, as returned from initializeConnector.
  * @returns hooks - A variety of convenience hooks that wrap the hooks returned from initializeConnector.
  */
-export function getPriorityConnector(...initializedConnectors: [Connector, Web3ReactHooks][]) {
+export function getPriorityConnector(
+  ...initializedConnectors: [Connector, Web3ReactHooks][] | [Connector, Web3ReactHooks, Web3ReactStore][]
+) {
   const {
+    useSelectedStore,
     useSelectedChainId,
     useSelectedAccounts,
     useSelectedIsActivating,
@@ -160,7 +162,6 @@ export function getPriorityConnector(...initializedConnectors: [Connector, Web3R
     useSelectedProvider,
     useSelectedENSNames,
     useSelectedENSName,
-    useSelectedWeb3React,
   } = getSelectedConnector(...initializedConnectors)
 
   function usePriorityConnector() {
@@ -168,6 +169,10 @@ export function getPriorityConnector(...initializedConnectors: [Connector, Web3R
     const values = initializedConnectors.map(([, { useIsActive }]) => useIsActive())
     const index = values.findIndex((isActive) => isActive)
     return initializedConnectors[index === -1 ? 0 : index][0]
+  }
+
+  function usePriorityStore() {
+    return useSelectedStore(usePriorityConnector())
   }
 
   function usePriorityChainId() {
@@ -206,11 +211,8 @@ export function getPriorityConnector(...initializedConnectors: [Connector, Web3R
     return useSelectedENSName(usePriorityConnector(), provider)
   }
 
-  function usePriorityWeb3React(provider: Web3Provider | undefined) {
-    return useSelectedWeb3React(usePriorityConnector(), provider)
-  }
-
   return {
+    useSelectedStore,
     useSelectedChainId,
     useSelectedAccounts,
     useSelectedIsActivating,
@@ -220,8 +222,8 @@ export function getPriorityConnector(...initializedConnectors: [Connector, Web3R
     useSelectedProvider,
     useSelectedENSNames,
     useSelectedENSName,
-    useSelectedWeb3React,
     usePriorityConnector,
+    usePriorityStore,
     usePriorityChainId,
     usePriorityAccounts,
     usePriorityIsActivating,
@@ -231,7 +233,6 @@ export function getPriorityConnector(...initializedConnectors: [Connector, Web3R
     usePriorityProvider,
     usePriorityENSNames,
     usePriorityENSName,
-    usePriorityWeb3React,
   }
 }
 
@@ -316,7 +317,7 @@ function useENS(provider?: Web3Provider, accounts?: string[]): (string | null)[]
 
 function getAugmentedHooks<T extends Connector>(
   connector: T,
-  { useChainId, useAccounts, useError }: ReturnType<typeof getStateHooks>,
+  { useChainId, useAccounts }: ReturnType<typeof getStateHooks>,
   { useAccount, useIsActive }: ReturnType<typeof getDerivedHooks>
 ) {
   function useProvider(network?: Networkish, enabled = true): Web3Provider | undefined {
@@ -353,26 +354,5 @@ function getAugmentedHooks<T extends Connector>(
     return useENS(provider, accounts)?.[0]
   }
 
-  // for backwards compatibility only
-  function useWeb3React(provider: Web3Provider | undefined) {
-    const chainId = useChainId()
-    const account = useAccount()
-    const error = useError()
-
-    const isActive = useIsActive()
-
-    return useMemo(
-      () => ({
-        connector,
-        library: provider,
-        chainId,
-        account,
-        active: isActive,
-        error,
-      }),
-      [provider, chainId, account, isActive, error]
-    )
-  }
-
-  return { useProvider, useENSNames, useENSName, useWeb3React }
+  return { useProvider, useENSNames, useENSName }
 }
