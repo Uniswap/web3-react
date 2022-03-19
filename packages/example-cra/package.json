@@ -1,14 +1,48 @@
 {
-  "private": true,
   "name": "example-cra",
-  "scripts": {
-    "start": "react-scripts start"
-  },
+  "version": "0.1.0",
+  "private": true,
   "dependencies": {
-    "@web3-react/core": "8.0.19-beta.0",
+    "@coinbase/wallet-sdk": "^3.0.4",
+    "@ethersproject/bignumber": "^5.6.0",
+    "@ethersproject/experimental": "^5.6.0",
+    "@ethersproject/providers": "^5.6.0",
+    "@ethersproject/units": "^5.6.0",
+    "@testing-library/jest-dom": "^5.14.1",
+    "@testing-library/react": "^12.0.0",
+    "@testing-library/user-event": "^13.2.1",
+    "@types/jest": "^27.0.1",
+    "@types/node": "^16.7.13",
+    "@types/react": "^17.0.20",
+    "@types/react-dom": "^17.0.9",
+    "@walletconnect/ethereum-provider": "^1.7.5",
+    "@web3-react/coinbase-wallet": "8.0.23-beta.0",
+    "@web3-react/core": "8.0.20-beta.0",
+    "@web3-react/eip1193": "8.0.14-beta.0",
     "@web3-react/empty": "8.0.10-beta.0",
+    "@web3-react/metamask": "8.0.16-beta.0",
+    "@web3-react/network": "8.0.15-beta.0",
+    "@web3-react/types": "8.0.10-beta.0",
+    "@web3-react/url": "8.0.14-beta.0",
+    "@web3-react/walletconnect": "8.0.23-beta.0",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
     "react-scripts": "^5.0.0",
-    "react-dom": "^17.0.2"
+    "typescript": "^4.4.2",
+    "util": "^0.12.4",
+    "web-vitals": "^2.1.0"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
   },
   "browserslist": {
     "production": [

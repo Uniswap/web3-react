@@ -1,0 +1,9 @@
+{
+  "short_name": "Web3 React CRA Example",
+  "name": "Web3-React Create React App Example",
+  "icons": [],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#000000",
+  "background_color": "#ffffff"
+}
