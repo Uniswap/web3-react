@@ -1,7 +1,9 @@
 import type { Networkish } from '@ethersproject/networks'
 import type { Connector } from '@web3-react/types'
 import type { ReactNode } from 'react'
-import React, { createContext, useContext } from 'react'
+import React from 'react'
+import createContext from 'zustand/context'
+import create from 'zustand'
 import type { Web3ReactHooks, Web3ReactPriorityHooks } from './hooks'
 import { getPriorityConnector } from './hooks'
 
@@ -18,7 +20,9 @@ type Web3ContextType = {
   ENSName: ReturnType<Web3ReactPriorityHooks['usePriorityENSName']>
 }
 
-const Web3Context = createContext<Web3ContextType | undefined>(undefined)
+const Web3Context = createContext<Web3ContextType>()
+
+const createStore = (state: Web3ContextType) => () => create<Web3ContextType>(() => state)
 
 export function Web3ReactProvider({
   children,
@@ -57,7 +61,7 @@ export function Web3ReactProvider({
 
   return (
     <Web3Context.Provider
-      value={{
+      createStore={createStore({
         connector,
         chainId,
         accounts,
@@ -66,9 +70,9 @@ export function Web3ReactProvider({
         account,
         isActive,
         provider,
-        ENSNames,
         ENSName,
-      }}
+        ENSNames,
+      })}
     >
       {children}
     </Web3Context.Provider>
@@ -76,7 +80,7 @@ export function Web3ReactProvider({
 }
 
 export function useWeb3React() {
-  const web3 = useContext(Web3Context)
+  const web3 = Web3Context.useStore()
   if (!web3) throw Error('useWeb3React can only be used within the Web3ReactProvider component')
   return web3
 }
