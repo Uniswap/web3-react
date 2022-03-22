@@ -84,8 +84,8 @@ export function ConnectWithSelect({
         <button
           onClick={() =>
             connector instanceof WalletConnect || connector instanceof Network
-              ? connector.activate(desiredChainId === -1 ? undefined : desiredChainId)
-              : connector.activate(desiredChainId === -1 ? undefined : getAddChainParameters(desiredChainId))
+              ? void connector.activate(desiredChainId === -1 ? undefined : desiredChainId)
+              : void connector.activate(desiredChainId === -1 ? undefined : getAddChainParameters(desiredChainId))
           }
         >
           Try Again?
@@ -102,7 +102,7 @@ export function ConnectWithSelect({
           chainIds={chainIds}
         />
         <div style={{ marginBottom: '1rem' }} />
-        <button onClick={() => connector.deactivate()}>Disconnect</button>
+        <button onClick={() => void connector.deactivate()}>Disconnect</button>
       </div>
     )
   } else {
