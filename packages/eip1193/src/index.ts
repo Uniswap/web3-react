@@ -64,7 +64,9 @@ export class EIP1193 extends Connector {
 
     return Promise.all([
       this.provider.request({ method: 'eth_chainId' }) as Promise<string>,
-      this.provider.request({ method: 'eth_requestAccounts' }) as Promise<string[]>,
+      this.provider
+        .request({ method: 'eth_requestAccounts' })
+        .catch(() => this.provider.request({ method: 'eth_accounts' })) as Promise<string[]>,
     ])
       .then(([chainId, accounts]) => {
         this.actions.update({ chainId: parseChainId(chainId), accounts })
