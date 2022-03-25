@@ -2,3 +2,10 @@ node_modules/
 packages/*/dist/
 packages/example-next/.next/
 .env.local
+
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.envrc
