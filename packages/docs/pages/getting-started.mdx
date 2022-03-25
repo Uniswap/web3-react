@@ -1,0 +1,72 @@
+import Callout from 'nextra-theme-docs/callout'
+
+# Getting Started
+
+## Installation
+
+In the root of your React project run
+
+```
+yarn add @web3-react/core
+```
+
+Now install the providers you want to use. Let's start with MetaMask:
+
+```
+yarn add @web3-react/metamask@beta
+```
+
+## Quick Start
+
+### 1. Configure your connector(s):
+
+```tsx
+//connectors.ts
+
+import { initializeConnector } from "@web3-react/core"
+import { MetaMask } from "@web3-react/metamask"
+
+export const [metaMask, hooks] = initializeConnector<MetaMask>(
+  (actions) => new MetaMask(actions)
+)
+```
+
+<Callout emoji="💡">
+  `initializeConnector` optionally takes allowedChainIds: number[] as a second argument. This is useful for showing error messages to users when they try to connect to a chain that is not supported by your dApp.
+  Check [here](/docs/provider#options) for more info.
+</Callout>
+
+
+### 2. Set up the Provider
+
+Wrap your app with the [`Web3ReactProvider`](/docs/provider) component and pass the connectors.
+
+```tsx
+import { Web3ReactProvider } from '@web3-react'
+
+const App = () => (
+  <Web3ReactProvider connectors={connectors}>
+    <YourRoutes />
+  </Web3ReactProvider>
+)
+```
+
+### 3. Consume with hooks
+
+You can use web3-react from anywhere within your Provider using hooks!
+
+```tsx
+import { useWeb3React } from "@web3-react/core"
+
+export default function Page() {
+  const { account } = useWeb3React()
+  return <div>Your account: {account}</div>
+}
+```
+
+Continue on to check out the [Guides](/guides/connect-wallet) or skip to the [API Documentation](/docs/provider).
+
+
+```
+yarn add @web3-react/coinbase-wallet@beta @web3-react/metamask@beta @web3-react/network@beta @web3-react/walletconnect@beta @walletconnect/ethereum-provider
+```
