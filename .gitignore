@@ -1,6 +1,7 @@
 node_modules/
 packages/*/dist/
 packages/example-next/.next/
+packages/docs/.next/
 .env.local
 
 .env
