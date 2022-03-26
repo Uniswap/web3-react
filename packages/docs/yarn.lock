@@ -3122,10 +3122,10 @@ next@12.1.0:
     "@next/swc-win32-ia32-msvc" "12.1.0"
     "@next/swc-win32-x64-msvc" "12.1.0"
 
-nextra-theme-docs@2.0.0-alpha.35:
-  version "2.0.0-alpha.35"
-  resolved "https://registry.yarnpkg.com/nextra-theme-docs/-/nextra-theme-docs-2.0.0-alpha.35.tgz#c1e794e2e91cd9b19f5ee86f4ae86a1172d85540"
-  integrity sha512-fjysMC1wr9N0LCNn2JHNrUNpODuyGU/KutbJNdMP9AVXxnPt7GCkolGpJJSzL/pIySdKtq/NKYRZsvQDh5N2dg==
+nextra-theme-docs@2.0.0-alpha.47:
+  version "2.0.0-alpha.47"
+  resolved "https://registry.yarnpkg.com/nextra-theme-docs/-/nextra-theme-docs-2.0.0-alpha.47.tgz#01e7c5ee1a2a276299817ec4c453f3f6566c58ff"
+  integrity sha512-TSM+wL/NCnYC3K1s/e60KwYG0asiuk4DJBOoRSlViLnZNM2zkJ3mP3TCP2ZXpFKPmWCElkojDERSrVMpypXnPQ==
   dependencies:
     "@headlessui/react" "^1.5.0"
     "@mdx-js/react" "^2.0.0"
@@ -3138,13 +3138,12 @@ nextra-theme-docs@2.0.0-alpha.35:
     match-sorter "^4.2.0"
     next-themes "^0.2.0-beta.0"
     parse-git-url "^1.0.1"
-    react-innertext "^1.1.5"
     title "^3.4.2"
 
-nextra@2.0.0-alpha.35:
-  version "2.0.0-alpha.35"
-  resolved "https://registry.yarnpkg.com/nextra/-/nextra-2.0.0-alpha.35.tgz#e050291fe08a27687ca6ecb02cd8cab88d02e011"
-  integrity sha512-p/iqqx3aD0nrudRU1jWjkbV+VtT9/Pgj/UmfkD9hC/DRjFdk8QiGByEL/FKze1cGpr+N9Z5mWSqABGnSokowyg==
+nextra@2.0.0-alpha.47:
+  version "2.0.0-alpha.47"
+  resolved "https://registry.yarnpkg.com/nextra/-/nextra-2.0.0-alpha.47.tgz#30d0086fa72c9ad3c84d5e1db52f9556e9502d42"
+  integrity sha512-5lN0cLhEozpZ5F1R8YQNVXCIXDVg0eee5l/hiTycFIUkl7jVyCCZkbHmIQvSMIAeE8q4OgpYgFbKbLpGZoX7Cw==
   dependencies:
     "@mdx-js/mdx" "^2.0.0"
     github-slugger "^1.4.0"
@@ -3152,7 +3151,7 @@ nextra@2.0.0-alpha.35:
     gray-matter "^4.0.3"
     rehype-pretty-code "^0.1.0"
     remark-gfm "^3.0.1"
-    shiki "0.10.0"
+    shiki "0.10.1"
     slash "^3.0.0"
 
 node-releases@^2.0.2:
@@ -3480,11 +3479,6 @@ react-dom@17.0.2:
     object-assign "^4.1.1"
     scheduler "^0.20.2"
 
-react-innertext@^1.1.5:
-  version "1.1.5"
-  resolved "https://registry.yarnpkg.com/react-innertext/-/react-innertext-1.1.5.tgz#8147ac54db3f7067d95f49e2d2c05a720d27d8d0"
-  integrity sha512-PWAqdqhxhHIv80dT9znP2KvS+hfkbRovFp4zFYHFFlOoQLRiawIic81gKb3U1wEyJZgMwgs3JoLtwryASRWP3Q==
-
 react-is@^16.13.1:
   version "16.13.1"
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-16.13.1.tgz#789729a4dc36de2999dc156dd6c1d9c18cea56a4"
@@ -3677,10 +3671,10 @@ shebang-regex@^3.0.0:
   resolved "https://registry.yarnpkg.com/shebang-regex/-/shebang-regex-3.0.0.tgz#ae16f1644d873ecad843b0307b143362d4c42172"
   integrity sha512-7++dFhtcx3353uBaq8DDR4NuxBetBzC7ZQOhmTQInHEd6bSrXdiEyzCvG07Z44UYdLShWUyXt5M/yhz8ekcb1A==
 
-shiki@0.10.0:
-  version "0.10.0"
-  resolved "https://registry.yarnpkg.com/shiki/-/shiki-0.10.0.tgz#85f21ecfa95b377ff64db6c71442c22c220e9540"
-  integrity sha512-iczxaIYeBFHTFrQPb9DVy2SKgYxC4Wo7Iucm7C17cCh2Ge/refnvHscUOxM85u57MfLoNOtjoEFUWt9gBexblA==
+shiki@0.10.1:
+  version "0.10.1"
+  resolved "https://registry.yarnpkg.com/shiki/-/shiki-0.10.1.tgz#6f9a16205a823b56c072d0f1a0bcd0f2646bef14"
+  integrity sha512-VsY7QJVzU51j5o1+DguUd+6vmCmZ5v/6gYu4vyYAhzjuNQU6P/vmSy4uQaOhvje031qQMiW0d2BwgMH52vqMng==
   dependencies:
     jsonc-parser "^3.0.0"
     vscode-oniguruma "^1.6.1"
