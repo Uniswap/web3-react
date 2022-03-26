@@ -1,0 +1,14 @@
+# Set up the Provider
+
+Wrap your app with the [`Web3ReactProvider`](/docs/provider) component and pass the connectors.
+
+```tsx
+import { Web3ReactProvider } from '@web3-react/core'
+import connectors from "../connectors"
+
+const App = () => (
+  <Web3ReactProvider connectors={connectors}>
+    <YourRoutes />
+  </Web3ReactProvider>
+)
+```

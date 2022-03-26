@@ -1,0 +1,151 @@
+import Callout from 'nextra-theme-docs/callout'
+
+# Setup
+
+## Installation
+In the root of your React project run
+
+```
+yarn add @web3-react/core @web3-react/coinbase-wallet@beta @web3-react/metamask@beta @web3-react/network@beta @web3-react/walletconnect@beta @walletconnect/ethereum-provider
+```
+
+This will install the web3-react's core and the MetaMask, WalletConnect, Network and Coinbase connectors.
+
+## Supported Chains
+
+The next thing we want to do as part of our setup, is to define which chains are even supported by our project.
+
+<Callout>
+web3-react doesn't make any assumptions about your project and tries to be as small and performant as possible. It's up to you which chains to support and which logic to use.
+</Callout>
+
+This is how a potential chain setup could look like (if you're using Next.js you can simply copy the code below):
+```ts
+// chains.ts
+
+import type { AddEthereumChainParameter } from "@web3-react/types"
+
+const ETH: AddEthereumChainParameter["nativeCurrency"] = {
+  name: "Ether",
+  symbol: "ETH",
+  decimals: 18,
+}
+
+const MATIC: AddEthereumChainParameter["nativeCurrency"] = {
+  name: "Matic",
+  symbol: "MATIC",
+  decimals: 18,
+}
+
+interface BasicChainInformation {
+  urls: string[]
+  name: string
+}
+
+interface ExtendedChainInformation extends BasicChainInformation {
+  nativeCurrency: AddEthereumChainParameter["nativeCurrency"]
+  blockExplorerUrls: AddEthereumChainParameter["blockExplorerUrls"]
+}
+
+function isExtendedChainInformation(
+  chainInformation: BasicChainInformation | ExtendedChainInformation
+): chainInformation is ExtendedChainInformation {
+  return !!(chainInformation as ExtendedChainInformation).nativeCurrency
+}
+
+export function getAddChainParameters(
+  chainId: number
+): AddEthereumChainParameter | number {
+  const chainInformation = CHAINS[chainId]
+  if (isExtendedChainInformation(chainInformation)) {
+    return {
+      chainId,
+      chainName: chainInformation.name,
+      nativeCurrency: chainInformation.nativeCurrency,
+      rpcUrls: chainInformation.urls,
+      blockExplorerUrls: chainInformation.blockExplorerUrls,
+    }
+  } else {
+    return chainId
+  }
+}
+
+export const CHAINS: {
+  [chainId: number]: BasicChainInformation | ExtendedChainInformation
+} = {
+  1: {
+    urls: [
+      process.env.NEXT_PUBLIC_INFURA_KEY
+        ? `https://mainnet.infura.io/v3/${process.env.NEXT_PUBLIC_INFURA_KEY}`
+        : undefined,
+      process.env.NEXT_PUBLIC_ALCHEMY_KEY
+        ? `https://eth-mainnet.alchemyapi.io/v2/${process.env.NEXT_PUBLIC_ALCHEMY_KEY}`
+        : undefined,
+      "https://cloudflare-eth.com",
+    ].filter((url) => url !== undefined),
+    name: "Mainnet",
+  },
+  3: {
+    urls: [
+      process.env.NEXT_PUBLIC_INFURA_KEY
+        ? `https://ropsten.infura.io/v3/${process.env.NEXT_PUBLIC_INFURA_KEY}`
+        : undefined,
+    ].filter((url) => url !== undefined),
+    name: "Ropsten",
+  },
+  4: {
+    urls: [
+      process.env.NEXT_PUBLIC_INFURA_KEY
+        ? `https://rinkeby.infura.io/v3/${process.env.NEXT_PUBLIC_INFURA_KEY}`
+        : undefined,
+    ].filter((url) => url !== undefined),
+    name: "Rinkeby",
+  },
+  5: {
+    urls: [
+      process.env.NEXT_PUBLIC_INFURA_KEY
+        ? `https://goerli.infura.io/v3/${process.env.NEXT_PUBLIC_INFURA_KEY}`
+        : undefined,
+    ].filter((url) => url !== undefined),
+    name: "Görli",
+  },
+  10: {
+    urls: [
+      process.env.infuraKey
+        ? `https://optimism-mainnet.infura.io/v3/${process.env.NEXT_PUBLIC_INFURA_KEY}`
+        : undefined,
+      "https://mainnet.optimism.io",
+    ].filter((url) => url !== undefined),
+    name: "Optimism",
+    nativeCurrency: ETH,
+    blockExplorerUrls: ["https://optimistic.etherscan.io"],
+  },
+  // Polygon
+  137: {
+    urls: [
+      process.env.NEXT_PUBLIC_INFURA_KEY
+        ? `https://polygon-mainnet.infura.io/v3/${process.env.NEXT_PUBLIC_INFURA_KEY}`
+        : undefined,
+      "https://polygon-rpc.com",
+    ].filter((url) => url !== undefined),
+    name: "Polygon Mainnet",
+    nativeCurrency: MATIC,
+    blockExplorerUrls: ["https://polygonscan.com"],
+  },
+}
+
+// either manually define which chains we support or map over CHAINS
+export const ALLOWED_CHAINS = [1, 3, 4, 5, 137]
+
+export const URLS: { [chainId: number]: string[] } = Object.keys(
+  CHAINS
+).reduce<{ [chainId: number]: string[] }>((accumulator, chainId) => {
+  const validURLs: string[] = CHAINS[Number(chainId)].urls
+
+  if (validURLs.length) {
+    accumulator[Number(chainId)] = validURLs
+  }
+
+  return accumulator
+}, {})
+```

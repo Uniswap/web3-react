@@ -1,0 +1,12 @@
+# Consume with hooks
+
+You can use web3-react from anywhere within your Provider using hooks!
+
+```tsx
+import { useWeb3React } from "@web3-react/core"
+
+export default function Page() {
+  const { account } = useWeb3React()
+  return <div>Your account: {account}</div>
+}
+```
