@@ -1,0 +1,32 @@
+{
+  "name": "@web3-react/tally-ho",
+  "keywords": [
+    "web3-react",
+    "Tally Ho!"
+  ],
+  "author": "Gergo Nagy <gergo.nagy@tally.cash>",
+  "license": "GPL-3.0-or-later",
+  "repository": "github:NoahZinsmeister/web3-react",
+  "publishConfig": {
+    "access": "public"
+  },
+  "version": "8.0.18-beta.0",
+  "files": [
+    "dist/*"
+  ],
+  "type": "commonjs",
+  "types": "./dist/index.d.ts",
+  "main": "./dist/index.js",
+  "exports": "./dist/index.js",
+  "scripts": {
+    "prebuild": "rm -rf dist",
+    "build": "tsc",
+    "start": "tsc --watch"
+  },
+  "dependencies": {
+    "@web3-react/types": "^8.0.10-beta.0"
+  },
+  "devDependencies": {
+    "@web3-react/store": "^8.0.14-beta.0"
+  }
+}

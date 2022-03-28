@@ -1,6 +1,7 @@
 import CoinbaseWalletCard from '../components/connectors/CoinbaseWalletCard'
 import MetaMaskCard from '../components/connectors/MetaMaskCard'
 import NetworkCard from '../components/connectors/NetworkCard'
+import TallyHoCard from '../components/connectors/TallyHo'
 import WalletConnectCard from '../components/connectors/WalletConnectCard'
 import ProviderExample from '../components/ProviderExample'
 
@@ -9,6 +10,7 @@ export default function Home() {
     <>
       <ProviderExample />
       <div style={{ display: 'flex', flexFlow: 'wrap', fontFamily: 'sans-serif' }}>
+        <TallyHoCard />
         <MetaMaskCard />
         <WalletConnectCard />
         <CoinbaseWalletCard />
