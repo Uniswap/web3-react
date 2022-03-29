@@ -9,7 +9,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "version": "8.0.14-beta.0",
+  "version": "8.0.15-beta.0",
   "files": [
     "dist/*"
   ],
@@ -24,9 +24,9 @@
   },
   "dependencies": {
     "@ethersproject/providers": "^5.6.0",
-    "@web3-react/types": "^8.0.10-beta.0"
+    "@web3-react/types": "^8.0.11-beta.0"
   },
   "devDependencies": {
-    "@web3-react/store": "^8.0.14-beta.0"
+    "@web3-react/store": "^8.0.15-beta.0"
   }
 }
