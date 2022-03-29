@@ -1,19 +1,17 @@
-import type { Eip1193Bridge } from '@ethersproject/experimental'
+import type { JsonRpcProvider } from '@ethersproject/providers'
 import type { ConnectionInfo } from '@ethersproject/web'
 import type { Actions } from '@web3-react/types'
 import { Connector } from '@web3-react/types'
 
 type url = string | ConnectionInfo
 
-function parseChainId(chainId: string) {
-  return Number.parseInt(chainId, 16)
-}
-
 export class Url extends Connector {
   /** {@inheritdoc Connector.provider} */
-  public provider: Eip1193Bridge | undefined
+  public provider: undefined
+  /** {@inheritdoc Connector.customProvider} */
+  public customProvider: JsonRpcProvider | undefined
 
-  private eagerConnection?: Promise<void>
+  private eagerConnection?: Promise<JsonRpcProvider>
   private url: url
 
   /**
@@ -35,25 +33,21 @@ export class Url extends Connector {
   private async isomorphicInitialize() {
     if (this.eagerConnection) return this.eagerConnection
 
-    await (this.eagerConnection = Promise.all([
-      import('@ethersproject/providers').then(({ JsonRpcProvider }) => JsonRpcProvider),
-      import('@ethersproject/experimental').then(({ Eip1193Bridge }) => Eip1193Bridge),
-    ]).then(([JsonRpcProvider, Eip1193Bridge]) => {
-      const provider = new JsonRpcProvider(this.url)
-      this.provider = new Eip1193Bridge(provider.getSigner(), provider)
+    return (this.eagerConnection = import('@ethersproject/providers').then(({ JsonRpcProvider }) => {
+      return new JsonRpcProvider(this.url)
     }))
   }
 
   /** {@inheritdoc Connector.activate} */
   public async activate(): Promise<void> {
-    if (!this.provider) this.actions.startActivation()
+    if (!this.customProvider) this.actions.startActivation()
 
     await this.isomorphicInitialize()
+      .then((customProvider) => {
+        this.customProvider = customProvider
 
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    return this.provider!.request({ method: 'eth_chainId' })
-      .then((chainId: string) => {
-        this.actions.update({ chainId: parseChainId(chainId), accounts: [] })
+        const { chainId } = this.customProvider.network
+        this.actions.update({ chainId, accounts: [] })
       })
       .catch((error: Error) => {
         this.actions.reportError(error)

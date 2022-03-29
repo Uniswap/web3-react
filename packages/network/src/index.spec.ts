@@ -1,17 +1,18 @@
 import { createWeb3ReactStoreAndActions } from '@web3-react/store'
 import type { Actions, Web3ReactStore } from '@web3-react/types'
-import { MockEIP1193Provider } from '../../eip1193/src/index.spec'
 import { Network } from './'
 
-jest.mock('@ethersproject/providers', () => ({
-  JsonRpcProvider: class MockJsonRpcProvider {
-    getSigner() {}
-  },
-  FallbackProvider: class MockFallbackProvider {},
-}))
+export class MockJsonRpcProvider {
+  public chainId?: string
 
-jest.mock('@ethersproject/experimental', () => ({
-  Eip1193Bridge: MockEIP1193Provider,
+  get network() {
+    return { chainId: this.chainId === undefined ? undefined : Number.parseInt(this.chainId, 16) }
+  }
+}
+
+jest.mock('@ethersproject/providers', () => ({
+  JsonRpcProvider: MockJsonRpcProvider,
+  FallbackProvider: class MockFallbackProvider extends MockJsonRpcProvider {},
 }))
 
 const chainId = '0x1'
@@ -20,7 +21,7 @@ const accounts: string[] = []
 describe('Network', () => {
   let store: Web3ReactStore
   let connector: Network
-  let mockConnector: MockEIP1193Provider
+  let mockConnector: MockJsonRpcProvider
 
   describe('connectEagerly = true', () => {
     beforeEach(() => {
@@ -30,9 +31,8 @@ describe('Network', () => {
     })
 
     beforeEach(async () => {
-      mockConnector = connector.provider as unknown as MockEIP1193Provider
+      mockConnector = connector.customProvider as unknown as MockJsonRpcProvider
       mockConnector.chainId = chainId
-      mockConnector.accounts = accounts
     })
 
     test('#activate', async () => {
@@ -67,9 +67,8 @@ describe('Network', () => {
       beforeEach(async () => {
         // testing hack to ensure the provider is set
         await connector.activate()
-        mockConnector = connector.provider as unknown as MockEIP1193Provider
+        mockConnector = connector.customProvider as unknown as MockJsonRpcProvider
         mockConnector.chainId = chainId
-        mockConnector.accounts = accounts
       })
 
       test('works', async () => {
@@ -93,9 +92,8 @@ describe('Network', () => {
     })
 
     beforeEach(async () => {
-      mockConnector = connector.provider as unknown as MockEIP1193Provider
+      mockConnector = connector.customProvider as unknown as MockJsonRpcProvider
       mockConnector.chainId = chainId
-      mockConnector.accounts = accounts
     })
 
     test('#activate', async () => {
@@ -118,16 +116,14 @@ describe('Network', () => {
     })
 
     beforeEach(async () => {
-      mockConnector = connector.provider as unknown as MockEIP1193Provider
+      mockConnector = connector.customProvider as unknown as MockJsonRpcProvider
       mockConnector.chainId = chainId
-      mockConnector.accounts = accounts
     })
 
     describe('#activate', () => {
       test('chainId = 1', async () => {
-        mockConnector = connector.provider as unknown as MockEIP1193Provider
+        mockConnector = connector.customProvider as unknown as MockJsonRpcProvider
         mockConnector.chainId = chainId
-        mockConnector.accounts = accounts
         await connector.activate()
 
         expect(store.getState()).toEqual({
@@ -141,9 +137,8 @@ describe('Network', () => {
       test('chainId = 2', async () => {
         // testing hack to ensure the provider is set
         await connector.activate(2)
-        mockConnector = connector.provider as unknown as MockEIP1193Provider
+        mockConnector = connector.customProvider as unknown as MockJsonRpcProvider
         mockConnector.chainId = '0x2'
-        mockConnector.accounts = accounts
 
         await connector.activate(2)
 

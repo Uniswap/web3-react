@@ -1,5 +1,5 @@
 import type { Networkish } from '@ethersproject/networks'
-import type { Web3Provider } from '@ethersproject/providers'
+import type { BaseProvider, Web3Provider } from '@ethersproject/providers'
 import { createWeb3ReactStoreAndActions } from '@web3-react/store'
 import type { Actions, Connector, Web3ReactState, Web3ReactStore } from '@web3-react/types'
 import { useEffect, useMemo, useState } from 'react'
@@ -104,14 +104,14 @@ export function getSelectedConnector(
     return values[getIndex(connector)]
   }
 
-  function useSelectedProvider(connector: Connector, network?: Networkish) {
+  function useSelectedProvider<T extends BaseProvider = Web3Provider>(connector: Connector, network?: Networkish) {
     const index = getIndex(connector)
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    const values = initializedConnectors.map(([, { useProvider }], i) => useProvider(network, i === index))
+    const values = initializedConnectors.map(([, { useProvider }], i) => useProvider<T>(network, i === index))
     return values[index]
   }
 
-  function useSelectedENSNames(connector: Connector, provider: Web3Provider | undefined) {
+  function useSelectedENSNames(connector: Connector, provider?: BaseProvider) {
     const index = getIndex(connector)
     const values = initializedConnectors.map(([, { useENSNames }], i) =>
       // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -120,7 +120,7 @@ export function getSelectedConnector(
     return values[index]
   }
 
-  function useSelectedENSName(connector: Connector, provider: Web3Provider | undefined) {
+  function useSelectedENSName(connector: Connector, provider?: BaseProvider) {
     const index = getIndex(connector)
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const values = initializedConnectors.map(([, { useENSName }], i) => useENSName(i === index ? provider : undefined))
@@ -199,15 +199,15 @@ export function getPriorityConnector(
     return useSelectedIsActive(usePriorityConnector())
   }
 
-  function usePriorityProvider(network?: Networkish) {
-    return useSelectedProvider(usePriorityConnector(), network)
+  function usePriorityProvider<T extends BaseProvider = Web3Provider>(network?: Networkish) {
+    return useSelectedProvider<T>(usePriorityConnector(), network)
   }
 
-  function usePriorityENSNames(provider: Web3Provider | undefined) {
+  function usePriorityENSNames(provider?: BaseProvider) {
     return useSelectedENSNames(usePriorityConnector(), provider)
   }
 
-  function usePriorityENSName(provider: Web3Provider | undefined) {
+  function usePriorityENSName(provider?: BaseProvider) {
     return useSelectedENSName(usePriorityConnector(), provider)
   }
 
@@ -288,7 +288,7 @@ function getDerivedHooks({ useChainId, useAccounts, useIsActivating, useError }:
   return { useAccount, useIsActive }
 }
 
-function useENS(provider?: Web3Provider, accounts?: string[]): (string | null)[] | undefined {
+function useENS(provider?: BaseProvider, accounts?: string[]): (string | null)[] | undefined {
   const [ENSNames, setENSNames] = useState<(string | null)[] | undefined>()
 
   useEffect(() => {
@@ -320,7 +320,11 @@ function getAugmentedHooks<T extends Connector>(
   { useChainId, useAccounts }: ReturnType<typeof getStateHooks>,
   { useAccount, useIsActive }: ReturnType<typeof getDerivedHooks>
 ) {
-  function useProvider(network?: Networkish, enabled = true): Web3Provider | undefined {
+  // avoid type erasure by returning the most qualified type if not otherwise set
+  function useProvider<T extends BaseProvider = Web3Provider>(
+    network?: Networkish,
+    enabled = true
+  ): Web3Provider | undefined | T {
     const isActive = useIsActive()
 
     const chainId = useChainId()
@@ -335,22 +339,22 @@ function getAugmentedHooks<T extends Connector>(
     }, [])
 
     return useMemo(() => {
-      // we use chainId and accounts to re-render in case connector.provider changes in place
-      if (providers && enabled && isActive && chainId && accounts && connector.provider) {
-        return new providers.Web3Provider(connector.provider, network)
+      // we use chainId and accounts to re-render in case connector.{customProvider,provider} change in place
+      if (providers && enabled && isActive && chainId && accounts) {
+        if (connector.customProvider) return connector.customProvider as T
+        if (connector.provider) return new providers.Web3Provider(connector.provider, network)
       }
     }, [providers, enabled, isActive, chainId, accounts, network])
   }
 
-  function useENSNames(provider: Web3Provider | undefined): (string | null)[] | undefined {
+  function useENSNames(provider?: BaseProvider): (string | null)[] | undefined {
     const accounts = useAccounts()
     return useENS(provider, accounts)
   }
 
-  function useENSName(provider: Web3Provider | undefined): (string | null) | undefined {
+  function useENSName(provider?: BaseProvider): (string | null) | undefined {
     const account = useAccount()
     const accounts = useMemo(() => (account === undefined ? undefined : [account]), [account])
-
     return useENS(provider, accounts)?.[0]
   }
 

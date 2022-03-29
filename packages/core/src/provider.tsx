@@ -1,4 +1,5 @@
 import type { Networkish } from '@ethersproject/networks'
+import type { BaseProvider, Web3Provider } from '@ethersproject/providers'
 import type { Connector } from '@web3-react/types'
 import type { ReactNode } from 'react'
 import React, { createContext, useContext } from 'react'
@@ -20,7 +21,7 @@ type Web3ContextType = {
 
 const Web3Context = createContext<Web3ContextType | undefined>(undefined)
 
-export function Web3ReactProvider({
+export function Web3ReactProvider<T extends BaseProvider = Web3Provider>({
   children,
   connectors,
   network,
@@ -51,7 +52,7 @@ export function Web3ReactProvider({
   const error = usePriorityError()
   const account = usePriorityAccount()
   const isActive = usePriorityIsActive()
-  const provider = usePriorityProvider(network)
+  const provider = usePriorityProvider<T>(network)
   const ENSNames = usePriorityENSNames(lookupENS ? provider : undefined)
   const ENSName = usePriorityENSName(lookupENS ? provider : undefined)
 

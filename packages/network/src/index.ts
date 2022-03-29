@@ -1,21 +1,19 @@
-import type { Eip1193Bridge } from '@ethersproject/experimental'
+import type { FallbackProvider, JsonRpcProvider } from '@ethersproject/providers'
 import type { ConnectionInfo } from '@ethersproject/web'
 import type { Actions } from '@web3-react/types'
 import { Connector } from '@web3-react/types'
 
 type url = string | ConnectionInfo
 
-function parseChainId(chainId: string) {
-  return Number.parseInt(chainId, 16)
-}
-
 export class Network extends Connector {
   /** {@inheritdoc Connector.provider} */
-  public provider: Eip1193Bridge | undefined
+  public provider: undefined
+  /** {@inheritdoc Connector.customProvider} */
+  public customProvider: JsonRpcProvider | FallbackProvider | undefined
 
   private urlMap: Record<number, url[]>
   private defaultChainId: number
-  private providerCache: Record<number, Promise<Eip1193Bridge> | undefined> = {}
+  private providerCache: Record<number, Promise<JsonRpcProvider | FallbackProvider> | undefined> = {}
 
   /**
    * @param urlMap - A mapping from chainIds to RPC urls.
@@ -44,25 +42,21 @@ export class Network extends Connector {
     if (connectEagerly) void this.activate()
   }
 
-  private async isomorphicInitialize(chainId: number): Promise<Eip1193Bridge> {
-    if (this.providerCache[chainId]) return this.providerCache[chainId] as Promise<Eip1193Bridge>
+  private async isomorphicInitialize(chainId: number): Promise<JsonRpcProvider | FallbackProvider> {
+    if (this.providerCache[chainId]) return this.providerCache[chainId] as Promise<JsonRpcProvider | FallbackProvider>
 
-    return (this.providerCache[chainId] = Promise.all([
-      import('@ethersproject/providers').then(({ JsonRpcProvider, FallbackProvider }) => ({
+    return (this.providerCache[chainId] = import('@ethersproject/providers')
+      .then(({ JsonRpcProvider, FallbackProvider }) => ({
         JsonRpcProvider,
         FallbackProvider,
-      })),
-      import('@ethersproject/experimental').then(({ Eip1193Bridge }) => Eip1193Bridge),
-    ]).then(([{ JsonRpcProvider, FallbackProvider }, Eip1193Bridge]) => {
-      const urls = this.urlMap[chainId]
+      }))
+      .then(({ JsonRpcProvider, FallbackProvider }) => {
+        const urls = this.urlMap[chainId]
 
-      const providers = urls.map((url) => new JsonRpcProvider(url, chainId))
+        const providers = urls.map((url) => new JsonRpcProvider(url, chainId))
 
-      return new Eip1193Bridge(
-        providers[0].getSigner(),
-        providers.length === 1 ? providers[0] : new FallbackProvider(providers)
-      )
-    }))
+        return providers.length === 1 ? providers[0] : new FallbackProvider(providers)
+      }))
   }
 
   /**
@@ -71,14 +65,14 @@ export class Network extends Connector {
    * @param desiredChainId - The desired chain to connect to.
    */
   public async activate(desiredChainId = this.defaultChainId): Promise<void> {
-    if (!this.provider) this.actions.startActivation()
+    if (!this.customProvider) this.actions.startActivation()
 
-    this.provider = await this.isomorphicInitialize(desiredChainId)
+    await this.isomorphicInitialize(desiredChainId)
+      .then((customProvider) => {
+        this.customProvider = customProvider
 
-    return this.provider
-      .request({ method: 'eth_chainId' })
-      .then((chainId: string) => {
-        this.actions.update({ chainId: parseChainId(chainId), accounts: [] })
+        const { chainId } = this.customProvider.network
+        this.actions.update({ chainId, accounts: [] })
       })
       .catch((error: Error) => {
         this.actions.reportError(error)
