@@ -320,7 +320,7 @@ function getAugmentedHooks<T extends Connector>(
   { useChainId, useAccounts }: ReturnType<typeof getStateHooks>,
   { useAccount, useIsActive }: ReturnType<typeof getDerivedHooks>
 ) {
-  // the default type is set to Web3Provider so that consumers who don't use customProvider aren't impacted
+  // avoid type erasure by returning the most qualified type if not otherwise set
   function useProvider<T extends BaseProvider = Web3Provider>(
     network?: Networkish,
     enabled = true

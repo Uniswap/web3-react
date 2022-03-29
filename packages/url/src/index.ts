@@ -11,7 +11,7 @@ export class Url extends Connector {
   /** {@inheritdoc Connector.customProvider} */
   public customProvider: JsonRpcProvider | undefined
 
-  private eagerConnection?: Promise<void>
+  private eagerConnection?: Promise<JsonRpcProvider>
   private url: url
 
   /**
@@ -33,19 +33,24 @@ export class Url extends Connector {
   private async isomorphicInitialize() {
     if (this.eagerConnection) return this.eagerConnection
 
-    await (this.eagerConnection = import('@ethersproject/providers').then(({ JsonRpcProvider }) => {
-      this.customProvider = new JsonRpcProvider(this.url)
+    return (this.eagerConnection = import('@ethersproject/providers').then(({ JsonRpcProvider }) => {
+      return new JsonRpcProvider(this.url)
     }))
   }
 
   /** {@inheritdoc Connector.activate} */
   public async activate(): Promise<void> {
-    if (!this.provider) this.actions.startActivation()
+    if (!this.customProvider) this.actions.startActivation()
 
     await this.isomorphicInitialize()
+      .then((customProvider) => {
+        this.customProvider = customProvider
 
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    const { chainId } = this.customProvider!.network
-    this.actions.update({ chainId, accounts: [] })
+        const { chainId } = this.customProvider.network
+        this.actions.update({ chainId, accounts: [] })
+      })
+      .catch((error: Error) => {
+        this.actions.reportError(error)
+      })
   }
 }
