@@ -1,32 +1,19 @@
 import { createWeb3ReactStoreAndActions } from '@web3-react/store'
 import type { Actions, Web3ReactStore } from '@web3-react/types'
 import { Url } from '.'
-import { MockEIP1193Provider } from '../../eip1193/src/index.spec'
+import { MockJsonRpcProvider } from '../../network/src/index.spec'
 
 jest.mock('@ethersproject/providers', () => ({
-  JsonRpcProvider: class MockJsonRpcProvider {
-    getSigner() {}
-  },
-}))
-
-jest.mock('@ethersproject/experimental', () => ({
-  Eip1193Bridge: MockEIP1193Provider,
+  JsonRpcProvider: MockJsonRpcProvider,
 }))
 
 const chainId = '0x1'
 const accounts: string[] = []
 
-const HALF_INITIALIZED_STATE_BECAUSE_OF_MOCKS = {
-  chainId: undefined,
-  accounts: [],
-  activating: true,
-  error: undefined,
-}
-
 describe('Url', () => {
   let store: Web3ReactStore
   let connector: Url
-  let mockConnector: MockEIP1193Provider
+  let mockConnector: MockJsonRpcProvider
 
   describe('connectEagerly = true', () => {
     beforeEach(() => {
@@ -36,9 +23,8 @@ describe('Url', () => {
     })
 
     beforeEach(async () => {
-      mockConnector = connector.provider as unknown as MockEIP1193Provider
+      mockConnector = connector.customProvider as unknown as MockJsonRpcProvider
       mockConnector.chainId = chainId
-      mockConnector.accounts = accounts
     })
 
     test('#activate', async () => {
@@ -73,9 +59,8 @@ describe('Url', () => {
       beforeEach(async () => {
         // testing hack to ensure the provider is set
         await connector.activate()
-        mockConnector = connector.provider as unknown as MockEIP1193Provider
+        mockConnector = connector.customProvider as unknown as MockJsonRpcProvider
         mockConnector.chainId = chainId
-        mockConnector.accounts = accounts
       })
 
       test('works', async () => {

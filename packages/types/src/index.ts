@@ -77,6 +77,12 @@ export abstract class Connector {
    */
   public provider: Provider | undefined
 
+  /**
+   * An optional property meant to allow ethers providers to be used directly rather than via the experimental
+   * 1193 bridge. If desired, this property must be defined while the connector is active.
+   */
+  public customProvider: unknown | undefined
+
   protected readonly actions: Actions
 
   /**
