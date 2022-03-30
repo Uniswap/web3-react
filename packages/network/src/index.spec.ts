@@ -5,8 +5,8 @@ import { Network } from './'
 export class MockJsonRpcProvider {
   public chainId?: string
 
-  get network() {
-    return { chainId: this.chainId === undefined ? undefined : Number.parseInt(this.chainId, 16) }
+  public getNetwork() {
+    return Promise.resolve({ chainId: this.chainId === undefined ? undefined : Number.parseInt(this.chainId, 16) })
   }
 }
 
