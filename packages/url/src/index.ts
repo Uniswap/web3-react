@@ -5,20 +5,24 @@ import { Connector } from '@web3-react/types'
 
 type url = string | ConnectionInfo
 
+function isUrl(url: url | JsonRpcProvider): url is url {
+  return typeof url === 'string' || ('url' in url && !('connection' in url))
+}
+
 export class Url extends Connector {
   /** {@inheritdoc Connector.provider} */
-  public provider: undefined
+  public readonly provider: undefined
   /** {@inheritdoc Connector.customProvider} */
   public customProvider: JsonRpcProvider | undefined
 
   private eagerConnection?: Promise<JsonRpcProvider>
-  private url: url
+  private readonly url: url | JsonRpcProvider
 
   /**
-   * @param url - An RPC url.
+   * @param url - An RPC url or a JsonRpcProvider.
    * @param connectEagerly - A flag indicating whether connection should be initiated when the class is constructed.
    */
-  constructor(actions: Actions, url: url, connectEagerly = false) {
+  constructor(actions: Actions, url: url | JsonRpcProvider, connectEagerly = false) {
     super(actions)
 
     if (connectEagerly && typeof window === 'undefined') {
@@ -33,8 +37,10 @@ export class Url extends Connector {
   private async isomorphicInitialize() {
     if (this.eagerConnection) return this.eagerConnection
 
+    if (!isUrl(this.url)) return this.url
+
     return (this.eagerConnection = import('@ethersproject/providers').then(({ JsonRpcProvider }) => {
-      return new JsonRpcProvider(this.url)
+      return new JsonRpcProvider(this.url as url)
     }))
   }
 
