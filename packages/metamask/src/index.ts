@@ -160,7 +160,12 @@ export class MetaMask extends Connector {
           .then(() => this.activate(desiredChainId))
       })
       .catch((error: ProviderRpcError) => {
-        this.actions.reportError(error)
+        if (error.code === 4001) {
+          //  Ignore reporting error if the user denies the request
+          return
+        } else {
+          this.actions.reportError(error)
+        }
       })
   }
 }
