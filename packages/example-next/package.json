@@ -2,7 +2,8 @@
   "private": true,
   "name": "example-next",
   "scripts": {
-    "start": "next dev"
+    "start": "next dev",
+    "pin": "sh -c '{ for X in {coinbase-wallet,core,eip1193,empty,metamask,network,types,url,walletconnect}; do lerna add @web3-react/$X --exact --no-bootstrap --scope=example-next; done }'"
   },
   "dependencies": {
     "@ethersproject/bignumber": "^5.6.0",

@@ -12,6 +12,8 @@
     "build": "lerna run build",
     "prestart": "yarn build",
     "start": "lerna run start --parallel",
+    "pin": "lerna run pin && yarn bootstrap",
+    "version": "yarn pin",
     "prepack": "yarn build"
   },
   "devDependencies": {
