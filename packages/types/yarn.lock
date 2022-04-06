@@ -2,14 +2,14 @@
 # yarn lockfile v1
 
 
-use-sync-external-store@1.0.0-rc.1-next-629036a9c-20220224:
-  version "1.0.0-rc.1-next-629036a9c-20220224"
-  resolved "https://registry.yarnpkg.com/use-sync-external-store/-/use-sync-external-store-1.0.0-rc.1-next-629036a9c-20220224.tgz#40cf472454789403c2de6c8471d177459d184dc1"
-  integrity sha512-IhuMl0apVVYsT3XPfV+0nuwf0T6+3d4YxQXV4tDRsGpSQcYVG4zoWwfX4zdtouUfuelYg4t2SEmFifIMrxPfIw==
+use-sync-external-store@1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/use-sync-external-store/-/use-sync-external-store-1.0.0.tgz#d98f4a9c2e73d0f958e7e2d2c2bfb5f618cbd8fd"
+  integrity sha512-AFVsxg5GkFg8GDcxnl+Z0lMAz9rE8DGJCc28qnBuQF7lac57B5smLcT37aXpXIIPz75rW4g3eXHPjhHwdGskOw==
 
-zustand@^4.0.0-beta.2:
-  version "4.0.0-beta.2"
-  resolved "https://registry.yarnpkg.com/zustand/-/zustand-4.0.0-beta.2.tgz#27fdc32b62225cc18976c0cf8866ecee9a9f4a98"
-  integrity sha512-aJ5ypnOwPIa/uSjdZv/oHChTWPplpFOG/hvWwzkR5ahFiPI5R6ifyObf8Fz1Vi6Obz2wY1N32fT2pNrpT2hzPw==
+zustand@^4.0.0-beta.3:
+  version "4.0.0-beta.3"
+  resolved "https://registry.yarnpkg.com/zustand/-/zustand-4.0.0-beta.3.tgz#16dc82b48b65ed61fe2bae5dea4501f49bd450c7"
+  integrity sha512-cVDcspaK0CXgVmGcXB/oenhT7EFaKqD46pTmg30ciMsOoQN0ZuxEuHzpNIy9ejah0gzBL8aqHN89IMT2uFNOaA==
   dependencies:
-    use-sync-external-store "1.0.0-rc.1-next-629036a9c-20220224"
+    use-sync-external-store "1.0.0"
