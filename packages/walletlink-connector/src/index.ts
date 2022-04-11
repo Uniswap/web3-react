@@ -38,8 +38,8 @@ export class WalletLinkConnector extends AbstractConnector {
       // user is in the dapp browser on Coinbase Wallet
       this.provider = window.ethereum
     } else if (!this.walletLink) {
-      const WalletLink = await import('walletlink').then(m => m?.default ?? m)
-      this.walletLink = new WalletLink({
+      const CoinbaseWalletSDK = await import('@coinbase/wallet-sdk').then(m => m?.default ?? m)
+      this.walletLink = new CoinbaseWalletSDK({
         appName: this.appName,
         darkMode: this.darkMode,
         ...(this.appLogoUrl ? { appLogoUrl: this.appLogoUrl } : {})
