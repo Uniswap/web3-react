@@ -27,6 +27,6 @@
     "@web3-react/types": "^8.0.12-beta.0"
   },
   "peerDependencies": {
-    "eth-provider": "^0.9.4"
+    "eth-provider": "^0.10.0"
   }
 }
