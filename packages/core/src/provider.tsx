@@ -6,7 +6,7 @@ import React, { createContext, useContext } from 'react'
 import type { Web3ReactHooks, Web3ReactPriorityHooks } from './hooks'
 import { getPriorityConnector } from './hooks'
 
-type Web3ContextType<T extends BaseProvider = Web3Provider> = {
+export type Web3ContextType<T extends BaseProvider = Web3Provider> = {
   connector: ReturnType<Web3ReactPriorityHooks['usePriorityConnector']>
   chainId: ReturnType<Web3ReactPriorityHooks['usePriorityChainId']>
   accounts: ReturnType<Web3ReactPriorityHooks['usePriorityAccounts']>
