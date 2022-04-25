@@ -36,7 +36,7 @@ export function initializeConnector<T extends Connector>(
 
   const stateHooks = getStateHooks(useConnector)
   const derivedHooks = getDerivedHooks(stateHooks)
-  const augmentedHooks = getAugmentedHooks(connector, stateHooks, derivedHooks)
+  const augmentedHooks = getAugmentedHooks<T>(connector, stateHooks, derivedHooks)
 
   return [connector, { ...stateHooks, ...derivedHooks, ...augmentedHooks }, store]
 }
@@ -104,7 +104,15 @@ export function getSelectedConnector(
     return values[getIndex(connector)]
   }
 
-  function useSelectedProvider<T extends BaseProvider = Web3Provider>(connector: Connector, network?: Networkish) {
+  /**
+   * @typeParam T - A type argument must only be provided if one or more of the connectors passed to
+   * getSelectedConnector is using `connector.customProvider`, in which case it must match every possible type of this
+   * property, over all connectors.
+   */
+  function useSelectedProvider<T extends BaseProvider = Web3Provider>(
+    connector: Connector,
+    network?: Networkish
+  ): T | undefined {
     const index = getIndex(connector)
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const values = initializedConnectors.map(([, { useProvider }], i) => useProvider<T>(network, i === index))
@@ -199,6 +207,11 @@ export function getPriorityConnector(
     return useSelectedIsActive(usePriorityConnector())
   }
 
+  /**
+   * @typeParam T - A type argument must only be provided if one or more of the connectors passed to
+   * getPriorityConnector is using `connector.customProvider`, in which case it must match every possible type of this
+   * property, over all connectors.
+   */
   function usePriorityProvider<T extends BaseProvider = Web3Provider>(network?: Networkish) {
     return useSelectedProvider<T>(usePriorityConnector(), network)
   }
@@ -317,34 +330,45 @@ function useENS(provider?: BaseProvider, accounts?: string[]): (string | null)[]
 
 function getAugmentedHooks<T extends Connector>(
   connector: T,
-  { useChainId, useAccounts }: ReturnType<typeof getStateHooks>,
+  { useAccounts }: ReturnType<typeof getStateHooks>,
   { useAccount, useIsActive }: ReturnType<typeof getDerivedHooks>
 ) {
-  // avoid type erasure by returning the most qualified type if not otherwise set
-  function useProvider<T extends BaseProvider = Web3Provider>(
-    network?: Networkish,
-    enabled = true
-  ): Web3Provider | undefined | T {
+  /**
+   * Avoid type erasure by returning the most qualified type if not otherwise set.
+   * Note that this function's return type is `T | undefined`, but there is a code path
+   * that returns a Web3Provider, which could conflict with a user-provided T. So,
+   * it's important that users only provide an override for T if they know that
+   * `connector.customProvider` is going to be defined and of type T.
+   *
+   * @typeParam T - A type argument must only be provided if using `connector.customProvider`, in which case it
+   * must match the type of this property.
+   */
+  function useProvider<T extends BaseProvider = Web3Provider>(network?: Networkish, enabled = true): T | undefined {
     const isActive = useIsActive()
 
-    const chainId = useChainId()
-    const accounts = useAccounts()
-
     // trigger the dynamic import on mount
-    const [providers, setProviders] = useState<{ Web3Provider: typeof Web3Provider } | undefined>(undefined)
+    // we store the class in an object and then destructure to avoid a compiler error related to class instantiation
+    const [{ DynamicWeb3Provider }, setDynamicWeb3Provider] = useState<{
+      DynamicWeb3Provider: typeof Web3Provider | undefined
+    }>({
+      DynamicWeb3Provider: undefined,
+    })
     useEffect(() => {
-      import('@ethersproject/providers').then(setProviders).catch(() => {
-        console.debug('@ethersproject/providers not available')
-      })
+      import('@ethersproject/providers')
+        .then(({ Web3Provider }) => setDynamicWeb3Provider({ DynamicWeb3Provider: Web3Provider }))
+        .catch(() => {
+          console.debug('@ethersproject/providers not available')
+        })
     }, [])
 
     return useMemo(() => {
-      // we use chainId and accounts to re-render in case connector.{customProvider,provider} change in place
-      if (providers && enabled && isActive && chainId && accounts) {
+      // to ensure connectors remain fresh after network changes, we use isActive here to ensure re-renders
+      if (DynamicWeb3Provider && enabled && isActive) {
         if (connector.customProvider) return connector.customProvider as T
-        if (connector.provider) return new providers.Web3Provider(connector.provider, network)
+        // see tsdoc note above for return type explanation.
+        if (connector.provider) return new DynamicWeb3Provider(connector.provider, network) as unknown as T
       }
-    }, [providers, enabled, isActive, chainId, accounts, network])
+    }, [DynamicWeb3Provider, enabled, isActive, network])
   }
 
   function useENSNames(provider?: BaseProvider): (string | null)[] | undefined {
