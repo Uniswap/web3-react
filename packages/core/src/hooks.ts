@@ -32,7 +32,7 @@ export function initializeConnector<T extends Connector>(
   const [store, actions] = createWeb3ReactStoreAndActions(allowedChainIds)
 
   const connector = f(actions)
-  const useConnector = create<Web3ReactState>(store)
+  const useConnector = create(store)
 
   const stateHooks = getStateHooks(useConnector)
   const derivedHooks = getDerivedHooks(stateHooks)
@@ -246,7 +246,7 @@ const ACCOUNTS_EQUALITY_CHECKER: EqualityChecker<Web3ReactState['accounts']> = (
 const ACTIVATING = (state: Web3ReactState) => state.activating
 const ERROR = (state: Web3ReactState) => state.error
 
-function getStateHooks(useConnector: UseBoundStore<Web3ReactState>) {
+function getStateHooks(useConnector: UseBoundStore<Web3ReactStore>) {
   function useChainId(): Web3ReactState['chainId'] {
     return useConnector(CHAIN_ID)
   }
