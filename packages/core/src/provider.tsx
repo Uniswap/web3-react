@@ -9,8 +9,7 @@ import { getPriorityConnector } from './hooks'
 /**
  * @typeParam T - A type argument must only be provided if one or more of the connectors passed to Web3ReactProvider
  * is using `connector.customProvider`, in which case it must match every possible type of this
- * property, over all connectors. If any connector is not using `connector.customProvider`, T must also include
- * Web3Provider as a possible type.
+ * property, over all connectors.
  */
 export type Web3ContextType<T extends BaseProvider = Web3Provider> = {
   connector: ReturnType<Web3ReactPriorityHooks['usePriorityConnector']>
