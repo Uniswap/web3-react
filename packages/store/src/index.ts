@@ -1,6 +1,6 @@
 import { getAddress } from '@ethersproject/address'
 import type { Actions, Web3ReactState, Web3ReactStateUpdate, Web3ReactStore } from '@web3-react/types'
-import create from 'zustand/vanilla'
+import { createStore } from 'zustand'
 
 /**
  * MAX_SAFE_CHAIN_ID is the upper bound limit on what will be accepted for `chainId`
@@ -49,7 +49,7 @@ export function createWeb3ReactStoreAndActions(allowedChainIds?: number[]): [Web
     throw new Error(`allowedChainIds is length 0`)
   }
 
-  const store = create<Web3ReactState>(() => DEFAULT_STATE)
+  const store = createStore<Web3ReactState>()(() => DEFAULT_STATE)
 
   // flag for tracking updates so we don't clobber data when cancelling activation
   let nullifier = 0
