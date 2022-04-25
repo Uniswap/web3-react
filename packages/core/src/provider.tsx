@@ -6,6 +6,12 @@ import React, { createContext, useContext } from 'react'
 import type { Web3ReactHooks, Web3ReactPriorityHooks } from './hooks'
 import { getPriorityConnector } from './hooks'
 
+/**
+ * @typeParam T - A type argument must only be provided if one or more of the connectors passed to Web3ReactProvider
+ * is using `connector.customProvider`, in which case it must match every possible type of this
+ * property, over all connectors. If any connector is not using `connector.customProvider`, T must also include
+ * Web3Provider as a possible type.
+ */
 export type Web3ContextType<T extends BaseProvider = Web3Provider> = {
   connector: ReturnType<Web3ReactPriorityHooks['usePriorityConnector']>
   chainId: ReturnType<Web3ReactPriorityHooks['usePriorityChainId']>
@@ -14,7 +20,7 @@ export type Web3ContextType<T extends BaseProvider = Web3Provider> = {
   error: ReturnType<Web3ReactPriorityHooks['usePriorityError']>
   account: ReturnType<Web3ReactPriorityHooks['usePriorityAccount']>
   isActive: ReturnType<Web3ReactPriorityHooks['usePriorityIsActive']>
-  provider: Web3Provider | undefined | T
+  provider: T | undefined
   ENSNames: ReturnType<Web3ReactPriorityHooks['usePriorityENSNames']>
   ENSName: ReturnType<Web3ReactPriorityHooks['usePriorityENSName']>
 }
@@ -55,8 +61,8 @@ export function Web3ReactProvider({
   // note that we've omitted a <T extends BaseProvider = Web3Provider> generic type
   // in Web3ReactProvider, and thus can't pass T through to usePriorityProvider below.
   // this is because if we did so, the type of provider would include T, but that would
-  // conflict because Web3Context can't take a generic. as a work-around,
-  // we manually type useWeb3React below
+  // conflict because Web3Context can't take a generic. however, this isn't particularly
+  // important, because useWeb3React (below) is manually typed
   const provider = usePriorityProvider(network)
   const ENSNames = usePriorityENSNames(lookupENS ? provider : undefined)
   const ENSName = usePriorityENSName(lookupENS ? provider : undefined)
@@ -82,10 +88,7 @@ export function Web3ReactProvider({
 }
 
 export function useWeb3React<T extends BaseProvider = Web3Provider>() {
-  // see the comment in Web3ReactProvider for an explanation of the below
-  const web3 = useContext<Web3ContextType<T> | undefined>(
-    Web3Context as unknown as Context<Web3ContextType<T> | undefined>
-  )
+  const web3 = useContext(Web3Context as Context<Web3ContextType<T> | undefined>)
   if (!web3) throw Error('useWeb3React can only be used within the Web3ReactProvider component')
   return web3
 }
