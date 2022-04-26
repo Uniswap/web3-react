@@ -7,6 +7,8 @@ import { Connector } from '@web3-react/types'
 import { sequence } from '0xsequence'
 import { WalletProvider } from '0xsequence/dist/declarations/src/provider';
 
+type SequenceProvider = Provider & { isSequence?: boolean; isConnected?: () => boolean; providers?: SequenceProvider[] }
+
 declare const window: any
 
 export interface SequenceOptions {
@@ -29,7 +31,7 @@ function parseChainId(chainId: string | number) {
 }
 
 export class Sequence extends Connector {
-  public provider: Provider | undefined;
+  public provider: SequenceProvider | undefined;
 
   private wallet?: WalletProvider
   private eagerConnection?: Promise<void>
