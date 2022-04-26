@@ -127,8 +127,14 @@ export class TorusConnector extends Connector {
         return
       })
   }
+  /** {@inheritdoc Connector.connectEagerly} */
+  public async deactivate(): Promise<void> {
+    const cancelDesactivate = this.actions.reportError(undefined)
+    if (!this.torus) return cancelDesactivate
+    this.provider = undefined
+    return Promise.resolve(this.torus.logout())
+  }
 }
-
 function parseChainId(chainId: string | number) {
   return typeof chainId === 'number' ? chainId : Number.parseInt(chainId, chainId.startsWith('0x') ? 16 : 10)
 }
