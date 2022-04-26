@@ -1,0 +1,34 @@
+{
+  "name": "@web3-react/torus",
+  "keywords": [
+    "web3-react",
+    "torus"
+  ],
+  "author": "Valentin Merlo",
+  "license": "GPL-3.0-or-later",
+  "publishConfig": {
+    "access": "restricted"
+  },
+  "version": "8.0.19-beta.0",
+  "files": [
+    "dist/*"
+  ],
+  "type": "commonjs",
+  "types": "./dist/index.d.ts",
+  "main": "./dist/index.js",
+  "exports": "./dist/index.js",
+  "scripts": {
+    "prebuild": "rm -rf dist",
+    "build": "tsc",
+    "start": "tsc --watch"
+  },
+  "dependencies": {
+    "@toruslabs/torus-embed": "^1.22.2",
+    "@tsconfig/recommended": "^1.0.1",
+    "@web3-react/types": "^8.0.12-beta.0",
+    "typescript": "^4.6.3"
+  },
+  "devDependencies": {
+    "@web3-react/store": "^8.0.17-beta.0"
+  }
+}

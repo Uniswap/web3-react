@@ -1,6 +1,7 @@
 import CoinbaseWalletCard from '../components/connectors/CoinbaseWalletCard'
 import MetaMaskCard from '../components/connectors/MetaMaskCard'
 import NetworkCard from '../components/connectors/NetworkCard'
+import TorusCard from '../components/connectors/TorusCard'
 import WalletConnectCard from '../components/connectors/WalletConnectCard'
 import ProviderExample from '../components/ProviderExample'
 
@@ -13,6 +14,7 @@ export default function Home() {
         <WalletConnectCard />
         <CoinbaseWalletCard />
         <NetworkCard />
+        <TorusCard />
       </div>
     </>
   )

@@ -1,5 +1,6 @@
 import type { CoinbaseWallet } from '@web3-react/coinbase-wallet'
 import type { Web3ReactHooks } from '@web3-react/core'
+import { TorusConnector } from '@web3-react/torus'
 import type { MetaMask } from '@web3-react/metamask'
 import { Network } from '@web3-react/network'
 import { WalletConnect } from '@web3-react/walletconnect'
@@ -42,7 +43,7 @@ export function ConnectWithSelect({
   error,
   isActive,
 }: {
-  connector: MetaMask | WalletConnect | CoinbaseWallet | Network
+  connector: MetaMask | WalletConnect | CoinbaseWallet | Network | TorusConnector
   chainId: ReturnType<Web3ReactHooks['useChainId']>
   isActivating: ReturnType<Web3ReactHooks['useIsActivating']>
   error: ReturnType<Web3ReactHooks['useError']>
@@ -64,6 +65,18 @@ export function ConnectWithSelect({
 
       if (connector instanceof WalletConnect || connector instanceof Network) {
         await connector.activate(desiredChainId === -1 ? undefined : desiredChainId)
+      } else if (connector instanceof TorusConnector) {
+        await connector.activate(
+          desiredChainId === -1
+            ? undefined
+            : {
+                network: {
+                  host: URLS[desiredChainId][0],
+                  chainId: desiredChainId,
+                  networkName: CHAINS[desiredChainId].name,
+                },
+              }
+        )
       } else {
         await connector.activate(desiredChainId === -1 ? undefined : getAddChainParameters(desiredChainId))
       }
@@ -85,6 +98,18 @@ export function ConnectWithSelect({
           onClick={() =>
             connector instanceof WalletConnect || connector instanceof Network
               ? void connector.activate(desiredChainId === -1 ? undefined : desiredChainId)
+              : connector instanceof TorusConnector
+              ? void connector.activate(
+                  desiredChainId === -1
+                    ? undefined
+                    : {
+                        network: {
+                          host: URLS[desiredChainId][0],
+                          chainId: desiredChainId,
+                          networkName: CHAINS[desiredChainId].name,
+                        },
+                      }
+                )
               : void connector.activate(desiredChainId === -1 ? undefined : getAddChainParameters(desiredChainId))
           }
         >
@@ -122,7 +147,19 @@ export function ConnectWithSelect({
               : () =>
                   connector instanceof WalletConnect || connector instanceof Network
                     ? connector.activate(desiredChainId === -1 ? undefined : desiredChainId)
-                    : connector.activate(desiredChainId === -1 ? undefined : getAddChainParameters(desiredChainId))
+                    : connector instanceof TorusConnector
+                    ? void connector.activate(
+                        desiredChainId === -1
+                          ? undefined
+                          : {
+                              network: {
+                                host: URLS[desiredChainId][0],
+                                chainId: desiredChainId,
+                                networkName: CHAINS[desiredChainId].name,
+                              },
+                            }
+                      )
+                    : void connector.activate(desiredChainId === -1 ? undefined : getAddChainParameters(desiredChainId))
           }
           disabled={isActivating}
         >
