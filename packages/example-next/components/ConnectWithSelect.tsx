@@ -3,6 +3,8 @@ import type { Web3ReactHooks } from '@web3-react/core'
 import type { MetaMask } from '@web3-react/metamask'
 import { Network } from '@web3-react/network'
 import { WalletConnect } from '@web3-react/walletconnect'
+import { Sequence } from '@web3-react/sequence'
+import type { WalletLink } from '@web3-react/walletlink'
 import { useCallback, useState } from 'react'
 import { CHAINS, getAddChainParameters, URLS } from '../chains'
 
@@ -42,7 +44,7 @@ export function ConnectWithSelect({
   error,
   isActive,
 }: {
-  connector: MetaMask | WalletConnect | CoinbaseWallet | Network
+  connector: MetaMask | WalletConnect | CoinbaseWallet | Network | Sequence
   chainId: ReturnType<Web3ReactHooks['useChainId']>
   isActivating: ReturnType<Web3ReactHooks['useIsActivating']>
   error: ReturnType<Web3ReactHooks['useError']>
@@ -62,7 +64,7 @@ export function ConnectWithSelect({
       // if they want to connect to the default chain and we're already connected, return
       if (desiredChainId === -1 && chainId !== undefined) return
 
-      if (connector instanceof WalletConnect || connector instanceof Network) {
+      if (connector instanceof WalletConnect || connector instanceof Network || connector instanceof Sequence) {
         await connector.activate(desiredChainId === -1 ? undefined : desiredChainId)
       } else {
         await connector.activate(desiredChainId === -1 ? undefined : getAddChainParameters(desiredChainId))
@@ -83,9 +85,9 @@ export function ConnectWithSelect({
         <div style={{ marginBottom: '1rem' }} />
         <button
           onClick={() =>
-            connector instanceof WalletConnect || connector instanceof Network
-              ? void connector.activate(desiredChainId === -1 ? undefined : desiredChainId)
-              : void connector.activate(desiredChainId === -1 ? undefined : getAddChainParameters(desiredChainId))
+            connector instanceof WalletConnect || connector instanceof Network || connector instanceof Sequence
+              ? connector.activate(desiredChainId === -1 ? undefined : desiredChainId)
+              : connector.activate(desiredChainId === -1 ? undefined : getAddChainParameters(desiredChainId))
           }
         >
           Try Again?
@@ -120,7 +122,7 @@ export function ConnectWithSelect({
             isActivating
               ? undefined
               : () =>
-                  connector instanceof WalletConnect || connector instanceof Network
+                  connector instanceof WalletConnect || connector instanceof Network || connector instanceof Sequence
                     ? connector.activate(desiredChainId === -1 ? undefined : desiredChainId)
                     : connector.activate(desiredChainId === -1 ? undefined : getAddChainParameters(desiredChainId))
           }
