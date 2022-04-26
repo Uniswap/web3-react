@@ -31,6 +31,7 @@ function parseChainId(chainId: string | number) {
 }
 
 export class Sequence extends Connector {
+  /** {@inheritdoc Connector.provider} */
   public provider: SequenceProvider | undefined;
 
   private wallet?: WalletProvider
@@ -78,6 +79,11 @@ export class Sequence extends Connector {
       if (this.provider) {
         try {
           await this.provider.request({ method: 'eth_requestAccounts' })
+          const [chainId, accounts] = await Promise.all([
+            this.provider.request({ method: 'eth_chainId' }) as Promise<string>,
+            this.provider.request({ method: 'eth_accounts' }) as Promise<string[]>,
+          ])
+          this.actions.update({ chainId: parseChainId(chainId), accounts })
           this.listenToEvents();
         } catch (error) {
           cancelActivation();
@@ -88,7 +94,7 @@ export class Sequence extends Connector {
     }
   
     const wallet = new sequence.Wallet(defaultNetwork || 'mainnet');
-  
+
     if (!wallet.isConnected()) {
       const connectDetails = await wallet.connect({
         app: this.options?.appName || 'app',
