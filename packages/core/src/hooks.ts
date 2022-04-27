@@ -249,15 +249,15 @@ export function getPriorityConnector(
   }
 }
 
-const CHAIN_ID = (state: Web3ReactState) => state.chainId
-const ACCOUNTS = (state: Web3ReactState) => state.accounts
+const CHAIN_ID = ({ chainId }: Web3ReactState) => chainId
+const ACCOUNTS = ({ accounts }: Web3ReactState) => accounts
 const ACCOUNTS_EQUALITY_CHECKER: EqualityChecker<Web3ReactState['accounts']> = (oldAccounts, newAccounts) =>
   (oldAccounts === undefined && newAccounts === undefined) ||
   (oldAccounts !== undefined &&
     oldAccounts.length === newAccounts?.length &&
     oldAccounts.every((oldAccount, i) => oldAccount === newAccounts[i]))
-const ACTIVATING = (state: Web3ReactState) => state.activating
-const ERROR = (state: Web3ReactState) => state.error
+const ACTIVATING = ({ activating }: Web3ReactState) => activating
+const ERROR = ({ error }: Web3ReactState) => error
 
 function getStateHooks(useConnector: UseBoundStore<Web3ReactStore>) {
   function useChainId(): Web3ReactState['chainId'] {
