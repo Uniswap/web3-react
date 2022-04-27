@@ -48,7 +48,7 @@ function computeIsActive({ chainId, accounts, activating, error }: Web3ReactStat
 /**
  * Creates a variety of convenience `hooks` that return data associated with a particular passed connector.
  *
- * @param initializedConnectors - Two or more [connector, hooks] arrays, as returned from initializeConnector.
+ * @param initializedConnectors - Two or more [connector, hooks(, store)] arrays, as returned from initializeConnector.
  * @returns hooks - A variety of convenience hooks that wrap the hooks returned from initializeConnector.
  */
 export function getSelectedConnector(
@@ -153,7 +153,7 @@ export function getSelectedConnector(
  * Creates a variety of convenience `hooks` that return data associated with the first of the `initializedConnectors`
  * that is active.
  *
- * @param initializedConnectors - Two or more [connector, hooks] arrays, as returned from initializeConnector.
+ * @param initializedConnectors - Two or more [connector, hooks(, store)] arrays, as returned from initializeConnector.
  * @returns hooks - A variety of convenience hooks that wrap the hooks returned from initializeConnector.
  */
 export function getPriorityConnector(
