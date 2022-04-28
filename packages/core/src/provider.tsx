@@ -22,6 +22,7 @@ export type Web3ContextType<T extends BaseProvider = Web3Provider> = {
   provider: T | undefined
   ENSNames: ReturnType<Web3ReactPriorityHooks['useSelectedENSNames']>
   ENSName: ReturnType<Web3ReactPriorityHooks['useSelectedENSName']>
+  hooks: ReturnType<typeof getPriorityConnector>
 }
 
 const Web3Context = createContext<Web3ContextType | undefined>(undefined)
@@ -50,6 +51,7 @@ export function Web3ReactProvider({
   network,
   lookupENS = true,
 }: Web3ReactProviderProps) {
+  const hooks = getPriorityConnector(...connectors)
   const {
     usePriorityConnector,
     useSelectedChainId,
@@ -61,7 +63,7 @@ export function Web3ReactProvider({
     useSelectedProvider,
     useSelectedENSNames,
     useSelectedENSName,
-  } = getPriorityConnector(...connectors)
+  } = hooks
 
   const priorityConnector = usePriorityConnector()
   const connector = connectorOverride ?? priorityConnector
@@ -94,6 +96,7 @@ export function Web3ReactProvider({
         provider,
         ENSNames,
         ENSName,
+        hooks,
       }}
     >
       {children}
@@ -101,8 +104,8 @@ export function Web3ReactProvider({
   )
 }
 
-export function useWeb3React<T extends BaseProvider = Web3Provider>() {
-  const web3 = useContext(Web3Context as Context<Web3ContextType<T> | undefined>)
-  if (!web3) throw Error('useWeb3React can only be used within the Web3ReactProvider component')
-  return web3
+export function useWeb3React<T extends BaseProvider = Web3Provider>(): Web3ContextType<T> {
+  const context = useContext(Web3Context as Context<Web3ContextType<T> | undefined>)
+  if (!context) throw Error('useWeb3React can only be used within the Web3ReactProvider component')
+  return context
 }
