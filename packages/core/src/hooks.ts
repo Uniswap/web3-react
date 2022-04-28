@@ -6,6 +6,16 @@ import { useEffect, useMemo, useState } from 'react'
 import type { EqualityChecker, UseBoundStore } from 'zustand'
 import create from 'zustand'
 
+let DynamicWeb3Provider: undefined | typeof Web3Provider | null
+const providersPromise = import('@ethersproject/providers')
+  .then(({ Web3Provider }) => {
+    DynamicWeb3Provider = Web3Provider
+  })
+  .catch(() => {
+    DynamicWeb3Provider = null
+    console.debug('@ethersproject/providers not available')
+  })
+
 export type Web3ReactHooks = ReturnType<typeof getStateHooks> &
   ReturnType<typeof getDerivedHooks> &
   ReturnType<typeof getAugmentedHooks>
@@ -346,29 +356,27 @@ function getAugmentedHooks<T extends Connector>(
   function useProvider<T extends BaseProvider = Web3Provider>(network?: Networkish, enabled = true): T | undefined {
     const isActive = useIsActive()
 
-    // trigger the dynamic import on mount
-    // we store the class in an object and then destructure to avoid a compiler error related to class instantiation
-    const [{ DynamicWeb3Provider }, setDynamicWeb3Provider] = useState<{
-      DynamicWeb3Provider: typeof Web3Provider | undefined
-    }>({
-      DynamicWeb3Provider: undefined,
-    })
+    // ensure that DynamicWeb3Provider is going to be available when loaded if @ethersproject/providers is installed
+    const [, forceRender] = useState<void>()
     useEffect(() => {
-      import('@ethersproject/providers')
-        .then(({ Web3Provider }) => setDynamicWeb3Provider({ DynamicWeb3Provider: Web3Provider }))
-        .catch(() => {
-          console.debug('@ethersproject/providers not available')
+      if (DynamicWeb3Provider === undefined) {
+        void providersPromise.then(() => {
+          if (DynamicWeb3Provider) {
+            forceRender()
+          }
         })
+      }
     }, [])
 
     return useMemo(() => {
       // to ensure connectors remain fresh after network changes, we use isActive here to ensure re-renders
-      if (DynamicWeb3Provider && enabled && isActive) {
+      if (enabled && isActive) {
         if (connector.customProvider) return connector.customProvider as T
         // see tsdoc note above for return type explanation.
-        if (connector.provider) return new DynamicWeb3Provider(connector.provider, network) as unknown as T
+        else if (DynamicWeb3Provider && connector.provider)
+          return new DynamicWeb3Provider(connector.provider, network) as unknown as T
       }
-    }, [DynamicWeb3Provider, enabled, isActive, network])
+    }, [enabled, isActive, network])
   }
 
   function useENSNames(provider?: BaseProvider): (string | null)[] | undefined {
