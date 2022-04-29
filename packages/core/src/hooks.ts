@@ -311,11 +311,16 @@ function getDerivedHooks({ useChainId, useAccounts, useIsActivating, useError }:
   return { useAccount, useIsActive }
 }
 
-function useENS(provider?: BaseProvider, accounts?: string[]): (string | null)[] | undefined {
+/**
+ * @returns ENSNames - An array of length `accounts.length` which contains entries which are either all `undefined`,
+ * indicated that names cannot be fetched because there's no provider, or they're in the process of being fetched,
+ * or `string | null`, depending on whether an ENS name has been set for the account in question or not.
+ */
+function useENS(provider?: BaseProvider, accounts: string[] = []): undefined[] | (string | null)[] {
   const [ENSNames, setENSNames] = useState<(string | null)[] | undefined>()
 
   useEffect(() => {
-    if (provider && accounts?.length) {
+    if (provider && accounts.length) {
       let stale = false
 
       Promise.all(accounts.map((account) => provider.lookupAddress(account)))
@@ -326,6 +331,9 @@ function useENS(provider?: BaseProvider, accounts?: string[]): (string | null)[]
         })
         .catch((error) => {
           console.debug('Could not fetch ENS names', error)
+          if (!stale) {
+            setENSNames(new Array<null>(accounts.length).fill(null))
+          }
         })
 
       return () => {
@@ -335,7 +343,7 @@ function useENS(provider?: BaseProvider, accounts?: string[]): (string | null)[]
     }
   }, [provider, accounts])
 
-  return ENSNames
+  return ENSNames ?? new Array<undefined>(accounts.length).fill(undefined)
 }
 
 function getAugmentedHooks<T extends Connector>(
@@ -379,12 +387,12 @@ function getAugmentedHooks<T extends Connector>(
     }, [enabled, isActive, network])
   }
 
-  function useENSNames(provider?: BaseProvider): (string | null)[] | undefined {
+  function useENSNames(provider?: BaseProvider): undefined[] | (string | null)[] {
     const accounts = useAccounts()
     return useENS(provider, accounts)
   }
 
-  function useENSName(provider?: BaseProvider): (string | null) | undefined {
+  function useENSName(provider?: BaseProvider): undefined | string | null {
     const account = useAccount()
     const accounts = useMemo(() => (account === undefined ? undefined : [account]), [account])
     return useENS(provider, accounts)?.[0]
