@@ -1,5 +1,11 @@
 import type { CoinbaseWalletProvider, CoinbaseWalletSDK } from '@coinbase/wallet-sdk'
-import type { Actions, AddEthereumChainParameter, ProviderConnectInfo, ProviderRpcError } from '@web3-react/types'
+import type {
+  Actions,
+  AddEthereumChainParameter,
+  ProviderConnectInfo,
+  ProviderRpcError,
+  WatchAssetParameters,
+} from '@web3-react/types'
 import { Connector } from '@web3-react/types'
 
 function parseChainId(chainId: string | number) {
@@ -182,5 +188,33 @@ export class CoinbaseWallet extends Connector {
   /** {@inheritdoc Connector.deactivate} */
   public deactivate(): void {
     this.coinbaseWallet?.disconnect()
+  }
+
+  public async watchAsset({
+    address,
+    symbol,
+    decimals,
+    image,
+  }: Pick<WatchAssetParameters, 'address'> & Partial<Omit<WatchAssetParameters, 'address'>>): Promise<boolean> {
+    if (!this.provider) return false
+
+    return this.provider
+      .request({
+        method: 'wallet_watchAsset',
+        params: {
+          type: 'ERC20',
+          options: {
+            address, // The address that the token is at.
+            symbol, // A ticker symbol or shorthand, up to 5 chars.
+            decimals, // The number of decimals in the token
+            image, // A string url of the token logo
+          },
+        },
+      })
+      .then((success) => success as boolean)
+      .catch((error) => {
+        console.debug(error)
+        return false
+      })
   }
 }

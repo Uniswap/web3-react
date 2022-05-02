@@ -5,6 +5,7 @@ import type {
   Provider,
   ProviderConnectInfo,
   ProviderRpcError,
+  WatchAssetParameters,
 } from '@web3-react/types'
 import { Connector } from '@web3-react/types'
 
@@ -161,6 +162,29 @@ export class MetaMask extends Connector {
       })
       .catch((error: ProviderRpcError) => {
         this.actions.reportError(error)
+      })
+  }
+
+  public async watchAsset({ address, symbol, decimals, image }: WatchAssetParameters): Promise<boolean> {
+    if (!this.provider) return false
+
+    return this.provider
+      .request({
+        method: 'wallet_watchAsset',
+        params: {
+          type: 'ERC20', // Initially only supports ERC20, but eventually more!
+          options: {
+            address, // The address that the token is at.
+            symbol, // A ticker symbol or shorthand, up to 5 chars.
+            decimals, // The number of decimals in the token
+            image, // A string url of the token logo
+          },
+        },
+      })
+      .then((success) => success as boolean)
+      .catch((error) => {
+        console.debug(error)
+        return false
       })
   }
 }

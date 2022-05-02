@@ -1,8 +1,8 @@
-import CoinbaseWalletCard from '../components/connectors/CoinbaseWalletCard'
-import GnosisSafeCard from '../components/connectors/GnosisSafeCard'
-import MetaMaskCard from '../components/connectors/MetaMaskCard'
-import NetworkCard from '../components/connectors/NetworkCard'
-import WalletConnectCard from '../components/connectors/WalletConnectCard'
+import CoinbaseWalletCard from '../components/connectorCards/CoinbaseWalletCard'
+import GnosisSafeCard from '../components/connectorCards/GnosisSafeCard'
+import MetaMaskCard from '../components/connectorCards/MetaMaskCard'
+import NetworkCard from '../components/connectorCards/NetworkCard'
+import WalletConnectCard from '../components/connectorCards/WalletConnectCard'
 import ProviderExample from '../components/ProviderExample'
 
 export default function Home() {
