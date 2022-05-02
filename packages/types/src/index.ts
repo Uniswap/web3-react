@@ -123,4 +123,9 @@ export abstract class Connector {
   public deactivate(...args: unknown[]): Promise<void> | void {
     this.actions.reportError(undefined)
   }
+
+  /**
+   * Attempt to add an asset per EIP-747
+   */
+  public watchAsset?(params: WatchAssetParameters): Promise<boolean>
 }
