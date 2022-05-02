@@ -41,7 +41,7 @@ export class Network extends Connector {
   ) {
     super(actions)
 
-    if (connectEagerly && typeof window === 'undefined') {
+    if (connectEagerly && this.serverSide) {
       throw new Error('connectEagerly = true is invalid for SSR, instead use the activate method in a useEffect')
     }
 

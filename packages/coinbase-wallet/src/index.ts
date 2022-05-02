@@ -27,7 +27,7 @@ export class CoinbaseWallet extends Connector {
   constructor(actions: Actions, options: CoinbaseWalletSDKOptions, connectEagerly = false) {
     super(actions)
 
-    if (connectEagerly && typeof window === 'undefined') {
+    if (connectEagerly && this.serverSide) {
       throw new Error('connectEagerly = true is invalid for SSR, instead use the connectEagerly method in a useEffect')
     }
 

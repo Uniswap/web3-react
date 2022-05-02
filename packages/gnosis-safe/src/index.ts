@@ -30,7 +30,7 @@ export class GnosisSafe extends Connector {
   constructor(actions: Actions, connectEagerly = false, options?: Opts) {
     super(actions)
 
-    if (connectEagerly && typeof window === 'undefined') {
+    if (connectEagerly && this.serverSide) {
       throw new Error('connectEagerly = true is invalid for SSR, instead use the connectEagerly method in a useEffect')
     }
 
@@ -41,7 +41,7 @@ export class GnosisSafe extends Connector {
 
   // check if we're in an iframe
   private get inIframe() {
-    if (typeof window === 'undefined') return false
+    if (this.serverSide) return false
     if (window !== window.parent) return true
     return false
   }

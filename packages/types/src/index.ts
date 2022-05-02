@@ -94,6 +94,10 @@ export abstract class Connector {
     this.actions = actions
   }
 
+  protected get serverSide() {
+    return typeof window === 'undefined'
+  }
+
   /**
    * Attempt to initiate a connection, failing silently
    */

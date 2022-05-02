@@ -16,7 +16,7 @@ export class EIP1193 extends Connector {
   constructor(actions: Actions, provider: Provider, connectEagerly = false) {
     super(actions)
 
-    if (connectEagerly && typeof window === 'undefined') {
+    if (connectEagerly && this.serverSide) {
       throw new Error('connectEagerly = true is invalid for SSR, instead use the connectEagerly method in a useEffect')
     }
 
