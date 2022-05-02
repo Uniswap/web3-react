@@ -127,5 +127,5 @@ export abstract class Connector {
   /**
    * Attempt to add an asset per EIP-747
    */
-  public watchAsset?(params: WatchAssetParameters): Promise<boolean>
+  public watchAsset?(params: WatchAssetParameters): Promise<true>
 }

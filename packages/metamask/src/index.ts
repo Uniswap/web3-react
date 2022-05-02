@@ -165,8 +165,8 @@ export class MetaMask extends Connector {
       })
   }
 
-  public async watchAsset({ address, symbol, decimals, image }: WatchAssetParameters): Promise<boolean> {
-    if (!this.provider) return false
+  public async watchAsset({ address, symbol, decimals, image }: WatchAssetParameters): Promise<true> {
+    if (!this.provider) throw new Error('No provider')
 
     return this.provider
       .request({
@@ -181,10 +181,9 @@ export class MetaMask extends Connector {
           },
         },
       })
-      .then((success) => success as boolean)
-      .catch((error) => {
-        console.debug(error)
-        return false
+      .then((success) => {
+        if (!success) throw new Error('Rejected')
+        return true
       })
   }
 }

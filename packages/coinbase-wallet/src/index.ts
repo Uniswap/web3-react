@@ -195,8 +195,8 @@ export class CoinbaseWallet extends Connector {
     symbol,
     decimals,
     image,
-  }: Pick<WatchAssetParameters, 'address'> & Partial<Omit<WatchAssetParameters, 'address'>>): Promise<boolean> {
-    if (!this.provider) return false
+  }: Pick<WatchAssetParameters, 'address'> & Partial<Omit<WatchAssetParameters, 'address'>>): Promise<true> {
+    if (!this.provider) throw new Error('No provider')
 
     return this.provider
       .request({
@@ -211,10 +211,9 @@ export class CoinbaseWallet extends Connector {
           },
         },
       })
-      .then((success) => success as boolean)
-      .catch((error) => {
-        console.debug(error)
-        return false
+      .then((success) => {
+        if (!success) throw new Error('Rejected')
+        return true
       })
   }
 }
