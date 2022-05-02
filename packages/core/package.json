@@ -9,7 +9,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "version": "8.0.25-beta.0",
+  "version": "8.0.26-beta.0",
   "files": [
     "dist/*"
   ],
@@ -23,8 +23,8 @@
     "start": "tsc --watch"
   },
   "dependencies": {
-    "@web3-react/store": "^8.0.18-beta.0",
-    "@web3-react/types": "^8.0.13-beta.0",
+    "@web3-react/store": "^8.0.19-beta.0",
+    "@web3-react/types": "^8.0.14-beta.0",
     "zustand": "^4.0.0-rc.0"
   },
   "peerDependencies": {

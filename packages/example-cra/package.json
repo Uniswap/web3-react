@@ -7,8 +7,8 @@
   },
   "dependencies": {
     "@types/react-dom": "^18.0.0",
-    "@web3-react/core": "8.0.25-beta.0",
-    "@web3-react/empty": "8.0.13-beta.0",
+    "@web3-react/core": "8.0.26-beta.0",
+    "@web3-react/empty": "8.0.14-beta.0",
     "react-dom": "^18.0.0",
     "react-scripts": "^5.0.1"
   },

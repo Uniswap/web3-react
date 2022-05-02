@@ -26,6 +26,6 @@
   "dependencies": {
     "@gnosis.pm/safe-apps-provider": "^0.11.0",
     "@gnosis.pm/safe-apps-sdk": "^7.3.0",
-    "@web3-react/types": "^8.0.13-beta.0"
+    "@web3-react/types": "^8.0.14-beta.0"
   }
 }
