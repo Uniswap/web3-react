@@ -1,8 +1,8 @@
 {
-  "name": "@web3-react/metamask",
+  "name": "@web3-react/fortmatic",
   "keywords": [
     "web3-react",
-    "metamask"
+    "fortmatic"
   ],
   "author": "Noah Zinsmeister <noahwz@gmail.com>",
   "license": "GPL-3.0-or-later",
@@ -10,7 +10,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "version": "8.0.23-beta.0",
+  "version": "8.0.1-beta.0",
   "files": [
     "dist/*"
   ],
@@ -24,10 +24,6 @@
     "start": "tsc --watch"
   },
   "dependencies": {
-    "@metamask/detect-provider": "^1.2.0",
     "@web3-react/types": "^8.0.16-beta.0"
-  },
-  "devDependencies": {
-    "@web3-react/store": "^8.0.21-beta.0"
   }
 }
