@@ -1,12 +1,13 @@
 import type { CoinbaseWallet } from '@web3-react/coinbase-wallet'
 import type { Web3ReactHooks } from '@web3-react/core'
+import { GnosisSafe } from '@web3-react/gnosis-safe'
 import type { MetaMask } from '@web3-react/metamask'
 import { Network } from '@web3-react/network'
 import { WalletConnect } from '@web3-react/walletconnect'
 import { useCallback, useState } from 'react'
 import { CHAINS, getAddChainParameters, URLS } from '../chains'
 
-function Select({
+function ChainSelect({
   chainId,
   switchChain,
   displayDefault,
@@ -42,7 +43,7 @@ export function ConnectWithSelect({
   error,
   isActive,
 }: {
-  connector: MetaMask | WalletConnect | CoinbaseWallet | Network
+  connector: MetaMask | WalletConnect | CoinbaseWallet | Network | GnosisSafe
   chainId: ReturnType<Web3ReactHooks['useChainId']>
   isActivating: ReturnType<Web3ReactHooks['useIsActivating']>
   error: ReturnType<Web3ReactHooks['useError']>
@@ -74,16 +75,20 @@ export function ConnectWithSelect({
   if (error) {
     return (
       <div style={{ display: 'flex', flexDirection: 'column' }}>
-        <Select
-          chainId={desiredChainId}
-          switchChain={switchChain}
-          displayDefault={displayDefault}
-          chainIds={chainIds}
-        />
+        {!(connector instanceof GnosisSafe) && (
+          <ChainSelect
+            chainId={desiredChainId}
+            switchChain={switchChain}
+            displayDefault={displayDefault}
+            chainIds={chainIds}
+          />
+        )}
         <div style={{ marginBottom: '1rem' }} />
         <button
           onClick={() =>
-            connector instanceof WalletConnect || connector instanceof Network
+            connector instanceof GnosisSafe
+              ? void connector.activate()
+              : connector instanceof WalletConnect || connector instanceof Network
               ? void connector.activate(desiredChainId === -1 ? undefined : desiredChainId)
               : void connector.activate(desiredChainId === -1 ? undefined : getAddChainParameters(desiredChainId))
           }
@@ -95,12 +100,14 @@ export function ConnectWithSelect({
   } else if (isActive) {
     return (
       <div style={{ display: 'flex', flexDirection: 'column' }}>
-        <Select
-          chainId={desiredChainId === -1 ? -1 : chainId}
-          switchChain={switchChain}
-          displayDefault={displayDefault}
-          chainIds={chainIds}
-        />
+        {!(connector instanceof GnosisSafe) && (
+          <ChainSelect
+            chainId={desiredChainId === -1 ? -1 : chainId}
+            switchChain={switchChain}
+            displayDefault={displayDefault}
+            chainIds={chainIds}
+          />
+        )}
         <div style={{ marginBottom: '1rem' }} />
         <button onClick={() => void connector.deactivate()}>Disconnect</button>
       </div>
@@ -108,19 +115,23 @@ export function ConnectWithSelect({
   } else {
     return (
       <div style={{ display: 'flex', flexDirection: 'column' }}>
-        <Select
-          chainId={desiredChainId}
-          switchChain={isActivating ? undefined : switchChain}
-          displayDefault={displayDefault}
-          chainIds={chainIds}
-        />
+        {!(connector instanceof GnosisSafe) && (
+          <ChainSelect
+            chainId={desiredChainId}
+            switchChain={isActivating ? undefined : switchChain}
+            displayDefault={displayDefault}
+            chainIds={chainIds}
+          />
+        )}
         <div style={{ marginBottom: '1rem' }} />
         <button
           onClick={
             isActivating
               ? undefined
               : () =>
-                  connector instanceof WalletConnect || connector instanceof Network
+                  connector instanceof GnosisSafe
+                    ? void connector.activate()
+                    : connector instanceof WalletConnect || connector instanceof Network
                     ? connector.activate(desiredChainId === -1 ? undefined : desiredChainId)
                     : connector.activate(desiredChainId === -1 ? undefined : getAddChainParameters(desiredChainId))
           }
