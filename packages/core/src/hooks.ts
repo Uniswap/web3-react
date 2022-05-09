@@ -6,6 +6,16 @@ import { useEffect, useMemo, useState } from 'react'
 import type { EqualityChecker, UseBoundStore } from 'zustand'
 import create from 'zustand'
 
+let DynamicWeb3Provider: undefined | typeof Web3Provider | null
+const providersPromise = import('@ethersproject/providers')
+  .then(({ Web3Provider }) => {
+    DynamicWeb3Provider = Web3Provider
+  })
+  .catch(() => {
+    DynamicWeb3Provider = null
+    console.debug('@ethersproject/providers not available')
+  })
+
 export type Web3ReactHooks = ReturnType<typeof getStateHooks> &
   ReturnType<typeof getDerivedHooks> &
   ReturnType<typeof getAugmentedHooks>
@@ -48,7 +58,7 @@ function computeIsActive({ chainId, accounts, activating, error }: Web3ReactStat
 /**
  * Creates a variety of convenience `hooks` that return data associated with a particular passed connector.
  *
- * @param initializedConnectors - Two or more [connector, hooks] arrays, as returned from initializeConnector.
+ * @param initializedConnectors - Two or more [connector, hooks(, store)] arrays, as returned from initializeConnector.
  * @returns hooks - A variety of convenience hooks that wrap the hooks returned from initializeConnector.
  */
 export function getSelectedConnector(
@@ -153,7 +163,7 @@ export function getSelectedConnector(
  * Creates a variety of convenience `hooks` that return data associated with the first of the `initializedConnectors`
  * that is active.
  *
- * @param initializedConnectors - Two or more [connector, hooks] arrays, as returned from initializeConnector.
+ * @param initializedConnectors - Two or more [connector, hooks(, store)] arrays, as returned from initializeConnector.
  * @returns hooks - A variety of convenience hooks that wrap the hooks returned from initializeConnector.
  */
 export function getPriorityConnector(
@@ -249,15 +259,15 @@ export function getPriorityConnector(
   }
 }
 
-const CHAIN_ID = (state: Web3ReactState) => state.chainId
-const ACCOUNTS = (state: Web3ReactState) => state.accounts
+const CHAIN_ID = ({ chainId }: Web3ReactState) => chainId
+const ACCOUNTS = ({ accounts }: Web3ReactState) => accounts
 const ACCOUNTS_EQUALITY_CHECKER: EqualityChecker<Web3ReactState['accounts']> = (oldAccounts, newAccounts) =>
   (oldAccounts === undefined && newAccounts === undefined) ||
   (oldAccounts !== undefined &&
     oldAccounts.length === newAccounts?.length &&
     oldAccounts.every((oldAccount, i) => oldAccount === newAccounts[i]))
-const ACTIVATING = (state: Web3ReactState) => state.activating
-const ERROR = (state: Web3ReactState) => state.error
+const ACTIVATING = ({ activating }: Web3ReactState) => activating
+const ERROR = ({ error }: Web3ReactState) => error
 
 function getStateHooks(useConnector: UseBoundStore<Web3ReactStore>) {
   function useChainId(): Web3ReactState['chainId'] {
@@ -301,11 +311,16 @@ function getDerivedHooks({ useChainId, useAccounts, useIsActivating, useError }:
   return { useAccount, useIsActive }
 }
 
-function useENS(provider?: BaseProvider, accounts?: string[]): (string | null)[] | undefined {
+/**
+ * @returns ENSNames - An array of length `accounts.length` which contains entries which are either all `undefined`,
+ * indicated that names cannot be fetched because there's no provider, or they're in the process of being fetched,
+ * or `string | null`, depending on whether an ENS name has been set for the account in question or not.
+ */
+function useENS(provider?: BaseProvider, accounts: string[] = []): undefined[] | (string | null)[] {
   const [ENSNames, setENSNames] = useState<(string | null)[] | undefined>()
 
   useEffect(() => {
-    if (provider && accounts?.length) {
+    if (provider && accounts.length) {
       let stale = false
 
       Promise.all(accounts.map((account) => provider.lookupAddress(account)))
@@ -316,6 +331,9 @@ function useENS(provider?: BaseProvider, accounts?: string[]): (string | null)[]
         })
         .catch((error) => {
           console.debug('Could not fetch ENS names', error)
+          if (!stale) {
+            setENSNames(new Array<null>(accounts.length).fill(null))
+          }
         })
 
       return () => {
@@ -325,7 +343,7 @@ function useENS(provider?: BaseProvider, accounts?: string[]): (string | null)[]
     }
   }, [provider, accounts])
 
-  return ENSNames
+  return ENSNames ?? new Array<undefined>(accounts.length).fill(undefined)
 }
 
 function getAugmentedHooks<T extends Connector>(
@@ -346,37 +364,35 @@ function getAugmentedHooks<T extends Connector>(
   function useProvider<T extends BaseProvider = Web3Provider>(network?: Networkish, enabled = true): T | undefined {
     const isActive = useIsActive()
 
-    // trigger the dynamic import on mount
-    // we store the class in an object and then destructure to avoid a compiler error related to class instantiation
-    const [{ DynamicWeb3Provider }, setDynamicWeb3Provider] = useState<{
-      DynamicWeb3Provider: typeof Web3Provider | undefined
-    }>({
-      DynamicWeb3Provider: undefined,
-    })
+    // ensure that DynamicWeb3Provider is going to be available when loaded if @ethersproject/providers is installed
+    const [, forceRender] = useState<void>()
     useEffect(() => {
-      import('@ethersproject/providers')
-        .then(({ Web3Provider }) => setDynamicWeb3Provider({ DynamicWeb3Provider: Web3Provider }))
-        .catch(() => {
-          console.debug('@ethersproject/providers not available')
+      if (DynamicWeb3Provider === undefined) {
+        void providersPromise.then(() => {
+          if (DynamicWeb3Provider) {
+            forceRender()
+          }
         })
+      }
     }, [])
 
     return useMemo(() => {
       // to ensure connectors remain fresh after network changes, we use isActive here to ensure re-renders
-      if (DynamicWeb3Provider && enabled && isActive) {
+      if (enabled && isActive) {
         if (connector.customProvider) return connector.customProvider as T
         // see tsdoc note above for return type explanation.
-        if (connector.provider) return new DynamicWeb3Provider(connector.provider, network) as unknown as T
+        else if (DynamicWeb3Provider && connector.provider)
+          return new DynamicWeb3Provider(connector.provider, network) as unknown as T
       }
-    }, [DynamicWeb3Provider, enabled, isActive, network])
+    }, [enabled, isActive, network])
   }
 
-  function useENSNames(provider?: BaseProvider): (string | null)[] | undefined {
+  function useENSNames(provider?: BaseProvider): undefined[] | (string | null)[] {
     const accounts = useAccounts()
     return useENS(provider, accounts)
   }
 
-  function useENSName(provider?: BaseProvider): (string | null) | undefined {
+  function useENSName(provider?: BaseProvider): undefined | string | null {
     const account = useAccount()
     const accounts = useMemo(() => (account === undefined ? undefined : [account]), [account])
     return useENS(provider, accounts)?.[0]

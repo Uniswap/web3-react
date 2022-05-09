@@ -25,7 +25,7 @@ export class Url extends Connector {
   constructor(actions: Actions, url: url | JsonRpcProvider, connectEagerly = false) {
     super(actions)
 
-    if (connectEagerly && typeof window === 'undefined') {
+    if (connectEagerly && this.serverSide) {
       throw new Error('connectEagerly = true is invalid for SSR, instead use the activate method in a useEffect')
     }
 

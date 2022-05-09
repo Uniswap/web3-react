@@ -67,6 +67,14 @@ export interface AddEthereumChainParameter {
   iconUrls?: string[] // Currently ignored.
 }
 
+// per EIP-747
+export interface WatchAssetParameters {
+  address: string // The address that the token is at.
+  symbol: string // A ticker symbol or shorthand, up to 5 chars.
+  decimals: number // The number of decimals in the token
+  image: string // A string url of the token logo
+}
+
 export abstract class Connector {
   /**
    * An
@@ -94,6 +102,10 @@ export abstract class Connector {
     this.actions = actions
   }
 
+  protected get serverSide() {
+    return typeof window === 'undefined'
+  }
+
   /**
    * Attempt to initiate a connection, failing silently
    */
@@ -111,4 +123,9 @@ export abstract class Connector {
   public deactivate(...args: unknown[]): Promise<void> | void {
     this.actions.reportError(undefined)
   }
+
+  /**
+   * Attempt to add an asset per EIP-747
+   */
+  public watchAsset?(params: WatchAssetParameters): Promise<true>
 }

@@ -5,6 +5,7 @@ import type {
   Provider,
   ProviderConnectInfo,
   ProviderRpcError,
+  WatchAssetParameters,
 } from '@web3-react/types'
 import { Connector } from '@web3-react/types'
 
@@ -36,7 +37,7 @@ export class MetaMask extends Connector {
   constructor(actions: Actions, connectEagerly = false, options?: Parameters<typeof detectEthereumProvider>[0]) {
     super(actions)
 
-    if (connectEagerly && typeof window === 'undefined') {
+    if (connectEagerly && this.serverSide) {
       throw new Error('connectEagerly = true is invalid for SSR, instead use the connectEagerly method in a useEffect')
     }
 
@@ -161,6 +162,28 @@ export class MetaMask extends Connector {
       })
       .catch((error: ProviderRpcError) => {
         this.actions.reportError(error)
+      })
+  }
+
+  public async watchAsset({ address, symbol, decimals, image }: WatchAssetParameters): Promise<true> {
+    if (!this.provider) throw new Error('No provider')
+
+    return this.provider
+      .request({
+        method: 'wallet_watchAsset',
+        params: {
+          type: 'ERC20', // Initially only supports ERC20, but eventually more!
+          options: {
+            address, // The address that the token is at.
+            symbol, // A ticker symbol or shorthand, up to 5 chars.
+            decimals, // The number of decimals in the token
+            image, // A string url of the token logo
+          },
+        },
+      })
+      .then((success) => {
+        if (!success) throw new Error('Rejected')
+        return true
       })
   }
 }
