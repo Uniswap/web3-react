@@ -6,15 +6,18 @@ import { useEffect, useMemo, useState } from 'react'
 import type { EqualityChecker, UseBoundStore } from 'zustand'
 import create from 'zustand'
 
-let DynamicWeb3Provider: undefined | typeof Web3Provider | null
-const providersPromise = import('@ethersproject/providers')
-  .then(({ Web3Provider }) => {
-    DynamicWeb3Provider = Web3Provider
-  })
-  .catch(() => {
-    DynamicWeb3Provider = null
-    console.debug('@ethersproject/providers not available')
-  })
+let DynamicProvider: typeof Web3Provider | null | undefined 
+async function importProvider(): Promise<void> {
+  if (DynamicProvider === undefined) {
+    try {
+      const { Web3Provider } = await import('@ethersproject/providers')
+      DynamicProvider = Web3Provider
+    } catch {
+      console.debug('@ethersproject/providers not available')
+      DynamicProvider = null
+    }
+  }
+}
 
 export type Web3ReactHooks = ReturnType<typeof getStateHooks> &
   ReturnType<typeof getDerivedHooks> &
@@ -325,15 +328,13 @@ function useENS(provider?: BaseProvider, accounts: string[] = []): undefined[] |
 
       Promise.all(accounts.map((account) => provider.lookupAddress(account)))
         .then((ENSNames) => {
-          if (!stale) {
-            setENSNames(ENSNames)
-          }
+          if (stale) return
+          setENSNames(ENSNames)
         })
         .catch((error) => {
+          if (stale) return
           console.debug('Could not fetch ENS names', error)
-          if (!stale) {
-            setENSNames(new Array<null>(accounts.length).fill(null))
-          }
+          setENSNames(new Array<null>(accounts.length).fill(null))
         })
 
       return () => {
@@ -364,27 +365,30 @@ function getAugmentedHooks<T extends Connector>(
   function useProvider<T extends BaseProvider = Web3Provider>(network?: Networkish, enabled = true): T | undefined {
     const isActive = useIsActive()
 
-    // ensure that DynamicWeb3Provider is going to be available when loaded if @ethersproject/providers is installed
-    const [, forceRender] = useState<void>()
+    // ensure that Provider is going to be available when loaded if @ethersproject/providers is installed
+    const [loaded, setLoaded] = useState(DynamicProvider !== undefined)
     useEffect(() => {
-      if (DynamicWeb3Provider === undefined) {
-        void providersPromise.then(() => {
-          if (DynamicWeb3Provider) {
-            forceRender()
-          }
-        })
+      if (loaded) return
+      let stale = false
+      void importProvider().then(() => {
+        if (stale) return
+        setLoaded(true)
+      })
+      return () => {
+        stale = true
       }
-    }, [])
+    }, [loaded])
 
     return useMemo(() => {
-      // to ensure connectors remain fresh after network changes, we use isActive here to ensure re-renders
-      if (enabled && isActive) {
+      // to ensure connectors remain fresh, we condition re-renders on loaded and isActive
+      void loaded && isActive
+      if (enabled) {
         if (connector.customProvider) return connector.customProvider as T
         // see tsdoc note above for return type explanation.
-        else if (DynamicWeb3Provider && connector.provider)
-          return new DynamicWeb3Provider(connector.provider, network) as unknown as T
+        else if (DynamicProvider && connector.provider)
+          return new DynamicProvider(connector.provider, network) as unknown as T
       }
-    }, [enabled, isActive, network])
+    }, [loaded, enabled, isActive, network])
   }
 
   function useENSNames(provider?: BaseProvider): undefined[] | (string | null)[] {
