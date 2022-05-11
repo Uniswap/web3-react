@@ -14,9 +14,8 @@ function useBalances(
       let stale = false
 
       void Promise.all(accounts.map((account) => provider.getBalance(account))).then((balances) => {
-        if (!stale) {
-          setBalances(balances)
-        }
+        if (stale) return
+        setBalances(balances)
       })
 
       return () => {
