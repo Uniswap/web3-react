@@ -83,14 +83,14 @@ export abstract class Connector {
    * May also comply with EIP-3085 ({@link https://github.com/ethereum/EIPs/blob/master/EIPS/eip-3085.md}).
    * This property must be defined while the connector is active, unless a customProvider is provided.
    */
-  public provider: Provider | undefined
+  public provider?: Provider
 
   /**
    * An optional property meant to allow ethers providers to be used directly rather than via the experimental
    * 1193 bridge. If desired, this property must be defined while the connector is active, in which case it will
    * be preferred over provider.
    */
-  public customProvider: unknown | undefined
+  public customProvider?: unknown
 
   protected readonly actions: Actions
 
