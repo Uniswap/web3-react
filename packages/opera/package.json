@@ -1,0 +1,32 @@
+{
+  "name": "@web3-react/opera",
+  "keywords": [
+    "web3-react",
+    "opera"
+  ],
+  "author": "Noah Zinsmeister <noahwz@gmail.com>",
+  "license": "GPL-3.0-or-later",
+  "repository": "github:NoahZinsmeister/web3-react",
+  "publishConfig": {
+    "access": "public"
+  },
+  "version": "8.0.1-beta.0",
+  "files": [
+    "dist/*"
+  ],
+  "type": "commonjs",
+  "types": "./dist/index.d.ts",
+  "main": "./dist/index.js",
+  "exports": "./dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "tsc --watch"
+  },
+  "dependencies": {
+    "@metamask/detect-provider": "^1.2.0",
+    "@web3-react/types": "^8.0.17-beta.0"
+  },
+  "devDependencies": {
+    "@web3-react/store": "^8.0.22-beta.0"
+  }
+}
