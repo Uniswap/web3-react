@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { hooks, opera } from '../../connectors/opera'
+// import { hooks, eip1193} from '../../connectors/eip1193'
 import { Accounts } from '../Accounts'
 import { Card } from '../Card'
 import { Chain } from '../Chain'
@@ -20,9 +21,7 @@ export default function OperaCard() {
   const ENSNames = useENSNames(provider)
 
   // attempt to connect eagerly on mount
-  useEffect(() => {
-    void opera.connectEagerly()
-  }, [])
+  
 
   return (
     <Card>
