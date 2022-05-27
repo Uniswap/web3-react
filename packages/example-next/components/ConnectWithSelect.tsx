@@ -3,6 +3,7 @@ import type { Web3ReactHooks } from '@web3-react/core'
 import { GnosisSafe } from '@web3-react/gnosis-safe'
 import type { MetaMask } from '@web3-react/metamask'
 import { Network } from '@web3-react/network'
+import { TallyHo } from '@web3-react/tally-ho'
 import { WalletConnect } from '@web3-react/walletconnect'
 import { useCallback, useState } from 'react'
 import { CHAINS, getAddChainParameters, URLS } from '../chains'
@@ -43,7 +44,7 @@ export function ConnectWithSelect({
   error,
   isActive,
 }: {
-  connector: MetaMask | WalletConnect | CoinbaseWallet | Network | GnosisSafe
+  connector: MetaMask | WalletConnect | CoinbaseWallet | Network | GnosisSafe | TallyHo
   chainId: ReturnType<Web3ReactHooks['useChainId']>
   isActivating: ReturnType<Web3ReactHooks['useIsActivating']>
   error: ReturnType<Web3ReactHooks['useError']>

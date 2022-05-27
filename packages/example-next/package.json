@@ -17,6 +17,7 @@
     "@web3-react/gnosis-safe": "8.0.3-beta.0",
     "@web3-react/metamask": "8.0.24-beta.0",
     "@web3-react/network": "8.0.23-beta.0",
+    "@web3-react/tally-ho": "8.0.18-beta.0",
     "@web3-react/types": "8.0.17-beta.0",
     "@web3-react/url": "8.0.22-beta.0",
     "@web3-react/walletconnect": "8.0.31-beta.0",
