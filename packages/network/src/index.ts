@@ -67,11 +67,10 @@ export class Network extends Connector {
     const urls = this.urlMap[chainId]
 
     if (Array.isArray(urls)) {
-      // early return if we have a single jsonrpc provider already
-      if (urls.length === 1 && isJsonRpcProvider(urls[0]))
+      if (urls.length === 1 && isJsonRpcProvider(urls[0])) {
         return (this.providerCache[chainId] = Promise.resolve(urls[0]))
-    } else {
-      // if we're here we know urls is a FallbackProvider
+      }
+    } else if (isFallbackProvider(urls)) {
       return (this.providerCache[chainId] = Promise.resolve(urls))
     }
 
