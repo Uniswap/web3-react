@@ -11,11 +11,11 @@ function isUrl(url: url | any): url is url {
 }
 
 function isJsonRpcProvider(url: url | JsonRpcProvider | FallbackProvider): url is JsonRpcProvider {
-  return !isUrl(url) && 'connection' in url && !('quorum' in url)
+  return !!url && !isUrl(url) && 'connection' in url && !('quorum' in url)
 }
 
 function isFallbackProvider(url: url | JsonRpcProvider | FallbackProvider): url is FallbackProvider {
-  return !isUrl(url) && 'quorum' in url && !('connection' in url)
+  return !!url && !isUrl(url) && 'quorum' in url && !('connection' in url)
 }
 
 export class Network extends Connector {
