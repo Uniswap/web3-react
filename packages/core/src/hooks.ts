@@ -6,7 +6,7 @@ import { useEffect, useMemo, useState } from 'react'
 import type { EqualityChecker, UseBoundStore } from 'zustand'
 import create from 'zustand'
 
-let DynamicProvider: typeof Web3Provider | null | undefined 
+let DynamicProvider: typeof Web3Provider | null | undefined
 async function importProvider(): Promise<void> {
   if (DynamicProvider === undefined) {
     try {
@@ -349,7 +349,7 @@ function useENS(provider?: BaseProvider, accounts: string[] = []): undefined[] |
 
 function getAugmentedHooks<T extends Connector>(
   connector: T,
-  { useAccounts }: ReturnType<typeof getStateHooks>,
+  { useAccounts, useChainId }: ReturnType<typeof getStateHooks>,
   { useAccount, useIsActive }: ReturnType<typeof getDerivedHooks>
 ) {
   /**
@@ -364,6 +364,7 @@ function getAugmentedHooks<T extends Connector>(
    */
   function useProvider<T extends BaseProvider = Web3Provider>(network?: Networkish, enabled = true): T | undefined {
     const isActive = useIsActive()
+    const chainId = useChainId()
 
     // ensure that Provider is going to be available when loaded if @ethersproject/providers is installed
     const [loaded, setLoaded] = useState(DynamicProvider !== undefined)
@@ -380,15 +381,15 @@ function getAugmentedHooks<T extends Connector>(
     }, [loaded])
 
     return useMemo(() => {
-      // to ensure connectors remain fresh, we condition re-renders on loaded and isActive
-      void loaded && isActive
+      // to ensure connectors remain fresh, we condition re-renders on loaded, isActive and chainId
+      void loaded && isActive && chainId
       if (enabled) {
         if (connector.customProvider) return connector.customProvider as T
         // see tsdoc note above for return type explanation.
         else if (DynamicProvider && connector.provider)
           return new DynamicProvider(connector.provider, network) as unknown as T
       }
-    }, [loaded, enabled, isActive, network])
+    }, [loaded, enabled, isActive, chainId, network])
   }
 
   function useENSNames(provider?: BaseProvider): undefined[] | (string | null)[] {
