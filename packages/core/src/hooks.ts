@@ -36,10 +36,9 @@ export type Web3ReactPriorityHooks = ReturnType<typeof getPriorityConnector>
  * @returns [connector, hooks, store] - The initialized connector, a variety of hooks, and a zustand store.
  */
 export function initializeConnector<T extends Connector>(
-  f: (actions: Actions) => T,
-  allowedChainIds?: number[]
+  f: (actions: Actions) => T
 ): [T, Web3ReactHooks, Web3ReactStore] {
-  const [store, actions] = createWeb3ReactStoreAndActions(allowedChainIds)
+  const [store, actions] = createWeb3ReactStoreAndActions()
 
   const connector = f(actions)
   const useConnector = create(store)

@@ -27,11 +27,7 @@ const DEFAULT_STATE = {
   error: undefined,
 }
 
-export function createWeb3ReactStoreAndActions(allowedChainIds?: number[]): [Web3ReactStore, Actions] {
-  if (allowedChainIds?.length === 0) {
-    throw new Error(`allowedChainIds is length 0`)
-  }
-
+export function createWeb3ReactStoreAndActions(): [Web3ReactStore, Actions] {
   const store = createStore<Web3ReactState>()(() => DEFAULT_STATE)
 
   // flag for tracking updates so we don't clobber data when cancelling activation
