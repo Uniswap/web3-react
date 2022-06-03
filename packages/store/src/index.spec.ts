@@ -1,17 +1,6 @@
-import { ChainIdNotAllowedError, createWeb3ReactStoreAndActions, MAX_SAFE_CHAIN_ID } from '.'
-
-test('ChainIdNotAllowedError', () => {
-  const error = new ChainIdNotAllowedError(1, [2])
-  expect(error).toBeInstanceOf(ChainIdNotAllowedError)
-  expect(error.name).toBe('ChainIdNotAllowedError')
-  expect(error.message).toBe(`chainId ${1} not included in ${2}`)
-})
+import { createWeb3ReactStoreAndActions, MAX_SAFE_CHAIN_ID } from '.'
 
 describe('#createWeb3ReactStoreAndActions', () => {
-  test('throw on bad allowedChainIds', () => {
-    expect(() => createWeb3ReactStoreAndActions([])).toThrow(`allowedChainIds is length 0`)
-  })
-
   test('uninitialized', () => {
     const [store] = createWeb3ReactStoreAndActions()
     expect(store.getState()).toEqual({
@@ -60,12 +49,6 @@ describe('#createWeb3ReactStoreAndActions', () => {
     test('throws on bad accounts', () => {
       const [, actions] = createWeb3ReactStoreAndActions()
       expect(() => actions.update({ accounts: ['0x000000000000000000000000000000000000000'] })).toThrow()
-    })
-
-    test('errors on disallowed chainId', () => {
-      const [store, actions] = createWeb3ReactStoreAndActions([2])
-      actions.update({ chainId: 1 })
-      expect(store.getState().error).toBeInstanceOf(ChainIdNotAllowedError)
     })
 
     test('chainId', () => {
@@ -166,46 +149,6 @@ describe('#createWeb3ReactStoreAndActions', () => {
       expect(store.getState()).toEqual({
         chainId,
         accounts,
-        activating: false,
-        error: undefined,
-      })
-    })
-
-    test('error is cleared', () => {
-      const [store, actions] = createWeb3ReactStoreAndActions()
-      const chainId = 1
-      const accounts: string[] = []
-      actions.reportError(new Error())
-      actions.update({ chainId, accounts })
-      expect(store.getState()).toEqual({
-        chainId,
-        accounts,
-        activating: false,
-        error: undefined,
-      })
-    })
-  })
-
-  describe('#reportError', () => {
-    test('sets error', () => {
-      const [store, actions] = createWeb3ReactStoreAndActions()
-      const error = new Error()
-      actions.reportError(error)
-      expect(store.getState()).toEqual({
-        chainId: undefined,
-        accounts: undefined,
-        activating: false,
-        error,
-      })
-    })
-
-    test('resets state', () => {
-      const [store, actions] = createWeb3ReactStoreAndActions()
-      actions.reportError(new Error())
-      actions.reportError(undefined)
-      expect(store.getState()).toEqual({
-        chainId: undefined,
-        accounts: undefined,
         activating: false,
         error: undefined,
       })
