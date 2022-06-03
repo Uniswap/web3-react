@@ -27,7 +27,7 @@ export type Web3ReactStateUpdate =
 export interface Actions {
   startActivation: () => () => void
   update: (stateUpdate: Web3ReactStateUpdate) => void
-  reportError: (error: Error | undefined) => void
+  clearState: () => void
 }
 
 // per EIP-1193
@@ -93,13 +93,20 @@ export abstract class Connector {
   public customProvider: unknown | undefined
 
   protected readonly actions: Actions
+  protected readonly onError: (error: Error) => void
 
   /**
    * @param actions - Methods bound to a zustand store that tracks the state of the connector.
    * Actions are used by the connector to report changes in connection status.
    */
-  constructor(actions: Actions) {
+  constructor(
+    actions: Actions,
+    onError: (error: Error) => void = () => {
+      return
+    }
+  ) {
     this.actions = actions
+    this.onError = onError
   }
 
   protected get serverSide() {
@@ -121,7 +128,7 @@ export abstract class Connector {
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public deactivate(...args: unknown[]): Promise<void> | void {
-    this.actions.reportError(undefined)
+    this.actions.clearState()
   }
 
   /**
