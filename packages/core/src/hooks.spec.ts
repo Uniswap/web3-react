@@ -22,8 +22,8 @@ class MockConnector extends Connector {
   public update(...args: Parameters<Actions['update']>) {
     this.actions.update(...args)
   }
-  public reportError(...args: Parameters<Actions['reportError']>) {
-    this.actions.reportError(...args)
+  public clearState() {
+    this.actions.clearState()
   }
 }
 
@@ -34,11 +34,11 @@ describe('#initializeConnector', () => {
   let hooks: Web3ReactHooks
 
   beforeEach(() => {
-    [connector, hooks] = initializeConnector((actions) => new MockConnector(actions))
+    ;[connector, hooks] = initializeConnector((actions) => new MockConnector(actions))
   })
 
   test('#useChainId', () => {
-    const { result, rerender } = renderHook(() => hooks.useChainId())
+    const { result } = renderHook(() => hooks.useChainId())
     expect(result.current).toBe(undefined)
 
     act(() => connector.update({ chainId: 1 }))
@@ -104,14 +104,6 @@ describe('#initializeConnector', () => {
       expect(result.current).toBeInstanceOf(Web3Provider)
     })
   })
-
-  test('#useError', () => {
-    const { result } = renderHook(() => hooks.useError())
-    expect(result.current).toBe(undefined)
-
-    act(() => connector.reportError(new Error()))
-    expect(result.current).toBeInstanceOf(Error)
-  })
 })
 
 describe('#getSelectedConnector', () => {
@@ -124,7 +116,7 @@ describe('#getSelectedConnector', () => {
   let selectedConnectorHooks: Web3ReactSelectedHooks
 
   beforeEach(() => {
-    [connector, hooks] = initializeConnector((actions) => new MockConnector(actions))
+    ;[connector, hooks] = initializeConnector((actions) => new MockConnector(actions))
     ;[connector2, hooks2] = initializeConnector((actions) => new MockConnector2(actions))
 
     selectedConnectorHooks = getSelectedConnector([connector, hooks], [connector2, hooks2])
@@ -185,7 +177,7 @@ describe('#getPriorityConnector', () => {
   let priorityConnectorHooks: Web3ReactPriorityHooks
 
   beforeEach(() => {
-    [connector, hooks] = initializeConnector((actions) => new MockConnector(actions))
+    ;[connector, hooks] = initializeConnector((actions) => new MockConnector(actions))
     ;[connector2, hooks2] = initializeConnector((actions) => new MockConnector2(actions))
 
     priorityConnectorHooks = getPriorityConnector([connector, hooks], [connector2, hooks2])
