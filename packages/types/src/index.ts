@@ -5,7 +5,6 @@ export interface Web3ReactState extends State {
   chainId: number | undefined
   accounts: string[] | undefined
   activating: boolean
-  error: Error | undefined
 }
 
 export type Web3ReactStore = StoreApi<Web3ReactState>

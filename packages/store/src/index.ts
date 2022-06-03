@@ -16,23 +16,6 @@ function validateChainId(chainId: number): void {
   }
 }
 
-export class ChainIdNotAllowedError extends Error {
-  public readonly chainId: number
-
-  public constructor(chainId: number, allowedChainIds: number[]) {
-    super(`chainId ${chainId} not included in ${allowedChainIds.toString()}`)
-    this.chainId = chainId
-    this.name = ChainIdNotAllowedError.name
-    Object.setPrototypeOf(this, ChainIdNotAllowedError.prototype)
-  }
-}
-
-function ensureChainIdIsAllowed(chainId: number, allowedChainIds: number[]): ChainIdNotAllowedError | undefined {
-  return allowedChainIds.some((allowedChainId) => chainId === allowedChainId)
-    ? undefined
-    : new ChainIdNotAllowedError(chainId, allowedChainIds)
-}
-
 function validateAccount(account: string): string {
   return getAddress(account)
 }
@@ -98,34 +81,13 @@ export function createWeb3ReactStoreAndActions(allowedChainIds?: number[]): [Web
       const chainId = stateUpdate.chainId ?? existingState.chainId
       const accounts = stateUpdate.accounts ?? existingState.accounts
 
-      // determine the next error
-      let error = existingState.error
-      if (chainId && allowedChainIds) {
-        // if we have a chainId allowlist and a chainId, we need to ensure it's allowed
-        const chainIdError = ensureChainIdIsAllowed(chainId, allowedChainIds)
-
-        // warn if we're going to clobber existing error
-        if (chainIdError && error) {
-          if (!(error instanceof ChainIdNotAllowedError) || error.chainId !== chainIdError.chainId) {
-            console.debug(`${error.name} is being clobbered by ${chainIdError.name}`)
-          }
-        }
-
-        error = chainIdError
-      }
-
-      // ensure that the error is cleared when appropriate
-      if (error && !(error instanceof ChainIdNotAllowedError) && chainId && accounts) {
-        error = undefined
-      }
-
       // ensure that the activating flag is cleared when appropriate
       let activating = existingState.activating
-      if (activating && (error || (chainId && accounts))) {
+      if (activating && chainId && accounts) {
         activating = false
       }
 
-      return { chainId, accounts, activating, error }
+      return { chainId, accounts, activating }
     })
   }
 
@@ -140,5 +102,9 @@ export function createWeb3ReactStoreAndActions(allowedChainIds?: number[]): [Web
     store.setState(() => ({ ...DEFAULT_STATE, error }))
   }
 
-  return [store, { startActivation, update, reportError }]
+  function clearState(): void {
+    store.setState(DEFAULT_STATE)
+  }
+
+  return [store, { startActivation, update, clearState }]
 }
