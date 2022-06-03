@@ -91,17 +91,6 @@ export function createWeb3ReactStoreAndActions(allowedChainIds?: number[]): [Web
     })
   }
 
-  /**
-   * Used to report an `error`, which clears all existing state.
-   *
-   * @param error - The error to report. If undefined, the state will be reset to its default value.
-   */
-  function reportError(error: Error | undefined): void {
-    nullifier++
-
-    store.setState(() => ({ ...DEFAULT_STATE, error }))
-  }
-
   function clearState(): void {
     store.setState(DEFAULT_STATE)
   }

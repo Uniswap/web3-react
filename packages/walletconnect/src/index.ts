@@ -52,7 +52,8 @@ export class WalletConnect extends Connector {
   }
 
   private disconnectListener = (error: ProviderRpcError | undefined): void => {
-    this.actions.reportError(error)
+    this.actions.clearState()
+    throw error
   }
 
   private chainChangedListener = (chainId: number | string): void => {
@@ -188,7 +189,7 @@ export class WalletConnect extends Connector {
       if ((error as Error).message === 'User closed modal') {
         await this.deactivate(this.treatModalCloseAsError ? (error as Error) : undefined)
       } else {
-        this.actions.reportError(error as Error)
+        throw error
       }
     }
   }
@@ -202,6 +203,9 @@ export class WalletConnect extends Connector {
     await this.provider?.disconnect()
     this.provider = undefined
     this.eagerConnection = undefined
-    this.actions.reportError(error)
+    this.clearState()
+    if (error) {
+      throw error
+    }
   }
 }

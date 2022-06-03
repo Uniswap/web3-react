@@ -65,7 +65,8 @@ export class MetaMask extends Connector {
           })
 
           this.provider.on('disconnect', (error: ProviderRpcError): void => {
-            this.actions.reportError(error)
+            this.onError(error)
+            this.clearState()
           })
 
           this.provider.on('chainChanged', (chainId: string): void => {
@@ -75,7 +76,7 @@ export class MetaMask extends Connector {
           this.provider.on('accountsChanged', (accounts: string[]): void => {
             if (accounts.length === 0) {
               // handle this edge case by disconnecting
-              this.actions.reportError(undefined)
+              this.actions.clearState()
             } else {
               this.actions.update({ accounts })
             }
@@ -121,7 +122,9 @@ export class MetaMask extends Connector {
     if (!this.provider?.isConnected?.()) this.actions.startActivation()
 
     await this.isomorphicInitialize()
-    if (!this.provider) return this.actions.reportError(new NoMetaMaskError())
+    if (!this.provider) {
+      throw new NoMetaMaskError()
+    }
 
     return Promise.all([
       this.provider.request({ method: 'eth_chainId' }) as Promise<string>,
@@ -161,7 +164,7 @@ export class MetaMask extends Connector {
           .then(() => this.activate(desiredChainId))
       })
       .catch((error: ProviderRpcError) => {
-        this.actions.reportError(error)
+        throw error
       })
   }
 
