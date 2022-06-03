@@ -129,43 +129,39 @@ export class MetaMask extends Connector {
     return Promise.all([
       this.provider.request({ method: 'eth_chainId' }) as Promise<string>,
       this.provider.request({ method: 'eth_requestAccounts' }) as Promise<string[]>,
-    ])
-      .then(([chainId, accounts]) => {
-        const receivedChainId = parseChainId(chainId)
-        const desiredChainId =
-          typeof desiredChainIdOrChainParameters === 'number'
-            ? desiredChainIdOrChainParameters
-            : desiredChainIdOrChainParameters?.chainId
+    ]).then(([chainId, accounts]) => {
+      const receivedChainId = parseChainId(chainId)
+      const desiredChainId =
+        typeof desiredChainIdOrChainParameters === 'number'
+          ? desiredChainIdOrChainParameters
+          : desiredChainIdOrChainParameters?.chainId
 
-        // if there's no desired chain, or it's equal to the received, update
-        if (!desiredChainId || receivedChainId === desiredChainId)
-          return this.actions.update({ chainId: receivedChainId, accounts })
+      // if there's no desired chain, or it's equal to the received, update
+      if (!desiredChainId || receivedChainId === desiredChainId)
+        return this.actions.update({ chainId: receivedChainId, accounts })
 
-        const desiredChainIdHex = `0x${desiredChainId.toString(16)}`
+      const desiredChainIdHex = `0x${desiredChainId.toString(16)}`
 
-        // if we're here, we can try to switch networks
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        return this.provider!.request({
-          method: 'wallet_switchEthereumChain',
-          params: [{ chainId: desiredChainIdHex }],
+      // if we're here, we can try to switch networks
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      return this.provider!.request({
+        method: 'wallet_switchEthereumChain',
+        params: [{ chainId: desiredChainIdHex }],
+      })
+        .catch((error: ProviderRpcError) => {
+          if (error.code === 4902 && typeof desiredChainIdOrChainParameters !== 'number') {
+            // if we're here, we can try to add a new network
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            return this.provider!.request({
+              method: 'wallet_addEthereumChain',
+              params: [{ ...desiredChainIdOrChainParameters, chainId: desiredChainIdHex }],
+            })
+          } else {
+            throw error
+          }
         })
-          .catch((error: ProviderRpcError) => {
-            if (error.code === 4902 && typeof desiredChainIdOrChainParameters !== 'number') {
-              // if we're here, we can try to add a new network
-              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-              return this.provider!.request({
-                method: 'wallet_addEthereumChain',
-                params: [{ ...desiredChainIdOrChainParameters, chainId: desiredChainIdHex }],
-              })
-            } else {
-              throw error
-            }
-          })
-          .then(() => this.activate(desiredChainId))
-      })
-      .catch((error: ProviderRpcError) => {
-        throw error
-      })
+        .then(() => this.activate(desiredChainId))
+    })
   }
 
   public async watchAsset({ address, symbol, decimals, image }: WatchAssetParameters): Promise<true> {

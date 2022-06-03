@@ -27,7 +27,8 @@ export class EIP1193 extends Connector {
     })
 
     this.provider.on('disconnect', (error: ProviderRpcError): void => {
-      this.actions.reportError(error)
+      this.actions.onError(error)
+      this.actions.clearState()
     })
 
     this.provider.on('chainChanged', (chainId: string): void => {
@@ -67,12 +68,8 @@ export class EIP1193 extends Connector {
       this.provider
         .request({ method: 'eth_requestAccounts' })
         .catch(() => this.provider.request({ method: 'eth_accounts' })) as Promise<string[]>,
-    ])
-      .then(([chainId, accounts]) => {
-        this.actions.update({ chainId: parseChainId(chainId), accounts })
-      })
-      .catch((error: Error) => {
-        this.actions.reportError(error)
-      })
+    ]).then(([chainId, accounts]) => {
+      this.actions.update({ chainId: parseChainId(chainId), accounts })
+    })
   }
 }
