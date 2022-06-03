@@ -60,8 +60,8 @@ export class CoinbaseWallet extends Connector {
       })
 
       this.provider.on('disconnect', (error: ProviderRpcError): void => {
+        this.onError(error)
         this.clearState()
-        throw error
       })
 
       this.provider.on('chainChanged', (chainId: string): void => {
@@ -127,7 +127,42 @@ export class CoinbaseWallet extends Connector {
       return this.provider!.request<void>({
         method: 'wallet_switchEthereumChain',
         params: [{ chainId: desiredChainIdHex }],
+      }).catch(async (error: ProviderRpcError) => {
+        if (error.code === 4902 && typeof desiredChainIdOrChainParameters !== 'number') {
+          // if we're here, we can try to add a new network
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          return this.provider!.request<void>({
+            method: 'wallet_addEthereumChain',
+            params: [{ ...desiredChainIdOrChainParameters, chainId: desiredChainIdHex }],
+          })
+        } else {
+          throw error
+        }
       })
+    }
+
+    this.actions.startActivation()
+    await this.isomorphicInitialize()
+
+    return Promise.all([
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      this.provider!.request<string>({ method: 'eth_chainId' }),
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      this.provider!.request<string[]>({ method: 'eth_requestAccounts' }),
+    ]).then(([chainId, accounts]) => {
+      const receivedChainId = parseChainId(chainId)
+
+      if (!desiredChainId || desiredChainId === receivedChainId) {
+        return this.actions.update({ chainId: receivedChainId, accounts })
+      }
+
+      // if we're here, we can try to switch networks
+      const desiredChainIdHex = `0x${desiredChainId.toString(16)}`
+      return this.provider
+        ?.request<void>({
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId: desiredChainIdHex }],
+        })
         .catch(async (error: ProviderRpcError) => {
           if (error.code === 4902 && typeof desiredChainIdOrChainParameters !== 'number') {
             // if we're here, we can try to add a new network
@@ -140,50 +175,7 @@ export class CoinbaseWallet extends Connector {
             throw error
           }
         })
-        .catch((error: ProviderRpcError) => {
-          throw error
-        })
-    }
-
-    this.actions.startActivation()
-    await this.isomorphicInitialize()
-
-    return Promise.all([
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      this.provider!.request<string>({ method: 'eth_chainId' }),
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      this.provider!.request<string[]>({ method: 'eth_requestAccounts' }),
-    ])
-      .then(([chainId, accounts]) => {
-        const receivedChainId = parseChainId(chainId)
-
-        if (!desiredChainId || desiredChainId === receivedChainId) {
-          return this.actions.update({ chainId: receivedChainId, accounts })
-        }
-
-        // if we're here, we can try to switch networks
-        const desiredChainIdHex = `0x${desiredChainId.toString(16)}`
-        return this.provider
-          ?.request<void>({
-            method: 'wallet_switchEthereumChain',
-            params: [{ chainId: desiredChainIdHex }],
-          })
-          .catch(async (error: ProviderRpcError) => {
-            if (error.code === 4902 && typeof desiredChainIdOrChainParameters !== 'number') {
-              // if we're here, we can try to add a new network
-              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-              return this.provider!.request<void>({
-                method: 'wallet_addEthereumChain',
-                params: [{ ...desiredChainIdOrChainParameters, chainId: desiredChainIdHex }],
-              })
-            } else {
-              throw error
-            }
-          })
-      })
-      .catch((error: Error) => {
-        throw error
-      })
+    })
   }
 
   /** {@inheritdoc Connector.deactivate} */
