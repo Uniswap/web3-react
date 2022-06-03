@@ -91,22 +91,22 @@ export class GnosisSafe extends Connector {
   }
 
   public async activate(): Promise<void> {
-    if (!this.inIframe) return this.actions.reportError(new NoSafeContext())
+    if (!this.inIframe) {
+      throw new NoSafeContext()
+    }
 
     // only show activation if this is a first-time connection
     if (!this.sdk) this.actions.startActivation()
 
     await this.isomorphicInitialize()
-    if (!this.provider) return this.actions.reportError(new NoSafeContext())
-
-    try {
-      this.actions.update({
-        chainId: this.provider.chainId,
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        accounts: [await this.sdk!.safe.getInfo().then(({ safeAddress }) => safeAddress)],
-      })
-    } catch (error) {
-      this.actions.reportError(error as Error | undefined)
+    if (!this.provider) {
+      throw new NoSafeContext()
     }
+
+    this.actions.update({
+      chainId: this.provider.chainId,
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      accounts: [await this.sdk!.safe.getInfo().then(({ safeAddress }) => safeAddress)],
+    })
   }
 }

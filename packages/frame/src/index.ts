@@ -37,18 +37,14 @@ export class Frame extends Connector {
   private async startListening(connectEagerly: boolean): Promise<void> {
     const ethProvider = await import('eth-provider').then((m: { default: FrameProvider }) => m.default)
 
-    try {
-      this.provider = ethProvider('frame', this.options)
-    } catch (error) {
-      this.actions.reportError(error as Error)
-    }
+    this.provider = ethProvider('frame', this.options)
 
     if (this.provider) {
       this.provider.on('connect', ({ chainId }: ProviderConnectInfo): void => {
         this.actions.update({ chainId: parseChainId(chainId) })
       })
       this.provider.on('disconnect', (error: ProviderRpcError): void => {
-        this.actions.reportError(error)
+        this.clearState()
       })
       this.provider.on('chainChanged', (chainId: string): void => {
         this.actions.update({ chainId: parseChainId(chainId) })
@@ -86,15 +82,11 @@ export class Frame extends Connector {
       await Promise.all([
         this.provider.request({ method: 'eth_chainId' }) as Promise<string>,
         this.provider.request({ method: 'eth_requestAccounts' }) as Promise<string[]>,
-      ])
-        .then(([chainId, accounts]) => {
-          this.actions.update({ chainId: parseChainId(chainId), accounts })
-        })
-        .catch((error: Error) => {
-          this.actions.reportError(error)
-        })
+      ]).then(([chainId, accounts]) => {
+        this.actions.update({ chainId: parseChainId(chainId), accounts })
+      })
     } else {
-      this.actions.reportError(new NoFrameError())
+      throw new NoFrameError()
     }
   }
 }

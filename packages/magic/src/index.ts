@@ -42,21 +42,15 @@ export class Magic extends Connector {
   public async activate(configuration: LoginWithMagicLinkConfiguration): Promise<void> {
     this.actions.startActivation()
 
-    await this.startListening(configuration).catch((error: Error) => {
-      this.actions.reportError(error)
-    })
+    await this.startListening(configuration)
 
     if (this.provider) {
       await Promise.all([
         this.provider.request({ method: 'eth_chainId' }) as Promise<string>,
         this.provider.request({ method: 'eth_accounts' }) as Promise<string[]>,
-      ])
-        .then(([chainId, accounts]) => {
-          this.actions.update({ chainId: Number.parseInt(chainId, 16), accounts })
-        })
-        .catch((error: Error) => {
-          this.actions.reportError(error)
-        })
+      ]).then(([chainId, accounts]) => {
+        this.actions.update({ chainId: Number.parseInt(chainId, 16), accounts })
+      })
     }
   }
 }
