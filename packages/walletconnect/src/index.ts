@@ -53,7 +53,6 @@ export class WalletConnect extends Connector {
 
   private disconnectListener = (error: ProviderRpcError | undefined): void => {
     this.actions.clearState()
-    this.actions.onError(error)
   }
 
   private chainChangedListener = (chainId: number | string): void => {

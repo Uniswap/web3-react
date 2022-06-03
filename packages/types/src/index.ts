@@ -92,20 +92,13 @@ export abstract class Connector {
   public customProvider: unknown | undefined
 
   protected readonly actions: Actions
-  protected readonly onError: (error: Error) => void
 
   /**
    * @param actions - Methods bound to a zustand store that tracks the state of the connector.
    * Actions are used by the connector to report changes in connection status.
    */
-  constructor(
-    actions: Actions,
-    onError: (error: Error) => void = () => {
-      return
-    }
-  ) {
+  constructor(actions: Actions) {
     this.actions = actions
-    this.onError = onError
   }
 
   protected get serverSide() {

@@ -27,7 +27,6 @@ export class EIP1193 extends Connector {
     })
 
     this.provider.on('disconnect', (error: ProviderRpcError): void => {
-      this.actions.onError(error)
       this.actions.clearState()
     })
 
