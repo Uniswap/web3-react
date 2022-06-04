@@ -40,13 +40,11 @@ export function ConnectWithSelect({
   connector,
   chainId,
   isActivating,
-  error,
   isActive,
 }: {
   connector: MetaMask | WalletConnect | CoinbaseWallet | Network | GnosisSafe
   chainId: ReturnType<Web3ReactHooks['useChainId']>
   isActivating: ReturnType<Web3ReactHooks['useIsActivating']>
-  error: ReturnType<Web3ReactHooks['useError']>
   isActive: ReturnType<Web3ReactHooks['useIsActive']>
 }) {
   const isNetwork = connector instanceof Network
@@ -72,6 +70,19 @@ export function ConnectWithSelect({
     [connector, chainId]
   )
 
+  const [error, setError] = useState(undefined)
+
+  const onClick = useCallback((): void => {
+    setError(undefined)
+    if (connector instanceof GnosisSafe) {
+      connector.activate().catch(setError)
+    } else if (connector instanceof WalletConnect || connector instanceof Network) {
+      connector.activate(desiredChainId === -1 ? undefined : desiredChainId).catch(setError)
+    } else {
+      connector.activate(desiredChainId === -1 ? undefined : getAddChainParameters(desiredChainId)).catch(setError)
+    }
+  }, [connector, desiredChainId])
+
   if (error) {
     return (
       <div style={{ display: 'flex', flexDirection: 'column' }}>
@@ -84,17 +95,7 @@ export function ConnectWithSelect({
           />
         )}
         <div style={{ marginBottom: '1rem' }} />
-        <button
-          onClick={() =>
-            connector instanceof GnosisSafe
-              ? void connector.activate()
-              : connector instanceof WalletConnect || connector instanceof Network
-              ? void connector.activate(desiredChainId === -1 ? undefined : desiredChainId)
-              : void connector.activate(desiredChainId === -1 ? undefined : getAddChainParameters(desiredChainId))
-          }
-        >
-          Try Again?
-        </button>
+        <button onClick={onClick}>Try Again?</button>
       </div>
     )
   } else if (isActive) {
