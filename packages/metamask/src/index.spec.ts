@@ -23,7 +23,7 @@ describe('MetaMask', () => {
   beforeEach(() => {
     let actions: Actions
     ;[store, actions] = createWeb3ReactStoreAndActions()
-    connector = new MetaMask(actions, false)
+    connector = new MetaMask({ actions, connectEagerly: false })
   })
 
   test('#activate', async () => {
