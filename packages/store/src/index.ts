@@ -24,7 +24,6 @@ const DEFAULT_STATE = {
   chainId: undefined,
   accounts: undefined,
   activating: false,
-  error: undefined,
 }
 
 export function createWeb3ReactStoreAndActions(): [Web3ReactStore, Actions] {
@@ -52,8 +51,7 @@ export function createWeb3ReactStoreAndActions(): [Web3ReactStore, Actions] {
 
   /**
    * Used to report a `stateUpdate` which is merged with existing state. The first `stateUpdate` that results in chainId
-   * and accounts being set will also set activating to false, indicating a successful connection. Similarly, if an
-   * error is set, the first `stateUpdate` that results in chainId and accounts being set will clear this error.
+   * and accounts being set will also set activating to false, indicating a successful connection.
    *
    * @param stateUpdate - The state update to report.
    */
