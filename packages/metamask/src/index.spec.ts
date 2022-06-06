@@ -36,7 +36,6 @@ describe('MetaMask', () => {
       chainId: Number.parseInt(chainId, 16),
       accounts,
       activating: false,
-      error: undefined,
     })
   })
 })
