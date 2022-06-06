@@ -33,8 +33,19 @@ export class MetaMask extends Connector {
   /**
    * @param connectEagerly - A flag indicating whether connection should be initiated when the class is constructed.
    * @param options - Options to pass to `@metamask/detect-provider`
+   * @param onError - Handler to report errors thrown from eventListeners.
    */
-  constructor(actions: Actions, connectEagerly = false, options?: Parameters<typeof detectEthereumProvider>[0]) {
+  constructor({
+    actions,
+    connectEagerly,
+    options,
+    onError,
+  }: {
+    actions: Actions
+    connectEagerly?: boolean
+    options?: Parameters<typeof detectEthereumProvider>[0]
+    onError?: (error: Error) => void
+  }) {
     super(actions)
 
     if (connectEagerly && this.serverSide) {
@@ -42,6 +53,7 @@ export class MetaMask extends Connector {
     }
 
     this.options = options
+    this.onError = onError
 
     if (connectEagerly) void this.connectEagerly()
   }
@@ -65,6 +77,7 @@ export class MetaMask extends Connector {
           })
 
           this.provider.on('disconnect', (error: ProviderRpcError): void => {
+            this.onError?.(error)
             this.actions.resetState()
           })
 
