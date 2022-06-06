@@ -25,14 +25,14 @@ describe('Coinbase Wallet', () => {
     beforeEach(() => {
       let actions: Actions
       ;[store, actions] = createWeb3ReactStoreAndActions()
-      connector = new CoinbaseWallet(
+      connector = new CoinbaseWallet({
         actions,
-        {
+        options: {
           appName: 'test',
           url: 'https://mock.url',
         },
-        true
-      )
+        connectEagerly: true,
+      })
     })
 
     beforeEach(async () => {
