@@ -218,9 +218,10 @@ export class WalletConnect extends Connector {
     await this.provider?.disconnect()
     this.provider = undefined
     this.eagerConnection = undefined
-    this.actions.resetState()
     if (error) {
       throw error
+    } else {
+      this.actions.resetState()
     }
   }
 }
