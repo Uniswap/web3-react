@@ -27,7 +27,7 @@ describe('Network', () => {
     beforeEach(() => {
       let actions: Actions
       ;[store, actions] = createWeb3ReactStoreAndActions()
-      connector = new Network(actions, { 1: 'https://mock.url' }, true)
+      connector = new Network({ actions, urlMap: { 1: 'https://mock.url' }, connectEagerly: true })
     })
 
     beforeEach(async () => {
