@@ -25,9 +25,20 @@ export class Frame extends Connector {
   private readonly options?: FrameConnectorArguments
   private providerPromise?: Promise<void>
 
-  constructor(actions: Actions, options?: FrameConnectorArguments, connectEagerly = true) {
+  constructor({
+    actions,
+    options,
+    connectEagerly = true,
+    onError,
+  }: {
+    actions: Actions
+    options?: FrameConnectorArguments
+    connectEagerly?: boolean
+    onError?: (error: Error) => void
+  }) {
     super(actions)
     this.options = options
+    this.onError = onError
 
     if (connectEagerly) {
       this.providerPromise = this.startListening(connectEagerly)
@@ -44,7 +55,7 @@ export class Frame extends Connector {
         this.actions.update({ chainId: parseChainId(chainId) })
       })
       this.provider.on('disconnect', (error: ProviderRpcError): void => {
-        this.actions.resetState()
+        this.onError?.(error)
       })
       this.provider.on('chainChanged', (chainId: string): void => {
         this.actions.update({ chainId: parseChainId(chainId) })
