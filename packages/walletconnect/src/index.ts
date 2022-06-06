@@ -31,8 +31,21 @@ export class WalletConnect extends Connector {
   /**
    * @param options - Options to pass to `@walletconnect/ethereum-provider`
    * @param connectEagerly - A flag indicating whether connection should be initiated when the class is constructed.
+   * @param onError - Handler to report errors thrown from eventListeners.
    */
-  constructor(actions: Actions, options: WalletConnectOptions, connectEagerly = false, treatModalCloseAsError = true) {
+  constructor({
+    actions,
+    options,
+    connectEagerly = false,
+    treatModalCloseAsError = false,
+    onError,
+  }: {
+    actions: Actions
+    options: WalletConnectOptions
+    connectEagerly?: boolean
+    treatModalCloseAsError?: boolean
+    onError?: (error: Error) => void
+  }) {
     super(actions)
 
     if (connectEagerly && this.serverSide) {
@@ -46,13 +59,16 @@ export class WalletConnect extends Connector {
       return accumulator
     }, {})
     this.options = rest
+    this.onError = onError
     this.treatModalCloseAsError = treatModalCloseAsError
 
     if (connectEagerly) void this.connectEagerly()
   }
 
   private disconnectListener = (error: ProviderRpcError | undefined): void => {
-    this.actions.resetState()
+    if (error) {
+      this.onError?.(error)
+    }
   }
 
   private chainChangedListener = (chainId: number | string): void => {

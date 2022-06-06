@@ -29,7 +29,7 @@ export class Url extends Connector {
   }: {
     actions: Actions
     url: url | JsonRpcProvider
-    connectEagerly: boolean
+    connectEagerly?: boolean
   }) {
     super(actions)
 
