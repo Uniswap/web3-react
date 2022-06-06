@@ -22,9 +22,6 @@ class MockConnector extends Connector {
   public update(...args: Parameters<Actions['update']>) {
     this.actions.update(...args)
   }
-  public clearState() {
-    this.actions.clearState()
-  }
 }
 
 class MockConnector2 extends MockConnector {}

@@ -26,7 +26,7 @@ export type Web3ReactStateUpdate =
 export interface Actions {
   startActivation: () => () => void
   update: (stateUpdate: Web3ReactStateUpdate) => void
-  clearState: () => void
+  resetState: () => void
 }
 
 // per EIP-1193
@@ -120,7 +120,7 @@ export abstract class Connector {
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public deactivate(...args: unknown[]): Promise<void> | void {
-    this.actions.clearState()
+    this.actions.resetState()
   }
 
   /**

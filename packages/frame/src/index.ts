@@ -44,7 +44,7 @@ export class Frame extends Connector {
         this.actions.update({ chainId: parseChainId(chainId) })
       })
       this.provider.on('disconnect', (error: ProviderRpcError): void => {
-        this.actions.clearState()
+        this.actions.resetState()
       })
       this.provider.on('chainChanged', (chainId: string): void => {
         this.actions.update({ chainId: parseChainId(chainId) })

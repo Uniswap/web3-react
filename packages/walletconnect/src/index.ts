@@ -52,7 +52,7 @@ export class WalletConnect extends Connector {
   }
 
   private disconnectListener = (error: ProviderRpcError | undefined): void => {
-    this.actions.clearState()
+    this.actions.resetState()
   }
 
   private chainChangedListener = (chainId: number | string): void => {
@@ -202,7 +202,7 @@ export class WalletConnect extends Connector {
     await this.provider?.disconnect()
     this.provider = undefined
     this.eagerConnection = undefined
-    this.actions.clearState()
+    this.actions.resetState()
     if (error) {
       throw error
     }

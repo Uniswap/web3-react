@@ -65,7 +65,7 @@ export class MetaMask extends Connector {
           })
 
           this.provider.on('disconnect', (error: ProviderRpcError): void => {
-            this.actions.clearState()
+            this.actions.resetState()
           })
 
           this.provider.on('chainChanged', (chainId: string): void => {
@@ -75,7 +75,7 @@ export class MetaMask extends Connector {
           this.provider.on('accountsChanged', (accounts: string[]): void => {
             if (accounts.length === 0) {
               // handle this edge case by disconnecting
-              this.actions.clearState()
+              this.actions.resetState()
             } else {
               this.actions.update({ accounts })
             }

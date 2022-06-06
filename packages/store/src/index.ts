@@ -87,9 +87,9 @@ export function createWeb3ReactStoreAndActions(): [Web3ReactStore, Actions] {
     })
   }
 
-  function clearState(): void {
+  function resetState(): void {
     store.setState(DEFAULT_STATE)
   }
 
-  return [store, { startActivation, update, clearState }]
+  return [store, { startActivation, update, resetState }]
 }

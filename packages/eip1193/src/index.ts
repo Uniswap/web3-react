@@ -27,7 +27,7 @@ export class EIP1193 extends Connector {
     })
 
     this.provider.on('disconnect', (error: ProviderRpcError): void => {
-      this.actions.clearState()
+      this.actions.resetState()
     })
 
     this.provider.on('chainChanged', (chainId: string): void => {
