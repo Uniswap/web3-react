@@ -9,6 +9,18 @@ import { Chain } from './Chain'
 import { ConnectWithSelect } from './ConnectWithSelect'
 import { Status } from './Status'
 
+const getTitle = (connector: Props['connector']) => {
+  if (connector instanceof MetaMask) {
+    return 'MetaMask'
+  } else if (connector instanceof CoinbaseWallet) {
+    return 'Coinbase Wallet'
+  } else if (connector instanceof Network) {
+    return 'Network'
+  } else if (connector instanceof GnosisSafe) {
+    return 'Gnosis Safe'
+  }
+}
+
 interface Props {
   connector: MetaMask | WalletConnect | CoinbaseWallet | Network | GnosisSafe
   chainId: ReturnType<Web3ReactHooks['useChainId']>
@@ -47,7 +59,7 @@ export function Card({
       }}
     >
       <div style={{ marginBottom: '1rem' }}>
-        <b>Network</b>
+        <b>{getTitle(connector)}</b>
         <Status isActivating={isActivating} isActive={isActive} error={error} />
         <div style={{ marginBottom: '1rem' }} />
         <Chain chainId={chainId} />
