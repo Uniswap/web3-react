@@ -1,10 +1,6 @@
 import { useEffect, useState } from 'react'
 import { coinbaseWallet, hooks } from '../../connectors/coinbaseWallet'
-import { Accounts } from '../Accounts'
 import { Card } from '../Card'
-import { Chain } from '../Chain'
-import { ConnectWithSelect } from '../ConnectWithSelect'
-import { Status } from '../Status'
 
 const { useChainId, useAccounts, useIsActivating, useIsActive, useProvider, useENSNames } = hooks
 
@@ -26,23 +22,16 @@ export default function CoinbaseWalletCard() {
   }, [])
 
   return (
-    <Card>
-      <div>
-        <b>Coinbase Wallet</b>
-        <Status isActivating={isActivating} isActive={isActive} error={error} />
-        <div style={{ marginBottom: '1rem' }} />
-        <Chain chainId={chainId} />
-        <Accounts accounts={accounts} provider={provider} ENSNames={ENSNames} />
-      </div>
-      <div style={{ marginBottom: '1rem' }} />
-      <ConnectWithSelect
-        connector={coinbaseWallet}
-        chainId={chainId}
-        isActivating={isActivating}
-        isActive={isActive}
-        error={error}
-        setError={setError}
-      />
-    </Card>
+    <Card
+      connector={coinbaseWallet}
+      chainId={chainId}
+      isActivating={isActivating}
+      isActive={isActive}
+      error={error}
+      setError={setError}
+      accounts={accounts}
+      provider={provider}
+      ENSNames={ENSNames}
+    />
   )
 }

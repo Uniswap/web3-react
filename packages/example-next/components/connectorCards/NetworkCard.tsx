@@ -1,10 +1,6 @@
 import { useEffect, useState } from 'react'
 import { hooks, network } from '../../connectors/network'
-import { Accounts } from '../Accounts'
 import { Card } from '../Card'
-import { Chain } from '../Chain'
-import { ConnectWithSelect } from '../ConnectWithSelect'
-import { Status } from '../Status'
 
 const { useChainId, useAccounts, useIsActivating, useIsActive, useProvider, useENSNames } = hooks
 
@@ -26,23 +22,16 @@ export default function NetworkCard() {
   }, [])
 
   return (
-    <Card>
-      <div>
-        <b>Network</b>
-        <Status isActivating={isActivating} isActive={isActive} error={error} />
-        <div style={{ marginBottom: '1rem' }} />
-        <Chain chainId={chainId} />
-        <Accounts accounts={accounts} provider={provider} ENSNames={ENSNames} />
-      </div>
-      <div style={{ marginBottom: '1rem' }} />
-      <ConnectWithSelect
-        connector={network}
-        chainId={chainId}
-        isActivating={isActivating}
-        isActive={isActive}
-        error={error}
-        setError={setError}
-      />
-    </Card>
+    <Card
+      connector={network}
+      chainId={chainId}
+      isActivating={isActivating}
+      isActive={isActive}
+      error={error}
+      setError={setError}
+      accounts={accounts}
+      provider={provider}
+      ENSNames={ENSNames}
+    />
   )
 }

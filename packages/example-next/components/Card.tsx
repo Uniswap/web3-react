@@ -1,4 +1,37 @@
-export function Card({ children }: { children: JSX.Element | JSX.Element[] }) {
+import { CoinbaseWallet } from '@web3-react/coinbase-wallet'
+import { Web3ReactHooks } from '@web3-react/core'
+import { GnosisSafe } from '@web3-react/gnosis-safe'
+import { MetaMask } from '@web3-react/metamask'
+import { Network } from '@web3-react/network'
+import { WalletConnect } from '@web3-react/walletconnect'
+import { Accounts } from './Accounts'
+import { Chain } from './Chain'
+import { ConnectWithSelect } from './ConnectWithSelect'
+import { Status } from './Status'
+
+interface Props {
+  connector: MetaMask | WalletConnect | CoinbaseWallet | Network | GnosisSafe
+  chainId: ReturnType<Web3ReactHooks['useChainId']>
+  isActivating: ReturnType<Web3ReactHooks['useIsActivating']>
+  isActive: ReturnType<Web3ReactHooks['useIsActive']>
+  error: Error | undefined
+  setError: (error: Error | undefined) => void
+  ENSNames: ReturnType<Web3ReactHooks['useENSNames']>
+  provider?: ReturnType<Web3ReactHooks['useProvider']>
+  accounts?: string[]
+}
+
+export function Card({
+  connector,
+  chainId,
+  isActivating,
+  isActive,
+  error,
+  setError,
+  ENSNames,
+  accounts,
+  provider,
+}: Props) {
   return (
     <div
       style={{
@@ -13,7 +46,21 @@ export function Card({ children }: { children: JSX.Element | JSX.Element[] }) {
         borderRadius: '1rem',
       }}
     >
-      {children}
+      <div style={{ marginBottom: '1rem' }}>
+        <b>Network</b>
+        <Status isActivating={isActivating} isActive={isActive} error={error} />
+        <div style={{ marginBottom: '1rem' }} />
+        <Chain chainId={chainId} />
+        <Accounts accounts={accounts} provider={provider} ENSNames={ENSNames} />
+      </div>
+      <ConnectWithSelect
+        connector={connector}
+        chainId={chainId}
+        isActivating={isActivating}
+        isActive={isActive}
+        error={error}
+        setError={setError}
+      />
     </div>
   )
 }
