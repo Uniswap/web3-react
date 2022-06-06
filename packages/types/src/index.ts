@@ -97,7 +97,7 @@ export abstract class Connector {
    * An optional handler which will report errors thrown from event listeners. Any errors caused from
    * user-defined behavior will be thrown inline through a Promise.
    */
-  protected readonly onError?: (error: Error) => void
+  protected onError?: (error: Error) => void
 
   /**
    * @param actions - Methods bound to a zustand store that tracks the state of the connector.

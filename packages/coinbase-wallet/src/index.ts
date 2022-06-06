@@ -27,10 +27,21 @@ export class CoinbaseWallet extends Connector {
   public coinbaseWallet: CoinbaseWalletSDK | undefined
 
   /**
-   * @param options - Options to pass to `@coinbase/wallet-sdk`
+   * @param options - Options to pass to `@coinbase/wallet-sdk`.
    * @param connectEagerly - A flag indicating whether connection should be initiated when the class is constructed.
+   * @param onError - Handler to report errors thrown from eventListeners.
    */
-  constructor(actions: Actions, options: CoinbaseWalletSDKOptions, connectEagerly = false) {
+  constructor({
+    actions,
+    options,
+    connectEagerly = false,
+    onError,
+  }: {
+    actions: Actions
+    options: CoinbaseWalletSDKOptions
+    connectEagerly?: boolean
+    onError?: (error: Error) => void
+  }) {
     super(actions)
 
     if (connectEagerly && this.serverSide) {
@@ -38,6 +49,7 @@ export class CoinbaseWallet extends Connector {
     }
 
     this.options = options
+    this.onError = onError
 
     if (connectEagerly) void this.connectEagerly()
   }
@@ -60,7 +72,7 @@ export class CoinbaseWallet extends Connector {
       })
 
       this.provider.on('disconnect', (error: ProviderRpcError): void => {
-        this.actions.resetState()
+        this.onError?.(error)
       })
 
       this.provider.on('chainChanged', (chainId: string): void => {
