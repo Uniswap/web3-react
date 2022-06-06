@@ -15,7 +15,7 @@ export class Magic extends Connector {
   private readonly options: MagicConnectorArguments
   public magic?: MagicInstance
 
-  constructor(actions: Actions, options: MagicConnectorArguments) {
+  constructor({ actions, options }: { actions: Actions; options: MagicConnectorArguments }) {
     super(actions)
     this.options = options
   }
