@@ -4,22 +4,11 @@ import { GnosisSafe } from '@web3-react/gnosis-safe'
 import { MetaMask } from '@web3-react/metamask'
 import { Network } from '@web3-react/network'
 import { WalletConnect } from '@web3-react/walletconnect'
+import { getName } from '../utils'
 import { Accounts } from './Accounts'
 import { Chain } from './Chain'
 import { ConnectWithSelect } from './ConnectWithSelect'
 import { Status } from './Status'
-
-const getTitle = (connector: Props['connector']) => {
-  if (connector instanceof MetaMask) {
-    return 'MetaMask'
-  } else if (connector instanceof CoinbaseWallet) {
-    return 'Coinbase Wallet'
-  } else if (connector instanceof Network) {
-    return 'Network'
-  } else if (connector instanceof GnosisSafe) {
-    return 'Gnosis Safe'
-  }
-}
 
 interface Props {
   connector: MetaMask | WalletConnect | CoinbaseWallet | Network | GnosisSafe
@@ -58,7 +47,7 @@ export function Card({
         borderRadius: '1rem',
       }}
     >
-      <b>{getTitle(connector)}</b>
+      <b>{getName(connector)}</b>
       <div style={{ marginBottom: '1rem' }}>
         <Status isActivating={isActivating} isActive={isActive} error={error} />
       </div>
