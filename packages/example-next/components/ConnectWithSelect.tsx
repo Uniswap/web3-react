@@ -66,9 +66,15 @@ export function ConnectWithSelect({
       if (desiredChainId === -1 && chainId !== undefined) return
 
       if (connector instanceof WalletConnect || connector instanceof Network) {
-        connector.activate(desiredChainId === -1 ? undefined : desiredChainId).catch(setError)
+        connector
+          .activate(desiredChainId === -1 ? undefined : desiredChainId)
+          .then(() => setError(undefined))
+          .catch(setError)
       } else {
-        connector.activate(desiredChainId === -1 ? undefined : getAddChainParameters(desiredChainId)).catch(setError)
+        connector
+          .activate(desiredChainId === -1 ? undefined : getAddChainParameters(desiredChainId))
+          .then(() => setError(undefined))
+          .catch(setError)
       }
     },
     [connector, chainId, setError]
@@ -77,11 +83,20 @@ export function ConnectWithSelect({
   const onClick = useCallback((): void => {
     setError(undefined)
     if (connector instanceof GnosisSafe) {
-      connector.activate().catch(setError)
+      connector
+        .activate()
+        .then(() => setError(undefined))
+        .catch(setError)
     } else if (connector instanceof WalletConnect || connector instanceof Network) {
-      connector.activate(desiredChainId === -1 ? undefined : desiredChainId).catch(setError)
+      connector
+        .activate(desiredChainId === -1 ? undefined : desiredChainId)
+        .then(() => setError(undefined))
+        .catch(setError)
     } else {
-      connector.activate(desiredChainId === -1 ? undefined : getAddChainParameters(desiredChainId)).catch(setError)
+      connector
+        .activate(desiredChainId === -1 ? undefined : getAddChainParameters(desiredChainId))
+        .then(() => setError(undefined))
+        .catch(setError)
     }
   }, [connector, desiredChainId, setError])
 
