@@ -26,8 +26,17 @@ export class GnosisSafe extends Connector {
 
   /**
    * @param connectEagerly - A flag indicating whether connection should be initiated when the class is constructed.
+   * @param options - Options to pass to `@gnosis.pm/safe-apps-sdk`.
    */
-  constructor(actions: Actions, connectEagerly = false, options?: Opts) {
+  constructor({
+    actions,
+    connectEagerly = false,
+    options,
+  }: {
+    actions: Actions
+    connectEagerly?: boolean
+    options?: Opts
+  }) {
     super(actions)
 
     if (connectEagerly && this.serverSide) {
