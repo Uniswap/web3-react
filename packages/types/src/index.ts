@@ -82,23 +82,30 @@ export abstract class Connector {
    * May also comply with EIP-3085 ({@link https://github.com/ethereum/EIPs/blob/master/EIPS/eip-3085.md}).
    * This property must be defined while the connector is active, unless a customProvider is provided.
    */
-  public provider: Provider | undefined
+  public provider?: Provider
 
   /**
    * An optional property meant to allow ethers providers to be used directly rather than via the experimental
    * 1193 bridge. If desired, this property must be defined while the connector is active, in which case it will
    * be preferred over provider.
    */
-  public customProvider: unknown | undefined
+  public customProvider?: unknown
 
   protected readonly actions: Actions
+
+  /**
+   * An optional handler which will report errors thrown from event listeners. Any errors caused from
+   * user-defined behavior will be thrown inline through a Promise.
+   */
+  protected readonly onError?: (error: Error) => void
 
   /**
    * @param actions - Methods bound to a zustand store that tracks the state of the connector.
    * Actions are used by the connector to report changes in connection status.
    */
-  constructor(actions: Actions) {
+  constructor(actions: Actions, onError?: (error: Error) => void) {
     this.actions = actions
+    this.onError = onError
   }
 
   protected get serverSide() {
@@ -108,7 +115,7 @@ export abstract class Connector {
   /**
    * Attempt to initiate a connection, failing silently
    */
-  public connectEagerly?(...args: unknown[]): Promise<void> | void
+  public abstract connectEagerly?(...args: unknown[]): Promise<void> | void
 
   /**
    * Initiate a connection.
