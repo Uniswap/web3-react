@@ -88,7 +88,7 @@ describe('EIP1193', () => {
       const web3Provider = new Web3Provider(mockProvider)
       const wrapped = new Eip1193Bridge(web3Provider.getSigner(), web3Provider)
 
-      connector = new EIP1193(actions, wrapped, false)
+      connector = new EIP1193({ actions, provider: wrapped, connectEagerly: false })
 
       await connector.activate()
 

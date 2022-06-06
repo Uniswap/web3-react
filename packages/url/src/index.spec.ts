@@ -19,7 +19,7 @@ describe('Url', () => {
     beforeEach(() => {
       let actions: Actions
       ;[store, actions] = createWeb3ReactStoreAndActions()
-      connector = new Url(actions, 'https://mock.url', true)
+      connector = new Url({ actions, url: 'https://mock.url', connectEagerly: true })
     })
 
     beforeEach(async () => {
@@ -43,7 +43,7 @@ describe('Url', () => {
     beforeEach(() => {
       let actions: Actions
       ;[store, actions] = createWeb3ReactStoreAndActions()
-      connector = new Url(actions, 'https://mock.url', false)
+      connector = new Url({ actions, url: 'https://mock.url', connectEagerly: false })
     })
 
     test('is un-initialized', async () => {
