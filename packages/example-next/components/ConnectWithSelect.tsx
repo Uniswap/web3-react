@@ -41,11 +41,15 @@ export function ConnectWithSelect({
   chainId,
   isActivating,
   isActive,
+  error,
+  setError,
 }: {
   connector: MetaMask | WalletConnect | CoinbaseWallet | Network | GnosisSafe
   chainId: ReturnType<Web3ReactHooks['useChainId']>
   isActivating: ReturnType<Web3ReactHooks['useIsActivating']>
   isActive: ReturnType<Web3ReactHooks['useIsActive']>
+  error: Error | undefined
+  setError: (error: Error | undefined) => void
 }) {
   const isNetwork = connector instanceof Network
   const displayDefault = !isNetwork
@@ -54,7 +58,7 @@ export function ConnectWithSelect({
   const [desiredChainId, setDesiredChainId] = useState<number>(isNetwork ? 1 : -1)
 
   const switchChain = useCallback(
-    async (desiredChainId: number) => {
+    (desiredChainId: number) => {
       setDesiredChainId(desiredChainId)
       // if we're already connected to the desired chain, return
       if (desiredChainId === chainId) return
@@ -62,15 +66,13 @@ export function ConnectWithSelect({
       if (desiredChainId === -1 && chainId !== undefined) return
 
       if (connector instanceof WalletConnect || connector instanceof Network) {
-        await connector.activate(desiredChainId === -1 ? undefined : desiredChainId)
+        connector.activate(desiredChainId === -1 ? undefined : desiredChainId).catch(setError)
       } else {
-        await connector.activate(desiredChainId === -1 ? undefined : getAddChainParameters(desiredChainId))
+        connector.activate(desiredChainId === -1 ? undefined : getAddChainParameters(desiredChainId)).catch(setError)
       }
     },
-    [connector, chainId]
+    [connector, chainId, setError]
   )
-
-  const [error, setError] = useState(undefined)
 
   const onClick = useCallback((): void => {
     setError(undefined)
@@ -81,7 +83,7 @@ export function ConnectWithSelect({
     } else {
       connector.activate(desiredChainId === -1 ? undefined : getAddChainParameters(desiredChainId)).catch(setError)
     }
-  }, [connector, desiredChainId])
+  }, [connector, desiredChainId, setError])
 
   if (error) {
     return (
