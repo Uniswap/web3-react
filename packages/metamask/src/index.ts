@@ -78,7 +78,6 @@ export class MetaMask extends Connector {
 
           this.provider.on('disconnect', (error: ProviderRpcError): void => {
             this.onError?.(error)
-            this.actions.resetState()
           })
 
           this.provider.on('chainChanged', (chainId: string): void => {
