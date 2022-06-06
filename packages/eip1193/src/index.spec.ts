@@ -117,7 +117,7 @@ describe('EIP1193', () => {
       })
 
       test('fails silently', async () => {
-        connector = new EIP1193(actions, mockProvider, true)
+        connector = new EIP1193({ actions, provider: mockProvider, connectEagerly: true })
         await yieldThread()
 
         expect(store.getState()).toEqual({
@@ -135,7 +135,7 @@ describe('EIP1193', () => {
         mockProvider.chainId = chainId
         mockProvider.accounts = accounts
 
-        connector = new EIP1193(actions, mockProvider, true)
+        connector = new EIP1193({ actions, provider: mockProvider, connectEagerly: true })
         await yieldThread()
 
         expect(store.getState()).toEqual({
@@ -152,7 +152,7 @@ describe('EIP1193', () => {
 
     describe('connectEagerly = false', () => {
       beforeEach(() => {
-        connector = new EIP1193(actions, mockProvider, false)
+        connector = new EIP1193({ actions, provider: mockProvider, connectEagerly: false })
       })
 
       beforeEach(() => {
@@ -242,7 +242,7 @@ describe('EIP1193', () => {
 
   describe('events', () => {
     beforeEach(() => {
-      connector = new EIP1193(actions, mockProvider, false)
+      connector = new EIP1193({ actions, provider: mockProvider, connectEagerly: false })
     })
 
     afterEach(() => {
