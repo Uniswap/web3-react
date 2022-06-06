@@ -115,7 +115,7 @@ export abstract class Connector {
   /**
    * Attempt to initiate a connection, failing silently
    */
-  public abstract connectEagerly?(...args: unknown[]): Promise<void> | void
+  public connectEagerly?(...args: unknown[]): Promise<void> | void
 
   /**
    * Initiate a connection.
