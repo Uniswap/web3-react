@@ -58,11 +58,12 @@ export function Card({
         borderRadius: '1rem',
       }}
     >
+      <b>{getTitle(connector)}</b>
       <div style={{ marginBottom: '1rem' }}>
-        <b>{getTitle(connector)}</b>
         <Status isActivating={isActivating} isActive={isActive} error={error} />
-        <div style={{ marginBottom: '1rem' }} />
-        <Chain chainId={chainId} />
+      </div>
+      <Chain chainId={chainId} />
+      <div style={{ marginBottom: '1rem' }}>
         <Accounts accounts={accounts} provider={provider} ENSNames={ENSNames} />
       </div>
       <ConnectWithSelect
