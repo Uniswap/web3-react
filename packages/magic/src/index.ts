@@ -48,9 +48,14 @@ export class Magic extends Connector {
       await Promise.all([
         this.provider.request({ method: 'eth_chainId' }) as Promise<string>,
         this.provider.request({ method: 'eth_accounts' }) as Promise<string[]>,
-      ]).then(([chainId, accounts]) => {
-        this.actions.update({ chainId: Number.parseInt(chainId, 16), accounts })
-      })
+      ])
+        .then(([chainId, accounts]) => {
+          this.actions.update({ chainId: Number.parseInt(chainId, 16), accounts })
+        })
+        .catch((error) => {
+          this.actions.resetState()
+          throw error
+        })
     }
   }
 }

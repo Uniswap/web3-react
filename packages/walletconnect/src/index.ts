@@ -67,6 +67,7 @@ export class WalletConnect extends Connector {
 
   private disconnectListener = (error: ProviderRpcError | undefined): void => {
     if (error) {
+      this.actions.resetState()
       this.onError?.(error)
     }
   }
@@ -204,6 +205,7 @@ export class WalletConnect extends Connector {
       if ((error as Error).message === 'User closed modal') {
         await this.deactivate(this.treatModalCloseAsError ? (error as Error) : undefined)
       } else {
+        this.actions.resetState()
         throw error
       }
     }

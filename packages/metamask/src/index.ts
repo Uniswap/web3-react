@@ -77,6 +77,7 @@ export class MetaMask extends Connector {
           })
 
           this.provider.on('disconnect', (error: ProviderRpcError): void => {
+            this.actions.resetState()
             this.onError?.(error)
           })
 
@@ -168,6 +169,7 @@ export class MetaMask extends Connector {
               params: [{ ...desiredChainIdOrChainParameters, chainId: desiredChainIdHex }],
             })
           } else {
+            this.actions.resetState()
             throw error
           }
         })

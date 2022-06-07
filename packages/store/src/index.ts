@@ -85,6 +85,9 @@ export function createWeb3ReactStoreAndActions(): [Web3ReactStore, Actions] {
     })
   }
 
+  /**
+   * Resets connector state back to the default state.
+   */
   function resetState(): void {
     store.setState(DEFAULT_STATE)
   }

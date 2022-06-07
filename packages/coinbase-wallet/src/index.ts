@@ -73,6 +73,7 @@ export class CoinbaseWallet extends Connector {
 
       this.provider.on('disconnect', (error: ProviderRpcError): void => {
         this.onError?.(error)
+        this.actions.resetState()
       })
 
       this.provider.on('chainChanged', (chainId: string): void => {
@@ -183,6 +184,7 @@ export class CoinbaseWallet extends Connector {
               params: [{ ...desiredChainIdOrChainParameters, chainId: desiredChainIdHex }],
             })
           } else {
+            this.actions.resetState()
             throw error
           }
         })

@@ -55,6 +55,7 @@ export class Frame extends Connector {
         this.actions.update({ chainId: parseChainId(chainId) })
       })
       this.provider.on('disconnect', (error: ProviderRpcError): void => {
+        this.actions.resetState()
         this.onError?.(error)
       })
       this.provider.on('chainChanged', (chainId: string): void => {
@@ -93,9 +94,14 @@ export class Frame extends Connector {
       await Promise.all([
         this.provider.request({ method: 'eth_chainId' }) as Promise<string>,
         this.provider.request({ method: 'eth_requestAccounts' }) as Promise<string[]>,
-      ]).then(([chainId, accounts]) => {
-        this.actions.update({ chainId: parseChainId(chainId), accounts })
-      })
+      ])
+        .then(([chainId, accounts]) => {
+          this.actions.update({ chainId: parseChainId(chainId), accounts })
+        })
+        .catch((error: Error) => {
+          this.actions.resetState()
+          throw error
+        })
     } else {
       throw new NoFrameError()
     }
