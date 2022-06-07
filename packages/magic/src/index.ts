@@ -42,7 +42,10 @@ export class Magic extends Connector {
   public async activate(configuration: LoginWithMagicLinkConfiguration): Promise<void> {
     this.actions.startActivation()
 
-    await this.startListening(configuration)
+    await this.startListening(configuration).catch((error: Error) => {
+      this.actions.resetState()
+      throw error
+    })
 
     if (this.provider) {
       await Promise.all([

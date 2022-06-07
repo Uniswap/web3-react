@@ -48,7 +48,12 @@ export class Frame extends Connector {
   private async startListening(connectEagerly: boolean): Promise<void> {
     const ethProvider = await import('eth-provider').then((m: { default: FrameProvider }) => m.default)
 
-    this.provider = ethProvider('frame', this.options)
+    try {
+      this.provider = ethProvider('frame', this.options)
+    } catch (error) {
+      this.actions.resetState()
+      throw error
+    }
 
     if (this.provider) {
       this.provider.on('connect', ({ chainId }: ProviderConnectInfo): void => {

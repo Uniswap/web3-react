@@ -184,9 +184,12 @@ export class CoinbaseWallet extends Connector {
               params: [{ ...desiredChainIdOrChainParameters, chainId: desiredChainIdHex }],
             })
           } else {
-            this.actions.resetState()
             throw error
           }
+        })
+        .catch((error: Error) => {
+          this.actions.resetState()
+          throw error
         })
     })
   }

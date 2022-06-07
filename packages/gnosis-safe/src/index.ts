@@ -112,10 +112,17 @@ export class GnosisSafe extends Connector {
       throw new NoSafeContext()
     }
 
-    this.actions.update({
-      chainId: this.provider.chainId,
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      accounts: [await this.sdk!.safe.getInfo().then(({ safeAddress }) => safeAddress)],
-    })
+    try {
+      this.actions.update({
+        chainId: this.provider.chainId,
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        accounts: [await this.sdk!.safe.getInfo().then(({ safeAddress }) => safeAddress)],
+      })
+    } catch (error) {
+      if (error) {
+        this.actions.resetState()
+        throw error
+      }
+    }
   }
 }

@@ -56,11 +56,16 @@ export class Url extends Connector {
   public async activate(): Promise<void> {
     if (!this.customProvider) this.actions.startActivation()
 
-    await this.isomorphicInitialize().then(async (customProvider) => {
-      this.customProvider = customProvider
+    await this.isomorphicInitialize()
+      .then(async (customProvider) => {
+        this.customProvider = customProvider
 
-      const { chainId } = await this.customProvider.getNetwork()
-      this.actions.update({ chainId, accounts: [] })
-    })
+        const { chainId } = await this.customProvider.getNetwork()
+        this.actions.update({ chainId, accounts: [] })
+      })
+      .catch((error: Error) => {
+        this.actions.resetState()
+        throw error
+      })
   }
 }
