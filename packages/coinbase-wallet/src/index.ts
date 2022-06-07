@@ -139,18 +139,23 @@ export class CoinbaseWallet extends Connector {
       return this.provider!.request<void>({
         method: 'wallet_switchEthereumChain',
         params: [{ chainId: desiredChainIdHex }],
-      }).catch(async (error: ProviderRpcError) => {
-        if (error.code === 4902 && typeof desiredChainIdOrChainParameters !== 'number') {
-          // if we're here, we can try to add a new network
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          return this.provider!.request<void>({
-            method: 'wallet_addEthereumChain',
-            params: [{ ...desiredChainIdOrChainParameters, chainId: desiredChainIdHex }],
-          })
-        } else {
-          throw error
-        }
       })
+        .catch(async (error: ProviderRpcError) => {
+          if (error.code === 4902 && typeof desiredChainIdOrChainParameters !== 'number') {
+            // if we're here, we can try to add a new network
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            return this.provider!.request<void>({
+              method: 'wallet_addEthereumChain',
+              params: [{ ...desiredChainIdOrChainParameters, chainId: desiredChainIdHex }],
+            })
+          } else {
+            throw error
+          }
+        })
+        .catch((error: Error) => {
+          this.actions.resetState()
+          throw error
+        })
     }
 
     this.actions.startActivation()
