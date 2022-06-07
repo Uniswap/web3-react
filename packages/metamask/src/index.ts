@@ -174,7 +174,7 @@ export class MetaMask extends Connector {
           }
         })
         .then(() => this.activate(desiredChainId))
-        .catch((error: Error) => {
+        .catch((error: ProviderRpcError) => {
           this.actions.resetState()
           throw error
         })
