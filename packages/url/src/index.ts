@@ -22,7 +22,15 @@ export class Url extends Connector {
    * @param url - An RPC url or a JsonRpcProvider.
    * @param connectEagerly - A flag indicating whether connection should be initiated when the class is constructed.
    */
-  constructor(actions: Actions, url: url | JsonRpcProvider, connectEagerly = false) {
+  constructor({
+    actions,
+    url,
+    connectEagerly = false,
+  }: {
+    actions: Actions
+    url: url | JsonRpcProvider
+    connectEagerly?: boolean
+  }) {
     super(actions)
 
     if (connectEagerly && this.serverSide) {
@@ -56,7 +64,8 @@ export class Url extends Connector {
         this.actions.update({ chainId, accounts: [] })
       })
       .catch((error: Error) => {
-        this.actions.reportError(error)
+        this.actions.resetState()
+        throw error
       })
   }
 }

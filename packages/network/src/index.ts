@@ -33,12 +33,18 @@ export class Network extends Connector {
    * @param connectEagerly - A flag indicating whether connection should be initiated when the class is constructed.
    * @param defaultChainId - The chainId to connect to if connectEagerly is true.
    */
-  constructor(
-    actions: Actions,
-    urlMap: { [chainId: number]: url | url[] | JsonRpcProvider | JsonRpcProvider[] | FallbackProvider },
+  constructor({
+    actions,
+    urlMap,
     connectEagerly = false,
-    defaultChainId = Number(Object.keys(urlMap)[0])
-  ) {
+    defaultChainId = Number(Object.keys(urlMap)[0]),
+  }: {
+    actions: Actions
+
+    urlMap: { [chainId: number]: url | url[] | JsonRpcProvider | JsonRpcProvider[] | FallbackProvider }
+    connectEagerly?: boolean
+    defaultChainId?: number
+  }) {
     super(actions)
 
     if (connectEagerly && this.serverSide) {
@@ -102,7 +108,8 @@ export class Network extends Connector {
         this.actions.update({ chainId, accounts: [] })
       })
       .catch((error: Error) => {
-        this.actions.reportError(error)
+        this.actions.resetState()
+        throw error
       })
   }
 }

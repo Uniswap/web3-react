@@ -12,9 +12,20 @@ export class EIP1193 extends Connector {
   /**
    * @param provider - An EIP-1193 ({@link https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1193.md}) provider.
    * @param connectEagerly - A flag indicating whether connection should be initiated when the class is constructed.
+   * @param onError - Handler to report errors thrown from eventListeners.
    */
-  constructor(actions: Actions, provider: Provider, connectEagerly = false) {
-    super(actions)
+  constructor({
+    actions,
+    provider,
+    connectEagerly = false,
+    onError,
+  }: {
+    actions: Actions
+    provider: Provider
+    connectEagerly?: boolean
+    onError?: (error: Error) => void
+  }) {
+    super(actions, onError)
 
     if (connectEagerly && this.serverSide) {
       throw new Error('connectEagerly = true is invalid for SSR, instead use the connectEagerly method in a useEffect')
@@ -27,7 +38,8 @@ export class EIP1193 extends Connector {
     })
 
     this.provider.on('disconnect', (error: ProviderRpcError): void => {
-      this.actions.reportError(error)
+      this.actions.resetState()
+      this.onError?.(error)
     })
 
     this.provider.on('chainChanged', (chainId: string): void => {
@@ -72,7 +84,8 @@ export class EIP1193 extends Connector {
         this.actions.update({ chainId: parseChainId(chainId), accounts })
       })
       .catch((error: Error) => {
-        this.actions.reportError(error)
+        this.actions.resetState()
+        throw error
       })
   }
 }

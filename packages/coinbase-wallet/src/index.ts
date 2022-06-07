@@ -27,11 +27,22 @@ export class CoinbaseWallet extends Connector {
   public coinbaseWallet: CoinbaseWalletSDK | undefined
 
   /**
-   * @param options - Options to pass to `@coinbase/wallet-sdk`
+   * @param options - Options to pass to `@coinbase/wallet-sdk`.
    * @param connectEagerly - A flag indicating whether connection should be initiated when the class is constructed.
+   * @param onError - Handler to report errors thrown from eventListeners.
    */
-  constructor(actions: Actions, options: CoinbaseWalletSDKOptions, connectEagerly = false) {
-    super(actions)
+  constructor({
+    actions,
+    options,
+    connectEagerly = false,
+    onError,
+  }: {
+    actions: Actions
+    options: CoinbaseWalletSDKOptions
+    connectEagerly?: boolean
+    onError?: (error: Error) => void
+  }) {
+    super(actions, onError)
 
     if (connectEagerly && this.serverSide) {
       throw new Error('connectEagerly = true is invalid for SSR, instead use the connectEagerly method in a useEffect')
@@ -60,7 +71,8 @@ export class CoinbaseWallet extends Connector {
       })
 
       this.provider.on('disconnect', (error: ProviderRpcError): void => {
-        this.actions.reportError(error)
+        this.onError?.(error)
+        this.actions.resetState()
       })
 
       this.provider.on('chainChanged', (chainId: string): void => {
@@ -139,8 +151,9 @@ export class CoinbaseWallet extends Connector {
             throw error
           }
         })
-        .catch((error: ProviderRpcError) => {
-          this.actions.reportError(error)
+        .catch((error: Error) => {
+          this.actions.resetState()
+          throw error
         })
     }
 
@@ -152,37 +165,37 @@ export class CoinbaseWallet extends Connector {
       this.provider!.request<string>({ method: 'eth_chainId' }),
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       this.provider!.request<string[]>({ method: 'eth_requestAccounts' }),
-    ])
-      .then(([chainId, accounts]) => {
-        const receivedChainId = parseChainId(chainId)
+    ]).then(([chainId, accounts]) => {
+      const receivedChainId = parseChainId(chainId)
 
-        if (!desiredChainId || desiredChainId === receivedChainId) {
-          return this.actions.update({ chainId: receivedChainId, accounts })
-        }
+      if (!desiredChainId || desiredChainId === receivedChainId) {
+        return this.actions.update({ chainId: receivedChainId, accounts })
+      }
 
-        // if we're here, we can try to switch networks
-        const desiredChainIdHex = `0x${desiredChainId.toString(16)}`
-        return this.provider
-          ?.request<void>({
-            method: 'wallet_switchEthereumChain',
-            params: [{ chainId: desiredChainIdHex }],
-          })
-          .catch(async (error: ProviderRpcError) => {
-            if (error.code === 4902 && typeof desiredChainIdOrChainParameters !== 'number') {
-              // if we're here, we can try to add a new network
-              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-              return this.provider!.request<void>({
-                method: 'wallet_addEthereumChain',
-                params: [{ ...desiredChainIdOrChainParameters, chainId: desiredChainIdHex }],
-              })
-            } else {
-              throw error
-            }
-          })
-      })
-      .catch((error: Error) => {
-        this.actions.reportError(error)
-      })
+      // if we're here, we can try to switch networks
+      const desiredChainIdHex = `0x${desiredChainId.toString(16)}`
+      return this.provider
+        ?.request<void>({
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId: desiredChainIdHex }],
+        })
+        .catch(async (error: ProviderRpcError) => {
+          if (error.code === 4902 && typeof desiredChainIdOrChainParameters !== 'number') {
+            // if we're here, we can try to add a new network
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            return this.provider!.request<void>({
+              method: 'wallet_addEthereumChain',
+              params: [{ ...desiredChainIdOrChainParameters, chainId: desiredChainIdHex }],
+            })
+          } else {
+            throw error
+          }
+        })
+        .catch((error: Error) => {
+          this.actions.resetState()
+          throw error
+        })
+    })
   }
 
   /** {@inheritdoc Connector.deactivate} */

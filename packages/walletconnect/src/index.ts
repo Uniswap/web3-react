@@ -31,9 +31,22 @@ export class WalletConnect extends Connector {
   /**
    * @param options - Options to pass to `@walletconnect/ethereum-provider`
    * @param connectEagerly - A flag indicating whether connection should be initiated when the class is constructed.
+   * @param onError - Handler to report errors thrown from eventListeners.
    */
-  constructor(actions: Actions, options: WalletConnectOptions, connectEagerly = false, treatModalCloseAsError = true) {
-    super(actions)
+  constructor({
+    actions,
+    options,
+    connectEagerly = false,
+    treatModalCloseAsError = false,
+    onError,
+  }: {
+    actions: Actions
+    options: WalletConnectOptions
+    connectEagerly?: boolean
+    treatModalCloseAsError?: boolean
+    onError?: (error: Error) => void
+  }) {
+    super(actions, onError)
 
     if (connectEagerly && this.serverSide) {
       throw new Error('connectEagerly = true is invalid for SSR, instead use the connectEagerly method in a useEffect')
@@ -52,7 +65,10 @@ export class WalletConnect extends Connector {
   }
 
   private disconnectListener = (error: ProviderRpcError | undefined): void => {
-    this.actions.reportError(error)
+    this.actions.resetState()
+    if (error && this.onError) {
+      this.onError(error)
+    }
   }
 
   private chainChangedListener = (chainId: number | string): void => {
@@ -188,7 +204,8 @@ export class WalletConnect extends Connector {
       if ((error as Error).message === 'User closed modal') {
         await this.deactivate(this.treatModalCloseAsError ? (error as Error) : undefined)
       } else {
-        this.actions.reportError(error as Error)
+        this.actions.resetState()
+        throw error
       }
     }
   }
@@ -202,6 +219,10 @@ export class WalletConnect extends Connector {
     await this.provider?.disconnect()
     this.provider = undefined
     this.eagerConnection = undefined
-    this.actions.reportError(error)
+    if (error) {
+      throw error
+    } else {
+      this.actions.resetState()
+    }
   }
 }

@@ -27,7 +27,7 @@ describe('Network', () => {
     beforeEach(() => {
       let actions: Actions
       ;[store, actions] = createWeb3ReactStoreAndActions()
-      connector = new Network(actions, { 1: 'https://mock.url' }, true)
+      connector = new Network({ actions, urlMap: { 1: 'https://mock.url' }, connectEagerly: true })
     })
 
     beforeEach(async () => {
@@ -51,7 +51,7 @@ describe('Network', () => {
     beforeEach(() => {
       let actions: Actions
       ;[store, actions] = createWeb3ReactStoreAndActions()
-      connector = new Network(actions, { 1: 'https://mock.url' }, false)
+      connector = new Network({ actions, urlMap: { 1: 'https://mock.url' }, connectEagerly: false })
     })
 
     test('is un-initialized', async () => {
@@ -88,7 +88,11 @@ describe('Network', () => {
     beforeEach(() => {
       let actions: Actions
       ;[store, actions] = createWeb3ReactStoreAndActions()
-      connector = new Network(actions, { 1: ['https://1.mock.url', 'https://2.mock.url'] }, true)
+      connector = new Network({
+        actions,
+        urlMap: { 1: ['https://1.mock.url', 'https://2.mock.url'] },
+        connectEagerly: true,
+      })
     })
 
     beforeEach(async () => {
@@ -112,7 +116,11 @@ describe('Network', () => {
     beforeEach(() => {
       let actions: Actions
       ;[store, actions] = createWeb3ReactStoreAndActions()
-      connector = new Network(actions, { 1: 'https://mainnet.mock.url', 2: 'https://testnet.mock.url' }, true)
+      connector = new Network({
+        actions,
+        urlMap: { 1: 'https://mainnet.mock.url', 2: 'https://testnet.mock.url' },
+        connectEagerly: true,
+      })
     })
 
     beforeEach(async () => {

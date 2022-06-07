@@ -15,7 +15,7 @@ export class Magic extends Connector {
   private readonly options: MagicConnectorArguments
   public magic?: MagicInstance
 
-  constructor(actions: Actions, options: MagicConnectorArguments) {
+  constructor({ actions, options }: { actions: Actions; options: MagicConnectorArguments }) {
     super(actions)
     this.options = options
   }
@@ -43,7 +43,8 @@ export class Magic extends Connector {
     this.actions.startActivation()
 
     await this.startListening(configuration).catch((error: Error) => {
-      this.actions.reportError(error)
+      this.actions.resetState()
+      throw error
     })
 
     if (this.provider) {
@@ -54,8 +55,9 @@ export class Magic extends Connector {
         .then(([chainId, accounts]) => {
           this.actions.update({ chainId: Number.parseInt(chainId, 16), accounts })
         })
-        .catch((error: Error) => {
-          this.actions.reportError(error)
+        .catch((error) => {
+          this.actions.resetState()
+          throw error
         })
     }
   }

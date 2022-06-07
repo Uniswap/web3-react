@@ -2,12 +2,12 @@ import type { Web3ReactHooks } from '@web3-react/core'
 
 export function Status({
   isActivating,
-  error,
   isActive,
+  error,
 }: {
   isActivating: ReturnType<Web3ReactHooks['useIsActivating']>
-  error: ReturnType<Web3ReactHooks['useError']>
   isActive: ReturnType<Web3ReactHooks['useIsActive']>
+  error?: Error
 }) {
   return (
     <div>

@@ -25,8 +25,18 @@ export class Frame extends Connector {
   private readonly options?: FrameConnectorArguments
   private providerPromise?: Promise<void>
 
-  constructor(actions: Actions, options?: FrameConnectorArguments, connectEagerly = true) {
-    super(actions)
+  constructor({
+    actions,
+    options,
+    connectEagerly = true,
+    onError,
+  }: {
+    actions: Actions
+    options?: FrameConnectorArguments
+    connectEagerly?: boolean
+    onError?: (error: Error) => void
+  }) {
+    super(actions, onError)
     this.options = options
 
     if (connectEagerly) {
@@ -40,7 +50,8 @@ export class Frame extends Connector {
     try {
       this.provider = ethProvider('frame', this.options)
     } catch (error) {
-      this.actions.reportError(error as Error)
+      this.actions.resetState()
+      throw error
     }
 
     if (this.provider) {
@@ -48,7 +59,8 @@ export class Frame extends Connector {
         this.actions.update({ chainId: parseChainId(chainId) })
       })
       this.provider.on('disconnect', (error: ProviderRpcError): void => {
-        this.actions.reportError(error)
+        this.actions.resetState()
+        this.onError?.(error)
       })
       this.provider.on('chainChanged', (chainId: string): void => {
         this.actions.update({ chainId: parseChainId(chainId) })
@@ -91,10 +103,11 @@ export class Frame extends Connector {
           this.actions.update({ chainId: parseChainId(chainId), accounts })
         })
         .catch((error: Error) => {
-          this.actions.reportError(error)
+          this.actions.resetState()
+          throw error
         })
     } else {
-      this.actions.reportError(new NoFrameError())
+      throw new NoFrameError()
     }
   }
 }

@@ -5,7 +5,6 @@ export interface Web3ReactState extends State {
   chainId: number | undefined
   accounts: string[] | undefined
   activating: boolean
-  error: Error | undefined
 }
 
 export type Web3ReactStore = StoreApi<Web3ReactState>
@@ -27,7 +26,7 @@ export type Web3ReactStateUpdate =
 export interface Actions {
   startActivation: () => () => void
   update: (stateUpdate: Web3ReactStateUpdate) => void
-  reportError: (error: Error | undefined) => void
+  resetState: () => void
 }
 
 // per EIP-1193
@@ -83,25 +82,36 @@ export abstract class Connector {
    * May also comply with EIP-3085 ({@link https://github.com/ethereum/EIPs/blob/master/EIPS/eip-3085.md}).
    * This property must be defined while the connector is active, unless a customProvider is provided.
    */
-  public provider: Provider | undefined
+  public provider?: Provider
 
   /**
    * An optional property meant to allow ethers providers to be used directly rather than via the experimental
    * 1193 bridge. If desired, this property must be defined while the connector is active, in which case it will
    * be preferred over provider.
    */
-  public customProvider: unknown | undefined
+  public customProvider?: unknown
 
   protected readonly actions: Actions
 
   /**
+   * An optional handler which will report errors thrown from event listeners. Any errors caused from
+   * user-defined behavior will be thrown inline through a Promise.
+   */
+  protected onError?: (error: Error) => void
+
+  /**
    * @param actions - Methods bound to a zustand store that tracks the state of the connector.
+   * @param onError - An optional handler which will report errors thrown from event listeners.
    * Actions are used by the connector to report changes in connection status.
    */
-  constructor(actions: Actions) {
+  constructor(actions: Actions, onError?: (error: Error) => void) {
     this.actions = actions
+    this.onError = onError
   }
 
+  /**
+   * A function to determine whether or not this code is executing on a server.
+   */
   protected get serverSide() {
     return typeof window === 'undefined'
   }
@@ -121,7 +131,7 @@ export abstract class Connector {
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public deactivate(...args: unknown[]): Promise<void> | void {
-    this.actions.reportError(undefined)
+    this.actions.resetState()
   }
 
   /**

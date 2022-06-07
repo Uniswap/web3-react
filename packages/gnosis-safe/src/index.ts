@@ -26,8 +26,17 @@ export class GnosisSafe extends Connector {
 
   /**
    * @param connectEagerly - A flag indicating whether connection should be initiated when the class is constructed.
+   * @param options - Options to pass to `@gnosis.pm/safe-apps-sdk`.
    */
-  constructor(actions: Actions, connectEagerly = false, options?: Opts) {
+  constructor({
+    actions,
+    connectEagerly = false,
+    options,
+  }: {
+    actions: Actions
+    connectEagerly?: boolean
+    options?: Opts
+  }) {
     super(actions)
 
     if (connectEagerly && this.serverSide) {
@@ -91,13 +100,17 @@ export class GnosisSafe extends Connector {
   }
 
   public async activate(): Promise<void> {
-    if (!this.inIframe) return this.actions.reportError(new NoSafeContext())
+    if (!this.inIframe) {
+      throw new NoSafeContext()
+    }
 
     // only show activation if this is a first-time connection
     if (!this.sdk) this.actions.startActivation()
 
     await this.isomorphicInitialize()
-    if (!this.provider) return this.actions.reportError(new NoSafeContext())
+    if (!this.provider) {
+      throw new NoSafeContext()
+    }
 
     try {
       this.actions.update({
@@ -106,7 +119,8 @@ export class GnosisSafe extends Connector {
         accounts: [await this.sdk!.safe.getInfo().then(({ safeAddress }) => safeAddress)],
       })
     } catch (error) {
-      this.actions.reportError(error as Error | undefined)
+      this.actions.resetState()
+      throw error
     }
   }
 }

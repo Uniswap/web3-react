@@ -33,16 +33,12 @@ export type Web3ReactPriorityHooks = ReturnType<typeof getPriorityConnector>
  *
  * @typeParam T - The type of the `connector` returned from `f`.
  * @param f - A function which is called with `actions` bound to the returned `store`.
- * @param allowedChainIds - An optional array of chainIds which the `connector` may connect to. If the `connector` is
- * connected to a chainId which is not allowed, a ChainIdNotAllowedError error will be reported.
- * If this argument is unspecified, the `connector` may connect to any chainId.
  * @returns [connector, hooks, store] - The initialized connector, a variety of hooks, and a zustand store.
  */
 export function initializeConnector<T extends Connector>(
-  f: (actions: Actions) => T,
-  allowedChainIds?: number[]
+  f: (actions: Actions) => T
 ): [T, Web3ReactHooks, Web3ReactStore] {
-  const [store, actions] = createWeb3ReactStoreAndActions(allowedChainIds)
+  const [store, actions] = createWeb3ReactStoreAndActions()
 
   const connector = f(actions)
   const useConnector = create(store)
@@ -54,8 +50,8 @@ export function initializeConnector<T extends Connector>(
   return [connector, { ...stateHooks, ...derivedHooks, ...augmentedHooks }, store]
 }
 
-function computeIsActive({ chainId, accounts, activating, error }: Web3ReactState) {
-  return Boolean(chainId && accounts && !activating && !error)
+function computeIsActive({ chainId, accounts, activating }: Web3ReactState) {
+  return Boolean(chainId && accounts && !activating)
 }
 
 /**
@@ -96,12 +92,6 @@ export function getSelectedConnector(
   function useSelectedIsActivating(connector: Connector) {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const values = initializedConnectors.map(([, { useIsActivating }]) => useIsActivating())
-    return values[getIndex(connector)]
-  }
-
-  function useSelectedError(connector: Connector) {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    const values = initializedConnectors.map(([, { useError }]) => useError())
     return values[getIndex(connector)]
   }
 
@@ -153,7 +143,6 @@ export function getSelectedConnector(
     useSelectedChainId,
     useSelectedAccounts,
     useSelectedIsActivating,
-    useSelectedError,
     useSelectedAccount,
     useSelectedIsActive,
     useSelectedProvider,
@@ -177,7 +166,6 @@ export function getPriorityConnector(
     useSelectedChainId,
     useSelectedAccounts,
     useSelectedIsActivating,
-    useSelectedError,
     useSelectedAccount,
     useSelectedIsActive,
     useSelectedProvider,
@@ -206,10 +194,6 @@ export function getPriorityConnector(
 
   function usePriorityIsActivating() {
     return useSelectedIsActivating(usePriorityConnector())
-  }
-
-  function usePriorityError() {
-    return useSelectedError(usePriorityConnector())
   }
 
   function usePriorityAccount() {
@@ -242,7 +226,6 @@ export function getPriorityConnector(
     useSelectedChainId,
     useSelectedAccounts,
     useSelectedIsActivating,
-    useSelectedError,
     useSelectedAccount,
     useSelectedIsActive,
     useSelectedProvider,
@@ -253,7 +236,6 @@ export function getPriorityConnector(
     usePriorityChainId,
     usePriorityAccounts,
     usePriorityIsActivating,
-    usePriorityError,
     usePriorityAccount,
     usePriorityIsActive,
     usePriorityProvider,
@@ -270,7 +252,6 @@ const ACCOUNTS_EQUALITY_CHECKER: EqualityChecker<Web3ReactState['accounts']> = (
     oldAccounts.length === newAccounts?.length &&
     oldAccounts.every((oldAccount, i) => oldAccount === newAccounts[i]))
 const ACTIVATING = ({ activating }: Web3ReactState) => activating
-const ERROR = ({ error }: Web3ReactState) => error
 
 function getStateHooks(useConnector: UseBoundStore<Web3ReactStore>) {
   function useChainId(): Web3ReactState['chainId'] {
@@ -285,14 +266,10 @@ function getStateHooks(useConnector: UseBoundStore<Web3ReactStore>) {
     return useConnector(ACTIVATING)
   }
 
-  function useError(): Web3ReactState['error'] {
-    return useConnector(ERROR)
-  }
-
-  return { useChainId, useAccounts, useIsActivating, useError }
+  return { useChainId, useAccounts, useIsActivating }
 }
 
-function getDerivedHooks({ useChainId, useAccounts, useIsActivating, useError }: ReturnType<typeof getStateHooks>) {
+function getDerivedHooks({ useChainId, useAccounts, useIsActivating }: ReturnType<typeof getStateHooks>) {
   function useAccount(): string | undefined {
     return useAccounts()?.[0]
   }
@@ -301,13 +278,11 @@ function getDerivedHooks({ useChainId, useAccounts, useIsActivating, useError }:
     const chainId = useChainId()
     const accounts = useAccounts()
     const activating = useIsActivating()
-    const error = useError()
 
     return computeIsActive({
       chainId,
       accounts,
       activating,
-      error,
     })
   }
 
