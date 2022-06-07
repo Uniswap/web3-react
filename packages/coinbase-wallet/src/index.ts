@@ -42,14 +42,13 @@ export class CoinbaseWallet extends Connector {
     connectEagerly?: boolean
     onError?: (error: Error) => void
   }) {
-    super(actions)
+    super(actions, onError)
 
     if (connectEagerly && this.serverSide) {
       throw new Error('connectEagerly = true is invalid for SSR, instead use the connectEagerly method in a useEffect')
     }
 
     this.options = options
-    this.onError = onError
 
     if (connectEagerly) void this.connectEagerly()
   }

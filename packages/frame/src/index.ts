@@ -36,9 +36,8 @@ export class Frame extends Connector {
     connectEagerly?: boolean
     onError?: (error: Error) => void
   }) {
-    super(actions)
+    super(actions, onError)
     this.options = options
-    this.onError = onError
 
     if (connectEagerly) {
       this.providerPromise = this.startListening(connectEagerly)

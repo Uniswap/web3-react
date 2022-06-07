@@ -101,6 +101,7 @@ export abstract class Connector {
 
   /**
    * @param actions - Methods bound to a zustand store that tracks the state of the connector.
+   * @param onError - An optional handler which will report errors thrown from event listeners.
    * Actions are used by the connector to report changes in connection status.
    */
   constructor(actions: Actions, onError?: (error: Error) => void) {
@@ -108,6 +109,9 @@ export abstract class Connector {
     this.onError = onError
   }
 
+  /**
+   * A function to determine whether or not this code is executing on a server.
+   */
   protected get serverSide() {
     return typeof window === 'undefined'
   }

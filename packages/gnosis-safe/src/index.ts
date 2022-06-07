@@ -119,10 +119,8 @@ export class GnosisSafe extends Connector {
         accounts: [await this.sdk!.safe.getInfo().then(({ safeAddress }) => safeAddress)],
       })
     } catch (error) {
-      if (error) {
-        this.actions.resetState()
-        throw error
-      }
+      this.actions.resetState()
+      throw error
     }
   }
 }

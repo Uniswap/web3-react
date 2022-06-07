@@ -46,7 +46,7 @@ export class WalletConnect extends Connector {
     treatModalCloseAsError?: boolean
     onError?: (error: Error) => void
   }) {
-    super(actions)
+    super(actions, onError)
 
     if (connectEagerly && this.serverSide) {
       throw new Error('connectEagerly = true is invalid for SSR, instead use the connectEagerly method in a useEffect')
@@ -59,16 +59,15 @@ export class WalletConnect extends Connector {
       return accumulator
     }, {})
     this.options = rest
-    this.onError = onError
     this.treatModalCloseAsError = treatModalCloseAsError
 
     if (connectEagerly) void this.connectEagerly()
   }
 
   private disconnectListener = (error: ProviderRpcError | undefined): void => {
-    if (error) {
-      this.actions.resetState()
-      this.onError?.(error)
+    this.actions.resetState()
+    if (error && this.onError) {
+      this.onError(error)
     }
   }
 
