@@ -174,6 +174,10 @@ export class MetaMask extends Connector {
           }
         })
         .then(() => this.activate(desiredChainId))
+        .catch((error: Error) => {
+          this.actions.resetState()
+          throw error
+        })
     })
   }
 
