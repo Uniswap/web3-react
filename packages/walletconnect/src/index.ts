@@ -25,12 +25,16 @@ export class WalletConnect extends Connector {
 
   private readonly options: Omit<WalletConnectOptions, 'rpc'>
   private readonly rpc: { [chainId: number]: string[] }
+  private readonly timeout?: number
   private eagerConnection?: Promise<void>
   private treatModalCloseAsError: boolean
 
   /**
    * @param options - Options to pass to `@walletconnect/ethereum-provider`
    * @param connectEagerly - A flag indicating whether connection should be initiated when the class is constructed.
+   * @param treatModalCloseAsError - Whether or not to throw an error when the modal is closed.
+   * @param timeout - Timeout, in milliseconds, after which to treat network calls to urls as failed when selecting
+   * online urls.
    * @param onError - Handler to report errors thrown from eventListeners.
    */
   constructor({
@@ -38,12 +42,14 @@ export class WalletConnect extends Connector {
     options,
     connectEagerly = false,
     treatModalCloseAsError = false,
+    timeout,
     onError,
   }: {
     actions: Actions
     options: WalletConnectOptions
     connectEagerly?: boolean
     treatModalCloseAsError?: boolean
+    timeout?: number
     onError?: (error: Error) => void
   }) {
     super(actions, onError)
@@ -60,6 +66,7 @@ export class WalletConnect extends Connector {
     }, {})
     this.options = rest
     this.treatModalCloseAsError = treatModalCloseAsError
+    this.timeout = timeout
 
     if (connectEagerly) void this.connectEagerly()
   }
@@ -89,7 +96,10 @@ export class WalletConnect extends Connector {
     // because we can only use 1 url per chainId, we need to decide between multiple, where necessary
     const rpc = Promise.all(
       Object.keys(this.rpc).map(
-        async (chainId): Promise<[number, string]> => [Number(chainId), await getBestUrl(this.rpc[Number(chainId)])]
+        async (chainId): Promise<[number, string]> => [
+          Number(chainId),
+          await getBestUrl(this.rpc[Number(chainId)], this.timeout),
+        ]
       )
     ).then((results) =>
       results.reduce<{ [chainId: number]: string }>((accumulator, [chainId, url]) => {

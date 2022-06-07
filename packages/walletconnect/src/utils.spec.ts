@@ -67,4 +67,9 @@ describe('getBestUrl', () => {
     const url = await getBestUrl(['succeed_1', 'succeed_0'])
     expect(url).toBe('succeed_1')
   })
+
+  test('works with 2 successful urls (after timeout/before timeout)', async () => {
+    const url = await getBestUrl(['succeed_3', 'succeed_1'], 2)
+    expect(url).toBe('succeed_1')
+  })
 })
