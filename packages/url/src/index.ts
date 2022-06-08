@@ -41,7 +41,7 @@ export class Url extends Connector {
 
     if (connectEagerly) {
       this.activate().catch(() => {
-        //
+        // fail silently since eager connection should not throw
       })
     }
   }

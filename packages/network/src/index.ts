@@ -69,7 +69,7 @@ export class Network extends Connector {
 
     if (connectEagerly) {
       this.activate().catch(() => {
-        //
+        // fail silently since eager connection should not throw
       })
     }
   }
