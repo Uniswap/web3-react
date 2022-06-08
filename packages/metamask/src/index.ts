@@ -117,52 +117,54 @@ export class MetaMask extends Connector {
    * specified parameters first, before being prompted to switch.
    */
   public async activate(desiredChainIdOrChainParameters?: number | AddEthereumChainParameter): Promise<void> {
-    if (!this.provider?.isConnected?.()) this.actions.startActivation()
+    let cancelActivation: () => void
+    if (!this.provider?.isConnected?.()) cancelActivation = this.actions.startActivation()
 
-    await this.isomorphicInitialize()
-    if (!this.provider) throw new NoMetaMaskError()
+    return this.isomorphicInitialize()
+      .then(async () => {
+        if (!this.provider) throw new NoMetaMaskError()
 
-    return Promise.all([
-      this.provider.request({ method: 'eth_chainId' }) as Promise<string>,
-      this.provider.request({ method: 'eth_requestAccounts' }) as Promise<string[]>,
-    ]).then(([chainId, accounts]) => {
-      const receivedChainId = parseChainId(chainId)
-      const desiredChainId =
-        typeof desiredChainIdOrChainParameters === 'number'
-          ? desiredChainIdOrChainParameters
-          : desiredChainIdOrChainParameters?.chainId
+        return Promise.all([
+          this.provider.request({ method: 'eth_chainId' }) as Promise<string>,
+          this.provider.request({ method: 'eth_requestAccounts' }) as Promise<string[]>,
+        ]).then(([chainId, accounts]) => {
+          const receivedChainId = parseChainId(chainId)
+          const desiredChainId =
+            typeof desiredChainIdOrChainParameters === 'number'
+              ? desiredChainIdOrChainParameters
+              : desiredChainIdOrChainParameters?.chainId
 
-      // if there's no desired chain, or it's equal to the received, update
-      if (!desiredChainId || receivedChainId === desiredChainId)
-        return this.actions.update({ chainId: receivedChainId, accounts })
+          // if there's no desired chain, or it's equal to the received, update
+          if (!desiredChainId || receivedChainId === desiredChainId)
+            return this.actions.update({ chainId: receivedChainId, accounts })
 
-      const desiredChainIdHex = `0x${desiredChainId.toString(16)}`
+          const desiredChainIdHex = `0x${desiredChainId.toString(16)}`
 
-      // if we're here, we can try to switch networks
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      return this.provider!.request({
-        method: 'wallet_switchEthereumChain',
-        params: [{ chainId: desiredChainIdHex }],
-      })
-        .catch((error: ProviderRpcError) => {
-          if (error.code === 4902 && typeof desiredChainIdOrChainParameters !== 'number') {
-            // if we're here, we can try to add a new network
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            return this.provider!.request({
-              method: 'wallet_addEthereumChain',
-              params: [{ ...desiredChainIdOrChainParameters, chainId: desiredChainIdHex }],
+          // if we're here, we can try to switch networks
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          return this.provider!.request({
+            method: 'wallet_switchEthereumChain',
+            params: [{ chainId: desiredChainIdHex }],
+          })
+            .catch((error: ProviderRpcError) => {
+              if (error.code === 4902 && typeof desiredChainIdOrChainParameters !== 'number') {
+                // if we're here, we can try to add a new network
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                return this.provider!.request({
+                  method: 'wallet_addEthereumChain',
+                  params: [{ ...desiredChainIdOrChainParameters, chainId: desiredChainIdHex }],
+                })
+              }
+
+              throw error
             })
-          } else {
-            this.actions.resetState()
-            throw error
-          }
+            .then(() => this.activate(desiredChainId))
         })
-        .then(() => this.activate(desiredChainId))
-        .catch((error: ProviderRpcError) => {
-          this.actions.resetState()
-          throw error
-        })
-    })
+      })
+      .catch((error) => {
+        cancelActivation?.()
+        throw error
+      })
   }
 
   public async watchAsset({ address, symbol, decimals, image }: WatchAssetParameters): Promise<true> {

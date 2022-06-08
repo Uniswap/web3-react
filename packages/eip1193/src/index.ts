@@ -61,7 +61,7 @@ export class EIP1193 extends Connector {
 
   /** {@inheritdoc Connector.activate} */
   public async activate(): Promise<void> {
-    this.actions.startActivation()
+    const cancelActivation = this.actions.startActivation()
 
     return Promise.all([
       this.provider.request({ method: 'eth_chainId' }) as Promise<string>,
@@ -72,8 +72,8 @@ export class EIP1193 extends Connector {
       .then(([chainId, accounts]) => {
         this.actions.update({ chainId: parseChainId(chainId), accounts })
       })
-      .catch((error: Error) => {
-        this.actions.resetState()
+      .catch((error) => {
+        cancelActivation()
         throw error
       })
   }

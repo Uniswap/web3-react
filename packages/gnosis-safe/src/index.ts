@@ -101,20 +101,22 @@ export class GnosisSafe extends Connector {
     if (!this.inIframe) throw new NoSafeContext()
 
     // only show activation if this is a first-time connection
-    if (!this.sdk) this.actions.startActivation()
+    let cancelActivation: () => void
+    if (!this.sdk) cancelActivation = this.actions.startActivation()
 
-    await this.isomorphicInitialize()
-    if (!this.provider) throw new NoSafeContext()
+    return this.isomorphicInitialize()
+      .then(async () => {
+        if (!this.provider) throw new NoSafeContext()
 
-    try {
-      this.actions.update({
-        chainId: this.provider.chainId,
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        accounts: [await this.sdk!.safe.getInfo().then(({ safeAddress }) => safeAddress)],
+        this.actions.update({
+          chainId: this.provider.chainId,
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          accounts: [await this.sdk!.safe.getInfo().then(({ safeAddress }) => safeAddress)],
+        })
       })
-    } catch (error) {
-      this.actions.resetState()
-      throw error
-    }
+      .catch((error) => {
+        cancelActivation?.()
+        throw error
+      })
   }
 }
