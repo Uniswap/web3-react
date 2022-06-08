@@ -15,35 +15,11 @@ describe('Url', () => {
   let connector: Url
   let mockConnector: MockJsonRpcProvider
 
-  describe('connectEagerly = true', () => {
+  describe('works', () => {
     beforeEach(() => {
       let actions: Actions
       ;[store, actions] = createWeb3ReactStoreAndActions()
-      connector = new Url({ actions, url: 'https://mock.url', connectEagerly: true })
-    })
-
-    beforeEach(async () => {
-      mockConnector = connector.customProvider as unknown as MockJsonRpcProvider
-      mockConnector.chainId = chainId
-    })
-
-    test('#activate', async () => {
-      await connector.activate()
-
-      expect(store.getState()).toEqual({
-        chainId: Number.parseInt(chainId, 16),
-        accounts,
-        activating: false,
-        error: undefined,
-      })
-    })
-  })
-
-  describe('connectEagerly = false', () => {
-    beforeEach(() => {
-      let actions: Actions
-      ;[store, actions] = createWeb3ReactStoreAndActions()
-      connector = new Url({ actions, url: 'https://mock.url', connectEagerly: false })
+      connector = new Url({ actions, url: 'https://mock.url' })
     })
 
     test('is un-initialized', async () => {

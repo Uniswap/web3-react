@@ -127,7 +127,17 @@ export function ConnectWithSelect({
           />
         )}
         <div style={{ marginBottom: '1rem' }} />
-        <button onClick={() => void connector.deactivate()}>Disconnect</button>
+        <button
+          onClick={() => {
+            if (connector?.deactivate) {
+              void connector.deactivate()
+            } else {
+              void connector.resetState()
+            }
+          }}
+        >
+          Disconnect
+        </button>
       </div>
     )
   } else {
@@ -148,10 +158,19 @@ export function ConnectWithSelect({
               ? undefined
               : () =>
                   connector instanceof GnosisSafe
-                    ? void connector.activate()
+                    ? void connector
+                        .activate()
+                        .then(() => setError(undefined))
+                        .catch(setError)
                     : connector instanceof WalletConnect || connector instanceof Network
-                    ? connector.activate(desiredChainId === -1 ? undefined : desiredChainId)
-                    : connector.activate(desiredChainId === -1 ? undefined : getAddChainParameters(desiredChainId))
+                    ? connector
+                        .activate(desiredChainId === -1 ? undefined : desiredChainId)
+                        .then(() => setError(undefined))
+                        .catch(setError)
+                    : connector
+                        .activate(desiredChainId === -1 ? undefined : getAddChainParameters(desiredChainId))
+                        .then(() => setError(undefined))
+                        .catch(setError)
           }
           disabled={isActivating}
         >

@@ -12,9 +12,17 @@ export class NoSafeContext extends Error {
   }
 }
 
+/**
+ * @param options - Options to pass to `@gnosis.pm/safe-apps-sdk`.
+ */
+export interface GnosisSafeConstructorArgs {
+  actions: Actions
+  options?: Opts
+}
+
 export class GnosisSafe extends Connector {
   /** {@inheritdoc Connector.provider} */
-  public provider: SafeAppProvider | undefined
+  public provider?: SafeAppProvider
 
   private readonly options?: Opts
   private eagerConnection?: Promise<void>
@@ -24,31 +32,21 @@ export class GnosisSafe extends Connector {
    */
   public sdk: SafeAppsSDK | undefined
 
-  /**
-   * @param connectEagerly - A flag indicating whether connection should be initiated when the class is constructed.
-   * @param options - Options to pass to `@gnosis.pm/safe-apps-sdk`.
-   */
-  constructor({
-    actions,
-    connectEagerly = false,
-    options,
-  }: {
-    actions: Actions
-    connectEagerly?: boolean
-    options?: Opts
-  }) {
+  constructor({ actions, options }: GnosisSafeConstructorArgs) {
     super(actions)
-
-    if (connectEagerly && this.serverSide) {
-      throw new Error('connectEagerly = true is invalid for SSR, instead use the connectEagerly method in a useEffect')
-    }
-
     this.options = options
-
-    if (connectEagerly) void this.connectEagerly()
   }
 
-  // check if we're in an iframe
+  /**
+   * A function to determine whether or not this code is executing on a server.
+   */
+  private get serverSide() {
+    return typeof window === 'undefined'
+  }
+
+  /**
+   * A function to determine whether or not this code is executing in an iframe.
+   */
   private get inIframe() {
     if (this.serverSide) return false
     if (window !== window.parent) return true
@@ -56,7 +54,7 @@ export class GnosisSafe extends Connector {
   }
 
   private async isomorphicInitialize(): Promise<void> {
-    if (this.eagerConnection) return this.eagerConnection
+    if (this.eagerConnection) return
 
     // kick off import early to minimize waterfalls
     const SafeAppProviderPromise = import('@gnosis.pm/safe-apps-provider').then(
@@ -84,33 +82,29 @@ export class GnosisSafe extends Connector {
 
     const cancelActivation = this.actions.startActivation()
 
-    await this.isomorphicInitialize()
-    if (!this.provider) return cancelActivation()
-
     try {
+      await this.isomorphicInitialize()
+      if (!this.provider) throw new NoSafeContext()
+
       this.actions.update({
         chainId: this.provider.chainId,
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         accounts: [await this.sdk!.safe.getInfo().then(({ safeAddress }) => safeAddress)],
       })
     } catch (error) {
-      console.debug('Could not connect eagerly', error)
       cancelActivation()
+      throw error
     }
   }
 
   public async activate(): Promise<void> {
-    if (!this.inIframe) {
-      throw new NoSafeContext()
-    }
+    if (!this.inIframe) throw new NoSafeContext()
 
     // only show activation if this is a first-time connection
     if (!this.sdk) this.actions.startActivation()
 
     await this.isomorphicInitialize()
-    if (!this.provider) {
-      throw new NoSafeContext()
-    }
+    if (!this.provider) throw new NoSafeContext()
 
     try {
       this.actions.update({

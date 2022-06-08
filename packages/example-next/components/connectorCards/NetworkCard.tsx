@@ -18,7 +18,9 @@ export default function NetworkCard() {
 
   // attempt to connect eagerly on mount
   useEffect(() => {
-    void network.activate()
+    void network.activate().catch(() => {
+      console.debug('Failed to connect to network')
+    })
   }, [])
 
   return (

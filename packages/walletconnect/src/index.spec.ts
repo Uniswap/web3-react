@@ -31,20 +31,18 @@ describe('WalletConnect', () => {
   let connector: WalletConnect
   let mockConnector: MockMockWalletConnectProvider
 
-  describe('connectEagerly = true', () => {
-    beforeEach(() => {
+  describe('works', () => {
+    beforeEach(async () => {
       let actions: Actions
       ;[store, actions] = createWeb3ReactStoreAndActions()
-      connector = new WalletConnect({ actions, options: { rpc: {} }, connectEagerly: true })
-    })
-
-    beforeEach(async () => {
-      mockConnector = connector.provider as unknown as MockMockWalletConnectProvider
-      mockConnector.chainId = chainId
-      mockConnector.accounts = accounts
+      connector = new WalletConnect({ actions, options: { rpc: {} } })
     })
 
     test('#activate', async () => {
+      await connector.connectEagerly().catch(() => {})
+      mockConnector = connector.provider as unknown as MockMockWalletConnectProvider
+      mockConnector.chainId = chainId
+      mockConnector.accounts = accounts
       await connector.activate()
 
       expect(store.getState()).toEqual({

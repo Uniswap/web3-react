@@ -18,7 +18,9 @@ export default function CoinbaseWalletCard() {
 
   // attempt to connect eagerly on mount
   useEffect(() => {
-    void coinbaseWallet.connectEagerly()
+    void coinbaseWallet.connectEagerly().catch(() => {
+      console.debug('Failed to connect eagerly to coinbase wallet')
+    })
   }, [])
 
   return (

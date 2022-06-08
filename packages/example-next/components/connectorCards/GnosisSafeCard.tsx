@@ -18,7 +18,9 @@ export default function GnosisSafeCard() {
 
   // attempt to connect eagerly on mount
   useEffect(() => {
-    void gnosisSafe.connectEagerly()
+    void gnosisSafe.connectEagerly().catch(() => {
+      console.debug('Failed to connect eagerly to gnosis safe')
+    })
   }, [])
 
   return (
