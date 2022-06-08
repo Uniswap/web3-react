@@ -39,7 +39,11 @@ export class Url extends Connector {
 
     this.url = url
 
-    if (connectEagerly) void this.activate()
+    if (connectEagerly) {
+      this.activate().catch(() => {
+        //
+      })
+    }
   }
 
   private async isomorphicInitialize() {

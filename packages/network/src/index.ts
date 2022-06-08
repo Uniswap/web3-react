@@ -67,7 +67,11 @@ export class Network extends Connector {
     this.defaultChainId = defaultChainId
     this.timeout = timeout
 
-    if (connectEagerly) void this.activate()
+    if (connectEagerly) {
+      this.activate().catch(() => {
+        //
+      })
+    }
   }
 
   private async isomorphicInitialize(chainId: number): Promise<JsonRpcProvider> {
