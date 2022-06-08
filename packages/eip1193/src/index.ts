@@ -5,31 +5,22 @@ function parseChainId(chainId: string | number) {
   return typeof chainId === 'string' ? Number.parseInt(chainId, 16) : chainId
 }
 
+/**
+ * @param provider - An EIP-1193 ({@link https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1193.md}) provider.
+ * @param onError - Handler to report errors thrown from eventListeners.
+ */
+export interface EIP1193ConstructorArgs {
+  actions: Actions
+  provider: Provider
+  onError?: (error: Error) => void
+}
+
 export class EIP1193 extends Connector {
   /** {@inheritdoc Connector.provider} */
   provider: Provider
 
-  /**
-   * @param provider - An EIP-1193 ({@link https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1193.md}) provider.
-   * @param connectEagerly - A flag indicating whether connection should be initiated when the class is constructed.
-   * @param onError - Handler to report errors thrown from eventListeners.
-   */
-  constructor({
-    actions,
-    provider,
-    connectEagerly = false,
-    onError,
-  }: {
-    actions: Actions
-    provider: Provider
-    connectEagerly?: boolean
-    onError?: (error: Error) => void
-  }) {
+  constructor({ actions, provider, onError }: EIP1193ConstructorArgs) {
     super(actions, onError)
-
-    if (connectEagerly && this.serverSide) {
-      throw new Error('connectEagerly = true is invalid for SSR, instead use the connectEagerly method in a useEffect')
-    }
 
     this.provider = provider
 
@@ -49,8 +40,6 @@ export class EIP1193 extends Connector {
     this.provider.on('accountsChanged', (accounts: string[]): void => {
       this.actions.update({ accounts })
     })
-
-    if (connectEagerly) void this.connectEagerly()
   }
 
   /** {@inheritdoc Connector.connectEagerly} */
@@ -65,8 +54,8 @@ export class EIP1193 extends Connector {
         this.actions.update({ chainId: parseChainId(chainId), accounts })
       })
       .catch((error) => {
-        console.debug('Could not connect eagerly', error)
         cancelActivation()
+        throw error
       })
   }
 

@@ -14,6 +14,16 @@ function parseChainId(chainId: string | number) {
 
 type CoinbaseWalletSDKOptions = ConstructorParameters<typeof CoinbaseWalletSDK>[0] & { url: string }
 
+/**
+ * @param options - Options to pass to `@coinbase/wallet-sdk`.
+ * @param onError - Handler to report errors thrown from eventListeners.
+ */
+export interface CoinbaseWalletConstructorArgs {
+  actions: Actions
+  options: CoinbaseWalletSDKOptions
+  onError?: (error: Error) => void
+}
+
 export class CoinbaseWallet extends Connector {
   /** {@inheritdoc Connector.provider} */
   public provider: CoinbaseWalletProvider | undefined
@@ -26,31 +36,9 @@ export class CoinbaseWallet extends Connector {
    */
   public coinbaseWallet: CoinbaseWalletSDK | undefined
 
-  /**
-   * @param options - Options to pass to `@coinbase/wallet-sdk`.
-   * @param connectEagerly - A flag indicating whether connection should be initiated when the class is constructed.
-   * @param onError - Handler to report errors thrown from eventListeners.
-   */
-  constructor({
-    actions,
-    options,
-    connectEagerly = false,
-    onError,
-  }: {
-    actions: Actions
-    options: CoinbaseWalletSDKOptions
-    connectEagerly?: boolean
-    onError?: (error: Error) => void
-  }) {
+  constructor({ actions, options, onError }: CoinbaseWalletConstructorArgs) {
     super(actions, onError)
-
-    if (connectEagerly && this.serverSide) {
-      throw new Error('connectEagerly = true is invalid for SSR, instead use the connectEagerly method in a useEffect')
-    }
-
     this.options = options
-
-    if (connectEagerly) void this.connectEagerly()
   }
 
   // the `connected` property, is bugged, but this works as a hack to check connection status
@@ -59,7 +47,7 @@ export class CoinbaseWallet extends Connector {
   }
 
   private async isomorphicInitialize(): Promise<void> {
-    if (this.eagerConnection) return this.eagerConnection
+    if (this.eagerConnection) return
 
     await (this.eagerConnection = import('@coinbase/wallet-sdk').then((m) => {
       const { url, ...options } = this.options
@@ -106,8 +94,8 @@ export class CoinbaseWallet extends Connector {
           }
         })
         .catch((error) => {
-          console.debug('Could not connect eagerly', error)
           cancelActivation()
+          throw error
         })
     } else {
       cancelActivation()

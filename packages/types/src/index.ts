@@ -110,16 +110,11 @@ export abstract class Connector {
   }
 
   /**
-   * A function to determine whether or not this code is executing on a server.
+   * Reset the state of the connector without otherwise interacting with the connection.
    */
-  protected get serverSide() {
-    return typeof window === 'undefined'
+  public resetState(): Promise<void> | void {
+    this.actions.resetState()
   }
-
-  /**
-   * Attempt to initiate a connection, failing silently
-   */
-  public connectEagerly?(...args: unknown[]): Promise<void> | void
 
   /**
    * Initiate a connection.
@@ -127,15 +122,17 @@ export abstract class Connector {
   public abstract activate(...args: unknown[]): Promise<void> | void
 
   /**
-   * Initiate a disconnect.
+   * Attempt to initiate a connection, failing silently
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public deactivate(...args: unknown[]): Promise<void> | void {
-    this.actions.resetState()
-  }
+  public connectEagerly?(...args: unknown[]): Promise<void> | void
 
   /**
-   * Attempt to add an asset per EIP-747
+   * Un-initiate a connection. Only needs to be defined if a connection requires specific logic on disconnect.
+   */
+  public deactivate?(...args: unknown[]): Promise<void> | void
+
+  /**
+   * Attempt to add an asset per EIP-747.
    */
   public watchAsset?(params: WatchAssetParameters): Promise<true>
 }

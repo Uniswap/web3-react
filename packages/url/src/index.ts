@@ -9,63 +9,44 @@ function isUrl(url: url | JsonRpcProvider): url is url {
   return typeof url === 'string' || ('url' in url && !('connection' in url))
 }
 
+/**
+ * @param url - An RPC url or a JsonRpcProvider.
+ */
+export interface UrlConstructorArgs {
+  actions: Actions
+  url: url | JsonRpcProvider
+}
+
 export class Url extends Connector {
   /** {@inheritdoc Connector.provider} */
   public readonly provider: undefined
   /** {@inheritdoc Connector.customProvider} */
-  public customProvider: JsonRpcProvider | undefined
+  public customProvider?: JsonRpcProvider
 
-  private eagerConnection?: Promise<JsonRpcProvider>
   private readonly url: url | JsonRpcProvider
 
-  /**
-   * @param url - An RPC url or a JsonRpcProvider.
-   * @param connectEagerly - A flag indicating whether connection should be initiated when the class is constructed.
-   */
-  constructor({
-    actions,
-    url,
-    connectEagerly = false,
-  }: {
-    actions: Actions
-    url: url | JsonRpcProvider
-    connectEagerly?: boolean
-  }) {
+  constructor({ actions, url }: UrlConstructorArgs) {
     super(actions)
-
-    if (connectEagerly && this.serverSide) {
-      throw new Error('connectEagerly = true is invalid for SSR, instead use the activate method in a useEffect')
-    }
-
     this.url = url
-
-    if (connectEagerly) void this.activate()
-  }
-
-  private async isomorphicInitialize() {
-    if (this.eagerConnection) return this.eagerConnection
-
-    if (!isUrl(this.url)) return this.url
-
-    return (this.eagerConnection = import('@ethersproject/providers').then(({ JsonRpcProvider }) => {
-      return new JsonRpcProvider(this.url as url)
-    }))
   }
 
   /** {@inheritdoc Connector.activate} */
   public async activate(): Promise<void> {
-    if (!this.customProvider) this.actions.startActivation()
+    if (!this.customProvider) {
+      const cancelActivation = this.actions.startActivation()
+      if (!isUrl(this.url)) this.customProvider = this.url
+      await import('@ethersproject/providers')
+        .then(({ JsonRpcProvider }) => {
+          this.customProvider = new JsonRpcProvider(this.url as url)
+        })
+        .catch((error) => {
+          cancelActivation()
+          throw error
+        })
+    }
 
-    await this.isomorphicInitialize()
-      .then(async (customProvider) => {
-        this.customProvider = customProvider
-
-        const { chainId } = await this.customProvider.getNetwork()
-        this.actions.update({ chainId, accounts: [] })
-      })
-      .catch((error: Error) => {
-        this.actions.resetState()
-        throw error
-      })
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const { chainId } = await this.customProvider!.getNetwork()
+    this.actions.update({ chainId, accounts: [] })
   }
 }

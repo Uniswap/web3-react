@@ -23,77 +23,64 @@ function parseChainId(chainId: string) {
   return Number.parseInt(chainId, 16)
 }
 
+/**
+ * @param options - Options to pass to `@metamask/detect-provider`
+ * @param onError - Handler to report errors thrown from eventListeners.
+ */
+export interface MetaMaskConstructorArgs {
+  actions: Actions
+  options?: Parameters<typeof detectEthereumProvider>[0]
+  onError?: (error: Error) => void
+}
+
 export class MetaMask extends Connector {
   /** {@inheritdoc Connector.provider} */
-  public provider: MetaMaskProvider | undefined
+  public provider?: MetaMaskProvider
 
   private readonly options?: Parameters<typeof detectEthereumProvider>[0]
   private eagerConnection?: Promise<void>
 
-  /**
-   * @param connectEagerly - A flag indicating whether connection should be initiated when the class is constructed.
-   * @param options - Options to pass to `@metamask/detect-provider`
-   * @param onError - Handler to report errors thrown from eventListeners.
-   */
-  constructor({
-    actions,
-    connectEagerly,
-    options,
-    onError,
-  }: {
-    actions: Actions
-    connectEagerly?: boolean
-    options?: Parameters<typeof detectEthereumProvider>[0]
-    onError?: (error: Error) => void
-  }) {
+  constructor({ actions, options, onError }: MetaMaskConstructorArgs) {
     super(actions, onError)
-
-    if (connectEagerly && this.serverSide) {
-      throw new Error('connectEagerly = true is invalid for SSR, instead use the connectEagerly method in a useEffect')
-    }
-
     this.options = options
-
-    if (connectEagerly) void this.connectEagerly()
   }
 
   private async isomorphicInitialize(): Promise<void> {
-    if (this.eagerConnection) return this.eagerConnection
+    if (this.eagerConnection) return
 
-    await (this.eagerConnection = import('@metamask/detect-provider')
-      .then((m) => m.default(this.options))
-      .then((provider) => {
-        if (provider) {
-          this.provider = provider as MetaMaskProvider
+    return (this.eagerConnection = import('@metamask/detect-provider').then(async (m) => {
+      const provider = await m.default(this.options)
+      if (provider) {
+        this.provider = provider as MetaMaskProvider
 
-          // edge case if e.g. metamask and coinbase wallet are both installed
-          if (this.provider.providers?.length) {
-            this.provider = this.provider.providers.find((p) => p.isMetaMask) ?? this.provider.providers[0]
-          }
-
-          this.provider.on('connect', ({ chainId }: ProviderConnectInfo): void => {
-            this.actions.update({ chainId: parseChainId(chainId) })
-          })
-
-          this.provider.on('disconnect', (error: ProviderRpcError): void => {
-            this.actions.resetState()
-            this.onError?.(error)
-          })
-
-          this.provider.on('chainChanged', (chainId: string): void => {
-            this.actions.update({ chainId: parseChainId(chainId) })
-          })
-
-          this.provider.on('accountsChanged', (accounts: string[]): void => {
-            if (accounts.length === 0) {
-              // handle this edge case by disconnecting
-              this.actions.resetState()
-            } else {
-              this.actions.update({ accounts })
-            }
-          })
+        // handle the case when e.g. metamask and coinbase wallet are both installed
+        if (this.provider.providers?.length) {
+          this.provider = this.provider.providers.find((p) => p.isMetaMask) ?? this.provider.providers[0]
         }
-      }))
+
+        this.provider.on('connect', ({ chainId }: ProviderConnectInfo): void => {
+          this.actions.update({ chainId: parseChainId(chainId) })
+        })
+
+        this.provider.on('disconnect', (error: ProviderRpcError): void => {
+          this.actions.resetState()
+          this.onError?.(error)
+        })
+
+        this.provider.on('chainChanged', (chainId: string): void => {
+          this.actions.update({ chainId: parseChainId(chainId) })
+        })
+
+        this.provider.on('accountsChanged', (accounts: string[]): void => {
+          if (accounts.length === 0) {
+            // handle this edge case by disconnecting
+            this.actions.resetState()
+          } else {
+            this.actions.update({ accounts })
+          }
+        })
+      }
+    }))
   }
 
   /** {@inheritdoc Connector.connectEagerly} */
@@ -133,9 +120,7 @@ export class MetaMask extends Connector {
     if (!this.provider?.isConnected?.()) this.actions.startActivation()
 
     await this.isomorphicInitialize()
-    if (!this.provider) {
-      throw new NoMetaMaskError()
-    }
+    if (!this.provider) throw new NoMetaMaskError()
 
     return Promise.all([
       this.provider.request({ method: 'eth_chainId' }) as Promise<string>,
