@@ -69,10 +69,10 @@ describe('getBestProvider', () => {
   })
 
   test('works with 2 successful urls (after timeout/before timeout)', async () => {
-    const provider3 = new MockJsonRpcProvider(true, 3) as unknown as JsonRpcProvider
+    const provider100 = new MockJsonRpcProvider(true, 100) as unknown as JsonRpcProvider
     const provider1 = new MockJsonRpcProvider(true, 1) as unknown as JsonRpcProvider
 
-    const url = await getBestProvider([provider3, provider1], 2)
+    const url = await getBestProvider([provider100, provider1], 50)
     expect(url === provider1).toBe(true)
   })
 })
