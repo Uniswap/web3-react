@@ -32,10 +32,8 @@ describe('Coinbase Wallet', () => {
           url: 'https://mock.url',
         },
       })
-      await connector.connectEagerly()
-    })
+      await connector.connectEagerly().catch(() => {})
 
-    beforeEach(async () => {
       mockConnector = connector.provider as unknown as MockEIP1193Provider
       mockConnector.chainId = chainId
       mockConnector.accounts = accounts

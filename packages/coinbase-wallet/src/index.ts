@@ -129,9 +129,9 @@ export class CoinbaseWallet extends Connector {
             method: 'wallet_addEthereumChain',
             params: [{ ...desiredChainIdOrChainParameters, chainId: desiredChainIdHex }],
           })
-        } else {
-          throw error
         }
+
+        throw error
       })
     }
 
