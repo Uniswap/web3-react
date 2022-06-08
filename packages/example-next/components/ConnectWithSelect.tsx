@@ -61,9 +61,16 @@ export function ConnectWithSelect({
     (desiredChainId: number) => {
       setDesiredChainId(desiredChainId)
       // if we're already connected to the desired chain, return
-      if (desiredChainId === chainId) return
+      if (desiredChainId === chainId) {
+        setError(undefined)
+        return
+      }
+
       // if they want to connect to the default chain and we're already connected, return
-      if (desiredChainId === -1 && chainId !== undefined) return
+      if (desiredChainId === -1 && chainId !== undefined) {
+        setError(undefined)
+        return
+      }
 
       if (connector instanceof WalletConnect || connector instanceof Network) {
         connector

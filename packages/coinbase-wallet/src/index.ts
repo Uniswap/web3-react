@@ -59,8 +59,8 @@ export class CoinbaseWallet extends Connector {
       })
 
       this.provider.on('disconnect', (error: ProviderRpcError): void => {
-        this.onError?.(error)
         this.actions.resetState()
+        this.onError?.(error)
       })
 
       this.provider.on('chainChanged', (chainId: string): void => {
@@ -77,28 +77,23 @@ export class CoinbaseWallet extends Connector {
   public async connectEagerly(): Promise<void> {
     const cancelActivation = this.actions.startActivation()
 
-    await this.isomorphicInitialize()
+    try {
+      await this.isomorphicInitialize()
 
-    if (this.connected) {
+      if (!this.connected) throw new Error('No existing connection')
+
       return Promise.all([
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         this.provider!.request<string>({ method: 'eth_chainId' }),
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         this.provider!.request<string[]>({ method: 'eth_accounts' }),
-      ])
-        .then(([chainId, accounts]) => {
-          if (accounts.length) {
-            this.actions.update({ chainId: parseChainId(chainId), accounts })
-          } else {
-            throw new Error('No accounts returned')
-          }
-        })
-        .catch((error) => {
-          cancelActivation()
-          throw error
-        })
-    } else {
+      ]).then(([chainId, accounts]) => {
+        if (!accounts.length) throw new Error('No accounts returned')
+        this.actions.update({ chainId: parseChainId(chainId), accounts })
+      })
+    } catch (error) {
       cancelActivation()
+      throw error
     }
   }
 
@@ -126,64 +121,60 @@ export class CoinbaseWallet extends Connector {
       return this.provider!.request<void>({
         method: 'wallet_switchEthereumChain',
         params: [{ chainId: desiredChainIdHex }],
+      }).catch(async (error: ProviderRpcError) => {
+        if (error.code === 4902 && typeof desiredChainIdOrChainParameters !== 'number') {
+          // if we're here, we can try to add a new network
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          return this.provider!.request<void>({
+            method: 'wallet_addEthereumChain',
+            params: [{ ...desiredChainIdOrChainParameters, chainId: desiredChainIdHex }],
+          })
+        }
+
+        throw error
       })
-        .catch(async (error: ProviderRpcError) => {
-          if (error.code === 4902 && typeof desiredChainIdOrChainParameters !== 'number') {
-            // if we're here, we can try to add a new network
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            return this.provider!.request<void>({
-              method: 'wallet_addEthereumChain',
-              params: [{ ...desiredChainIdOrChainParameters, chainId: desiredChainIdHex }],
-            })
-          } else {
-            throw error
-          }
-        })
-        .catch((error: Error) => {
-          this.actions.resetState()
-          throw error
-        })
     }
 
-    this.actions.startActivation()
-    await this.isomorphicInitialize()
+    const cancelActivation = this.actions.startActivation()
 
-    return Promise.all([
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      this.provider!.request<string>({ method: 'eth_chainId' }),
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      this.provider!.request<string[]>({ method: 'eth_requestAccounts' }),
-    ]).then(([chainId, accounts]) => {
-      const receivedChainId = parseChainId(chainId)
+    try {
+      await this.isomorphicInitialize()
 
-      if (!desiredChainId || desiredChainId === receivedChainId) {
-        return this.actions.update({ chainId: receivedChainId, accounts })
-      }
+      return Promise.all([
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        this.provider!.request<string>({ method: 'eth_chainId' }),
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        this.provider!.request<string[]>({ method: 'eth_requestAccounts' }),
+      ]).then(([chainId, accounts]) => {
+        const receivedChainId = parseChainId(chainId)
 
-      // if we're here, we can try to switch networks
-      const desiredChainIdHex = `0x${desiredChainId.toString(16)}`
-      return this.provider
-        ?.request<void>({
-          method: 'wallet_switchEthereumChain',
-          params: [{ chainId: desiredChainIdHex }],
-        })
-        .catch(async (error: ProviderRpcError) => {
-          if (error.code === 4902 && typeof desiredChainIdOrChainParameters !== 'number') {
-            // if we're here, we can try to add a new network
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            return this.provider!.request<void>({
-              method: 'wallet_addEthereumChain',
-              params: [{ ...desiredChainIdOrChainParameters, chainId: desiredChainIdHex }],
-            })
-          } else {
+        if (!desiredChainId || desiredChainId === receivedChainId)
+          return this.actions.update({ chainId: receivedChainId, accounts })
+
+        // if we're here, we can try to switch networks
+        const desiredChainIdHex = `0x${desiredChainId.toString(16)}`
+        return this.provider
+          ?.request<void>({
+            method: 'wallet_switchEthereumChain',
+            params: [{ chainId: desiredChainIdHex }],
+          })
+          .catch(async (error: ProviderRpcError) => {
+            if (error.code === 4902 && typeof desiredChainIdOrChainParameters !== 'number') {
+              // if we're here, we can try to add a new network
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              return this.provider!.request<void>({
+                method: 'wallet_addEthereumChain',
+                params: [{ ...desiredChainIdOrChainParameters, chainId: desiredChainIdHex }],
+              })
+            }
+
             throw error
-          }
-        })
-        .catch((error: Error) => {
-          this.actions.resetState()
-          throw error
-        })
-    })
+          })
+      })
+    } catch (error) {
+      cancelActivation()
+      throw error
+    }
   }
 
   /** {@inheritdoc Connector.deactivate} */
