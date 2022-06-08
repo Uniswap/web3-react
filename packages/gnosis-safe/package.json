@@ -10,7 +10,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "version": "8.0.4-beta.0",
+  "version": "8.0.5-beta.0",
   "files": [
     "dist/*"
   ],
@@ -26,6 +26,6 @@
   "dependencies": {
     "@gnosis.pm/safe-apps-provider": "^0.11.0",
     "@gnosis.pm/safe-apps-sdk": "^7.3.0",
-    "@web3-react/types": "^8.0.18-beta.0"
+    "@web3-react/types": "^8.0.19-beta.0"
   }
 }
