@@ -39,7 +39,7 @@ In addition to compiling each package in watch mode, this will also spin up [pac
 
 ## Documentation
 
-This version of web3-react is still in beta, so unfortunately documentation is pretty sparse at the moment. [packages/example-next](packages/example-next), TSDoc comments, and the source code itself are the best ways to get an idea of what's going on. More thorough documentation is a priority as development continues!
+This version of web3-react is still in beta, so unfortunately documentation is pretty sparse at the moment. [packages/example-next](packages/example-next), [this independent hackMD article](https://hackmd.io/Ykpp1MWLTjixIZG2ZJEShA#Web3React-API-Reference), TSDoc comments, and the source code itself are the best ways to get an idea of what's going on. More thorough documentation is a priority as development continues!
 
 ## Upgrading Connector Dependencies
 
