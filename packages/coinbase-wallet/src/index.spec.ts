@@ -22,20 +22,18 @@ describe('Coinbase Wallet', () => {
   let mockConnector: MockEIP1193Provider
 
   describe('connectEagerly = true', () => {
-    beforeEach(() => {
+    beforeEach(async () => {
       let actions: Actions
       ;[store, actions] = createWeb3ReactStoreAndActions()
-      connector = new CoinbaseWallet(
+      connector = new CoinbaseWallet({
         actions,
-        {
+        options: {
           appName: 'test',
           url: 'https://mock.url',
         },
-        true
-      )
-    })
+      })
+      await connector.connectEagerly().catch(() => {})
 
-    beforeEach(async () => {
       mockConnector = connector.provider as unknown as MockEIP1193Provider
       mockConnector.chainId = chainId
       mockConnector.accounts = accounts
@@ -48,7 +46,6 @@ describe('Coinbase Wallet', () => {
         chainId: Number.parseInt(chainId, 16),
         accounts,
         activating: false,
-        error: undefined,
       })
     })
   })

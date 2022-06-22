@@ -1,49 +1,47 @@
-import type { FallbackProvider, JsonRpcProvider } from '@ethersproject/providers'
+import type { JsonRpcProvider } from '@ethersproject/providers'
 import type { ConnectionInfo } from '@ethersproject/web'
 import type { Actions } from '@web3-react/types'
 import { Connector } from '@web3-react/types'
+import { getBestProvider } from './utils'
 
 type url = string | ConnectionInfo
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function isUrl(url: url | any): url is url {
-  return typeof url === 'string' || ('url' in url && !('connection' in url) && !('quorum' in url))
+function isUrl(url: url | JsonRpcProvider): url is url {
+  return typeof url === 'string' || ('url' in url && !('connection' in url))
 }
 
-function isJsonRpcProvider(url: url | JsonRpcProvider | FallbackProvider): url is JsonRpcProvider {
-  return !isUrl(url) && 'connection' in url && !('quorum' in url)
-}
-
-function isFallbackProvider(url: url | JsonRpcProvider | FallbackProvider): url is FallbackProvider {
-  return !isUrl(url) && 'quorum' in url && !('connection' in url)
+/**
+ * @param urlMap - A mapping from chainIds to RPC urls.
+ * @param defaultChainId - The chainId to connect to in activate if one is not provided.
+ * @param timeout - Timeout, in milliseconds, after which to treat network calls to urls as failed when selecting
+ * online providers.
+ */
+export interface NetworkConstructorArgs {
+  actions: Actions
+  urlMap: { [chainId: number]: url | url[] | JsonRpcProvider | JsonRpcProvider[] }
+  defaultChainId?: number
+  timeout?: number
 }
 
 export class Network extends Connector {
   /** {@inheritdoc Connector.provider} */
   public readonly provider: undefined
   /** {@inheritdoc Connector.customProvider} */
-  public customProvider: JsonRpcProvider | FallbackProvider | undefined
+  public customProvider?: JsonRpcProvider
 
-  private readonly urlMap: Record<number, url[] | JsonRpcProvider[] | FallbackProvider>
+  private readonly providerCache: Record<number, Promise<JsonRpcProvider> | undefined> = {}
+
+  private readonly urlMap: Record<number, url[] | JsonRpcProvider[]>
   private readonly defaultChainId: number
-  private readonly providerCache: Record<number, Promise<JsonRpcProvider | FallbackProvider> | undefined> = {}
+  private readonly timeout: number
 
-  /**
-   * @param urlMap - A mapping from chainIds to RPC urls.
-   * @param connectEagerly - A flag indicating whether connection should be initiated when the class is constructed.
-   * @param defaultChainId - The chainId to connect to if connectEagerly is true.
-   */
-  constructor(
-    actions: Actions,
-    urlMap: { [chainId: number]: url | url[] | JsonRpcProvider | JsonRpcProvider[] | FallbackProvider },
-    connectEagerly = false,
-    defaultChainId = Number(Object.keys(urlMap)[0])
-  ) {
+  constructor({
+    actions,
+    urlMap,
+    defaultChainId = Number(Object.keys(urlMap)[0]),
+    timeout = 5000,
+  }: NetworkConstructorArgs) {
     super(actions)
-
-    if (connectEagerly && this.serverSide) {
-      throw new Error('connectEagerly = true is invalid for SSR, instead use the activate method in a useEffect')
-    }
 
     this.urlMap = Object.keys(urlMap).reduce<typeof this.urlMap>((accumulator, chainId) => {
       const urls = urlMap[Number(chainId)]
@@ -51,39 +49,31 @@ export class Network extends Connector {
       if (Array.isArray(urls)) {
         accumulator[Number(chainId)] = urls
       } else {
-        accumulator[Number(chainId)] = isFallbackProvider(urls) ? urls : isJsonRpcProvider(urls) ? [urls] : [urls]
+        // thie ternary just makes typescript happy, since it can't infer that the array has elements of the same type
+        accumulator[Number(chainId)] = isUrl(urls) ? [urls] : [urls]
       }
 
       return accumulator
     }, {})
     this.defaultChainId = defaultChainId
-
-    if (connectEagerly) void this.activate()
+    this.timeout = timeout
   }
 
-  private async isomorphicInitialize(chainId: number): Promise<JsonRpcProvider | FallbackProvider> {
-    if (this.providerCache[chainId]) return this.providerCache[chainId] as Promise<JsonRpcProvider | FallbackProvider>
+  private async isomorphicInitialize(chainId: number): Promise<JsonRpcProvider> {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    if (this.providerCache[chainId]) return this.providerCache[chainId]!
 
     const urls = this.urlMap[chainId]
 
-    if (Array.isArray(urls)) {
-      // early return if we have a single jsonrpc provider already
-      if (urls.length === 1 && isJsonRpcProvider(urls[0]))
-        return (this.providerCache[chainId] = Promise.resolve(urls[0]))
-    } else {
-      // if we're here we know urls is a FallbackProvider
-      return (this.providerCache[chainId] = Promise.resolve(urls))
+    // early return if we have a single jsonrpc provider already
+    if (urls.length === 1 && !isUrl(urls[0])) {
+      return (this.providerCache[chainId] = Promise.resolve(urls[0]))
     }
 
-    return (this.providerCache[chainId] = import('@ethersproject/providers')
-      .then(({ JsonRpcProvider, FallbackProvider }) => ({
-        JsonRpcProvider,
-        FallbackProvider,
-      }))
-      .then(({ JsonRpcProvider, FallbackProvider }) => {
-        const providers = urls.map((url) => (isUrl(url) ? new JsonRpcProvider(url, chainId) : url))
-        return providers.length === 1 ? providers[0] : new FallbackProvider(providers)
-      }))
+    return (this.providerCache[chainId] = import('@ethersproject/providers').then(({ JsonRpcProvider }) => {
+      const providers = urls.map((url) => (isUrl(url) ? new JsonRpcProvider(url, chainId) : url))
+      return getBestProvider(providers, this.timeout)
+    }))
   }
 
   /**
@@ -92,9 +82,12 @@ export class Network extends Connector {
    * @param desiredChainId - The desired chain to connect to.
    */
   public async activate(desiredChainId = this.defaultChainId): Promise<void> {
-    if (!this.customProvider) this.actions.startActivation()
+    let cancelActivation: () => void
+    if (!this.providerCache[desiredChainId]) {
+      cancelActivation = this.actions.startActivation()
+    }
 
-    await this.isomorphicInitialize(desiredChainId)
+    return this.isomorphicInitialize(desiredChainId)
       .then(async (customProvider) => {
         this.customProvider = customProvider
 
@@ -102,7 +95,8 @@ export class Network extends Connector {
         this.actions.update({ chainId, accounts: [] })
       })
       .catch((error: Error) => {
-        this.actions.reportError(error)
+        cancelActivation?.()
+        throw error
       })
   }
 }
