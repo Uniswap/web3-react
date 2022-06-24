@@ -51,7 +51,7 @@ export function initializeConnector<T extends Connector>(
 }
 
 function computeIsActive({ chainId, accounts, activating }: Web3ReactState) {
-  return Boolean(chainId && accounts && !activating)
+  return Boolean(chainId && accounts?.length && !activating)
 }
 
 /**
