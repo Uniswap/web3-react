@@ -16,7 +16,6 @@ export type Web3ContextType<T extends BaseProvider = Web3Provider> = {
   chainId: ReturnType<Web3ReactPriorityHooks['useSelectedChainId']>
   accounts: ReturnType<Web3ReactPriorityHooks['useSelectedAccounts']>
   isActivating: ReturnType<Web3ReactPriorityHooks['useSelectedIsActivating']>
-  error: ReturnType<Web3ReactPriorityHooks['useSelectedError']>
   account: ReturnType<Web3ReactPriorityHooks['useSelectedAccount']>
   isActive: ReturnType<Web3ReactPriorityHooks['useSelectedIsActive']>
   provider: T | undefined
@@ -57,7 +56,6 @@ export function Web3ReactProvider({
     useSelectedChainId,
     useSelectedAccounts,
     useSelectedIsActivating,
-    useSelectedError,
     useSelectedAccount,
     useSelectedIsActive,
     useSelectedProvider,
@@ -71,7 +69,6 @@ export function Web3ReactProvider({
   const chainId = useSelectedChainId(connector)
   const accounts = useSelectedAccounts(connector)
   const isActivating = useSelectedIsActivating(connector)
-  const error = useSelectedError(connector)
   const account = useSelectedAccount(connector)
   const isActive = useSelectedIsActive(connector)
   // note that we've omitted a <T extends BaseProvider = Web3Provider> generic type
@@ -90,7 +87,6 @@ export function Web3ReactProvider({
         chainId,
         accounts,
         isActivating,
-        error,
         account,
         isActive,
         provider,

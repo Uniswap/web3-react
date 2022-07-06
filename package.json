@@ -32,7 +32,6 @@
     "eth-provider": "^0.9.4",
     "jest": "^27.5.1",
     "lerna": "^4.0.0",
-    "magic-sdk": "^6.1.0",
     "prettier": "2.6.2",
     "react": "^18.0.0",
     "react-test-renderer": "^18.0.0",

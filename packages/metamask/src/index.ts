@@ -23,65 +23,64 @@ function parseChainId(chainId: string) {
   return Number.parseInt(chainId, 16)
 }
 
+/**
+ * @param options - Options to pass to `@metamask/detect-provider`
+ * @param onError - Handler to report errors thrown from eventListeners.
+ */
+export interface MetaMaskConstructorArgs {
+  actions: Actions
+  options?: Parameters<typeof detectEthereumProvider>[0]
+  onError?: (error: Error) => void
+}
+
 export class MetaMask extends Connector {
   /** {@inheritdoc Connector.provider} */
-  public provider: MetaMaskProvider | undefined
+  public provider?: MetaMaskProvider
 
   private readonly options?: Parameters<typeof detectEthereumProvider>[0]
   private eagerConnection?: Promise<void>
 
-  /**
-   * @param connectEagerly - A flag indicating whether connection should be initiated when the class is constructed.
-   * @param options - Options to pass to `@metamask/detect-provider`
-   */
-  constructor(actions: Actions, connectEagerly = false, options?: Parameters<typeof detectEthereumProvider>[0]) {
-    super(actions)
-
-    if (connectEagerly && this.serverSide) {
-      throw new Error('connectEagerly = true is invalid for SSR, instead use the connectEagerly method in a useEffect')
-    }
-
+  constructor({ actions, options, onError }: MetaMaskConstructorArgs) {
+    super(actions, onError)
     this.options = options
-
-    if (connectEagerly) void this.connectEagerly()
   }
 
   private async isomorphicInitialize(): Promise<void> {
-    if (this.eagerConnection) return this.eagerConnection
+    if (this.eagerConnection) return
 
-    await (this.eagerConnection = import('@metamask/detect-provider')
-      .then((m) => m.default(this.options))
-      .then((provider) => {
-        if (provider) {
-          this.provider = provider as MetaMaskProvider
+    return (this.eagerConnection = import('@metamask/detect-provider').then(async (m) => {
+      const provider = await m.default(this.options)
+      if (provider) {
+        this.provider = provider as MetaMaskProvider
 
-          // edge case if e.g. metamask and coinbase wallet are both installed
-          if (this.provider.providers?.length) {
-            this.provider = this.provider.providers.find((p) => p.isMetaMask) ?? this.provider.providers[0]
-          }
-
-          this.provider.on('connect', ({ chainId }: ProviderConnectInfo): void => {
-            this.actions.update({ chainId: parseChainId(chainId) })
-          })
-
-          this.provider.on('disconnect', (error: ProviderRpcError): void => {
-            this.actions.reportError(error)
-          })
-
-          this.provider.on('chainChanged', (chainId: string): void => {
-            this.actions.update({ chainId: parseChainId(chainId) })
-          })
-
-          this.provider.on('accountsChanged', (accounts: string[]): void => {
-            if (accounts.length === 0) {
-              // handle this edge case by disconnecting
-              this.actions.reportError(undefined)
-            } else {
-              this.actions.update({ accounts })
-            }
-          })
+        // handle the case when e.g. metamask and coinbase wallet are both installed
+        if (this.provider.providers?.length) {
+          this.provider = this.provider.providers.find((p) => p.isMetaMask) ?? this.provider.providers[0]
         }
-      }))
+
+        this.provider.on('connect', ({ chainId }: ProviderConnectInfo): void => {
+          this.actions.update({ chainId: parseChainId(chainId) })
+        })
+
+        this.provider.on('disconnect', (error: ProviderRpcError): void => {
+          this.actions.resetState()
+          this.onError?.(error)
+        })
+
+        this.provider.on('chainChanged', (chainId: string): void => {
+          this.actions.update({ chainId: parseChainId(chainId) })
+        })
+
+        this.provider.on('accountsChanged', (accounts: string[]): void => {
+          if (accounts.length === 0) {
+            // handle this edge case by disconnecting
+            this.actions.resetState()
+          } else {
+            this.actions.update({ accounts })
+          }
+        })
+      }
+    }))
   }
 
   /** {@inheritdoc Connector.connectEagerly} */
@@ -118,50 +117,53 @@ export class MetaMask extends Connector {
    * specified parameters first, before being prompted to switch.
    */
   public async activate(desiredChainIdOrChainParameters?: number | AddEthereumChainParameter): Promise<void> {
-    if (!this.provider?.isConnected?.()) this.actions.startActivation()
+    let cancelActivation: () => void
+    if (!this.provider?.isConnected?.()) cancelActivation = this.actions.startActivation()
 
-    await this.isomorphicInitialize()
-    if (!this.provider) return this.actions.reportError(new NoMetaMaskError())
+    return this.isomorphicInitialize()
+      .then(async () => {
+        if (!this.provider) throw new NoMetaMaskError()
 
-    return Promise.all([
-      this.provider.request({ method: 'eth_chainId' }) as Promise<string>,
-      this.provider.request({ method: 'eth_requestAccounts' }) as Promise<string[]>,
-    ])
-      .then(([chainId, accounts]) => {
-        const receivedChainId = parseChainId(chainId)
-        const desiredChainId =
-          typeof desiredChainIdOrChainParameters === 'number'
-            ? desiredChainIdOrChainParameters
-            : desiredChainIdOrChainParameters?.chainId
+        return Promise.all([
+          this.provider.request({ method: 'eth_chainId' }) as Promise<string>,
+          this.provider.request({ method: 'eth_requestAccounts' }) as Promise<string[]>,
+        ]).then(([chainId, accounts]) => {
+          const receivedChainId = parseChainId(chainId)
+          const desiredChainId =
+            typeof desiredChainIdOrChainParameters === 'number'
+              ? desiredChainIdOrChainParameters
+              : desiredChainIdOrChainParameters?.chainId
 
-        // if there's no desired chain, or it's equal to the received, update
-        if (!desiredChainId || receivedChainId === desiredChainId)
-          return this.actions.update({ chainId: receivedChainId, accounts })
+          // if there's no desired chain, or it's equal to the received, update
+          if (!desiredChainId || receivedChainId === desiredChainId)
+            return this.actions.update({ chainId: receivedChainId, accounts })
 
-        const desiredChainIdHex = `0x${desiredChainId.toString(16)}`
+          const desiredChainIdHex = `0x${desiredChainId.toString(16)}`
 
-        // if we're here, we can try to switch networks
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        return this.provider!.request({
-          method: 'wallet_switchEthereumChain',
-          params: [{ chainId: desiredChainIdHex }],
-        })
-          .catch((error: ProviderRpcError) => {
-            if (error.code === 4902 && typeof desiredChainIdOrChainParameters !== 'number') {
-              // if we're here, we can try to add a new network
-              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-              return this.provider!.request({
-                method: 'wallet_addEthereumChain',
-                params: [{ ...desiredChainIdOrChainParameters, chainId: desiredChainIdHex }],
-              })
-            } else {
-              throw error
-            }
+          // if we're here, we can try to switch networks
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          return this.provider!.request({
+            method: 'wallet_switchEthereumChain',
+            params: [{ chainId: desiredChainIdHex }],
           })
-          .then(() => this.activate(desiredChainId))
+            .catch((error: ProviderRpcError) => {
+              if (error.code === 4902 && typeof desiredChainIdOrChainParameters !== 'number') {
+                // if we're here, we can try to add a new network
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                return this.provider!.request({
+                  method: 'wallet_addEthereumChain',
+                  params: [{ ...desiredChainIdOrChainParameters, chainId: desiredChainIdHex }],
+                })
+              }
+
+              throw error
+            })
+            .then(() => this.activate(desiredChainId))
+        })
       })
-      .catch((error: ProviderRpcError) => {
-        this.actions.reportError(error)
+      .catch((error) => {
+        cancelActivation?.()
+        throw error
       })
   }
 
