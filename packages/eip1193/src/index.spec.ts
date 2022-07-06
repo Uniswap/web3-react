@@ -5,10 +5,6 @@ import type { Actions, ProviderRpcError, RequestArguments, Web3ReactStore } from
 import { EventEmitter } from 'node:events'
 import { EIP1193 } from '.'
 
-export async function yieldThread() {
-  await new Promise((resolve) => setTimeout(resolve, 0))
-}
-
 class MockProviderRpcError extends Error {
   public code: number
   constructor() {
@@ -88,7 +84,7 @@ describe('EIP1193', () => {
       const web3Provider = new Web3Provider(mockProvider)
       const wrapped = new Eip1193Bridge(web3Provider.getSigner(), web3Provider)
 
-      connector = new EIP1193(actions, wrapped, false)
+      connector = new EIP1193({ actions, provider: wrapped })
 
       await connector.activate()
 
@@ -96,7 +92,6 @@ describe('EIP1193', () => {
         chainId: 1,
         accounts,
         activating: false,
-        error: undefined,
       })
     })
   })
@@ -118,14 +113,13 @@ describe('EIP1193', () => {
       })
 
       test('fails silently', async () => {
-        connector = new EIP1193(actions, mockProvider, true)
-        await yieldThread()
+        connector = new EIP1193({ actions, provider: mockProvider })
+        await connector.connectEagerly().catch(() => {})
 
         expect(store.getState()).toEqual({
           chainId: undefined,
           accounts: undefined,
           activating: false,
-          error: undefined,
         })
 
         expect(mockProvider.eth_chainId.mock.calls.length).toBe(0)
@@ -137,14 +131,13 @@ describe('EIP1193', () => {
         mockProvider.chainId = chainId
         mockProvider.accounts = accounts
 
-        connector = new EIP1193(actions, mockProvider, true)
-        await yieldThread()
+        connector = new EIP1193({ actions, provider: mockProvider })
+        await connector.connectEagerly().catch(() => {})
 
         expect(store.getState()).toEqual({
           chainId: 1,
           accounts,
           activating: false,
-          error: undefined,
         })
 
         expect(mockProvider.eth_chainId.mock.calls.length).toBe(1)
@@ -155,7 +148,7 @@ describe('EIP1193', () => {
 
     describe('connectEagerly = false', () => {
       beforeEach(() => {
-        connector = new EIP1193(actions, mockProvider, false)
+        connector = new EIP1193({ actions, provider: mockProvider })
       })
 
       beforeEach(() => {
@@ -169,7 +162,6 @@ describe('EIP1193', () => {
           chainId: undefined,
           accounts: undefined,
           activating: false,
-          error: undefined,
         })
       })
 
@@ -190,7 +182,6 @@ describe('EIP1193', () => {
             chainId: 1,
             accounts,
             activating: false,
-            error: undefined,
           })
         })
 
@@ -204,7 +195,6 @@ describe('EIP1193', () => {
             chainId: 1,
             accounts,
             activating: false,
-            error: undefined,
           })
         })
 
@@ -221,7 +211,6 @@ describe('EIP1193', () => {
             chainId: 1,
             accounts,
             activating: false,
-            error: undefined,
           })
         })
 
@@ -241,7 +230,6 @@ describe('EIP1193', () => {
             chainId: 1,
             accounts,
             activating: false,
-            error: undefined,
           })
         })
       })
@@ -250,7 +238,7 @@ describe('EIP1193', () => {
 
   describe('events', () => {
     beforeEach(() => {
-      connector = new EIP1193(actions, mockProvider, false)
+      connector = new EIP1193({ actions, provider: mockProvider })
     })
 
     afterEach(() => {
@@ -281,7 +269,6 @@ describe('EIP1193', () => {
         chainId: undefined,
         accounts: undefined,
         activating: false,
-        error,
       })
     })
 
@@ -292,7 +279,6 @@ describe('EIP1193', () => {
         chainId: 1,
         accounts: undefined,
         activating: false,
-        error: undefined,
       })
     })
 
@@ -303,7 +289,6 @@ describe('EIP1193', () => {
         chainId: undefined,
         accounts,
         activating: false,
-        error: undefined,
       })
     })
 
@@ -315,7 +300,6 @@ describe('EIP1193', () => {
         chainId: 1,
         accounts,
         activating: false,
-        error: undefined,
       })
     })
 
@@ -327,7 +311,6 @@ describe('EIP1193', () => {
         chainId: 1,
         accounts,
         activating: false,
-        error: undefined,
       })
     })
   })

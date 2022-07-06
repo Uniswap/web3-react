@@ -23,35 +23,11 @@ describe('Network', () => {
   let connector: Network
   let mockConnector: MockJsonRpcProvider
 
-  describe('connectEagerly = true', () => {
+  describe('single url', () => {
     beforeEach(() => {
       let actions: Actions
       ;[store, actions] = createWeb3ReactStoreAndActions()
-      connector = new Network(actions, { 1: 'https://mock.url' }, true)
-    })
-
-    beforeEach(async () => {
-      mockConnector = connector.customProvider as unknown as MockJsonRpcProvider
-      mockConnector.chainId = chainId
-    })
-
-    test('#activate', async () => {
-      await connector.activate()
-
-      expect(store.getState()).toEqual({
-        chainId: Number.parseInt(chainId, 16),
-        accounts,
-        activating: false,
-        error: undefined,
-      })
-    })
-  })
-
-  describe('connectEagerly = false', () => {
-    beforeEach(() => {
-      let actions: Actions
-      ;[store, actions] = createWeb3ReactStoreAndActions()
-      connector = new Network(actions, { 1: 'https://mock.url' }, false)
+      connector = new Network({ actions, urlMap: { 1: 'https://mock.url' } })
     })
 
     test('is un-initialized', async () => {
@@ -85,13 +61,18 @@ describe('Network', () => {
   })
 
   describe('array of urls', () => {
-    beforeEach(() => {
+    beforeEach(async () => {
       let actions: Actions
       ;[store, actions] = createWeb3ReactStoreAndActions()
-      connector = new Network(actions, { 1: ['https://1.mock.url', 'https://2.mock.url'] }, true)
+      connector = new Network({
+        actions,
+        urlMap: { 1: ['https://1.mock.url', 'https://2.mock.url'] },
+      })
     })
 
     beforeEach(async () => {
+      // testing hack to ensure the provider is set
+      await connector.activate()
       mockConnector = connector.customProvider as unknown as MockJsonRpcProvider
       mockConnector.chainId = chainId
     })
@@ -109,25 +90,25 @@ describe('Network', () => {
   })
 
   describe('multiple chains', () => {
-    beforeEach(() => {
+    beforeEach(async () => {
       let actions: Actions
       ;[store, actions] = createWeb3ReactStoreAndActions()
-      connector = new Network(actions, { 1: 'https://mainnet.mock.url', 2: 'https://testnet.mock.url' }, true)
-    })
-
-    beforeEach(async () => {
-      mockConnector = connector.customProvider as unknown as MockJsonRpcProvider
-      mockConnector.chainId = chainId
+      connector = new Network({
+        actions,
+        urlMap: { 1: 'https://mainnet.mock.url', 2: 'https://testnet.mock.url' },
+      })
     })
 
     describe('#activate', () => {
       test('chainId = 1', async () => {
+        // testing hack to ensure the provider is set
+        await connector.activate()
         mockConnector = connector.customProvider as unknown as MockJsonRpcProvider
         mockConnector.chainId = chainId
         await connector.activate()
 
         expect(store.getState()).toEqual({
-          chainId: Number.parseInt(chainId, 16),
+          chainId: 1,
           accounts,
           activating: false,
           error: undefined,
@@ -139,7 +120,6 @@ describe('Network', () => {
         await connector.activate(2)
         mockConnector = connector.customProvider as unknown as MockJsonRpcProvider
         mockConnector.chainId = '0x2'
-
         await connector.activate(2)
 
         expect(store.getState()).toEqual({
