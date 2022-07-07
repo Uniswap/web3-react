@@ -5,6 +5,7 @@ export interface Web3ReactState extends State {
   chainId: number | undefined
   accounts: string[] | undefined
   activating: boolean
+  error: Error | undefined
 }
 
 export type Web3ReactStore = StoreApi<Web3ReactState>
@@ -26,7 +27,7 @@ export type Web3ReactStateUpdate =
 export interface Actions {
   startActivation: () => () => void
   update: (stateUpdate: Web3ReactStateUpdate) => void
-  resetState: () => void
+  reportError: (error: Error | undefined) => void
 }
 
 // per EIP-1193
@@ -82,44 +83,28 @@ export abstract class Connector {
    * May also comply with EIP-3085 ({@link https://github.com/ethereum/EIPs/blob/master/EIPS/eip-3085.md}).
    * This property must be defined while the connector is active, unless a customProvider is provided.
    */
-  public provider?: Provider
+  public provider: Provider | undefined
 
   /**
    * An optional property meant to allow ethers providers to be used directly rather than via the experimental
    * 1193 bridge. If desired, this property must be defined while the connector is active, in which case it will
    * be preferred over provider.
    */
-  public customProvider?: unknown
+  public customProvider: unknown | undefined
 
   protected readonly actions: Actions
 
   /**
-   * An optional handler which will report errors thrown from event listeners. Any errors caused from
-   * user-defined behavior will be thrown inline through a Promise.
-   */
-  protected onError?: (error: Error) => void
-
-  /**
    * @param actions - Methods bound to a zustand store that tracks the state of the connector.
-   * @param onError - An optional handler which will report errors thrown from event listeners.
    * Actions are used by the connector to report changes in connection status.
    */
-  constructor(actions: Actions, onError?: (error: Error) => void) {
+  constructor(actions: Actions) {
     this.actions = actions
-    this.onError = onError
   }
 
-  /**
-   * Reset the state of the connector without otherwise interacting with the connection.
-   */
-  public resetState(): Promise<void> | void {
-    this.actions.resetState()
+  protected get serverSide() {
+    return typeof window === 'undefined'
   }
-
-  /**
-   * Initiate a connection.
-   */
-  public abstract activate(...args: unknown[]): Promise<void> | void
 
   /**
    * Attempt to initiate a connection, failing silently
@@ -127,12 +112,20 @@ export abstract class Connector {
   public connectEagerly?(...args: unknown[]): Promise<void> | void
 
   /**
-   * Un-initiate a connection. Only needs to be defined if a connection requires specific logic on disconnect.
+   * Initiate a connection.
    */
-  public deactivate?(...args: unknown[]): Promise<void> | void
+  public abstract activate(...args: unknown[]): Promise<void> | void
 
   /**
-   * Attempt to add an asset per EIP-747.
+   * Initiate a disconnect.
+   */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public deactivate(...args: unknown[]): Promise<void> | void {
+    this.actions.reportError(undefined)
+  }
+
+  /**
+   * Attempt to add an asset per EIP-747
    */
   public watchAsset?(params: WatchAssetParameters): Promise<true>
 }

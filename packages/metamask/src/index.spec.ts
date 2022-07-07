@@ -23,7 +23,7 @@ describe('MetaMask', () => {
   beforeEach(() => {
     let actions: Actions
     ;[store, actions] = createWeb3ReactStoreAndActions()
-    connector = new MetaMask({ actions })
+    connector = new MetaMask(actions, false)
   })
 
   test('#activate', async () => {
@@ -36,6 +36,7 @@ describe('MetaMask', () => {
       chainId: Number.parseInt(chainId, 16),
       accounts,
       activating: false,
+      error: undefined,
     })
   })
 })

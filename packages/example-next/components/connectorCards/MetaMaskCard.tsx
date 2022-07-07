@@ -1,12 +1,17 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { hooks, metaMask } from '../../connectors/metaMask'
+import { Accounts } from '../Accounts'
 import { Card } from '../Card'
+import { Chain } from '../Chain'
+import { ConnectWithSelect } from '../ConnectWithSelect'
+import { Status } from '../Status'
 
-const { useChainId, useAccounts, useIsActivating, useIsActive, useProvider, useENSNames } = hooks
+const { useChainId, useAccounts, useError, useIsActivating, useIsActive, useProvider, useENSNames } = hooks
 
 export default function MetaMaskCard() {
   const chainId = useChainId()
   const accounts = useAccounts()
+  const error = useError()
   const isActivating = useIsActivating()
 
   const isActive = useIsActive()
@@ -14,26 +19,28 @@ export default function MetaMaskCard() {
   const provider = useProvider()
   const ENSNames = useENSNames(provider)
 
-  const [error, setError] = useState(undefined)
-
   // attempt to connect eagerly on mount
   useEffect(() => {
-    void metaMask.connectEagerly().catch(() => {
-      console.debug('Failed to connect eagerly to metamask')
-    })
+    void metaMask.connectEagerly()
   }, [])
 
   return (
-    <Card
-      connector={metaMask}
-      chainId={chainId}
-      isActivating={isActivating}
-      isActive={isActive}
-      error={error}
-      setError={setError}
-      accounts={accounts}
-      provider={provider}
-      ENSNames={ENSNames}
-    />
+    <Card>
+      <div>
+        <b>MetaMask</b>
+        <Status isActivating={isActivating} error={error} isActive={isActive} />
+        <div style={{ marginBottom: '1rem' }} />
+        <Chain chainId={chainId} />
+        <Accounts accounts={accounts} provider={provider} ENSNames={ENSNames} />
+      </div>
+      <div style={{ marginBottom: '1rem' }} />
+      <ConnectWithSelect
+        connector={metaMask}
+        chainId={chainId}
+        isActivating={isActivating}
+        error={error}
+        isActive={isActive}
+      />
+    </Card>
   )
 }

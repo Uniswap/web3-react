@@ -15,6 +15,7 @@
     "@web3-react/eip1193": "8.0.25-beta.0",
     "@web3-react/empty": "8.0.19-beta.0",
     "@web3-react/gnosis-safe": "8.0.5-beta.0",
+    "@web3-react/opera": "8.0.1-beta.0",
     "@web3-react/metamask": "8.0.26-beta.0",
     "@web3-react/network": "8.0.26-beta.0",
     "@web3-react/types": "8.0.19-beta.0",
