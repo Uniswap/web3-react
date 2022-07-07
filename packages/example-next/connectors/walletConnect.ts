@@ -4,10 +4,8 @@ import { URLS } from '../chains'
 
 export const [walletConnect, hooks] = initializeConnector<WalletConnect>(
   (actions) =>
-    new WalletConnect({
-      actions,
-      options: {
-        rpc: URLS,
-      },
-    })
+    new WalletConnect(actions, {
+      rpc: URLS,
+    }),
+  Object.keys(URLS).map((chainId) => Number(chainId))
 )

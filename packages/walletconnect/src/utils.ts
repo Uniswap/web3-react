@@ -1,8 +1,4 @@
-/**
- * @param urls - An array of URLs to try to connect to.
- * @param timeout - How long to wait before a call is considered failed, in ms.
- */
-export async function getBestUrl(urls: string[], timeout: number): Promise<string> {
+export async function getBestUrl(urls: string[]): Promise<string> {
   // if we only have 1 url, it's the best!
   if (urls.length === 1) return urls[0]
 
@@ -18,21 +14,8 @@ export async function getBestUrl(urls: string[], timeout: number): Promise<strin
 
     urls.forEach((url, i) => {
       const http = new JsonRpcProvider(new HttpConnection(url))
-
-      // create a promise that resolves on a successful call, and rejects on a failed call or after timeout milliseconds
-      const promise = new Promise<void>((resolve, reject) => {
-        http
-          .request({ method: 'eth_chainId' })
-          .then(() => resolve())
-          .catch(() => reject())
-
-        // set a timeout to reject
-        setTimeout(() => {
-          reject()
-        }, timeout)
-      })
-
-      void promise
+      void http
+        .request({ method: 'eth_chainId' })
         .then(() => true)
         .catch(() => false)
         .then((success) => {

@@ -1,8 +1,8 @@
 {
-  "name": "@web3-react/opera",
+  "name": "@web3-react/magic",
   "keywords": [
     "web3-react",
-    "opera"
+    "magic"
   ],
   "author": "Noah Zinsmeister <noahwz@gmail.com>",
   "license": "GPL-3.0-or-later",
@@ -10,7 +10,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "version": "8.0.1-beta.0",
+  "version": "8.0.18-beta.0",
   "files": [
     "dist/*"
   ],
@@ -24,11 +24,11 @@
     "start": "tsc --watch"
   },
   "dependencies": {
-    "@metamask/detect-provider": "^1.2.0",
-    "@web3-react/types": "^8.0.19-beta.0",
-    "eth-provider": "^0.11.0"
+    "@ethersproject/experimental": "^5.6.0",
+    "@ethersproject/providers": "^5.6.0",
+    "@web3-react/types": "^8.0.17-beta.0"
   },
-  "devDependencies": {
-    "@web3-react/store": "^8.0.24-beta.0"
+  "peerDependencies": {
+    "magic-sdk": "^6.1.0"
   }
 }
