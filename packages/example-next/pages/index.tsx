@@ -1,4 +1,5 @@
 import CoinbaseWalletCard from '../components/connectorCards/CoinbaseWalletCard'
+import ExodusCard from '../components/connectorCards/ExodusCard'
 import GnosisSafeCard from '../components/connectorCards/GnosisSafeCard'
 import MetaMaskCard from '../components/connectorCards/MetaMaskCard'
 import NetworkCard from '../components/connectorCards/NetworkCard'
@@ -10,6 +11,7 @@ export default function Home() {
     <>
       <ProviderExample />
       <div style={{ display: 'flex', flexFlow: 'wrap', fontFamily: 'sans-serif' }}>
+        <ExodusCard />
         <MetaMaskCard />
         <WalletConnectCard />
         <CoinbaseWalletCard />

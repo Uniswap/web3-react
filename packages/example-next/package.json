@@ -3,7 +3,7 @@
   "name": "example-next",
   "scripts": {
     "start": "next dev",
-    "pin": "sh -c '{ for X in {coinbase-wallet,core,eip1193,empty,gnosis-safe,metamask,network,types,url,walletconnect}; do lerna add @web3-react/$X --exact --no-bootstrap --scope=example-next; done }'"
+    "pin": "sh -c '{ for X in {coinbase-wallet,core,eip1193,empty,gnosis-safe,metamask,network,types,url,walletconnect,exodus}; do lerna add @web3-react/$X --exact --no-bootstrap --scope=example-next; done }'"
   },
   "dependencies": {
     "@ethersproject/bignumber": "^5.6.0",
@@ -14,6 +14,7 @@
     "@web3-react/core": "8.0.33-beta.0",
     "@web3-react/eip1193": "8.0.25-beta.0",
     "@web3-react/empty": "8.0.19-beta.0",
+    "@web3-react/exodus": "8.0.26-beta.0",
     "@web3-react/gnosis-safe": "8.0.5-beta.0",
     "@web3-react/metamask": "8.0.26-beta.0",
     "@web3-react/network": "8.0.26-beta.0",
