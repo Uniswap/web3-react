@@ -1,8 +1,8 @@
 # web3-react (beta)
 
-[![CI](https://github.com/NoahZinsmeister/web3-react/actions/workflows/CI.yml/badge.svg)](https://github.com/NoahZinsmeister/web3-react/actions/workflows/CI.yml)
+[![CI](https://github.com/Uniswap/web3-react/actions/workflows/CI.yml/badge.svg)](https://github.com/Uniswap/web3-react/actions/workflows/CI.yml)
 
-_Looking for the prior version of this library? It's available on the [v6 branch](https://github.com/NoahZinsmeister/web3-react/tree/v6)._
+_Looking for the prior version of this library? It's available on the [v6 branch](https://github.com/Uniswap/web3-react/tree/v6)._
 
 ## [Example](https://web3-react-mu.vercel.app/)
 
@@ -35,6 +35,7 @@ In addition to compiling each package in watch mode, this will also spin up [pac
 
 ## Running Tests
 
+- `yarn build`
 - `yarn test --watch`
 
 ## Documentation
