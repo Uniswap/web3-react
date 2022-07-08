@@ -147,7 +147,10 @@ export class MetaMask extends Connector {
             params: [{ chainId: desiredChainIdHex }],
           })
             .catch((error: ProviderRpcError) => {
-              if (error.code === 4902 && typeof desiredChainIdOrChainParameters !== 'number') {
+              if (
+                (error.code === 4902 || error.code === -32603) &&
+                typeof desiredChainIdOrChainParameters !== 'number'
+              ) {
                 // if we're here, we can try to add a new network
                 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                 return this.provider!.request({
