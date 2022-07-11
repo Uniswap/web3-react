@@ -67,6 +67,7 @@ _Open a PR to add your project to the list!_
 ## Related Efforts
 
 - [Web3Modal](https://github.com/web3modal/web3modal)
+- [@bitiumagency/web3-react-modal](https://github.com/Bitium-Agency/web3-react-modal)
 
 ## Local Development
 
