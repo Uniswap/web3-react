@@ -6,7 +6,7 @@
   ],
   "author": "Noah Zinsmeister <noahwz@gmail.com>",
   "license": "GPL-3.0-or-later",
-  "repository": "github:NoahZinsmeister/web3-react",
+  "repository": "github:Uniswap/web3-react",
   "publishConfig": {
     "access": "public"
   },

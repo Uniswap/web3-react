@@ -6,7 +6,7 @@
   ],
   "author": "Noah Zinsmeister <noahwz@gmail.com>",
   "license": "GPL-3.0-or-later",
-  "repository": "github:NoahZinsmeister/web3-react",
+  "repository": "github:Uniswap/web3-react",
   "publishConfig": {
     "access": "public"
   },
@@ -24,8 +24,8 @@
     "start": "tsc --watch"
   },
   "dependencies": {
-    "@gnosis.pm/safe-apps-provider": "^0.11.0",
-    "@gnosis.pm/safe-apps-sdk": "^7.3.0",
+    "@gnosis.pm/safe-apps-provider": "^0.11.3",
+    "@gnosis.pm/safe-apps-sdk": "^7.5.0",
     "@web3-react/types": "^8.0.19-beta.0"
   }
 }

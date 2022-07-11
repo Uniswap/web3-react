@@ -1,8 +1,8 @@
 import type { Networkish } from '@ethersproject/networks'
 import type { BaseProvider, Web3Provider } from '@ethersproject/providers'
 import type { Connector, Web3ReactStore } from '@web3-react/types'
-import type { Context, ReactNode } from 'react'
-import React, { createContext, useContext } from 'react'
+import type { Context, MutableRefObject, ReactNode } from 'react'
+import React, { createContext, useContext, useRef } from 'react'
 import type { Web3ReactHooks, Web3ReactPriorityHooks } from './hooks'
 import { getPriorityConnector } from './hooks'
 
@@ -29,7 +29,7 @@ const Web3Context = createContext<Web3ContextType | undefined>(undefined)
 /**
  * @param children - A React subtree that needs access to the context.
  * @param connectors - Two or more [connector, hooks(, store)] arrays, as returned from initializeConnector.
- * Must _never_ be modified, should be declared as a constant.
+ * If modified in place without re-rendering the parent component, will result in an error.
  * @param connectorOverride - A connector whose state will be reflected in useWeb3React if set, overriding the
  * priority selection.
  * @param network - An optional argument passed along to `useSelectedProvider`.
@@ -50,6 +50,16 @@ export function Web3ReactProvider({
   network,
   lookupENS = true,
 }: Web3ReactProviderProps) {
+  const cachedConnectors: MutableRefObject<Web3ReactProviderProps['connectors']> = useRef(connectors)
+  // because we're calling `getPriorityConnector` with these connectors, we need to ensure that they're not changing in place
+  if (
+    connectors.length != cachedConnectors.current.length ||
+    connectors.some((connector, i) => connector !== cachedConnectors.current[i])
+  )
+    throw new Error(
+      'The connectors prop passed to Web3ReactProvider must be referentially static. If connectors is changing, try providing a key prop to Web3ReactProvider that changes every time connectors changes.'
+    )
+
   const hooks = getPriorityConnector(...connectors)
   const {
     usePriorityConnector,
