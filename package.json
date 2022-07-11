@@ -17,7 +17,7 @@
     "prepack": "yarn build"
   },
   "devDependencies": {
-    "@coinbase/wallet-sdk": "^3.0.4",
+    "@coinbase/wallet-sdk": "^3.3.0",
     "@testing-library/react-hooks": "^8.0.0",
     "@tsconfig/recommended": "^1.0.1",
     "@types/jest": "^27.4.1",
