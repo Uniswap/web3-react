@@ -38,11 +38,11 @@ In addition to compiling each package in watch mode, this will also spin up [pac
 - `yarn build`
 - `yarn test --watch`
 
-### Add a Dependency
+## Add a Dependency
 
 - `yarn lerna add <DEPENDENCY> --scope <PACKAGE>`
 
-### Remove a Dependency
+## Remove a Dependency
 
 - Delete the relevant `package.json` entry
 
