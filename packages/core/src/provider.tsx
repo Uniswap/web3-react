@@ -54,7 +54,12 @@ export function Web3ReactProvider({
   // because we're calling `getPriorityConnector` with these connectors, we need to ensure that they're not changing in place
   if (
     connectors.length != cachedConnectors.current.length ||
-    connectors.some((connector, i) => connector !== cachedConnectors.current[i])
+    connectors.some((connector, i) => {
+      const cachedConnector = cachedConnectors.current[i]
+      // because a "connector" is actually an array, we want to be sure to only perform an equality check on the actual Connector
+      // class instance, to see if they're the same object
+      return connector[0] !== cachedConnector[0]
+    })
   )
     throw new Error(
       'The connectors prop passed to Web3ReactProvider must be referentially static. If connectors is changing, try providing a key prop to Web3ReactProvider that changes every time connectors changes.'
