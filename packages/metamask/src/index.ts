@@ -103,7 +103,10 @@ export class MetaMask extends Connector {
       })
       .catch((error) => {
         console.debug('Could not connect eagerly', error)
-        cancelActivation()
+        // we should be able to use `cancelActivation` here, but on mobile, metamask emits a 'connect'
+        // event, meaning that chainId is updated, and cancelActivation doesn't work because an intermediary
+        // update has occurred, so we reset state instead
+        this.actions.resetState()
       })
   }
 
