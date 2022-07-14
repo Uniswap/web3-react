@@ -70,7 +70,7 @@ export class CoinbaseWallet extends Connector {
       this.provider.on('accountsChanged', (accounts: string[]): void => {
         if (accounts.length === 0) {
           // handle this edge case by disconnecting
-          this.actions.resetState()
+          this.actions.reportError(undefined)
         } else {
           this.actions.update({ accounts })
         }
