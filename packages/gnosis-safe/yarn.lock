@@ -351,7 +351,7 @@
     "@gnosis.pm/safe-apps-sdk" "7.5.0"
     events "^3.3.0"
 
-"@gnosis.pm/safe-apps-sdk@7.5.0", "@gnosis.pm/safe-apps-sdk@^7.5.0":
+"@gnosis.pm/safe-apps-sdk@7.5.0", "@gnosis.pm/safe-apps-sdk@^7.3.0":
   version "7.5.0"
   resolved "https://registry.yarnpkg.com/@gnosis.pm/safe-apps-sdk/-/safe-apps-sdk-7.5.0.tgz#59033c62726abacbf988286ea57250e7581444e8"
   integrity sha512-OaF2agv2zfPExzedv1eOGtt3W+rnwGFwtuP37epofhsnDgqS/JMPoqyDLRSvyWYlU22OeKvtghTppvRfaEnUTw==
