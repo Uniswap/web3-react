@@ -3,7 +3,7 @@ import type { BaseProvider, Web3Provider } from '@ethersproject/providers'
 import { createWeb3ReactStoreAndActions } from '@web3-react/store'
 import type { Actions, Connector, Web3ReactState, Web3ReactStore } from '@web3-react/types'
 import { useEffect, useMemo, useState } from 'react'
-import type { EqualityChecker, UseBoundStore } from 'zustand'
+import type { UseBoundStore } from 'zustand'
 import create from 'zustand'
 
 let DynamicProvider: typeof Web3Provider | null | undefined
@@ -246,7 +246,7 @@ export function getPriorityConnector(
 
 const CHAIN_ID = ({ chainId }: Web3ReactState) => chainId
 const ACCOUNTS = ({ accounts }: Web3ReactState) => accounts
-const ACCOUNTS_EQUALITY_CHECKER: EqualityChecker<Web3ReactState['accounts']> = (oldAccounts, newAccounts) =>
+const ACCOUNTS_EQUALITY_CHECKER = (oldAccounts: Web3ReactState['accounts'], newAccounts: Web3ReactState['accounts']) =>
   (oldAccounts === undefined && newAccounts === undefined) ||
   (oldAccounts !== undefined &&
     oldAccounts.length === newAccounts?.length &&
