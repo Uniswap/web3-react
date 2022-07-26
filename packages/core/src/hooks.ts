@@ -51,6 +51,8 @@ export function initializeConnector<T extends Connector>(
 }
 
 function computeIsActive({ chainId, accounts, activating }: Web3ReactState) {
+  // accounts = [] indicates successful Infura connection
+  // we should correctly return isActive true for truthy empty accounts array
   return Boolean(chainId && accounts && !activating)
 }
 
