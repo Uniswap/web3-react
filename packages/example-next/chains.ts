@@ -138,7 +138,7 @@ export const CHAINS: { [chainId: number]: BasicChainInformation | ExtendedChainI
     nativeCurrency: MATIC,
     blockExplorerUrls: ['https://mumbai.polygonscan.com'],
   },
-  //celo
+  // Celo
   42220: {
     urls: ['https://forno.celo.org'],
     name: 'Celo',
