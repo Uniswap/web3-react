@@ -12,6 +12,12 @@ const MATIC: AddEthereumChainParameter['nativeCurrency'] = {
   decimals: 18,
 }
 
+const CELO: AddEthereumChainParameter['nativeCurrency'] = {
+  name: 'Celo',
+  symbol: 'CELO',
+  decimals: 18,
+}
+
 interface BasicChainInformation {
   urls: string[]
   name: string
@@ -131,6 +137,19 @@ export const CHAINS: { [chainId: number]: BasicChainInformation | ExtendedChainI
     name: 'Polygon Mumbai',
     nativeCurrency: MATIC,
     blockExplorerUrls: ['https://mumbai.polygonscan.com'],
+  },
+  // Celo
+  42220: {
+    urls: ['https://forno.celo.org'],
+    name: 'Celo',
+    nativeCurrency: CELO,
+    blockExplorerUrls: ['https://explorer.celo.org'],
+  },
+  44787: {
+    urls: ['https://alfajores-forno.celo-testnet.org'],
+    name: 'Celo Alfajores',
+    nativeCurrency: CELO,
+    blockExplorerUrls: ['https://alfajores-blockscout.celo-testnet.org'],
   },
 }
 
