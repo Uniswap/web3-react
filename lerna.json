@@ -1,8 +1,0 @@
-{
-  "version": "independent",
-  "packages": [
-    "packages/*"
-  ],
-  "npmClient": "yarn",
-  "ignoreChanges": ["**/*.md", "**/*.spec.ts"]
-}
