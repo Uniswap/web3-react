@@ -121,7 +121,9 @@ export class MetaMask extends Connector {
    */
   public async activate(desiredChainIdOrChainParameters?: number | AddEthereumChainParameter): Promise<void> {
     let cancelActivation: () => void
-    if (!this.provider?.isConnected?.()) cancelActivation = this.actions.startActivation()
+    if (typeof this.provider?.isConnected === 'function' && !this.provider.isConnected()) {
+      cancelActivation = this.actions.startActivation()
+    }
 
     return this.isomorphicInitialize()
       .then(async () => {
