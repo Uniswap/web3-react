@@ -63,6 +63,12 @@ export class MetaMask extends Connector {
         })
 
         this.provider.on('disconnect', (error: ProviderRpcError): void => {
+          // 1013 indicates that MetaMask is attempting to reestablish the connection
+          // https://github.com/MetaMask/providers/releases
+          if (error.code === 1013) {
+            console.log('Ignore the error (1013): "MetaMask: Disconnected from chain. Attempting to connect.:"', error);
+            return;
+          }
           this.actions.resetState()
           this.onError?.(error)
         })
