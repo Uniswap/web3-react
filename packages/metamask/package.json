@@ -1,12 +1,23 @@
 {
   "name": "@web3-react/metamask",
+  "keywords": [
+    "web3-react",
+    "metamask"
+  ],
+  "author": "Noah Zinsmeister <noahwz@gmail.com>",
+  "license": "GPL-3.0-or-later",
+  "repository": "github:Uniswap/web3-react",
   "publishConfig": {
     "access": "public"
   },
-  "version": "8.0.4-alpha.0",
-  "type": "module",
-  "exports": "./dist/index.js",
+  "version": "8.0.28-beta.0",
+  "files": [
+    "dist/*"
+  ],
+  "type": "commonjs",
   "types": "./dist/index.d.ts",
+  "main": "./dist/index.js",
+  "exports": "./dist/index.js",
   "scripts": {
     "prebuild": "rm -rf dist",
     "build": "tsc",
@@ -14,7 +25,9 @@
   },
   "dependencies": {
     "@metamask/detect-provider": "^1.2.0",
-    "@web3-react/types": "^8.0.4-alpha.0"
+    "@web3-react/types": "^8.0.20-beta.0"
   },
-  "gitHead": "9461726911d45849d76642bc60fec57e84234cd7"
+  "devDependencies": {
+    "@web3-react/store": "^8.0.25-beta.0"
+  }
 }

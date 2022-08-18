@@ -1,0 +1,31 @@
+{
+  "name": "@web3-react/gnosis-safe",
+  "keywords": [
+    "web3-react",
+    "gnosis-safe"
+  ],
+  "author": "Noah Zinsmeister <noahwz@gmail.com>",
+  "license": "GPL-3.0-or-later",
+  "repository": "github:Uniswap/web3-react",
+  "publishConfig": {
+    "access": "public"
+  },
+  "version": "8.0.6-beta.0",
+  "files": [
+    "dist/*"
+  ],
+  "type": "commonjs",
+  "types": "./dist/index.d.ts",
+  "main": "./dist/index.js",
+  "exports": "./dist/index.js",
+  "scripts": {
+    "prebuild": "rm -rf dist",
+    "build": "tsc",
+    "start": "tsc --watch"
+  },
+  "dependencies": {
+    "@gnosis.pm/safe-apps-provider": "^0.12.0",
+    "@gnosis.pm/safe-apps-sdk": "^7.6.0",
+    "@web3-react/types": "^8.0.20-beta.0"
+  }
+}

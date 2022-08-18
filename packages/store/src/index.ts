@@ -1,25 +1,19 @@
-import { Web3ReactState, Web3ReactStore, Actions } from '@web3-react/types'
-import create from 'zustand/vanilla'
 import { getAddress } from '@ethersproject/address'
+import type { Actions, Web3ReactState, Web3ReactStateUpdate, Web3ReactStore } from '@web3-react/types'
+import { createStore } from 'zustand'
+
+/**
+ * MAX_SAFE_CHAIN_ID is the upper bound limit on what will be accepted for `chainId`
+ * `MAX_SAFE_CHAIN_ID = floor( ( 2**53 - 39 ) / 2 ) = 4503599627370476`
+ *
+ * @see {@link https://github.com/MetaMask/metamask-extension/blob/b6673731e2367e119a5fee9a454dd40bd4968948/shared/constants/network.js#L31}
+ */
+export const MAX_SAFE_CHAIN_ID = 4503599627370476
 
 function validateChainId(chainId: number): void {
-  if (!Number.isInteger(chainId) || chainId <= 0 || chainId > Number.MAX_SAFE_INTEGER) {
+  if (!Number.isInteger(chainId) || chainId <= 0 || chainId > MAX_SAFE_CHAIN_ID) {
     throw new Error(`Invalid chainId ${chainId}`)
   }
-}
-
-export class ChainIdNotAllowedError extends Error {
-  public constructor(chainId: number, allowedChainIds: number[]) {
-    super(`chainId ${chainId} not included in ${allowedChainIds}`)
-    this.name = ChainIdNotAllowedError.name
-    Object.setPrototypeOf(this, ChainIdNotAllowedError.prototype)
-  }
-}
-
-function ensureChainIdIsAllowed(chainId: number, allowedChainIds: number[]): ChainIdNotAllowedError | undefined {
-  return allowedChainIds.some((allowedChainId) => chainId === allowedChainId)
-    ? undefined
-    : new ChainIdNotAllowedError(chainId, allowedChainIds)
 }
 
 function validateAccount(account: string): string {
@@ -30,74 +24,74 @@ const DEFAULT_STATE = {
   chainId: undefined,
   accounts: undefined,
   activating: false,
-  error: undefined,
 }
 
-export function createWeb3ReactStoreAndActions(allowedChainIds?: number[]): [Web3ReactStore, Actions] {
-  if (allowedChainIds?.length === 0) {
-    throw new Error(`allowedChainIds is length 0`)
-  }
+export function createWeb3ReactStoreAndActions(): [Web3ReactStore, Actions] {
+  const store = createStore<Web3ReactState>()(() => DEFAULT_STATE)
 
-  const store = create<Web3ReactState>(() => DEFAULT_STATE)
+  // flag for tracking updates so we don't clobber data when cancelling activation
+  let nullifier = 0
 
-  function startActivation() {
+  /**
+   * Sets activating to true, indicating that an update is in progress.
+   *
+   * @returns cancelActivation - A function that cancels the activation by setting activating to false,
+   * as long as there haven't been any intervening updates.
+   */
+  function startActivation(): () => void {
+    const nullifierCached = ++nullifier
+
     store.setState({ ...DEFAULT_STATE, activating: true })
+
+    // return a function that cancels the activation iff nothing else has happened
+    return () => {
+      if (nullifier === nullifierCached) store.setState({ activating: false })
+    }
   }
 
-  function update(state: Partial<Pick<Web3ReactState, 'chainId' | 'accounts'>>) {
+  /**
+   * Used to report a `stateUpdate` which is merged with existing state. The first `stateUpdate` that results in chainId
+   * and accounts being set will also set activating to false, indicating a successful connection.
+   *
+   * @param stateUpdate - The state update to report.
+   */
+  function update(stateUpdate: Web3ReactStateUpdate): void {
     // validate chainId statically, independent of existing state
-    if (typeof state.chainId === 'number') {
-      validateChainId(state.chainId)
+    if (stateUpdate.chainId !== undefined) {
+      validateChainId(stateUpdate.chainId)
     }
 
     // validate accounts statically, independent of existing state
-    if (state.accounts !== undefined) {
-      for (let i = 0; i < state.accounts.length; i++) {
-        state.accounts[i] = validateAccount(state.accounts[i])
+    if (stateUpdate.accounts !== undefined) {
+      for (let i = 0; i < stateUpdate.accounts.length; i++) {
+        stateUpdate.accounts[i] = validateAccount(stateUpdate.accounts[i])
       }
     }
 
+    nullifier++
+
     store.setState((existingState): Web3ReactState => {
-      let error: Error | undefined
+      // determine the next chainId and accounts
+      const chainId = stateUpdate.chainId ?? existingState.chainId
+      const accounts = stateUpdate.accounts ?? existingState.accounts
 
-      // calculate the next chainId and accounts
-      const chainId = state.chainId ?? existingState.chainId
-      const accounts = state.accounts ?? existingState.accounts
-
-      // if we have a chainId allowlist and a chainId, we need to ensure it's allowed
-      if (chainId && allowedChainIds) {
-        error = ensureChainIdIsAllowed(chainId, allowedChainIds)
-      }
-
-      if (existingState.error && error) {
-        console.debug(`error ${existingState.error} is being clobbered by ${error}`)
-      }
-
-      // ensure that the activating flag is cleared once fully activated
+      // ensure that the activating flag is cleared when appropriate
       let activating = existingState.activating
       if (activating && chainId && accounts) {
         activating = false
       }
 
-      // if error is not defined already, set it to the existing error (if any)
-      if (!error) {
-        error = existingState.error
-        if (error) {
-          // if we're here, the heuristic used to clear the error is the same as for clearing the activation flag
-          // TODO: this is fairly arbitrary, could we do more here?
-          if (chainId && accounts) {
-            error = undefined
-          }
-        }
-      }
-
-      return { chainId, accounts, activating, error }
+      return { chainId, accounts, activating }
     })
   }
 
-  function reportError(error: Error) {
-    store.setState(() => ({ ...DEFAULT_STATE, error }))
+  /**
+   * Resets connector state back to the default state.
+   */
+  function resetState(): void {
+    nullifier++
+    store.setState(DEFAULT_STATE)
   }
 
-  return [store, { startActivation, update, reportError }]
+  return [store, { startActivation, update, resetState }]
 }

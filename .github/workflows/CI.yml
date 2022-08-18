@@ -19,6 +19,7 @@ jobs:
           - macOS-latest
         node_version:
           - 14
+          - 16
 
     steps:
       - uses: actions/checkout@v2
@@ -29,5 +30,11 @@ jobs:
 
       - run: yarn
       - run: yarn bootstrap
+
       - run: yarn build
+
+      - run: yarn lint
       - run: yarn test
+
+      - run: yarn lerna exec 'yarn next build' --scope=example-next
+      - run: yarn lerna exec 'yarn react-scripts build' --scope=example-cra
