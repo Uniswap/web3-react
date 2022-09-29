@@ -152,10 +152,14 @@ export class CoinbaseWallet extends Connector {
         this.provider!.request<string[]>({ method: 'eth_requestAccounts' }),
       ]).then(([chainId, accounts]) => {
         const receivedChainId = parseChainId(chainId)
-
+        
         if (!desiredChainId || desiredChainId === receivedChainId)
           return this.actions.update({ chainId: receivedChainId, accounts })
-
+        
+        if (accounts?.length){
+          this.actions.update({accounts}); 
+        }
+        
         // if we're here, we can try to switch networks
         const desiredChainIdHex = `0x${desiredChainId.toString(16)}`
         return this.provider
