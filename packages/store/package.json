@@ -25,6 +25,7 @@
   "dependencies": {
     "@ethersproject/address": "^5",
     "@web3-react/types": "^8.0.20-beta.0",
+    "immer": "^9.0.16",
     "zustand": "^4.0.0-rc.0"
   }
 }

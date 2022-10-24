@@ -1,6 +1,7 @@
 import { getAddress } from '@ethersproject/address'
 import type { Actions, Web3ReactState, Web3ReactStateUpdate, Web3ReactStore } from '@web3-react/types'
 import { createStore } from 'zustand'
+import { immer } from 'zustand/middleware/immer'
 
 /**
  * MAX_SAFE_CHAIN_ID is the upper bound limit on what will be accepted for `chainId`
@@ -27,7 +28,7 @@ const DEFAULT_STATE = {
 }
 
 export function createWeb3ReactStoreAndActions(): [Web3ReactStore, Actions] {
-  const store = createStore<Web3ReactState>()(() => DEFAULT_STATE)
+  const store = createStore(immer<Web3ReactState>(() => DEFAULT_STATE))
 
   // flag for tracking updates so we don't clobber data when cancelling activation
   let nullifier = 0
@@ -41,11 +42,17 @@ export function createWeb3ReactStoreAndActions(): [Web3ReactStore, Actions] {
   function startActivation(): () => void {
     const nullifierCached = ++nullifier
 
-    store.setState({ ...DEFAULT_STATE, activating: true })
+    store.setState((draft: Web3ReactState) => {
+      draft.activating = true
+    })
 
     // return a function that cancels the activation iff nothing else has happened
     return () => {
-      if (nullifier === nullifierCached) store.setState({ activating: false })
+      if (nullifier === nullifierCached) {
+        store.setState((draft: Web3ReactState) => {
+          draft.activating = false
+        })
+      }
     }
   }
 
@@ -70,7 +77,7 @@ export function createWeb3ReactStoreAndActions(): [Web3ReactStore, Actions] {
 
     nullifier++
 
-    store.setState((existingState): Web3ReactState => {
+    store.setState((existingState: Web3ReactState) => {
       // determine the next chainId and accounts
       const chainId = stateUpdate.chainId ?? existingState.chainId
       const accounts = stateUpdate.accounts ?? existingState.accounts
@@ -80,8 +87,9 @@ export function createWeb3ReactStoreAndActions(): [Web3ReactStore, Actions] {
       if (activating && chainId && accounts) {
         activating = false
       }
-
-      return { chainId, accounts, activating }
+      existingState.accounts = accounts
+      existingState.chainId = chainId
+      existingState.activating = activating
     })
   }
 
