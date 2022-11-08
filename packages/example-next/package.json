@@ -3,6 +3,7 @@
   "name": "example-next",
   "scripts": {
     "start": "next dev",
+    "build": "next build",
     "pin": "sh -c '{ for X in {coinbase-wallet,core,eip1193,empty,gnosis-safe,metamask,network,types,url,walletconnect}; do lerna add @web3-react/$X --exact --no-bootstrap --scope=example-next; done }'"
   },
   "dependencies": {
@@ -22,6 +23,6 @@
     "@web3-react/walletconnect": "8.0.35-beta.0",
     "next": "^12.1.5",
     "react-dom": "^18.0.0",
-    "web3-react-magic-connect": "8.0.28-beta.0"
+    "web3-react-magic-connect": "8.0.30-beta.0"
   }
 }

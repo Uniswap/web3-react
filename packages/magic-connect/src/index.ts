@@ -80,7 +80,6 @@ export class MagicConnect extends Connector {
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         const provider = new Web3Provider(this.magic?.rpcProvider as any)
-        await provider.listAccounts()
 
         this.provider = new Eip1193Bridge(provider.getSigner(), provider)
 
@@ -100,21 +99,22 @@ export class MagicConnect extends Connector {
   public async connectEagerly(): Promise<void> {
     const cancelActivation = this.actions.startActivation()
 
-    await this.isomorphicInitialize()
-    if (!this.provider) return cancelActivation()
+    try {
+      await this.isomorphicInitialize()
+      const walletInfo = await this.magic?.connect.getWalletInfo()
+      if (!this.provider || !walletInfo) throw new Error('No existing connection')
 
-    return Promise.all([
-      this.provider.request({ method: 'eth_chainId' }) as Promise<string>,
-      this.provider.request({ method: 'eth_accounts' }) as Promise<string[]>,
-    ])
-      .then(([chainId, accounts]) => {
+      return Promise.all([
+        this.provider.request({ method: 'eth_chainId' }) as Promise<string>,
+        this.provider.request({ method: 'eth_accounts' }) as Promise<string[]>,
+      ]).then(([chainId, accounts]) => {
         this.actions.update({ chainId: parseChainId(chainId), accounts })
       })
-      .catch((error) => {
-        cancelActivation()
-        this.eagerConnection = undefined
-        throw error
-      })
+    } catch (error) {
+      cancelActivation()
+      this.eagerConnection = undefined
+      throw error
+    }
   }
 
   public async activate(): Promise<void> {

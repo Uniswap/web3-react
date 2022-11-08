@@ -1611,10 +1611,10 @@ web3-providers-ws@1.5.2:
     web3-core-helpers "1.5.2"
     websocket "^1.0.32"
 
-web3-react-magic-connect@8.0.28-beta.0:
-  version "8.0.28-beta.0"
-  resolved "https://registry.yarnpkg.com/web3-react-magic-connect/-/web3-react-magic-connect-8.0.28-beta.0.tgz#ad55b8c032bf0b38cd1c33ea3df4e7c08a759e60"
-  integrity sha512-pqtB+cm1vRgRXii7UD4dIjZdd/rUK2/KKks4sVcFC2eEg+C0prkTsPZM9ishFtI/jhx3RUXCs/oCb7P0dO32Pw==
+web3-react-magic-connect@8.0.30-beta.0:
+  version "8.0.30-beta.0"
+  resolved "https://registry.yarnpkg.com/web3-react-magic-connect/-/web3-react-magic-connect-8.0.30-beta.0.tgz#a167b79ad6cb5ea937efad17ff30ffc4c326c228"
+  integrity sha512-hAM88OpHavOq64TMTOg3NyzUgn2zvDNHNwT3+aIbH049Z0+l8mjkuGdyb6pFwP1Mn/HCXj/NUYV1gOzpYeTBFA==
   dependencies:
     "@ethersproject/experimental" "^5.6.0"
     "@ethersproject/providers" "^5.6.0"

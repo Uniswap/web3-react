@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { magicConnect, magicConnectHooks } from '../../connectors/magic-connect'
 import { Card } from '../Card'
 
@@ -16,7 +16,12 @@ export default function MagicConnectCard() {
 
   const [error, setError] = useState(undefined)
 
-  // Not attempting to connect eagerly on mount because modal hijacks focus
+  // attempt to connect eagerly on mount
+  useEffect(() => {
+    void magicConnect.connectEagerly().catch(() => {
+      console.debug('Failed to connect eagerly to magic connect')
+    })
+  }, [])
 
   return (
     <Card
