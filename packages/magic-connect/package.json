@@ -1,5 +1,5 @@
 {
-  "name": "@web3-react/magic-connect",
+  "name": "web3-react-magic-connect",
   "publishConfig": {
     "access": "public"
   },

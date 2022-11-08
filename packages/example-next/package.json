@@ -21,6 +21,7 @@
     "@web3-react/url": "8.0.25-beta.0",
     "@web3-react/walletconnect": "8.0.35-beta.0",
     "next": "^12.1.5",
-    "react-dom": "^18.0.0"
+    "react-dom": "^18.0.0",
+    "web3-react-magic-connect": "8.0.28-beta.0"
   }
 }
