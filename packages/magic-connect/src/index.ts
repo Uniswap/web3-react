@@ -1,6 +1,7 @@
 import { Connector, Actions, ProviderConnectInfo, ProviderRpcError } from '@web3-react/types'
 import type { Magic as MagicInstance, MagicSDKAdditionalConfiguration } from 'magic-sdk'
 import type { ConnectExtension as ConnectExtensionInstance } from '@magic-ext/connect'
+import { Eip1193Bridge } from '@ethersproject/experimental'
 
 function parseChainId(chainId: string | number) {
   return typeof chainId === 'number' ? chainId : Number.parseInt(chainId, chainId.startsWith('0x') ? 16 : 10)
@@ -24,6 +25,7 @@ export interface MagicConnectConstructorArgs {
 }
 
 export class MagicConnect extends Connector {
+  public provider: Eip1193Bridge | undefined
   private readonly options: MagicConnectorSDKOptions
   public magic?: MagicInstance<ConnectExtensionInstance[]>
 
@@ -32,6 +34,28 @@ export class MagicConnect extends Connector {
   constructor({ actions, options, onError }: MagicConnectConstructorArgs) {
     super(actions, onError)
     this.options = options
+  }
+
+  private connectListener = ({ chainId }: ProviderConnectInfo): void => {
+    this.actions.update({ chainId: parseChainId(chainId) })
+  }
+
+  private disconnectListener = (error?: ProviderRpcError): void => {
+    this.actions.resetState()
+    if (error) this.onError?.(error)
+  }
+
+  private chainChangedListener = (chainId: number | string): void => {
+    this.actions.update({ chainId: parseChainId(chainId) })
+  }
+
+  private accountsChangedListener = (accounts: string[]): void => {
+    if (accounts.length === 0) {
+      // handle this edge case by disconnecting
+      this.actions.resetState()
+    } else {
+      this.actions.update({ accounts })
+    }
   }
 
   private async isomorphicInitialize(): Promise<void> {
@@ -60,27 +84,15 @@ export class MagicConnect extends Connector {
 
         this.provider = new Eip1193Bridge(provider.getSigner(), provider)
 
-        this.provider.on('connect', ({ chainId }: ProviderConnectInfo): void => {
-          this.actions.update({ chainId: parseChainId(chainId) })
-        })
+        this.provider.on('connect', this.connectListener)
 
-        this.provider.on('disconnect', (error: ProviderRpcError): void => {
-          this.actions.resetState()
-          this.onError?.(error)
-        })
+        this.provider.on('disconnect', this.disconnectListener)
 
         this.provider.on('chainChanged', (chainId: string): void => {
           this.actions.update({ chainId: parseChainId(chainId) })
         })
 
-        this.provider.on('accountsChanged', (accounts: string[]): void => {
-          if (accounts.length === 0) {
-            // handle this edge case by disconnecting
-            this.actions.resetState()
-          } else {
-            this.actions.update({ accounts })
-          }
-        })
+        this.provider.on('accountsChanged', this.accountsChangedListener)
       }))
   }
 
@@ -89,7 +101,7 @@ export class MagicConnect extends Connector {
     const cancelActivation = this.actions.startActivation()
 
     await this.isomorphicInitialize()
-    if (!this.provider) throw Error('No existing connection')
+    if (!this.provider) return cancelActivation()
 
     return Promise.all([
       this.provider.request({ method: 'eth_chainId' }) as Promise<string>,
@@ -100,6 +112,7 @@ export class MagicConnect extends Connector {
       })
       .catch((error) => {
         cancelActivation()
+        this.eagerConnection = undefined
         throw error
       })
   }
@@ -123,7 +136,21 @@ export class MagicConnect extends Connector {
         })
     } catch (error) {
       cancelActivation()
+      this.eagerConnection = undefined
       throw error
     }
+  }
+
+  /** {@inheritdoc Connector.deactivate} */
+  public async deactivate(): Promise<void> {
+    this.provider?.off('connect', this.connectListener)
+    this.provider?.off('disconnect', this.disconnectListener)
+    this.provider?.off('chainChanged', this.chainChangedListener)
+    this.provider?.off('accountsChanged', this.accountsChangedListener)
+
+    await this.magic?.connect.disconnect()
+    this.provider = undefined
+    this.eagerConnection = undefined
+    this.actions.resetState()
   }
 }
