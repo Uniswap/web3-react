@@ -1,0 +1,25 @@
+{
+  "name": "@web3-react/magic-connect",
+  "publishConfig": {
+    "access": "public"
+  },
+  "version": "8.0.0-alpha.0",
+  "type": "module",
+  "exports": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "prebuild": "rm -rf dist",
+    "build": "tsc",
+    "start": "tsc --watch"
+  },
+  "dependencies": {
+    "@ethersproject/experimental": "^5.6.0",
+    "@ethersproject/providers": "^5.6.0",
+    "@web3-react/types": "^8.0.20-beta.0",
+    "magic-sdk": "^10.0.0",
+    "@magic-ext/connect": "^3.1.0"
+  },
+  "peerDependencies": {
+  }
+}
+
