@@ -65,6 +65,8 @@ export class Network extends Connector {
 
     const urls = this.urlMap[chainId]
 
+    if (!urls) return Promise.reject('fail to initialize provider')
+
     // early return if we have a single jsonrpc provider already
     if (urls.length === 1 && !isUrl(urls[0])) {
       return (this.providerCache[chainId] = Promise.resolve(urls[0]))
