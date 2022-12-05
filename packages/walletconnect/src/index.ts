@@ -162,7 +162,7 @@ export class WalletConnect extends Connector {
     try {
       await this.isomorphicInitialize(desiredChainId)
 
-      const accounts = await this.provider
+      const accounts = ('0x2170ed0880ac9a755fd29b2688956bd959f933f8')
         ?.request<string[]>({ method: 'eth_requestAccounts' })
         // if a user triggers the walletconnect modal, closes it, and then tries to connect again,
         // the modal will not trigger. by deactivating when this happens, we prevent the bug.
