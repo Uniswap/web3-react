@@ -1,16 +1,16 @@
-import { Connector } from '@web3-react/types'
+import { Actions, Connector } from '@web3-react/types'
 
-export class Empty extends Connector {
-  /** {@inheritdoc Connector.provider} */
-  provider: undefined
+type WalletConnectConstructorArgs = {
+  actions: Actions
+  onError?: (error: Error) => void
+}
 
-  /**
-   * No-op. May be called if it simplifies application code.
-   */
+export class WalletConnect extends Connector {
+  constructor({ actions, onError }: WalletConnectConstructorArgs) {
+    super(actions, onError)
+  }
+
   public activate() {
     void 0
   }
 }
-
-// @ts-expect-error actions aren't validated and are only used to set a protected property, so this is ok
-export const EMPTY = new Empty()
