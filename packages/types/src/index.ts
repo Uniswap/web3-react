@@ -1,4 +1,3 @@
-import type { EventEmitter } from 'node:events'
 import type { State, StoreApi } from 'zustand'
 
 export interface Web3ReactState extends State {
@@ -33,6 +32,13 @@ export interface Actions {
 export interface RequestArguments {
   readonly method: string
   readonly params?: readonly unknown[] | object
+}
+
+interface EventEmitter {
+  on(event: string, listener: any): void;
+  once(event: string, listener: any): void;
+  removeListener(event: string, listener: any): void;
+  off(event: string, listener: any): void;
 }
 
 // per EIP-1193
