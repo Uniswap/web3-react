@@ -20,7 +20,7 @@
     "@web3-react/types": "8.0.20-beta.0",
     "@web3-react/url": "8.0.25-beta.0",
     "@web3-react/walletconnect": "8.0.36-beta.0",
-    "@web3-react/walletconnect-v2": "8.0.36-beta.0",
+    "@web3-react/walletconnect-v2": "file:../walletconnect-v2",
     "next": "^12.1.5",
     "react-dom": "^18.0.0"
   }
