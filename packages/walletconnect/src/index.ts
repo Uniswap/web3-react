@@ -162,15 +162,14 @@ export class WalletConnect extends Connector {
     try {
       await this.isomorphicInitialize(desiredChainId)
 
-      const accounts = await this.provider?.request<string[]>({ method: 'eth_requestAccounts' })
-        
-      // @todo there's no built-in modal anymore, decide how to support this best
-      // // if a user triggers the walletconnect modal, closes it, and then tries to connect again,
-      // // the modal will not trigger. by deactivating when this happens, we prevent the bug.
-      // .catch(async (error: Error) => {
-      //   if (error?.message === 'User closed modal') await this.deactivate()
-      //   throw error
-      // })
+      const accounts = await this.provider
+        ?.request<string[]>({ method: 'eth_requestAccounts' })
+        // if a user triggers the walletconnect modal, closes it, and then tries to connect again,
+        // the modal will not trigger. by deactivating when this happens, we prevent the bug.
+        .catch(async (error: Error) => {
+          if (error?.message === 'User closed modal') await this.deactivate()
+          throw error
+        })
 
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const chainId = await this.provider!.request<string | number>({ method: 'eth_chainId' }).then((chainId) =>
