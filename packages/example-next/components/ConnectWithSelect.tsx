@@ -1,8 +1,7 @@
-import type { CoinbaseWallet } from '@web3-react/coinbase-wallet'
 import type { Web3ReactHooks } from '@web3-react/core'
 import { GnosisSafe } from '@web3-react/gnosis-safe'
-import type { MetaMask } from '@web3-react/metamask'
 import { Network } from '@web3-react/network'
+import { Connector } from '@web3-react/types'
 import { WalletConnect } from '@web3-react/walletconnect'
 import { useCallback, useState } from 'react'
 import { CHAINS, getAddChainParameters, URLS } from '../chains'
@@ -44,7 +43,7 @@ export function ConnectWithSelect({
   error,
   setError,
 }: {
-  connector: MetaMask | WalletConnect | CoinbaseWallet | Network | GnosisSafe
+  connector: Connector
   chainId: ReturnType<Web3ReactHooks['useChainId']>
   isActivating: ReturnType<Web3ReactHooks['useIsActivating']>
   isActive: ReturnType<Web3ReactHooks['useIsActive']>
@@ -78,8 +77,8 @@ export function ConnectWithSelect({
           .then(() => setError(undefined))
           .catch(setError)
       } else {
-        connector
-          .activate(desiredChainId === -1 ? undefined : getAddChainParameters(desiredChainId))
+        Promise.resolve(connector
+          .activate(desiredChainId === -1 ? undefined : getAddChainParameters(desiredChainId)))
           .then(() => setError(undefined))
           .catch(setError)
       }
@@ -100,8 +99,8 @@ export function ConnectWithSelect({
         .then(() => setError(undefined))
         .catch(setError)
     } else {
-      connector
-        .activate(desiredChainId === -1 ? undefined : getAddChainParameters(desiredChainId))
+      Promise.resolve(connector
+        .activate(desiredChainId === -1 ? undefined : getAddChainParameters(desiredChainId)))
         .then(() => setError(undefined))
         .catch(setError)
     }
@@ -174,8 +173,8 @@ export function ConnectWithSelect({
                         .activate(desiredChainId === -1 ? undefined : desiredChainId)
                         .then(() => setError(undefined))
                         .catch(setError)
-                    : connector
-                        .activate(desiredChainId === -1 ? undefined : getAddChainParameters(desiredChainId))
+                    : Promise.resolve(connector
+                        .activate(desiredChainId === -1 ? undefined : getAddChainParameters(desiredChainId)))
                         .then(() => setError(undefined))
                         .catch(setError)
           }
