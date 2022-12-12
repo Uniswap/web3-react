@@ -77,8 +77,7 @@ export function ConnectWithSelect({
           .then(() => setError(undefined))
           .catch(setError)
       } else {
-        Promise.resolve(connector
-          .activate(desiredChainId === -1 ? undefined : getAddChainParameters(desiredChainId)))
+        Promise.resolve(connector.activate(desiredChainId === -1 ? undefined : getAddChainParameters(desiredChainId)))
           .then(() => setError(undefined))
           .catch(setError)
       }
@@ -99,8 +98,7 @@ export function ConnectWithSelect({
         .then(() => setError(undefined))
         .catch(setError)
     } else {
-      Promise.resolve(connector
-        .activate(desiredChainId === -1 ? undefined : getAddChainParameters(desiredChainId)))
+      Promise.resolve(connector.activate(desiredChainId === -1 ? undefined : getAddChainParameters(desiredChainId)))
         .then(() => setError(undefined))
         .catch(setError)
     }
@@ -173,8 +171,9 @@ export function ConnectWithSelect({
                         .activate(desiredChainId === -1 ? undefined : desiredChainId)
                         .then(() => setError(undefined))
                         .catch(setError)
-                    : Promise.resolve(connector
-                        .activate(desiredChainId === -1 ? undefined : getAddChainParameters(desiredChainId)))
+                    : Promise.resolve(
+                        connector.activate(desiredChainId === -1 ? undefined : getAddChainParameters(desiredChainId))
+                      )
                         .then(() => setError(undefined))
                         .catch(setError)
           }
