@@ -28,8 +28,6 @@ export class WalletConnect extends Connector {
     const { rpcMap, ...rest } = options
     this.options = rest
     this.rpcMap = rpcMap
-
-    console.log(rpcMap)
   }
 
   // @todo why is this async? what is the benefit of a dynamic import?
@@ -43,11 +41,6 @@ export class WalletConnect extends Connector {
         QRCodeModal.open(uri, () => {
           console.log('QR modal closed by the user (no connection)')
         })
-      })
-
-      client.on('session_event', ({ event, chainId }: { event: any; chainId: string }) => {
-        console.log('EVENT', 'session_event')
-        console.log(event, chainId)
       })
 
       return client
