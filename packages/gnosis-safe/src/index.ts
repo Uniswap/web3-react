@@ -71,6 +71,7 @@ export class GnosisSafe extends Connector {
 
       if (safe) {
         const SafeAppProvider = await SafeAppProviderPromise
+        // @ts-expect-error - `SafeAppProvider` is not typed correctly. Why?
         this.provider = new SafeAppProvider(safe, this.sdk)
       }
     }))

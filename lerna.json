@@ -4,5 +4,6 @@
     "packages/*"
   ],
   "npmClient": "yarn",
-  "ignoreChanges": ["**/*.md", "**/*.spec.ts"]
+  "ignoreChanges": ["**/*.md", "**/*.spec.ts"],
+  "useWorkspaces": true
 }

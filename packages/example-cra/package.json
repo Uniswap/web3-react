@@ -1,5 +1,6 @@
 {
   "private": true,
+  "version": "0.0.1",
   "name": "example-cra",
   "scripts": {
     "start": "react-scripts start",

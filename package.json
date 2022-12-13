@@ -4,6 +4,7 @@
   "engines": {
     "node": "^14 || ^16"
   },
+  "workspaces": ["packages/*"],
   "scripts": {
     "bootstrap": "lerna bootstrap",
     "clean": "lerna clean --yes",
