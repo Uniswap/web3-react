@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { hooks, walletConnect } from '../../connectors/walletConnect-v2'
 import { Card } from '../Card'
 
@@ -15,6 +15,13 @@ export default function WalletConnect2Card() {
   const ENSNames = useENSNames(provider)
 
   const [error, setError] = useState(undefined)
+
+  // attempt to connect eagerly on mount
+  // useEffect(() => {
+  //   walletConnect.connectEagerly().catch(() => {
+  //     console.debug('Failed to connect eagerly to walletconnect-v2')
+  //   })
+  // }, [])
 
   return (
     <Card
