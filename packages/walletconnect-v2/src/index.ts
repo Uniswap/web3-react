@@ -16,7 +16,6 @@ type WalletConnectConstructorArgs = {
 }
 
 export class WalletConnect extends Connector {
-  // @ts-expect-error we need to resolve conflicts between EventEmitter types
   public provider?: UniversalProvider
   private lazyProvider?: Promise<UniversalProvider>
 
@@ -149,6 +148,6 @@ export class WalletConnect extends Connector {
     await provider.disconnect()
 
     this.provider = undefined
-    this.client = undefined
+    this.lazyProvider = undefined
   }
 }
