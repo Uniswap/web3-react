@@ -82,7 +82,7 @@ export function createWeb3ReactStoreAndActions(): [Web3ReactStore, Actions] {
         activating = false
       }
 
-      return { chainId, accounts, activating, error: undefined }
+      return { chainId, accounts, activating, error: existingState.error }
     })
   }
 
