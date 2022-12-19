@@ -1,5 +1,5 @@
 import { getAddress } from '@ethersproject/address'
-import type { Actions, ProviderRpcError, Web3ReactState, Web3ReactStateUpdate, Web3ReactStore } from '@web3-react/types'
+import type { Actions, Web3ReactState, Web3ReactStateUpdate, Web3ReactStore } from '@web3-react/types'
 import { createStore } from 'zustand'
 
 /**
