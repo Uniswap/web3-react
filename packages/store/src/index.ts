@@ -1,5 +1,5 @@
 import { getAddress } from '@ethersproject/address'
-import type { Actions, Web3ReactState, Web3ReactStateUpdate, Web3ReactStore } from '@web3-react/types'
+import type { Actions, ProviderRpcError, Web3ReactState, Web3ReactStateUpdate, Web3ReactStore } from '@web3-react/types'
 import { createStore } from 'zustand'
 
 /**
@@ -24,6 +24,7 @@ const DEFAULT_STATE = {
   chainId: undefined,
   accounts: undefined,
   activating: false,
+  error: undefined,
 }
 
 export function createWeb3ReactStoreAndActions(): [Web3ReactStore, Actions] {
@@ -81,7 +82,7 @@ export function createWeb3ReactStoreAndActions(): [Web3ReactStore, Actions] {
         activating = false
       }
 
-      return { chainId, accounts, activating }
+      return { chainId, accounts, activating, error: undefined }
     })
   }
 
@@ -93,5 +94,13 @@ export function createWeb3ReactStoreAndActions(): [Web3ReactStore, Actions] {
     store.setState(DEFAULT_STATE)
   }
 
-  return [store, { startActivation, update, resetState }]
+  function setError(error: ProviderRpcError): void {
+    store.setState((existingState): Web3ReactState => {
+      return { chainId: existingState.chainId, 
+        accounts: existingState.accounts, 
+        activating: existingState.activating, error }
+    })
+  }
+
+  return [store, { startActivation, update, resetState, setError }]
 }

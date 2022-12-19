@@ -252,6 +252,7 @@ const ACCOUNTS_EQUALITY_CHECKER: EqualityChecker<Web3ReactState['accounts']> = (
     oldAccounts.length === newAccounts?.length &&
     oldAccounts.every((oldAccount, i) => oldAccount === newAccounts[i]))
 const ACTIVATING = ({ activating }: Web3ReactState) => activating
+const ERROR = ({ error }: Web3ReactState) => error
 
 function getStateHooks(useConnector: UseBoundStore<Web3ReactStore>) {
   function useChainId(): Web3ReactState['chainId'] {
@@ -266,7 +267,11 @@ function getStateHooks(useConnector: UseBoundStore<Web3ReactStore>) {
     return useConnector(ACTIVATING)
   }
 
-  return { useChainId, useAccounts, useIsActivating }
+  function useHasError():  Web3ReactState['error'] {
+    return useConnector(ERROR)
+  }
+
+  return { useChainId, useAccounts, useIsActivating, useHasError }
 }
 
 function getDerivedHooks({ useChainId, useAccounts, useIsActivating }: ReturnType<typeof getStateHooks>) {

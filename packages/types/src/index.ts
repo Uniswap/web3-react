@@ -5,6 +5,7 @@ export interface Web3ReactState extends State {
   chainId: number | undefined
   accounts: string[] | undefined
   activating: boolean
+  error?: ProviderRpcError | undefined
 }
 
 export type Web3ReactStore = StoreApi<Web3ReactState>
@@ -27,6 +28,7 @@ export interface Actions {
   startActivation: () => () => void
   update: (stateUpdate: Web3ReactStateUpdate) => void
   resetState: () => void
+  setError: (error: ProviderRpcError) => void
 }
 
 // per EIP-1193
