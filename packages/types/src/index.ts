@@ -14,21 +14,28 @@ export type Web3ReactStateUpdate =
   | {
       chainId: number
       accounts: string[]
+      error?: never
     }
   | {
       chainId: number
       accounts?: never
+      error?: never
     }
   | {
       chainId?: never
       accounts: string[]
+      error?: never
+    }
+  | {
+      chainId?: never
+      accounts?: never
+      error: ProviderRpcError
     }
 
 export interface Actions {
   startActivation: () => () => void
   update: (stateUpdate: Web3ReactStateUpdate) => void
   resetState: () => void
-  setError: (error: ProviderRpcError) => void
 }
 
 // per EIP-1193

@@ -267,11 +267,11 @@ function getStateHooks(useConnector: UseBoundStore<Web3ReactStore>) {
     return useConnector(ACTIVATING)
   }
 
-  function useHasError():  Web3ReactState['error'] {
+  function useError():  Web3ReactState['error'] {
     return useConnector(ERROR)
   }
 
-  return { useChainId, useAccounts, useIsActivating, useHasError }
+  return { useChainId, useAccounts, useIsActivating, useError }
 }
 
 function getDerivedHooks({ useChainId, useAccounts, useIsActivating }: ReturnType<typeof getStateHooks>) {

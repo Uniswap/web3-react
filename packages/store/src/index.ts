@@ -51,8 +51,10 @@ export function createWeb3ReactStoreAndActions(): [Web3ReactStore, Actions] {
   }
 
   /**
-   * Used to report a `stateUpdate` which is merged with existing state. The first `stateUpdate` that results in chainId
-   * and accounts being set will also set activating to false, indicating a successful connection.
+   * Used to report a `stateUpdate` which is merged with existing state. 
+   * 
+   * The first `stateUpdate` that results in chainId and accounts being set will also set activating to false, 
+   * indicating a successful connection. A `stateUpdate` can also be used to set an error state. 
    *
    * @param stateUpdate - The state update to report.
    */
@@ -75,6 +77,7 @@ export function createWeb3ReactStoreAndActions(): [Web3ReactStore, Actions] {
       // determine the next chainId and accounts
       const chainId = stateUpdate.chainId ?? existingState.chainId
       const accounts = stateUpdate.accounts ?? existingState.accounts
+      const error = stateUpdate.error ?? existingState.error
 
       // ensure that the activating flag is cleared when appropriate
       let activating = existingState.activating
@@ -82,7 +85,7 @@ export function createWeb3ReactStoreAndActions(): [Web3ReactStore, Actions] {
         activating = false
       }
 
-      return { chainId, accounts, activating, error: existingState.error }
+      return { chainId, accounts, activating, error }
     })
   }
 
@@ -94,13 +97,5 @@ export function createWeb3ReactStoreAndActions(): [Web3ReactStore, Actions] {
     store.setState(DEFAULT_STATE)
   }
 
-  function setError(error: ProviderRpcError): void {
-    store.setState((existingState): Web3ReactState => {
-      return { chainId: existingState.chainId, 
-        accounts: existingState.accounts, 
-        activating: existingState.activating, error }
-    })
-  }
-
-  return [store, { startActivation, update, resetState, setError }]
+  return [store, { startActivation, update, resetState }]
 }
