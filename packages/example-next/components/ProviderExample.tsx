@@ -17,6 +17,7 @@ const connectors: [MetaMask | WalletConnect | CoinbaseWallet | GnosisSafe | Netw
   [gnosisSafe, gnosisSafeHooks],
   [network, networkHooks],
 ]
+
 export default function ProviderExample({ children }) {
   return <Web3ReactProvider connectors={connectors}>{children}</Web3ReactProvider>
 }

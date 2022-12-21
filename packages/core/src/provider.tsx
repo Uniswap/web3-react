@@ -81,7 +81,7 @@ export function Web3ReactProvider({
 
   const firstActiveConnector = usePriorityConnector()
   const fallbackConnector = defaultSelectedConnector ?? firstActiveConnector
-  const [connector, setConnector] = useState<Connector>(defaultSelectedConnector ?? firstActiveConnector)
+  const [connector, setConnector] = useState<Connector>(fallbackConnector)
 
   const setSelectedConnector = useCallback(
     (proposedConnector?: Connector) => {
@@ -97,8 +97,8 @@ export function Web3ReactProvider({
 
   const chainId = useSelectedChainId(connector)
   const accounts = useSelectedAccounts(connector)
-  const isActivating = useSelectedIsActivating(connector)
   const account = useSelectedAccount(connector)
+  const isActivating = useSelectedIsActivating(connector)
   const isActive = useSelectedIsActive(connector)
 
   // note that we've omitted a <T extends BaseProvider = Web3Provider> generic type

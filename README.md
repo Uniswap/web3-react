@@ -74,7 +74,7 @@ While the internals of web3-react have changed fairly dramatically between v6 an
 
 ## Migrating from v6 to v8 (with Web3ReactProvider)
 
-How we configure connectors has changed in v8. Once configured, the web3React() hook will work just as v6 did, with a few changes to the props it returns.
+Connectors are now setup independently, in which you may get the connector and it's hooks directly, meaning you don't have to use a Web3ReactProvider. If you want a to connect a bunch of connectors, and be able to select what connector to use in the useWeb3React hook, the Web3ReactProvider is what you're looking for.
 
 Let's start by upgrading the packages. This example is using MetaMask and Coinbase Wallet connectors. The @^ will let you choose what package version to install.
 
@@ -99,16 +99,6 @@ Here is how we used to setup the connectors.
 ```ts
 const supportedChainIds = [1, 5, 10, 56, 137, 43114, 42161, 42220]
 
-export const connectorNames = {
-  Injected: 'Injected',
-  WalletLink: 'WalletLink',
-}
-
-export const connectorsByName = {
-  Injected: injected,
-  WalletLink: walletlink,
-}
-
 export const injected = new InjectedConnector({
   supportedChainIds,
 })
@@ -119,11 +109,15 @@ export const walletlink = new WalletLinkConnector({
   supportedChainIds,
   appLogoUrl,
 })
+
+export const connectorsByName = {
+  Injected: injected,
+  WalletLink: walletlink,
+}
+
 ```
 
 #### V8
-
-Connectors are now setup independently, in which you may get the connector and it's hooks directly, meaning you don't have to use a Web3ReactProvider. 
 
 We will use these exports from the connectors to setup our Web3ReactProvider, so we can select what conector we want our useWeb3React hook to use.
 
@@ -161,11 +155,6 @@ If you want to keep the helper to get a connector by its name like in v6, you ca
 import { metaMask } from './connectors/metaMask'
 import { coinbaseWallet } from './connectors/coinbaseWallet'
 
-export const connectorNames = {
-    metaMask: 'MetaMask',
-    coinbase: 'CoinbaseWallet'
-}
-
 export const connectorsByName = {
   MetaMask: metaMask,
   CoinbaseWallet: coinbaseWallet,
@@ -202,8 +191,6 @@ The optional defaultSelectedConnector prop will let you choose the default selec
 
 ```ts
 import { Web3ReactProvider } from '@web3-react/core'
-
-import { useSelector } from 'react-redux'
 import { hooks as metaMaskHooks, metaMask } from './connectors/metaMask'
 import {
   coinbaseWallet,
@@ -225,9 +212,6 @@ root.render(
   </StrictMode>
 )
 ```
-
-That's it for setup, you're now on v8! 🚀
-
 ### Swtiching the selectedConnector
 
 You can select what connector you want the Web3ReactProvider to use with a new prop called "setSelectedConnector". If you don't pass it a connector, it will reset to the defaultSelectedConnector if one is provided, or to the priorityConnector.
@@ -240,8 +224,196 @@ const {
   } = useWeb3React()
 
 return (
-    <button onClick={() => setSelectedConnector(metaMask)}>
-        Reset to Priority
-    </button>
+    <>
+        <button onClick={() => setSelectedConnector(metaMask)}>
+            Select
+        </button>
+        <button onClick={() => setSelectedConnector()}>
+            Reset to default
+        </button>
+    </>
 )
+```
+
+That's it for setup, you're now on v8! 🚀
+
+Let's check out what changed in the useWeb3React() hooks.
+
+## Hook Changes
+
+V8 has added and removed some props from the useWeb3React hook. The error prop is no longer around and is now handled per connector.
+
+```ts
+// V6
+const {
+    // Still in v8
+    connector,
+    chainId,
+    account,
+    active, // Renamed to "isActive"
+    library, // Renamed to "provider"
+
+    // Removed: Now per "connector"
+    activate,
+    deactivate,
+    setError,
+    error,
+} = useWeb3React()
+
+// V8
+const {
+    // In V8 these helper props are from the selectedConnector of the Web3Provider. 
+    // These are mapped from the selectedConnector within 
+    // the Web3Provider using the useSelected*() hooks.
+    connector,
+    chainId,
+    accounts,
+    account,
+    isActivating, // New
+    isActive, // Formerly "active"
+    provider, // Formerly "library"
+    ENSNames, // New
+    ENSName, // New
+    
+    // Used to select the connector to be used by the useWeb3React hook. 
+    // Passing no param will reset to the defaultSelectedConnector
+    // if one was provided, or to the priorityConnector.
+    setSelectedConnector,
+
+    hooks: { 
+        // Notice there is no useSelectedConnector hook,
+        // that's because these useSelected*() hooks take in a 
+        // connector to get the relevant hook from the connector.
+        // This is useful if you wanted to get a connectors hooks through
+        // the Web3Provider without setting it as the selectedConnector.
+        useSelectedStore, // Note: No helper prop above
+        useSelectedChainId,
+        useSelectedAccounts,
+        useSelectedIsActivating,
+        useSelectedAccount,
+        useSelectedIsActive,
+        useSelectedProvider,
+        useSelectedENSNames,
+        useSelectedENSName,
+
+        // These hooks are taken from the first "active" connector found
+        // in the "connectors" array that you passed into the Web3Provider.
+        usePriorityConnector,
+        usePriorityStore,
+        usePriorityChainId,
+        usePriorityAccounts,
+        usePriorityIsActivating,
+        usePriorityAccount,
+        usePriorityIsActive,
+        usePriorityProvider,
+        usePriorityENSNames,
+        usePriorityENSName,
+     },
+} = useWeb3React()
+
+```
+
+## Hooking to a Connector without Web3ReactProvider
+
+With connectors being independant of each other, we can hook into them directly without using the Web3ReactProvider
+
+```ts
+import { hooks } from './connectors/metaMask'
+
+const { 
+    useAccount, 
+    useAccounts, 
+    useChainId, 
+    useENSName, 
+    useENSNames, 
+    useIsActivating,
+    useIsActive, 
+    useProvider 
+} = hooks
+
+const [
+    account, 
+    accounts, 
+    chainId, 
+    ENSName, 
+    ENSNames, 
+    isActivating, 
+    isActive, 
+    provider
+] = [
+    useAccount(), // Derived hook
+    useAccounts(), // State hook
+    useChainId(), // State hook
+    useENSName(), // Augmented hook
+    useENSNames(), // Augmented hook
+    useIsActivating(), // State hook
+    useIsActive(), // Derived hook
+    useProvider(), // Augmented hook
+]
+
+console.log(account, accounts, chainId, ENSName, ENSNames, isActivating, isActive, provider)
+
+```
+
+You can make exposing per connector hooks easier by putting the above code into a helper function.
+
+
+```ts
+import { hooks: metaMaskHooks } from './connectors/metaMask'
+
+const {
+    account, 
+    accounts, 
+    chainId, 
+    ENSName, 
+    ENSNames, 
+    isActivating, 
+    isActive, 
+    provider
+} = getPropsFromConnectorHooks(metaMaskHooks)
+
+// Helper
+function getPropsFromConnectorHooks(hooks: Web3ReactHooks) {
+    const { 
+        useAccount, 
+        useAccounts, 
+        useChainId, 
+        useENSName, 
+        useENSNames, 
+        useIsActivating,
+        useIsActive, 
+        useProvider 
+    } = hooks
+
+    const [
+        account, 
+        accounts, 
+        chainId, 
+        ENSName, 
+        ENSNames, 
+        isActivating, 
+        isActive, 
+        provider
+    ] = [
+        useAccount(), // Derived hook
+        useAccounts(), // State hook
+        useChainId(), // State hook
+        useENSName(), // Augmented hook
+        useENSNames(), // Augmented hook
+        useIsActivating(), // State hook
+        useIsActive(), // Derived hook
+        useProvider(), // Augmented hook
+    ]
+
+    return {
+        account, 
+        accounts, 
+        chainId, 
+        ENSName, 
+        ENSNames, 
+        isActivating, 
+        isActive, 
+        provider
+    }
+}
 ```
