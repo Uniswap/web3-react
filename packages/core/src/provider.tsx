@@ -22,8 +22,7 @@ export type Web3ContextType<T extends BaseProvider = Web3Provider> = {
   ENSNames: ReturnType<Web3ReactPriorityHooks['useSelectedENSNames']>
   ENSName: ReturnType<Web3ReactPriorityHooks['useSelectedENSName']>
   hooks: ReturnType<typeof getPriorityConnector>
-  setSelectedConnector: (connector: Connector) => void
-  resetSelectedConnector: () => void
+  setSelectedConnector: (connector?: Connector) => void
 }
 
 const Web3Context = createContext<Web3ContextType | undefined>(undefined)
@@ -83,11 +82,23 @@ export function Web3ReactProvider({
   const firstActiveConnector = usePriorityConnector()
   const [connector, setConnector] = useState<Connector>(connectorOverride ?? firstActiveConnector)
 
+  const setSelectedConnector = useCallback(
+    (proposedConnector?: Connector) => {
+      if (proposedConnector) {
+        setConnector(proposedConnector)
+      } else {
+        setConnector(connectorOverride ?? firstActiveConnector)
+      }
+    },
+    [connectorOverride, firstActiveConnector]
+  )
+
   const chainId = useSelectedChainId(connector)
   const accounts = useSelectedAccounts(connector)
   const isActivating = useSelectedIsActivating(connector)
   const account = useSelectedAccount(connector)
   const isActive = useSelectedIsActive(connector)
+
   // note that we've omitted a <T extends BaseProvider = Web3Provider> generic type
   // in Web3ReactProvider, and thus can't pass T through to useSelectedProvider below.
   // this is because if we did so, the type of provider would include T, but that would
@@ -96,16 +107,6 @@ export function Web3ReactProvider({
   const provider = useSelectedProvider(connector, network)
   const ENSNames = useSelectedENSNames(connector, lookupENS ? provider : undefined)
   const ENSName = useSelectedENSName(connector, lookupENS ? provider : undefined)
-
-  const setSelectedConnector = useCallback((proposedConnector: Connector) => {
-    if (proposedConnector) {
-      setConnector(proposedConnector)
-    }
-  }, [])
-
-  const resetSelectedConnector = useCallback(() => {
-    setConnector(connectorOverride ?? firstActiveConnector)
-  }, [connectorOverride, firstActiveConnector])
 
   return (
     <Web3Context.Provider
@@ -121,7 +122,6 @@ export function Web3ReactProvider({
         ENSName,
         hooks,
         setSelectedConnector,
-        resetSelectedConnector,
       }}
     >
       {children}

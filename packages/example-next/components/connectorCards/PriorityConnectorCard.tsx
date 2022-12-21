@@ -12,7 +12,7 @@ export default function PriorityConnectorCard() {
     provider,
     isActivating,
     isActive,
-    resetSelectedConnector,
+    setSelectedConnector,
     hooks: { usePriorityConnector },
   } = useWeb3React()
 
@@ -41,7 +41,7 @@ export default function PriorityConnectorCard() {
       <div style={{ marginBottom: '1rem' }}>
         <Accounts accounts={accounts} provider={provider} ENSNames={ENSNames} />
       </div>
-      <button style={{ marginBottom: '1rem' }} onClick={resetSelectedConnector} disabled={isPriority}>
+      <button style={{ marginBottom: '1rem' }} onClick={() => setSelectedConnector()} disabled={isPriority}>
         Reset to Priority
       </button>
     </div>
