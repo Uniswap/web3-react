@@ -85,9 +85,7 @@ export function Web3ReactProvider({
   const setSelectedConnector = useCallback(
     (proposedConnector?: Connector) => {
       if (proposedConnector) {
-        const isCached = cachedConnectors.current.some((cachedConnector: Web3ReactProviderProps['connectors']) => {
-          return cachedConnector[0] === connector
-        })
+        const isCached = cachedConnectors.current.some((cachedConnector) => cachedConnector[0] === connector)
 
         if (isCached) {
           setConnector(proposedConnector)
