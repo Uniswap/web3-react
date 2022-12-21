@@ -31,7 +31,7 @@ const Web3Context = createContext<Web3ContextType | undefined>(undefined)
  * @param children - A React subtree that needs access to the context.
  * @param connectors - Two or more [connector, hooks(, store)] arrays, as returned from initializeConnector.
  * If modified in place without re-rendering the parent component, will result in an error.
- * @param connectorOverride - A connector whose state will be reflected in useWeb3React if set, overriding the
+ * @param defaultSelectedConnector - A connector whose state will be reflected in useWeb3React if set, overriding the
  * priority selection.
  * @param network - An optional argument passed along to `useSelectedProvider`.
  * @param lookupENS - A flag to enable/disable ENS lookups.
@@ -39,7 +39,7 @@ const Web3Context = createContext<Web3ContextType | undefined>(undefined)
 export interface Web3ReactProviderProps {
   children: ReactNode
   connectors: [Connector, Web3ReactHooks][] | [Connector, Web3ReactHooks, Web3ReactStore][]
-  connectorOverride?: Connector
+  defaultSelectedConnector?: Connector
   network?: Networkish
   lookupENS?: boolean
 }
@@ -47,7 +47,7 @@ export interface Web3ReactProviderProps {
 export function Web3ReactProvider({
   children,
   connectors,
-  connectorOverride,
+  defaultSelectedConnector,
   network,
   lookupENS = true,
 }: Web3ReactProviderProps) {
@@ -80,7 +80,7 @@ export function Web3ReactProvider({
   } = hooks
 
   const firstActiveConnector = usePriorityConnector()
-  const [connector, setConnector] = useState<Connector>(connectorOverride ?? firstActiveConnector)
+  const [connector, setConnector] = useState<Connector>(defaultSelectedConnector ?? firstActiveConnector)
 
   const setSelectedConnector = useCallback(
     (proposedConnector?: Connector) => {
@@ -90,13 +90,13 @@ export function Web3ReactProvider({
         if (isCached) {
           setConnector(proposedConnector)
         } else {
-          setConnector(connectorOverride ?? firstActiveConnector)
+          setConnector(defaultSelectedConnector ?? firstActiveConnector)
         }
       } else {
-        setConnector(connectorOverride ?? firstActiveConnector)
+        setConnector(defaultSelectedConnector ?? firstActiveConnector)
       }
     },
-    [connector, connectorOverride, firstActiveConnector]
+    [connector, defaultSelectedConnector, firstActiveConnector]
   )
 
   const chainId = useSelectedChainId(connector)
