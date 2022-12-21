@@ -71,3 +71,177 @@ The decision to publish a connector under the @web3-react namespace is fully up 
 ## Upgrading from v6
 
 While the internals of web3-react have changed fairly dramatically between v6 and v8, the hope is that usage don't have to change too much when upgrading. Once you've migrated to the new connectors and state management patterns, you should be able to use the hooks defined in @web3-react/core, in particular `useWeb3React` (or `usePriorityWeb3React`), as more or less drop-in replacements for the v6 hooks. The big benefit in v8 is that hooks are now per-connector, as opposed to global, so no more juggling between connectors/multiple roots!
+
+## Migrating from v6 to v8 (with Web3ReactProvider)
+
+How we configure connectors has changed in v8. Once configured, the web3React() hook will work just as v6 did, with a few changes to the props it returns.
+
+Let's start by upgrading the packages. This example is using MetaMask and Coinbase Wallet connectors. The @^ will let you choose what package version to install.
+
+
+### Updating Packages
+
+```ts
+yarn remove @web3-react/injected-connector @web3-react/walletlink-connector
+
+yarn upgrade @web3-react/core@^
+yarn upgrade @coinbase/wallet-sdk@^
+yarn add @web3-react/metamask@^
+yarn add @web3-react/coinbase-wallet@^
+```
+
+### Configuring Connectors
+
+#### V6
+
+Here is how we used to setup the connectors.
+
+```ts
+const supportedChainIds = [1, 5, 10, 56, 137, 43114, 42161, 42220]
+
+export const connectorNames = {
+  Injected: 'Injected',
+  WalletLink: 'WalletLink',
+}
+
+export const connectorsByName = {
+  Injected: injected,
+  WalletLink: walletlink,
+}
+
+export const injected = new InjectedConnector({
+  supportedChainIds,
+})
+
+export const walletlink = new WalletLinkConnector({
+  url,
+  appName,
+  supportedChainIds,
+  appLogoUrl,
+})
+```
+
+#### V8
+
+Connectors are now setup independently, in which you may get the connector and it's hooks directly, meaning you don't have to use a Web3ReactProvider. 
+
+We will use these exports from the connectors to setup our Web3ReactProvider, so we can select what conector we want our useWeb3React hook to use.
+
+#### File: metaMask.ts
+```ts
+import { initializeConnector } from '@web3-react/core'
+import { MetaMask } from '@web3-react/metamask'
+
+export const [metaMask, hooks] = initializeConnector<MetaMask>(
+  (actions) => new MetaMask({ actions, options: { mustBeMetaMask: true } })
+)
+```
+
+#### File: coinbaseWallet.ts
+```ts
+import { CoinbaseWallet } from '@web3-react/coinbase-wallet'
+import { initializeConnector } from '@web3-react/core'
+
+export const [coinbaseWallet, hooks] = initializeConnector<CoinbaseWallet>(
+  (actions) =>
+    new CoinbaseWallet({
+      actions,
+      options: {
+        url,
+        appName,
+        appLogoUrl,
+      },
+    })
+)
+```
+
+If you want to keep the helper to get a connector by its name like in v6, you can do something like this.
+
+```ts
+import { metaMask } from './connectors/metaMask'
+import { coinbaseWallet } from './connectors/coinbaseWallet'
+
+export const connectorNames = {
+    metaMask: 'MetaMask',
+    coinbase: 'CoinbaseWallet'
+}
+
+export const connectorsByName = {
+  MetaMask: metaMask,
+  CoinbaseWallet: coinbaseWallet,
+}
+```
+
+### Setting up the Web3ReactProvider
+
+#### V6
+
+Your apps index should be setup similar to this. We no longer need to inject a libary like this as each Connector has been setup with their own.
+
+```ts
+function getLibrary(provider) {
+  const library = new providers.Web3Provider(provider)
+  library.pollingInterval = 8_000
+  return library
+}
+
+root.render(
+  <StrictMode>
+    <Web3ReactProvider getLibrary={getLibrary}>
+        <App />
+    </Web3ReactProvider>
+  </StrictMode>
+)
+```
+
+#### V8
+
+With the new configuration, we pull in the connectors we configured and pass them to the Web3ReactProvider.
+
+The optional defaultSelectedConnector prop will let you choose the default selected wallet by the app. If not passed, the selectedConnector will be determined by finding the first "active" connector in the "connectors" array. If there are no "active" connectors, it will be the first element in the "connectors" array.
+
+```ts
+import { Web3ReactProvider } from '@web3-react/core'
+
+import { useSelector } from 'react-redux'
+import { hooks as metaMaskHooks, metaMask } from './connectors/metaMask'
+import {
+  coinbaseWallet,
+  hooks as coinbaseWalletHooks,
+} from './connectors/coinbaseWallet'
+
+const connectors = [
+  [metaMask, metaMaskHooks],
+  [coinbaseWallet, coinbaseWalletHooks],
+]
+
+root.render(
+  <StrictMode>
+    <Web3ReactProvider 
+      connectors={connectors}
+      defaultSelectedConnector={coinbaseWallet}>
+        <App />
+    </Web3ReactProvider>
+  </StrictMode>
+)
+```
+
+That's it for setup, you're now on v8! 🚀
+
+### Swtiching the selectedConnector
+
+You can select what connector you want the Web3ReactProvider to use with a new prop called "setSelectedConnector". If you don't pass it a connector, it will reset to the defaultSelectedConnector if one is provided, or to the priorityConnector.
+
+```ts
+import { metaMask } from './connectors/metaMask'
+
+const {
+    setSelectedConnector,
+  } = useWeb3React()
+
+return (
+    <button onClick={() => setSelectedConnector(metaMask)}>
+        Reset to Priority
+    </button>
+)
+```

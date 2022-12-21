@@ -80,23 +80,19 @@ export function Web3ReactProvider({
   } = hooks
 
   const firstActiveConnector = usePriorityConnector()
+  const fallbackConnector = defaultSelectedConnector ?? firstActiveConnector
   const [connector, setConnector] = useState<Connector>(defaultSelectedConnector ?? firstActiveConnector)
 
   const setSelectedConnector = useCallback(
     (proposedConnector?: Connector) => {
       if (proposedConnector) {
         const isCached = cachedConnectors.current.some((cachedConnector) => cachedConnector[0] === connector)
-
-        if (isCached) {
-          setConnector(proposedConnector)
-        } else {
-          setConnector(defaultSelectedConnector ?? firstActiveConnector)
-        }
+        setConnector(isCached ? proposedConnector : fallbackConnector)
       } else {
-        setConnector(defaultSelectedConnector ?? firstActiveConnector)
+        setConnector(fallbackConnector)
       }
     },
-    [connector, defaultSelectedConnector, firstActiveConnector]
+    [connector, fallbackConnector]
   )
 
   const chainId = useSelectedChainId(connector)
