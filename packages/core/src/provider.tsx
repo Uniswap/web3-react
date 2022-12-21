@@ -1,7 +1,7 @@
 import type { Networkish } from '@ethersproject/networks'
 import type { BaseProvider, Web3Provider } from '@ethersproject/providers'
 import type { Connector, Web3ReactStore } from '@web3-react/types'
-import type { Context, MutableRefObject, ReactNode } from 'react'
+import { Context, MutableRefObject, ReactNode, useCallback, useState } from 'react'
 import React, { createContext, useContext, useRef } from 'react'
 import type { Web3ReactHooks, Web3ReactPriorityHooks } from './hooks'
 import { getPriorityConnector } from './hooks'
@@ -22,6 +22,8 @@ export type Web3ContextType<T extends BaseProvider = Web3Provider> = {
   ENSNames: ReturnType<Web3ReactPriorityHooks['useSelectedENSNames']>
   ENSName: ReturnType<Web3ReactPriorityHooks['useSelectedENSName']>
   hooks: ReturnType<typeof getPriorityConnector>
+  setSelectedConnector: (connector: Connector) => void
+  resetSelectedConnector: () => void
 }
 
 const Web3Context = createContext<Web3ContextType | undefined>(undefined)
@@ -78,8 +80,8 @@ export function Web3ReactProvider({
     useSelectedENSName,
   } = hooks
 
-  const priorityConnector = usePriorityConnector()
-  const connector = connectorOverride ?? priorityConnector
+  const firstActiveConnector = usePriorityConnector()
+  const [connector, setConnector] = useState<Connector>(connectorOverride ?? firstActiveConnector)
 
   const chainId = useSelectedChainId(connector)
   const accounts = useSelectedAccounts(connector)
@@ -95,6 +97,16 @@ export function Web3ReactProvider({
   const ENSNames = useSelectedENSNames(connector, lookupENS ? provider : undefined)
   const ENSName = useSelectedENSName(connector, lookupENS ? provider : undefined)
 
+  const setSelectedConnector = useCallback((proposedConnector: Connector) => {
+    if (proposedConnector) {
+      setConnector(proposedConnector)
+    }
+  }, [])
+
+  const resetSelectedConnector = useCallback(() => {
+    setConnector(firstActiveConnector)
+  }, [firstActiveConnector])
+
   return (
     <Web3Context.Provider
       value={{
@@ -108,6 +120,8 @@ export function Web3ReactProvider({
         ENSNames,
         ENSName,
         hooks,
+        setSelectedConnector,
+        resetSelectedConnector,
       }}
     >
       {children}

@@ -20,6 +20,8 @@ interface Props {
   ENSNames: ReturnType<Web3ReactHooks['useENSNames']>
   provider?: ReturnType<Web3ReactHooks['useProvider']>
   accounts?: string[]
+  isPriority?: boolean
+  isSelected?: boolean
 }
 
 export function Card({
@@ -32,6 +34,8 @@ export function Card({
   ENSNames,
   accounts,
   provider,
+  isPriority,
+  isSelected,
 }: Props) {
   return (
     <div
@@ -51,6 +55,12 @@ export function Card({
       <div style={{ marginBottom: '1rem' }}>
         <Status isActivating={isActivating} isActive={isActive} error={error} />
       </div>
+      <div>
+        Priority: <b>{isPriority ? 'true' : 'false'}</b>
+      </div>
+      <div>
+        Selected: <b>{isSelected ? 'true' : 'false'}</b>
+      </div>
       <Chain chainId={chainId} />
       <div style={{ marginBottom: '1rem' }}>
         <Accounts accounts={accounts} provider={provider} ENSNames={ENSNames} />
@@ -62,6 +72,7 @@ export function Card({
         isActive={isActive}
         error={error}
         setError={setError}
+        isSelected={isSelected}
       />
     </div>
   )

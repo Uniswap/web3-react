@@ -1,3 +1,4 @@
+import { useWeb3React } from '@web3-react/core'
 import { URI_AVAILABLE } from '@web3-react/walletconnect'
 import { useEffect, useState } from 'react'
 import { hooks, walletConnect } from '../../connectors/walletConnect'
@@ -6,6 +7,15 @@ import { Card } from '../Card'
 const { useChainId, useAccounts, useIsActivating, useIsActive, useProvider, useENSNames } = hooks
 
 export default function WalletConnectCard() {
+  const {
+    connector,
+    hooks: { usePriorityConnector },
+  } = useWeb3React()
+
+  const priorityConnector = usePriorityConnector()
+  const isPriority = priorityConnector === walletConnect
+  const isSelected = connector === walletConnect
+
   const chainId = useChainId()
   const accounts = useAccounts()
   const isActivating = useIsActivating()
@@ -37,11 +47,13 @@ export default function WalletConnectCard() {
       chainId={chainId}
       isActivating={isActivating}
       isActive={isActive}
+      ENSNames={ENSNames}
+      provider={provider}
+      accounts={accounts}
       error={error}
       setError={setError}
-      accounts={accounts}
-      provider={provider}
-      ENSNames={ENSNames}
+      isPriority={isPriority}
+      isSelected={isSelected}
     />
   )
 }

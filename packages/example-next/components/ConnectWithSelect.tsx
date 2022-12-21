@@ -1,5 +1,5 @@
 import type { CoinbaseWallet } from '@web3-react/coinbase-wallet'
-import type { Web3ReactHooks } from '@web3-react/core'
+import { useWeb3React, Web3ReactHooks } from '@web3-react/core'
 import { GnosisSafe } from '@web3-react/gnosis-safe'
 import type { MetaMask } from '@web3-react/metamask'
 import { Network } from '@web3-react/network'
@@ -43,6 +43,7 @@ export function ConnectWithSelect({
   isActive,
   error,
   setError,
+  isSelected,
 }: {
   connector: MetaMask | WalletConnect | CoinbaseWallet | Network | GnosisSafe
   chainId: ReturnType<Web3ReactHooks['useChainId']>
@@ -50,7 +51,10 @@ export function ConnectWithSelect({
   isActive: ReturnType<Web3ReactHooks['useIsActive']>
   error: Error | undefined
   setError: (error: Error | undefined) => void
+  isSelected?: boolean
 }) {
+  const { setSelectedConnector } = useWeb3React()
+
   const isNetwork = connector instanceof Network
   const displayDefault = !isNetwork
   const chainIds = (isNetwork ? Object.keys(URLS) : Object.keys(CHAINS)).map((chainId) => Number(chainId))
@@ -135,6 +139,7 @@ export function ConnectWithSelect({
         )}
         <div style={{ marginBottom: '1rem' }} />
         <button
+          style={{ marginBottom: '1rem' }}
           onClick={() => {
             if (connector?.deactivate) {
               void connector.deactivate()
@@ -144,6 +149,9 @@ export function ConnectWithSelect({
           }}
         >
           Disconnect
+        </button>
+        <button onClick={() => setSelectedConnector(connector)} disabled={isSelected}>
+          Select
         </button>
       </div>
     )
@@ -160,6 +168,7 @@ export function ConnectWithSelect({
         )}
         <div style={{ marginBottom: '1rem' }} />
         <button
+          style={{ marginBottom: '1rem' }}
           onClick={
             isActivating
               ? undefined
@@ -182,6 +191,9 @@ export function ConnectWithSelect({
           disabled={isActivating}
         >
           Connect
+        </button>
+        <button onClick={() => setSelectedConnector(connector)} disabled={isSelected}>
+          Select
         </button>
       </div>
     )

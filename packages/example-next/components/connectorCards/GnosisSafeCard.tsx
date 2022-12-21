@@ -1,3 +1,4 @@
+import { useWeb3React } from '@web3-react/core'
 import { useEffect, useState } from 'react'
 import { gnosisSafe, hooks } from '../../connectors/gnosisSafe'
 import { Card } from '../Card'
@@ -5,6 +6,15 @@ import { Card } from '../Card'
 const { useChainId, useAccounts, useIsActivating, useIsActive, useProvider, useENSNames } = hooks
 
 export default function GnosisSafeCard() {
+  const {
+    connector,
+    hooks: { usePriorityConnector },
+  } = useWeb3React()
+
+  const priorityConnector = usePriorityConnector()
+  const isPriority = priorityConnector === gnosisSafe
+  const isSelected = connector === gnosisSafe
+
   const chainId = useChainId()
   const accounts = useAccounts()
   const isActivating = useIsActivating()
@@ -29,11 +39,13 @@ export default function GnosisSafeCard() {
       chainId={chainId}
       isActivating={isActivating}
       isActive={isActive}
+      ENSNames={ENSNames}
+      provider={provider}
+      accounts={accounts}
       error={error}
       setError={setError}
-      accounts={accounts}
-      provider={provider}
-      ENSNames={ENSNames}
+      isPriority={isPriority}
+      isSelected={isSelected}
     />
   )
 }
