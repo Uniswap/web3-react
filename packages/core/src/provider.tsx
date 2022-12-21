@@ -85,12 +85,20 @@ export function Web3ReactProvider({
   const setSelectedConnector = useCallback(
     (proposedConnector?: Connector) => {
       if (proposedConnector) {
-        setConnector(proposedConnector)
+        const isCached = cachedConnectors.current.some((cachedConnector: Web3ReactProviderProps['connectors']) => {
+          return cachedConnector[0] === connector
+        })
+
+        if (isCached) {
+          setConnector(proposedConnector)
+        } else {
+          setConnector(connectorOverride ?? firstActiveConnector)
+        }
       } else {
         setConnector(connectorOverride ?? firstActiveConnector)
       }
     },
-    [connectorOverride, firstActiveConnector]
+    [connector, connectorOverride, firstActiveConnector]
   )
 
   const chainId = useSelectedChainId(connector)
