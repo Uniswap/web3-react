@@ -74,10 +74,9 @@ While the internals of web3-react have changed fairly dramatically between v6 an
 
 ## Migrating from v6 to v8 (with Web3ReactProvider)
 
-Connectors are now setup independently, in which you may get the connector and it's hooks directly, meaning you don't have to use a Web3ReactProvider. If you want a to connect a bunch of connectors, and be able to select what connector to use in the useWeb3React hook, the Web3ReactProvider is what you're looking for.
+Connectors are now setup independently, in which you may get the connector and its hooks directly, meaning you don't have to use a Web3ReactProvider. If you want a to connect a bunch of connectors, and be able to select what connector to use in the useWeb3React hook, the Web3ReactProvider is what you're looking for.
 
-Let's start by upgrading the packages. This example is using MetaMask and Coinbase Wallet connectors. The @^ will let you choose what package version to install.
-
+Let's start by upgrading the packages. This example is using MetaMask and Coinbase Wallet connectors. The @^ will let you choose what package version to install. @web3-react/store and @web3-react/types will be installed as a dependancy of @web3-react/core. Zustand will also be installed which is used by each connector to keep state. All wallet connectors have new packages so remove all the connectors you have. You'll find not all connectors available in v6 are in v8.
 
 ### Updating Packages
 
@@ -214,7 +213,7 @@ root.render(
 ```
 ### Swtiching the selectedConnector
 
-You can select what connector you want the Web3ReactProvider to use with a new prop called "setSelectedConnector". If you don't pass it a connector, it will reset to the defaultSelectedConnector if one is provided, or to the priorityConnector.
+You can select what connector you want the Web3ReactProvider to use with a new prop called "setSelectedConnector". If you don't pass it a connector, it will reset to the defaultSelectedConnector if one was provided, or to the priorityConnector.
 
 ```ts
 import { metaMask } from './connectors/metaMask'
@@ -311,6 +310,50 @@ const {
      },
 } = useWeb3React()
 
+```
+
+### Using the useSelected*() hook
+
+```ts
+import { metaMask } from './connectors/metaMask'
+
+const {
+    hooks: { 
+        useSelectedStore,
+        useSelectedChainId,
+        useSelectedAccounts,
+        useSelectedIsActivating,
+        useSelectedAccount,
+        useSelectedIsActive,
+        useSelectedProvider,
+        useSelectedENSNames,
+        useSelectedENSName,
+    }
+} = useWeb3React()
+
+const chainId = useSelectedChainId(metaMask)
+```
+
+### Using the usePriority*() hook
+
+The Priority connector is the first "active" connector found in the "connectors" array you passed into the Web3ReactProvider
+
+```ts
+const {
+    hooks: { 
+        usePriorityStore,
+        usePriorityChainId,
+        usePriorityAccounts,
+        usePriorityIsActivating,
+        usePriorityAccount,
+        usePriorityIsActive,
+        usePriorityProvider,
+        usePriorityENSNames,
+        usePriorityENSName,
+    }
+} = useWeb3React()
+
+const chainId = useSelectedChainId(metaMask)
 ```
 
 ## Hooking to a Connector without Web3ReactProvider
@@ -416,4 +459,79 @@ function getPropsFromConnectorHooks(hooks: Web3ReactHooks) {
         provider
     }
 }
+```
+
+## Connectors
+
+How connectors are structured now is a lot different than v6. Let's see what's new.
+
+Here are all the exposed functions
+```ts
+activate()
+connectEagerly()
+watchAsset()
+```
+
+### Activate
+
+Activates the connector to either the default chain of the connector, or you can pass in a chainId (number) to connect to a certian chain. If the chain isn't configured in the connector, the user will be prompted to add the chain, given that you passed in the chains parameters to activate()
+
+```ts
+
+// Base activation, will connect to the default chain of the connector.
+connector.activate()
+
+// Will attempt to activate the connector on the given chain.
+// If the chain isn't configured in the connector (eg: MetaMask wallet), it will go to the default.
+// If the connector is already active, it will still change the chain.
+connector.activate(137)
+
+// You may also provide the chains configuration instead of the chainId. 
+// This will allow the connector to add the chain if the connector isn't configured for the given chain.
+// If the chain already exists, it will simply change to the chain.
+const polygonConfiguration: AddEthereumChainParameter = {
+    chainId: 137;
+    chainName: 'Polygon';
+    nativeCurrency: {
+        name: 'Matic';
+        symbol: 'MATIC';
+        decimals: 18;
+    };
+    rpcUrls: [
+      'https://polygon-rpc.com/',
+      'https://rpc-mainnet.matic.network/',
+      'https://rpc-mainnet.maticvigil.com/',
+      'https://rpc-mainnet.matic.quiknode.pro/',
+    ],
+    blockExplorerUrls: ['https://polygonscan.com/'],
+    iconUrls: [
+      getImageUrlFromTrust({ tokenContractChainId: maticMainChainId }),
+    ],
+}
+
+connector.activate(polygonConfiguration)
+
+```
+
+### Connect Eagerly
+
+Connecting eagerly is very similar to activate() except it won't throw any errors, since it knows it may not connect. It doesn't take in any params.
+
+```ts
+// Will attempt connect to default chain of the connector.
+connector.connectEagerly()
+```
+
+### Watch Asset
+
+You can easily add a token (ERC20 compliant) to the connector.
+
+```ts
+// Adding WMATIC to the connector on chainId 137.
+connector.watchAsset({
+    address: '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270',
+    symbol: 'WMATIC',
+    decimals: '18', 
+    image: 'https://github.com/trustwallet/assets/blob/master/blockchains/polygon/assets/0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270/logo.png'
+})
 ```
