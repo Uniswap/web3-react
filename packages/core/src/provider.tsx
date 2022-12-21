@@ -104,8 +104,8 @@ export function Web3ReactProvider({
   }, [])
 
   const resetSelectedConnector = useCallback(() => {
-    setConnector(firstActiveConnector)
-  }, [firstActiveConnector])
+    setConnector(connectorOverride ?? firstActiveConnector)
+  }, [connectorOverride, firstActiveConnector])
 
   return (
     <Web3Context.Provider
