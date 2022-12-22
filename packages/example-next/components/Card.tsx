@@ -4,6 +4,7 @@ import { GnosisSafe } from '@web3-react/gnosis-safe'
 import { MetaMask } from '@web3-react/metamask'
 import { Network } from '@web3-react/network'
 import { WalletConnect } from '@web3-react/walletconnect'
+import { getAddChainParameters } from '../chains/chains'
 import { getName } from '../utils'
 import { Accounts } from './Accounts'
 import { Chain } from './Chain'
@@ -79,7 +80,7 @@ export function Card({
         <WatchAsset
           connector={connector}
           assetParams={{
-            chainId: 137,
+            desiredChainIdOrChainParameters: getAddChainParameters(137),
             address: '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270',
             symbol: 'WMATIC',
             decimals: 18,

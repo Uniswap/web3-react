@@ -486,7 +486,6 @@ resetState()
 Activates the connector to either the default chain of the connector, or you can pass in a chainId (number) to connect to a certian chain. If the chain isn't configured in the connector, the user will be prompted to add the chain, given that you passed in the chains parameters to activate()
 
 ```ts
-
 // Base activation, will connect to the default chain of the connector.
 connector.activate()
 
@@ -536,13 +535,12 @@ connector.connectEagerly()
 You can easily add a token (ERC20 compliant) to the connector.
 
 ```ts
-
 const assetToWatch: WatchAssetParameters = {
     // If chainId is provided the connector will switch to the correct chainId before adding the token
     // You may also pass the AddEthereumChainParameter config to the chainId prop incase the user
     // doesn't have the chain configured in their wallet. 
     // It will will add the chain, switch to the chain, then add the asset the user wants to watch.
-    chainId: 137, // Optional
+    desiredChainIdOrChainParameters: 137, // Optional
     address: '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270',
     symbol: 'WMATIC',
     decimals: 18, 

@@ -1,0 +1,30 @@
+import { ChainConfig } from '../chains.interface'
+import { ethSepoliaChainId } from '../chainIds'
+
+const chainConfig: ChainConfig = {
+  chainId: ethSepoliaChainId,
+  name: 'Sepolia',
+  nativeCurrency: {
+    name: 'Ethers',
+    symbol: 'ETH',
+    decimals: 18,
+  },
+  nativeWrappedTokenInfo: {
+    chainId: ethSepoliaChainId,
+    contractAddress: '0xb16F35c0Ae2912430DAc15764477E179D9B9EbEa',
+    decimals: 18,
+    symbol: 'WETH',
+    name: 'Wrapped ETH',
+  },
+  rpcUrls: [process.env.infuraKey ? `https://sepolia.infura.io/v3/${process.env.infuraKey}` : ''].filter(
+    (url) => url !== ''
+  ),
+  walletConfig: {
+    chainName: 'Sepolia',
+    iconUrls: [],
+    rpcUrls: [],
+    blockExplorerUrls: [],
+  },
+}
+
+export default chainConfig

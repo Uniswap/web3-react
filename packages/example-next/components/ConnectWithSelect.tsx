@@ -5,7 +5,7 @@ import type { MetaMask } from '@web3-react/metamask'
 import { Network } from '@web3-react/network'
 import { WalletConnect } from '@web3-react/walletconnect'
 import { useCallback, useState } from 'react'
-import { CHAINS, getAddChainParameters, URLS } from '../chains'
+import { CHAINS, getAddChainParameters, URLS } from '../chains/chains'
 
 function ChainSelect({
   chainId,
