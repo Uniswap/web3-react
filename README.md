@@ -81,17 +81,21 @@ Let's start by upgrading the packages. This example is using MetaMask and Coinba
 ### Updating Packages
 
 ```ts
+// Remove the v6 connectors
 yarn remove @web3-react/injected-connector @web3-react/walletlink-connector
 
+// Upgrade to the newest versions
 yarn upgrade @web3-react/core@^
 yarn upgrade @coinbase/wallet-sdk@^
+
+// Add the new connectors
 yarn add @web3-react/metamask@^
 yarn add @web3-react/coinbase-wallet@^
 ```
 
 ### Configuring Connectors
 
-#### V6
+#### v6
 
 Here is how we used to setup the connectors.
 
@@ -116,7 +120,7 @@ export const connectorsByName = {
 
 ```
 
-#### V8
+#### v8
 
 We will use these exports from the connectors to setup our Web3ReactProvider, so we can select what conector we want our useWeb3React hook to use.
 
@@ -162,9 +166,9 @@ export const connectorsByName = {
 
 ### Setting up the Web3ReactProvider
 
-#### V6
+#### v6
 
-Your apps index should be setup similar to this. We no longer need to inject a libary like this as each Connector has been setup with their own.
+Your apps index should be setup similar to this. We no longer need to inject a library like this as each Connector has been setup with their own.
 
 ```ts
 function getLibrary(provider) {
@@ -182,11 +186,11 @@ root.render(
 )
 ```
 
-#### V8
+#### v8
 
 With the new configuration, we pull in the connectors we configured and pass them to the Web3ReactProvider.
 
-The optional defaultSelectedConnector prop will let you choose the default selected wallet by the app. If not passed, the selectedConnector will be determined by finding the first "active" connector in the "connectors" array. If there are no "active" connectors, it will be the first element in the "connectors" array.
+The optional defaultSelectedConnector prop will let you choose the default selected wallet by the app. If not passed, the selectedConnector will be determined by finding the first "active" connector in the "connectors" array. If there are no "active" connectors, it will be the first element in the "connectors" array, in which the selectedConnector and the priorityConnector are the same.
 
 ```ts
 import { Web3ReactProvider } from '@web3-react/core'
@@ -240,10 +244,10 @@ Let's check out what changed in the useWeb3React() hooks.
 
 ## Hook Changes
 
-V8 has added and removed some props from the useWeb3React hook. The error prop is no longer around and is now handled per connector.
+v8 has added and removed some props from the useWeb3React hook. The error prop is no longer around and is now handled per connector.
 
 ```ts
-// V6
+// v6
 const {
     // Still in v8
     connector,
@@ -259,9 +263,9 @@ const {
     error,
 } = useWeb3React()
 
-// V8
+// v8
 const {
-    // In V8 these helper props are from the selectedConnector of the Web3Provider. 
+    // In v8 these helper props are from the selectedConnector of the Web3Provider. 
     // These are mapped from the selectedConnector within 
     // the Web3Provider using the useSelected*() hooks.
     connector,
@@ -336,7 +340,7 @@ const chainId = useSelectedChainId(metaMask)
 
 ### Using the usePriority*() hook
 
-The Priority connector is the first "active" connector found in the "connectors" array you passed into the Web3ReactProvider
+The Priority connector is the first "active" connector found in the "connectors" array you passed into the Web3ReactProvider.
 
 ```ts
 const {
@@ -353,12 +357,12 @@ const {
     }
 } = useWeb3React()
 
-const chainId = useSelectedChainId(metaMask)
+const chainId = usePriorityChainId()
 ```
 
 ## Hooking to a Connector without Web3ReactProvider
 
-With connectors being independant of each other, we can hook into them directly without using the Web3ReactProvider
+With connectors being independent of each other, we can hook into them directly without using the Web3ReactProvider.
 
 ```ts
 import { hooks } from './connectors/metaMask'
@@ -399,7 +403,6 @@ console.log(account, accounts, chainId, ENSName, ENSNames, isActivating, isActiv
 ```
 
 You can make exposing per connector hooks easier by putting the above code into a helper function.
-
 
 ```ts
 import { hooks: metaMaskHooks } from './connectors/metaMask'
