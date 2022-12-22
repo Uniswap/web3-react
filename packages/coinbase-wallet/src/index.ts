@@ -188,12 +188,27 @@ export class CoinbaseWallet extends Connector {
   }
 
   public async watchAsset({
+    chainId,
     address,
     symbol,
     decimals,
     image,
   }: Pick<WatchAssetParameters, 'address'> & Partial<Omit<WatchAssetParameters, 'address'>>): Promise<true> {
     if (!this.provider) throw new Error('No provider')
+
+    // Switch to the correct chain to watch the asset
+    if (chainId) {
+      const currentChainId = parseChainId(await this.provider.request({ method: 'eth_chainId' }))
+
+      if (chainId !== currentChainId) {
+        await this.activate(chainId)
+
+        // We need a small delay before calling the next request to the provider or else it won't work.
+        await new Promise((resolve) => {
+          setTimeout(resolve, 200)
+        })
+      }
+    }
 
     return this.provider
       .request({

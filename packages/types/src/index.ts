@@ -68,6 +68,7 @@ export interface AddEthereumChainParameter {
 
 // per EIP-747
 export interface WatchAssetParameters {
+  chainId?: number | AddEthereumChainParameter
   address: string // The address that the token is at.
   symbol: string // A ticker symbol or shorthand, up to 5 chars.
   decimals: number // The number of decimals in the token

@@ -9,6 +9,7 @@ import { Accounts } from './Accounts'
 import { Chain } from './Chain'
 import { ConnectWithSelect } from './ConnectWithSelect'
 import { Status } from './Status'
+import { WatchAsset } from './WatchAsset'
 
 interface Props {
   connector: MetaMask | WalletConnect | CoinbaseWallet | Network | GnosisSafe
@@ -74,6 +75,19 @@ export function Card({
         setError={setError}
         isSelected={isSelected}
       />
+      {connector?.watchAsset && (
+        <WatchAsset
+          connector={connector}
+          assetParams={{
+            chainId: 137,
+            address: '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270',
+            symbol: 'WMATIC',
+            decimals: 18,
+            image:
+              'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/polygon/assets/0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270/logo.png',
+          }}
+        />
+      )}
     </div>
   )
 }

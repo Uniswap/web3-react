@@ -76,7 +76,7 @@ While the internals of web3-react have changed fairly dramatically between v6 an
 
 Connectors are now setup independently, in which you may get the connector and its hooks directly, meaning you don't have to use a Web3ReactProvider. If you want a to connect a bunch of connectors, and be able to select what connector to use in the useWeb3React hook, the Web3ReactProvider is what you're looking for.
 
-Let's start by upgrading the packages. This example is using MetaMask and Coinbase Wallet connectors. The @^ will let you choose what package version to install. @web3-react/store and @web3-react/types will be installed as a dependancy of @web3-react/core. Zustand will also be installed which is used by each connector to keep state. All wallet connectors have new packages so remove all the connectors you have. You'll find not all connectors available in v6 are in v8.
+Let's start by upgrading the packages. This example is using MetaMask and Coinbase Wallet connectors. The @^ will let you choose what package version to install. @web3-react/store and @web3-react/types will be installed as a dependency of @web3-react/core. Zustand will also be installed as a dependency of @web3-react/core, which is used by each connector to keep state. All wallet connectors have new packages so remove all the connectors you have. Keep in mind not all connectors available in v6 are in v8.
 
 ### Updating Packages
 
@@ -211,7 +211,7 @@ root.render(
   </StrictMode>
 )
 ```
-### Swtiching the selectedConnector
+### Switching the selectedConnector
 
 You can select what connector you want the Web3ReactProvider to use with a new prop called "setSelectedConnector". If you don't pass it a connector, it will reset to the defaultSelectedConnector if one was provided, or to the priorityConnector.
 
@@ -465,11 +465,17 @@ function getPropsFromConnectorHooks(hooks: Web3ReactHooks) {
 
 How connectors are structured now is a lot different than v6. Let's see what's new.
 
-Here are all the exposed functions
 ```ts
+// Initalize a connection
 activate()
+// Un-initiate a connection
+deactivate()
+// Attempt to initiate a connection, failing silently
 connectEagerly()
+// Attempt to add an asset per EIP-747
 watchAsset()
+// Reset the state of the connector without otherwise interacting with the connection
+resetState()
 ```
 
 ### Activate
@@ -505,7 +511,7 @@ const polygonConfiguration: AddEthereumChainParameter = {
     ],
     blockExplorerUrls: ['https://polygonscan.com/'],
     iconUrls: [
-      getImageUrlFromTrust({ tokenContractChainId: maticMainChainId }),
+      'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/polygon/info/logo.png'
     ],
 }
 
@@ -527,11 +533,19 @@ connector.connectEagerly()
 You can easily add a token (ERC20 compliant) to the connector.
 
 ```ts
-// Adding WMATIC to the connector on chainId 137.
-connector.watchAsset({
+
+const assetToWatch: WatchAssetParameters = {
+    // If chainId is provided the connector will switch to the correct chainId before adding the token
+    // You may also pass the AddEthereumChainParameter config to the chainId prop incase the user
+    // doesn't have the chain configured in their wallet. 
+    // It will will add the chain, switch to the chain, then add the asset the user wants to watch.
+    chainId: 137, // Optional
     address: '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270',
     symbol: 'WMATIC',
-    decimals: '18', 
-    image: 'https://github.com/trustwallet/assets/blob/master/blockchains/polygon/assets/0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270/logo.png'
-})
+    decimals: 18, 
+    image: 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/polygon/assets/0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270/logo.png'
+}
+
+// Adding WMATIC to the connector on chainId 137.
+connector.watchAsset(assetToWatch)
 ```
