@@ -10,9 +10,8 @@ const maticTestnet: ChainConfig = {
     symbol: 'MATIC',
     decimals: 18,
   },
-  nativeWrappedTokenInfo: {
-    chainId: polygonTestChainId,
-    contractAddress: '0x9c3c9283d3e44854697cd22d3faa240cfb032889',
+  nativeWrappedToken: {
+    address: '0x9c3c9283d3e44854697cd22d3faa240cfb032889',
     decimals: 18,
     symbol: 'WMATIC',
     name: 'Wrapped MATIC',

@@ -10,9 +10,8 @@ const chainConfig: ChainConfig = {
     symbol: 'ETH',
     decimals: 18,
   },
-  nativeWrappedTokenInfo: {
-    chainId: celoMainChainId,
-    contractAddress: '0x66803fb87abd4aac3cbb3fad7c3aa01f6f3fb207',
+  nativeWrappedToken: {
+    address: '0x66803fb87abd4aac3cbb3fad7c3aa01f6f3fb207',
     decimals: 18,
     symbol: 'WETH',
     name: 'Wrapped ETH',

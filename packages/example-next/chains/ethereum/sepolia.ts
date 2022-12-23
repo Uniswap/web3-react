@@ -9,9 +9,8 @@ const chainConfig: ChainConfig = {
     symbol: 'ETH',
     decimals: 18,
   },
-  nativeWrappedTokenInfo: {
-    chainId: ethSepoliaChainId,
-    contractAddress: '0xb16F35c0Ae2912430DAc15764477E179D9B9EbEa',
+  nativeWrappedToken: {
+    address: '0xb16F35c0Ae2912430DAc15764477E179D9B9EbEa',
     decimals: 18,
     symbol: 'WETH',
     name: 'Wrapped ETH',

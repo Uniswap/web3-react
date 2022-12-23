@@ -1,4 +1,5 @@
 import { Connector, WatchAssetParameters } from '@web3-react/types'
+import { CHAINS } from '../chains/chains'
 
 export function WatchAsset({ connector, assetParams }: { connector: Connector; assetParams: WatchAssetParameters }) {
   const desiredChainId = assetParams?.desiredChainIdOrChainParameters
@@ -14,14 +15,14 @@ export function WatchAsset({ connector, assetParams }: { connector: Connector; a
         connector
           .watchAsset(assetParams)
           .then(() => {
-            console.log(`Added token ${assetParams.symbol}`)
+            console.log(`Watching token ${assetParams.symbol}`)
           })
-          .catch((err) => {
-            console.log(`Failed adding token ${assetParams.symbol}`)
+          .catch(() => {
+            console.log(`Failed watching token ${assetParams.symbol}`)
           })
       }}
     >
-      {`Watch ${assetParams.symbol}${desiredChainId ? ` on chain ${desiredChainId}` : ''}`}
+      {`Watch ${assetParams.symbol}${desiredChainId ? ` on ${CHAINS[desiredChainId]?.name}` : ''}`}
     </button>
   )
 }

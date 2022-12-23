@@ -10,9 +10,8 @@ const chainConfig: ChainConfig = {
     symbol: 'MATIC',
     decimals: 18,
   },
-  nativeWrappedTokenInfo: {
-    chainId: polygonMainChainId,
-    contractAddress: '0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270',
+  nativeWrappedToken: {
+    address: '0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270',
     decimals: 18,
     symbol: 'WMATIC',
     name: 'Wrapped MATIC',

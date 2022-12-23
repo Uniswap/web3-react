@@ -10,9 +10,8 @@ const chainConfig: ChainConfig = {
     symbol: 'CELO',
     decimals: 18,
   },
-  nativeWrappedTokenInfo: {
-    chainId: celoTestChainId,
-    contractAddress: '0xF194afDf50B03e69Bd7D057c1Aa9e10c9954E4C9',
+  nativeWrappedToken: {
+    address: '0xF194afDf50B03e69Bd7D057c1Aa9e10c9954E4C9',
     decimals: 18,
     symbol: 'CELO',
     name: 'CELO',

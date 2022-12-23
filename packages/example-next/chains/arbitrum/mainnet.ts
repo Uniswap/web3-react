@@ -10,9 +10,8 @@ const chainConfig: ChainConfig = {
     symbol: 'ETH',
     decimals: 18,
   },
-  nativeWrappedTokenInfo: {
-    chainId: arbitrumMainChainId,
-    contractAddress: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',
+  nativeWrappedToken: {
+    address: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',
     decimals: 18,
     symbol: 'WETH',
     name: 'Wrapped ETH',

@@ -4,7 +4,9 @@ import { GnosisSafe } from '@web3-react/gnosis-safe'
 import { MetaMask } from '@web3-react/metamask'
 import { Network } from '@web3-react/network'
 import { WalletConnect } from '@web3-react/walletconnect'
-import { getAddChainParameters } from '../chains/chains'
+import { polygonMainChainId } from '../chains/chainIds'
+import { CHAINS, getAddChainParameters } from '../chains/chains'
+import { getImageUrlFromTrust } from '../chains/helpers'
 import { getName } from '../utils'
 import { Accounts } from './Accounts'
 import { Chain } from './Chain'
@@ -39,6 +41,9 @@ export function Card({
   isPriority,
   isSelected,
 }: Props) {
+  const chainConfig = chainId ? CHAINS[chainId] : undefined
+  const { nativeWrappedToken: wrappedMatic } = CHAINS[polygonMainChainId]
+
   return (
     <div
       style={{
@@ -77,17 +82,27 @@ export function Card({
         isSelected={isSelected}
       />
       {connector?.watchAsset && (
-        <WatchAsset
-          connector={connector}
-          assetParams={{
-            desiredChainIdOrChainParameters: getAddChainParameters(137),
-            address: '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270',
-            symbol: 'WMATIC',
-            decimals: 18,
-            image:
-              'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/polygon/assets/0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270/logo.png',
-          }}
-        />
+        <>
+          <b style={{ marginTop: '1rem' }}>Watch Asset</b>
+          {chainConfig && chainId !== polygonMainChainId && (
+            <WatchAsset
+              connector={connector}
+              assetParams={{
+                desiredChainIdOrChainParameters: getAddChainParameters(chainConfig?.chainId),
+                image: getImageUrlFromTrust(chainId, chainConfig?.nativeWrappedToken?.address),
+                ...chainConfig?.nativeWrappedToken,
+              }}
+            />
+          )}
+          <WatchAsset
+            connector={connector}
+            assetParams={{
+              desiredChainIdOrChainParameters: getAddChainParameters(polygonMainChainId),
+              image: getImageUrlFromTrust(polygonMainChainId, wrappedMatic.address),
+              ...wrappedMatic,
+            }}
+          />
+        </>
       )}
     </div>
   )

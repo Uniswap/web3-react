@@ -10,9 +10,8 @@ const chainConfig: ChainConfig = {
     symbol: 'tPLS',
     decimals: 18,
   },
-  nativeWrappedTokenInfo: {
-    chainId: plsTestChainId,
-    contractAddress: '0x8a810ea8B121d08342E9e7696f4a9915cBE494B7',
+  nativeWrappedToken: {
+    address: '0x8a810ea8B121d08342E9e7696f4a9915cBE494B7',
     decimals: 18,
     symbol: 'WPLS',
     name: 'Wrapped PLS',

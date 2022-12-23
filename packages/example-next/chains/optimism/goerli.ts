@@ -10,9 +10,8 @@ const chainConfig: ChainConfig = {
     symbol: 'ETH',
     decimals: 18,
   },
-  nativeWrappedTokenInfo: {
-    chainId: optimismTestChainId,
-    contractAddress: '0x4200000000000000000000000000000000000006',
+  nativeWrappedToken: {
+    address: '0x4200000000000000000000000000000000000006',
     decimals: 18,
     symbol: 'WETH',
     name: 'Wrapped ETH',

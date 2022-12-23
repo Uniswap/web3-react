@@ -10,9 +10,8 @@ const chainConfig: ChainConfig = {
     symbol: 'AVAX',
     decimals: 18,
   },
-  nativeWrappedTokenInfo: {
-    chainId: avaxTestChainId,
-    contractAddress: '0xd00ae08403B9bbb9124bB305C09058E32C39A48c',
+  nativeWrappedToken: {
+    address: '0xd00ae08403B9bbb9124bB305C09058E32C39A48c',
     decimals: 18,
     symbol: 'WAVAX',
     name: 'Wrapped AVAX',

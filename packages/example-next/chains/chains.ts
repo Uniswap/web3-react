@@ -1,4 +1,5 @@
 import { AddEthereumChainParameter } from '@web3-react/types'
+import { ChainConfig } from './chains.interface'
 import {
   arbitrumMainChainId,
   arbitrumTestChainId,
@@ -33,26 +34,6 @@ import polygonTestnet from './polygon/mumbai'
 import optimismMainnet from './optimism/mainnet'
 import optimismTestnet from './optimism/goerli'
 import plsTestnet from './pulse/testnet'
-
-interface ChainConfig {
-  chainId: number
-  name: string
-  nativeCurrency: AddEthereumChainParameter['nativeCurrency']
-  nativeWrappedTokenInfo: {
-    chainId: number
-    contractAddress: string
-    name: string
-    symbol: string
-    decimals: number
-  }
-  rpcUrls: string[]
-  walletConfig: {
-    chainName: string
-    rpcUrls: AddEthereumChainParameter['rpcUrls']
-    blockExplorerUrls: AddEthereumChainParameter['blockExplorerUrls']
-    iconUrls: AddEthereumChainParameter['iconUrls']
-  }
-}
 
 export const CHAINS: { [chainId: number]: ChainConfig } = {
   [arbitrumMainChainId]: {

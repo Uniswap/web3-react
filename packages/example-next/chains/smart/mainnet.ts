@@ -10,9 +10,8 @@ const chainConfig: ChainConfig = {
     symbol: 'BNB',
     decimals: 18,
   },
-  nativeWrappedTokenInfo: {
-    chainId: bscMainChainId,
-    contractAddress: '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c',
+  nativeWrappedToken: {
+    address: '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c',
     decimals: 18,
     symbol: 'WBNB',
     name: 'Wrapped BNB',

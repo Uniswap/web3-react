@@ -86,7 +86,6 @@ yarn remove @web3-react/injected-connector @web3-react/walletlink-connector
 
 // Upgrade to the newest versions
 yarn upgrade @web3-react/core@^
-yarn upgrade @coinbase/wallet-sdk@^
 
 // Add the new connectors
 yarn add @web3-react/metamask@^
@@ -122,7 +121,7 @@ export const connectorsByName = {
 
 #### v8
 
-We will use these exports from the connectors to setup our Web3ReactProvider, so we can select what conector we want our useWeb3React hook to use.
+We will use these exports from the connectors to setup our Web3ReactProvider, so we can select what connector we want our useWeb3React hook to use.
 
 #### File: metaMask.ts
 ```ts
@@ -168,7 +167,7 @@ export const connectorsByName = {
 
 #### v6
 
-Your apps index should be setup similar to this. We no longer need to inject a library like this as each Connector has been setup with their own.
+Your apps index should be setup similar to this. We no longer need to inject a library like this as each connector has been setup with their own.
 
 ```ts
 function getLibrary(provider) {
@@ -238,7 +237,7 @@ return (
 )
 ```
 
-That's it for setup, you're now on v8! 🚀
+That's it for the connector setup, you're now on v8! 🚀
 
 Let's check out what changed in the useWeb3React() hooks.
 
@@ -397,9 +396,6 @@ const [
     useIsActive(), // Derived hook
     useProvider(), // Augmented hook
 ]
-
-console.log(account, accounts, chainId, ENSName, ENSNames, isActivating, isActive, provider)
-
 ```
 
 You can make exposing per connector hooks easier by putting the above code into a helper function.
@@ -483,7 +479,7 @@ resetState()
 
 ### Activate
 
-Activates the connector to either the default chain of the connector, or you can pass in a chainId (number) to connect to a certian chain. If the chain isn't configured in the connector, the user will be prompted to add the chain, given that you passed in the chains parameters to activate()
+Activates the connector to either the default chain of the connector, or you can pass in a chainId (number) to connect to a certain chain. If the chain isn't configured in the connector, the user will be prompted to add the chain, given that you passed in the chains parameters to activate()
 
 ```ts
 // Base activation, will connect to the default chain of the connector.
