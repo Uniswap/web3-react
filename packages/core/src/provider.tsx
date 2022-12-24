@@ -21,6 +21,9 @@ export type Web3ContextType<T extends BaseProvider = Web3Provider> = {
   provider: T | undefined
   ENSNames: ReturnType<Web3ReactPriorityHooks['useSelectedENSNames']>
   ENSName: ReturnType<Web3ReactPriorityHooks['useSelectedENSName']>
+  addingChain: ReturnType<Web3ReactPriorityHooks['useSelectedAddingChain']>
+  switchingChain: ReturnType<Web3ReactPriorityHooks['useSelectedSwitchingChain']>
+  watchingAsset: ReturnType<Web3ReactPriorityHooks['useSelectedWatchingAsset']>
   hooks: ReturnType<typeof getPriorityConnector>
   setSelectedConnector: (connector?: Connector) => void
 }
@@ -77,6 +80,9 @@ export function Web3ReactProvider({
     useSelectedProvider,
     useSelectedENSNames,
     useSelectedENSName,
+    useSelectedAddingChain,
+    useSelectedSwitchingChain,
+    useSelectedWatchingAsset,
   } = hooks
 
   const firstActiveConnector = usePriorityConnector()
@@ -110,6 +116,10 @@ export function Web3ReactProvider({
   const ENSNames = useSelectedENSNames(connector, lookupENS ? provider : undefined)
   const ENSName = useSelectedENSName(connector, lookupENS ? provider : undefined)
 
+  const addingChain = useSelectedAddingChain(connector)
+  const switchingChain = useSelectedSwitchingChain(connector)
+  const watchingAsset = useSelectedWatchingAsset(connector)
+
   return (
     <Web3Context.Provider
       value={{
@@ -123,6 +133,9 @@ export function Web3ReactProvider({
         ENSNames,
         ENSName,
         hooks,
+        addingChain,
+        switchingChain,
+        watchingAsset,
         setSelectedConnector,
       }}
     >

@@ -147,9 +147,16 @@ export class MetaMask extends Connector {
             return this.actions.update({ chainId: receivedChainId, accounts })
           }
 
+          // if we're here, we can try to switch networks
+          this.actions.update({
+            switchingChain: {
+              fromChainId: receivedChainId,
+              toChainId: desiredChainId,
+            },
+          })
+
           const desiredChainIdHex = `0x${desiredChainId.toString(16)}`
 
-          // if we're here, we can try to switch networks
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           return this.provider!.request({
             method: 'wallet_switchEthereumChain',
@@ -158,6 +165,12 @@ export class MetaMask extends Connector {
             .catch((error: ProviderRpcError) => {
               if (error.code === 4902 && typeof desiredChainIdOrChainParameters !== 'number') {
                 // if we're here, we can try to add a new network
+                this.actions.update({
+                  addingChain: {
+                    chainId: desiredChainId,
+                  },
+                })
+
                 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                 return this.provider!.request({
                   method: 'wallet_addEthereumChain',
@@ -165,12 +178,19 @@ export class MetaMask extends Connector {
                 })
               }
 
+              this.actions.update({ switchingChain: undefined })
+
               throw error
             })
-            .then(() => this.activate(desiredChainId))
+            .then(() => {
+              this.actions.update({ addingChain: undefined, switchingChain: undefined })
+
+              return this.activate(desiredChainId)
+            })
         })
       })
       .catch((error) => {
+        this.actions.update({ addingChain: undefined, switchingChain: undefined })
         cancelActivation?.()
         throw error
       })
@@ -184,6 +204,15 @@ export class MetaMask extends Connector {
     image,
   }: WatchAssetParameters): Promise<true> {
     if (!this.provider) throw new Error('No provider')
+
+    this.actions.update({
+      watchingAsset: {
+        address,
+        symbol,
+        decimals,
+        image,
+      },
+    })
 
     // Switch to the correct chain to watch the asset
     if (desiredChainIdOrChainParameters) {
@@ -199,11 +228,10 @@ export class MetaMask extends Connector {
 
         // We need a small delay before calling the next request to the provider or else it won't work.
         await new Promise((resolve) => {
-          setTimeout(resolve, 200)
+          setTimeout(resolve, 100)
         })
       }
     }
-
     return this.provider
       .request({
         method: 'wallet_watchAsset',
@@ -217,7 +245,11 @@ export class MetaMask extends Connector {
           },
         },
       })
+      .catch(() => {
+        this.actions.update({ watchingAsset: undefined })
+      })
       .then((success) => {
+        this.actions.update({ watchingAsset: undefined })
         if (!success) throw new Error('Rejected')
         return true
       })

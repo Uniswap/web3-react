@@ -23,6 +23,9 @@ interface Props {
   setError: (error: Error | undefined) => void
   ENSNames: ReturnType<Web3ReactHooks['useENSNames']>
   provider?: ReturnType<Web3ReactHooks['useProvider']>
+  addingChain?: ReturnType<Web3ReactHooks['useAddingChain']>
+  switchingChain?: ReturnType<Web3ReactHooks['useSwitchingChain']>
+  watchingAsset?: ReturnType<Web3ReactHooks['useWatchingAsset']>
   accounts?: string[]
   isPriority?: boolean
   isSelected?: boolean
@@ -38,6 +41,9 @@ export function Card({
   ENSNames,
   accounts,
   provider,
+  addingChain,
+  switchingChain,
+  watchingAsset,
   isPriority,
   isSelected,
 }: Props) {
@@ -68,7 +74,7 @@ export function Card({
       <div>
         Selected: <b>{isSelected ? 'true' : 'false'}</b>
       </div>
-      <Chain chainId={chainId} />
+      <Chain chainId={chainId} addingChain={addingChain} switchingChain={switchingChain} />
       <div style={{ marginBottom: '1rem' }}>
         <Accounts accounts={accounts} provider={provider} ENSNames={ENSNames} />
       </div>
@@ -86,6 +92,7 @@ export function Card({
           <b style={{ marginTop: '1rem' }}>Watch Asset</b>
           {chainConfig && chainId !== polygonMainChainId && (
             <WatchAsset
+              watchingAsset={watchingAsset}
               connector={connector}
               assetParams={{
                 desiredChainIdOrChainParameters: getAddChainParameters(chainConfig?.chainId),
@@ -95,6 +102,7 @@ export function Card({
             />
           )}
           <WatchAsset
+            watchingAsset={watchingAsset}
             connector={connector}
             assetParams={{
               desiredChainIdOrChainParameters: getAddChainParameters(polygonMainChainId),

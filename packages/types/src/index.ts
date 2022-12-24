@@ -1,10 +1,22 @@
 import type { EventEmitter } from 'node:events'
 import type { State, StoreApi } from 'zustand'
 
+type AddingChainInfo = {
+  chainId: number
+}
+
+type SwitchingChainInfo = {
+  fromChainId?: number
+  toChainId: number
+}
+
 export interface Web3ReactState extends State {
   chainId: number | undefined
   accounts: string[] | undefined
   activating: boolean
+  addingChain: AddingChainInfo | undefined
+  switchingChain: SwitchingChainInfo | undefined
+  watchingAsset: WatchAssetParameters | undefined
 }
 
 export type Web3ReactStore = StoreApi<Web3ReactState>
@@ -13,14 +25,51 @@ export type Web3ReactStateUpdate =
   | {
       chainId: number
       accounts: string[]
+      addingChain?: never
+      switchingChain?: never
+      watchingAsset?: never
     }
   | {
       chainId: number
       accounts?: never
+      addingChain?: never
+      switchingChain?: never
+      watchingAsset?: never
     }
   | {
       chainId?: never
       accounts: string[]
+      addingChain?: never
+      switchingChain?: never
+      watchingAsset?: never
+    }
+  | {
+      chainId?: never
+      accounts?: never
+      addingChain?: never
+      switchingChain?: never
+      watchingAsset: WatchAssetParameters | undefined
+    }
+  | {
+      chainId?: never
+      accounts?: never
+      addingChain: AddingChainInfo | undefined
+      switchingChain: SwitchingChainInfo | undefined
+      watchingAsset?: never
+    }
+  | {
+      chainId?: never
+      accounts?: never
+      addingChain: AddingChainInfo | undefined
+      switchingChain?: never
+      watchingAsset?: never
+    }
+  | {
+      chainId?: never
+      accounts?: never
+      addingChain?: never
+      switchingChain: SwitchingChainInfo | undefined
+      watchingAsset?: never
     }
 
 export interface Actions {

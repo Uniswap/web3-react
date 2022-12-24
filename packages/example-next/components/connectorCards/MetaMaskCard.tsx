@@ -3,7 +3,17 @@ import { useEffect, useState } from 'react'
 import { hooks, metaMask } from '../../connectors/metaMask'
 import { Card } from '../Card'
 
-const { useChainId, useAccounts, useIsActivating, useIsActive, useProvider, useENSNames } = hooks
+const {
+  useChainId,
+  useAccounts,
+  useIsActivating,
+  useIsActive,
+  useProvider,
+  useENSNames,
+  useAddingChain,
+  useSwitchingChain,
+  useWatchingAsset,
+} = hooks
 
 export default function MetaMaskCard() {
   const {
@@ -24,6 +34,10 @@ export default function MetaMaskCard() {
   const provider = useProvider()
   const ENSNames = useENSNames(provider)
 
+  const addingChain = useAddingChain()
+  const switchingChain = useSwitchingChain()
+  const watchingAsset = useWatchingAsset()
+
   const [error, setError] = useState(undefined)
 
   // attempt to connect eagerly on mount
@@ -42,6 +56,9 @@ export default function MetaMaskCard() {
       ENSNames={ENSNames}
       provider={provider}
       accounts={accounts}
+      addingChain={addingChain}
+      switchingChain={switchingChain}
+      watchingAsset={watchingAsset}
       error={error}
       setError={setError}
       isPriority={isPriority}

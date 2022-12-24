@@ -24,6 +24,9 @@ const DEFAULT_STATE = {
   chainId: undefined,
   accounts: undefined,
   activating: false,
+  addingChain: undefined,
+  switchingChain: undefined,
+  watchingAsset: undefined,
 }
 
 export function createWeb3ReactStoreAndActions(): [Web3ReactStore, Actions] {
@@ -81,7 +84,20 @@ export function createWeb3ReactStoreAndActions(): [Web3ReactStore, Actions] {
         activating = false
       }
 
-      return { chainId, accounts, activating }
+      const addingChain = stateUpdate.addingChain
+      const switchingChain = stateUpdate.switchingChain
+
+      const stateUpdatePropertyNames = Object.getOwnPropertyNames(stateUpdate)
+
+      const keepWatchingAsset =
+        (stateUpdatePropertyNames.includes('addingChain') ||
+          stateUpdatePropertyNames.includes('switchingChain') ||
+          stateUpdatePropertyNames.includes('chainId')) &&
+        existingState.watchingAsset
+
+      const watchingAsset = keepWatchingAsset ? existingState.watchingAsset : stateUpdate.watchingAsset
+
+      return { chainId, accounts, activating, addingChain, switchingChain, watchingAsset }
     })
   }
 

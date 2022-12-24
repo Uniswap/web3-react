@@ -121,23 +121,48 @@ export class CoinbaseWallet extends Connector {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       if (!desiredChainId || desiredChainId === parseChainId(this.provider!.chainId)) return
 
+      // if we're here, we can try to switch networks
+      this.actions.update({
+        switchingChain: {
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          fromChainId: parseChainId(this.provider!.chainId),
+          toChainId: desiredChainId,
+        },
+      })
+
       const desiredChainIdHex = `0x${desiredChainId.toString(16)}`
+
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       return this.provider!.request<void>({
         method: 'wallet_switchEthereumChain',
         params: [{ chainId: desiredChainIdHex }],
-      }).catch(async (error: ProviderRpcError) => {
-        if (error.code === 4902 && typeof desiredChainIdOrChainParameters !== 'number') {
-          // if we're here, we can try to add a new network
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          return this.provider!.request<void>({
-            method: 'wallet_addEthereumChain',
-            params: [{ ...desiredChainIdOrChainParameters, chainId: desiredChainIdHex }],
-          })
-        }
-
-        throw error
       })
+        .catch(async (error: ProviderRpcError) => {
+          if (error.code === 4902 && typeof desiredChainIdOrChainParameters !== 'number') {
+            // if we're here, we can try to add a new network
+            this.actions.update({
+              addingChain: {
+                chainId: desiredChainId,
+              },
+            })
+
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            return this.provider!.request<void>({
+              method: 'wallet_addEthereumChain',
+              params: [{ ...desiredChainIdOrChainParameters, chainId: desiredChainIdHex }],
+            })
+          }
+
+          this.actions.update({ switchingChain: undefined })
+
+          throw error
+        })
+        .then(() => {
+          this.actions.update({
+            addingChain: undefined,
+            switchingChain: undefined,
+          })
+        })
     }
 
     const cancelActivation = this.actions.startActivation()
@@ -154,10 +179,21 @@ export class CoinbaseWallet extends Connector {
         const receivedChainId = parseChainId(chainId)
 
         if (!desiredChainId || desiredChainId === receivedChainId)
-          return this.actions.update({ chainId: receivedChainId, accounts })
+          return this.actions.update({
+            chainId: receivedChainId,
+            accounts,
+          })
 
         // if we're here, we can try to switch networks
+        this.actions.update({
+          switchingChain: {
+            fromChainId: parseChainId(chainId),
+            toChainId: desiredChainId,
+          },
+        })
+
         const desiredChainIdHex = `0x${desiredChainId.toString(16)}`
+
         return this.provider
           ?.request<void>({
             method: 'wallet_switchEthereumChain',
@@ -166,6 +202,12 @@ export class CoinbaseWallet extends Connector {
           .catch(async (error: ProviderRpcError) => {
             if (error.code === 4902 && typeof desiredChainIdOrChainParameters !== 'number') {
               // if we're here, we can try to add a new network
+              this.actions.update({
+                addingChain: {
+                  chainId: desiredChainId,
+                },
+              })
+
               // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
               return this.provider!.request<void>({
                 method: 'wallet_addEthereumChain',
@@ -173,10 +215,16 @@ export class CoinbaseWallet extends Connector {
               })
             }
 
+            this.actions.update({ switchingChain: undefined })
+
             throw error
+          })
+          .then(() => {
+            this.actions.update({ addingChain: undefined, switchingChain: undefined })
           })
       })
     } catch (error) {
+      this.actions.update({ addingChain: undefined, switchingChain: undefined })
       cancelActivation()
       throw error
     }
@@ -195,6 +243,15 @@ export class CoinbaseWallet extends Connector {
     image,
   }: Pick<WatchAssetParameters, 'address'> & Partial<Omit<WatchAssetParameters, 'address'>>): Promise<true> {
     if (!this.provider) throw new Error('No provider')
+
+    this.actions.update({
+      watchingAsset: {
+        address,
+        symbol: symbol ?? '',
+        decimals: decimals ?? 0,
+        image: image ?? '',
+      },
+    })
 
     // Switch to the correct chain to watch the asset
     if (desiredChainIdOrChainParameters) {
@@ -228,7 +285,11 @@ export class CoinbaseWallet extends Connector {
           },
         },
       })
+      .catch(() => {
+        this.actions.update({ watchingAsset: undefined })
+      })
       .then((success) => {
+        this.actions.update({ watchingAsset: undefined })
         if (!success) throw new Error('Rejected')
         return true
       })

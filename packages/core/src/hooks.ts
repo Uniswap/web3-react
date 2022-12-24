@@ -50,7 +50,7 @@ export function initializeConnector<T extends Connector>(
   return [connector, { ...stateHooks, ...derivedHooks, ...augmentedHooks }, store]
 }
 
-function computeIsActive({ chainId, accounts, activating }: Web3ReactState) {
+function computeIsActive({ chainId, accounts, activating }: Partial<Web3ReactState>) {
   return Boolean(chainId && accounts && !activating)
 }
 
@@ -138,6 +138,24 @@ export function getSelectedConnector(
     return values[index]
   }
 
+  function useSelectedAddingChain(connector: Connector) {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const values = initializedConnectors.map(([, { useAddingChain }]) => useAddingChain())
+    return values[getIndex(connector)]
+  }
+
+  function useSelectedSwitchingChain(connector: Connector) {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const values = initializedConnectors.map(([, { useSwitchingChain }]) => useSwitchingChain())
+    return values[getIndex(connector)]
+  }
+
+  function useSelectedWatchingAsset(connector: Connector) {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const values = initializedConnectors.map(([, { useWatchingAsset }]) => useWatchingAsset())
+    return values[getIndex(connector)]
+  }
+
   return {
     useSelectedStore,
     useSelectedChainId,
@@ -148,6 +166,9 @@ export function getSelectedConnector(
     useSelectedProvider,
     useSelectedENSNames,
     useSelectedENSName,
+    useSelectedAddingChain,
+    useSelectedSwitchingChain,
+    useSelectedWatchingAsset,
   }
 }
 
@@ -171,6 +192,9 @@ export function getPriorityConnector(
     useSelectedProvider,
     useSelectedENSNames,
     useSelectedENSName,
+    useSelectedAddingChain,
+    useSelectedSwitchingChain,
+    useSelectedWatchingAsset,
   } = getSelectedConnector(...initializedConnectors)
 
   function usePriorityConnector() {
@@ -221,6 +245,18 @@ export function getPriorityConnector(
     return useSelectedENSName(usePriorityConnector(), provider)
   }
 
+  function usePriorityAddingChain() {
+    return useSelectedAddingChain(usePriorityConnector())
+  }
+
+  function usePrioritySwitchingChain() {
+    return useSelectedSwitchingChain(usePriorityConnector())
+  }
+
+  function usePriorityWatchingAsset() {
+    return useSelectedWatchingAsset(usePriorityConnector())
+  }
+
   return {
     useSelectedStore,
     useSelectedChainId,
@@ -231,6 +267,9 @@ export function getPriorityConnector(
     useSelectedProvider,
     useSelectedENSNames,
     useSelectedENSName,
+    useSelectedAddingChain,
+    useSelectedSwitchingChain,
+    useSelectedWatchingAsset,
     usePriorityConnector,
     usePriorityStore,
     usePriorityChainId,
@@ -241,6 +280,9 @@ export function getPriorityConnector(
     usePriorityProvider,
     usePriorityENSNames,
     usePriorityENSName,
+    usePriorityAddingChain,
+    usePrioritySwitchingChain,
+    usePriorityWatchingAsset,
   }
 }
 
@@ -252,6 +294,9 @@ const ACCOUNTS_EQUALITY_CHECKER: EqualityChecker<Web3ReactState['accounts']> = (
     oldAccounts.length === newAccounts?.length &&
     oldAccounts.every((oldAccount, i) => oldAccount === newAccounts[i]))
 const ACTIVATING = ({ activating }: Web3ReactState) => activating
+const ADDING = ({ addingChain }: Web3ReactState) => addingChain
+const SWITCHING = ({ switchingChain }: Web3ReactState) => switchingChain
+const WATCHING = ({ watchingAsset }: Web3ReactState) => watchingAsset
 
 function getStateHooks(useConnector: UseBoundStore<Web3ReactStore>) {
   function useChainId(): Web3ReactState['chainId'] {
@@ -266,7 +311,19 @@ function getStateHooks(useConnector: UseBoundStore<Web3ReactStore>) {
     return useConnector(ACTIVATING)
   }
 
-  return { useChainId, useAccounts, useIsActivating }
+  function useAddingChain(): Web3ReactState['addingChain'] {
+    return useConnector(ADDING)
+  }
+
+  function useSwitchingChain(): Web3ReactState['switchingChain'] {
+    return useConnector(SWITCHING)
+  }
+
+  function useWatchingAsset(): Web3ReactState['watchingAsset'] {
+    return useConnector(WATCHING)
+  }
+
+  return { useChainId, useAccounts, useIsActivating, useAddingChain, useSwitchingChain, useWatchingAsset }
 }
 
 function getDerivedHooks({ useChainId, useAccounts, useIsActivating }: ReturnType<typeof getStateHooks>) {

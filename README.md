@@ -276,6 +276,9 @@ const {
     provider, // Formerly "library"
     ENSNames, // New
     ENSName, // New
+    addingChain, // New
+    switchingChain, // New
+    watchingAsset, // New
     
     // Used to select the connector to be used by the useWeb3React hook. 
     // Passing no param will reset to the defaultSelectedConnector
@@ -297,6 +300,9 @@ const {
         useSelectedProvider,
         useSelectedENSNames,
         useSelectedENSName,
+        useSelectedAddingChain,
+        useSelectedSwitchingChain,
+        useSelectedWatchingAsset,
 
         // These hooks are taken from the first "active" connector found
         // in the "connectors" array that you passed into the Web3Provider.
@@ -310,6 +316,9 @@ const {
         usePriorityProvider,
         usePriorityENSNames,
         usePriorityENSName,
+        usePriorityAddingChain,
+        usePrioritySwitchingChain,
+        usePriorityWatchingAsset,
      },
 } = useWeb3React()
 
@@ -331,6 +340,9 @@ const {
         useSelectedProvider,
         useSelectedENSNames,
         useSelectedENSName,
+        useSelectedAddingChain,
+        useSelectedSwitchingChain,
+        useSelectedWatchingAsset,
     }
 } = useWeb3React()
 
@@ -353,6 +365,9 @@ const {
         usePriorityProvider,
         usePriorityENSNames,
         usePriorityENSName,
+        usePriorityAddingChain,
+        usePrioritySwitchingChain,
+        usePriorityWatchingAsset,
     }
 } = useWeb3React()
 
@@ -374,7 +389,10 @@ const {
     useENSNames, 
     useIsActivating,
     useIsActive, 
-    useProvider 
+    useProvider,
+    useAddingChain,
+    useSwitchingChain,
+    useWatchingAsset
 } = hooks
 
 const [
@@ -385,7 +403,10 @@ const [
     ENSNames, 
     isActivating, 
     isActive, 
-    provider
+    provider,
+    addingChain,
+    switchingChain,
+    watchingAsset
 ] = [
     useAccount(), // Derived hook
     useAccounts(), // State hook
@@ -395,6 +416,9 @@ const [
     useIsActivating(), // State hook
     useIsActive(), // Derived hook
     useProvider(), // Augmented hook
+    useAddingChain(), // State hook
+    useSwitchingChain(), // State hook
+    useWatchingAsset(), // State hook
 ]
 ```
 
@@ -411,7 +435,10 @@ const {
     ENSNames, 
     isActivating, 
     isActive, 
-    provider
+    provider,
+    addingChain,
+    switchingChain,
+    watchingAsset
 } = getPropsFromConnectorHooks(metaMaskHooks)
 
 // Helper
@@ -424,7 +451,10 @@ function getPropsFromConnectorHooks(hooks: Web3ReactHooks) {
         useENSNames, 
         useIsActivating,
         useIsActive, 
-        useProvider 
+        useProvider,
+        useAddingChain,
+        useSwitchingChain,
+        useWatchingAsset
     } = hooks
 
     const [
@@ -435,7 +465,10 @@ function getPropsFromConnectorHooks(hooks: Web3ReactHooks) {
         ENSNames, 
         isActivating, 
         isActive, 
-        provider
+        provider,
+        addingChain,
+        switchingChain,
+        watchingAsset
     ] = [
         useAccount(), // Derived hook
         useAccounts(), // State hook
@@ -445,6 +478,9 @@ function getPropsFromConnectorHooks(hooks: Web3ReactHooks) {
         useIsActivating(), // State hook
         useIsActive(), // Derived hook
         useProvider(), // Augmented hook
+        useAddingChain(), // State hook
+        useSwitchingChain(), // State hook
+        useWatchingAsset(), // State hook
     ]
 
     return {
@@ -455,10 +491,44 @@ function getPropsFromConnectorHooks(hooks: Web3ReactHooks) {
         ENSNames, 
         isActivating, 
         isActive, 
-        provider
+        provider,
+        addingChain,
+        switchingChain,
+        watchingAsset
     }
 }
 ```
+### Using the AddingChain, SwitchingChain, and WatchingAsset Hooks
+
+```ts
+const {
+    hooks: {
+        useSelectedAddingChain,
+        useSelectedSwitchingChain,
+        useSelectedWatchingAsset,
+    }
+} = useWeb3React()
+
+const [
+    addingChain,
+    switchingChain,
+    watchingAsset
+] = [
+    useSelectedAddingChain(),
+    useSelectedSwitchingChain(),
+    useSelectedWatchingAsset(),
+]
+
+const { chainId } = addingChain
+const { fromChainId, toChainId } = switchingChain
+const { address, name, decimals, image } = watchingAsset
+
+const isPendingChainAdd = !!addingChain
+const isPendingChainSwitch = !!switchingChain
+const isPendingAssetWatch = !!watchingAsset
+
+```
+
 
 ## Connectors
 

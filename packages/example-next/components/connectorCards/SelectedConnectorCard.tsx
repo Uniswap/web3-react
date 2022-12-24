@@ -3,7 +3,7 @@ import { getName } from '../../utils'
 import { Accounts } from '../Accounts'
 import { Chain } from '../Chain'
 
-export default function PriorityConnectorCard() {
+export default function SelectedConnectorCard() {
   const {
     connector,
     chainId,
