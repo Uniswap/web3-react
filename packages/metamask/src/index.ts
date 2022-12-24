@@ -224,7 +224,12 @@ export class MetaMask extends Connector {
           : desiredChainIdOrChainParameters?.chainId
 
       if (desiredChainId && desiredChainId !== currentChainId) {
-        await this.activate(desiredChainId)
+        try {
+          await this.activate(desiredChainId)
+        } catch (error) {
+          this.actions.update({ watchingAsset: undefined })
+          return true
+        }
 
         // We need a small delay before calling the next request to the provider or else it won't work.
         await new Promise((resolve) => {

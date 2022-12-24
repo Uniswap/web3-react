@@ -1,6 +1,7 @@
 import { Web3ReactHooks } from '@web3-react/core'
 import { Connector, WatchAssetParameters } from '@web3-react/types'
-import { CHAINS } from '../chains/chains'
+import { CHAINS } from '../utils/chains'
+import { Button } from './Button'
 
 export function WatchAsset({
   watchingAsset,
@@ -18,7 +19,7 @@ export function WatchAsset({
     : undefined
 
   return (
-    <button
+    <Button
       disabled={!!watchingAsset && watchingAsset.address === assetParams.address}
       style={{ marginTop: '1em' }}
       onClick={() => {
@@ -33,6 +34,6 @@ export function WatchAsset({
       }}
     >
       {`Watch ${assetParams.symbol}${desiredChainId ? ` on ${CHAINS[desiredChainId]?.name}` : ''}`}
-    </button>
+    </Button>
   )
 }

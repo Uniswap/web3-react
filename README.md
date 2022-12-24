@@ -121,7 +121,7 @@ export const connectorsByName = {
 
 #### v8
 
-We will use these exports from the connectors to setup our Web3ReactProvider, so we can select what connector we want our useWeb3React hook to use.
+These exports will allow you to interact with each connector individually. We will use these connector exports to setup our Web3ReactProvider, so we can select what connector we want our useWeb3React hook to use.
 
 #### File: metaMask.ts
 ```ts
@@ -135,8 +135,8 @@ export const [metaMask, hooks] = initializeConnector<MetaMask>(
 
 #### File: coinbaseWallet.ts
 ```ts
-import { CoinbaseWallet } from '@web3-react/coinbase-wallet'
 import { initializeConnector } from '@web3-react/core'
+import { CoinbaseWallet } from '@web3-react/coinbase-wallet'
 
 export const [coinbaseWallet, hooks] = initializeConnector<CoinbaseWallet>(
   (actions) =>
@@ -189,7 +189,7 @@ root.render(
 
 With the new configuration, we pull in the connectors we configured and pass them to the Web3ReactProvider.
 
-The optional defaultSelectedConnector prop will let you choose the default selected wallet by the app. If not passed, the selectedConnector will be determined by finding the first "active" connector in the "connectors" array. If there are no "active" connectors, it will be the first element in the "connectors" array, in which the selectedConnector and the priorityConnector are the same.
+The optional defaultSelectedConnector prop will let you choose the default selected wallet by the app. If not passed, the selectedConnector will be determined by finding the first "active" connector in the "connectors" array. If there are no "active" connectors, it will be the first element in the "connectors" array, in which the selectedConnector and the priorityConnector are the same. If you do set the defaultSelectedConnector, it won't matter if that default connector is active or not, it will always be the fallback.
 
 ```ts
 import { Web3ReactProvider } from '@web3-react/core'
@@ -323,7 +323,6 @@ const {
 } = useWeb3React()
 
 ```
-
 ### Using the useSelected*() hook
 
 ```ts
@@ -528,7 +527,6 @@ const isPendingChainSwitch = !!switchingChain
 const isPendingAssetWatch = !!watchingAsset
 
 ```
-
 
 ## Connectors
 

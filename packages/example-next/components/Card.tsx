@@ -4,10 +4,10 @@ import { GnosisSafe } from '@web3-react/gnosis-safe'
 import { MetaMask } from '@web3-react/metamask'
 import { Network } from '@web3-react/network'
 import { WalletConnect } from '@web3-react/walletconnect'
-import { polygonMainChainId } from '../chains/chainIds'
-import { CHAINS, getAddChainParameters } from '../chains/chains'
-import { getImageUrlFromTrust } from '../chains/helpers'
-import { getName } from '../utils'
+import { polygonMainChainId } from '../config/chains/chainIds'
+import { CHAINS, getAddChainParameters } from '../utils/chains'
+import { getImageUrlFromTrust } from '../utils/helpers'
+import { getName } from '../utils/connectors'
 import { Accounts } from './Accounts'
 import { Chain } from './Chain'
 import { ConnectWithSelect } from './ConnectWithSelect'
@@ -55,24 +55,26 @@ export function Card({
       style={{
         display: 'flex',
         flexDirection: 'column',
-        justifyContent: 'space-between',
+        justifyContent: 'flex-start',
         width: '20rem',
         padding: '1rem',
         margin: '1rem',
-        overflow: 'auto',
+        overflow: 'hidden',
         border: '1px solid',
         borderRadius: '1rem',
+        borderColor: '#30363d',
+        backgroundColor: 'rgb(14,16,22)',
       }}
     >
       <b>{getName(connector)}</b>
       <div style={{ marginBottom: '1rem' }}>
         <Status isActivating={isActivating} isActive={isActive} error={error} />
       </div>
-      <div>
-        Priority: <b>{isPriority ? 'true' : 'false'}</b>
+      <div style={{ whiteSpace: 'pre' }}>
+        Priority: <b>{isPriority ? ' ✅' : ' ❌'}</b>
       </div>
-      <div>
-        Selected: <b>{isSelected ? 'true' : 'false'}</b>
+      <div style={{ whiteSpace: 'pre' }}>
+        Selected: <b>{isSelected ? ' ✅' : ' ❌'}</b>
       </div>
       <Chain chainId={chainId} addingChain={addingChain} switchingChain={switchingChain} />
       <div style={{ marginBottom: '1rem' }}>
@@ -86,6 +88,8 @@ export function Card({
         error={error}
         setError={setError}
         isSelected={isSelected}
+        addingChain={addingChain}
+        switchingChain={switchingChain}
       />
       {connector?.watchAsset && (
         <>

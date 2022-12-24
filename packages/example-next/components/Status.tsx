@@ -10,18 +10,18 @@ export function Status({
   error?: Error
 }) {
   return (
-    <div>
+    <div style={{ whiteSpace: error?.name ? 'normal' : 'pre', marginTop: '1em', width: '100%' }}>
       {error ? (
         <>
           🔴 {error.name ?? 'Error'}
           {error.message ? `: ${error.message}` : null}
         </>
       ) : isActivating ? (
-        <>🟡 Connecting</>
+        <>{`🟡  Connecting`}</>
       ) : isActive ? (
-        <>🟢 Connected</>
+        <>{`🟢  Connected`}</>
       ) : (
-        <>⚪️ Disconnected</>
+        <>{`⚪️  Disconnected`}</>
       )}
     </div>
   )

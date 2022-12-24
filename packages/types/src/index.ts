@@ -1,11 +1,11 @@
 import type { EventEmitter } from 'node:events'
 import type { State, StoreApi } from 'zustand'
 
-type AddingChainInfo = {
+export type AddingChainInfo = {
   chainId: number
 }
 
-type SwitchingChainInfo = {
+export type SwitchingChainInfo = {
   fromChainId?: number
   toChainId: number
 }

@@ -84,18 +84,17 @@ export function createWeb3ReactStoreAndActions(): [Web3ReactStore, Actions] {
         activating = false
       }
 
-      const addingChain = stateUpdate.addingChain
-      const switchingChain = stateUpdate.switchingChain
-
       const stateUpdatePropertyNames = Object.getOwnPropertyNames(stateUpdate)
 
-      const keepWatchingAsset =
-        (stateUpdatePropertyNames.includes('addingChain') ||
-          stateUpdatePropertyNames.includes('switchingChain') ||
-          stateUpdatePropertyNames.includes('chainId')) &&
-        existingState.watchingAsset
-
-      const watchingAsset = keepWatchingAsset ? existingState.watchingAsset : stateUpdate.watchingAsset
+      const addingChain = stateUpdatePropertyNames.includes('addingChain')
+        ? stateUpdate.addingChain
+        : existingState.addingChain
+      const switchingChain = stateUpdatePropertyNames.includes('switchingChain')
+        ? stateUpdate.switchingChain
+        : existingState.switchingChain
+      const watchingAsset = stateUpdatePropertyNames.includes('watchingAsset')
+        ? stateUpdate.watchingAsset
+        : existingState.watchingAsset
 
       return { chainId, accounts, activating, addingChain, switchingChain, watchingAsset }
     })
