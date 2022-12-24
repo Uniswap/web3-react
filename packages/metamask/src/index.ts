@@ -63,7 +63,12 @@ export class MetaMask extends Connector {
         })
 
         this.provider.on('disconnect', (error: ProviderRpcError): void => {
-          this.actions.resetState()
+          // MM Bug Workaround: MM has an existing bug when switching to some chains that are not native to the MM extension. This will stop resetting state when it happens and allow MM to reconnect on the new chain.
+          // Error code 1013: MetaMask is attempting to reestablish the connection
+          if (error.code !== 1013) {
+            this.actions.resetState()
+          }
+
           this.onError?.(error)
         })
 
@@ -138,8 +143,9 @@ export class MetaMask extends Connector {
               : desiredChainIdOrChainParameters?.chainId
 
           // if there's no desired chain, or it's equal to the received, update
-          if (!desiredChainId || receivedChainId === desiredChainId)
+          if (!desiredChainId || receivedChainId === desiredChainId) {
             return this.actions.update({ chainId: receivedChainId, accounts })
+          }
 
           const desiredChainIdHex = `0x${desiredChainId.toString(16)}`
 
