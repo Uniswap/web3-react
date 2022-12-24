@@ -8,8 +8,6 @@ import SelectedConnectorCard from '../views/SelectedConnectorCard'
 import WalletConnectCard from '../views/WalletConnectCard'
 
 export default function Home() {
-  const isDark = true
-
   return (
     <Web3ReactProvider connectors={connectors}>
       <div
@@ -17,7 +15,7 @@ export default function Home() {
         style={{ display: 'flex', flexFlow: 'wrap', fontFamily: 'sans-serif', color: 'rgb(201, 209, 217' }}
       >
         <style jsx global>{`
-          ${isDark ? 'body {background: rgb(3,4,11);}' : 'body {background: antiquewhite;}'}
+          ${'body {background: rgb(3,4,11);}'}
         `}</style>
         <SelectedConnectorCard />
         <MetaMaskCard />

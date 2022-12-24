@@ -1,4 +1,4 @@
-import { ChainConfig } from '../../../chains/chains.interface'
+import { ChainConfig } from '../chains.interface'
 import { arbitrumMainChainId } from '../chainIds'
 import { getImageUrlFromTrust } from '../../../utils/helpers'
 
