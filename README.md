@@ -519,9 +519,9 @@ const [
     useSelectedWatchingAsset(),
 ]
 
-const { chainId } = addingChain
-const { fromChainId, toChainId } = switchingChain
-const { address, name, decimals, image } = watchingAsset
+const { chainId } = addingChain ?? {}
+const { fromChainId, toChainId } = switchingChain ?? {}
+const { address, name, decimals, image } = watchingAsset ?? {}
 
 const isPendingChainAdd = !!addingChain
 const isPendingChainSwitch = !!switchingChain
@@ -601,6 +601,9 @@ connector.connectEagerly()
 You can easily add a token (ERC20 compliant) to the connector.
 
 ```ts
+// Coinbase Wallet can take in just the address and try to find the rest
+// of the token info, if you so choose to.
+
 const assetToWatch: WatchAssetParameters = {
     // If chainId is provided the connector will switch to the correct chainId before adding the token
     // You may also pass the AddEthereumChainParameter config to the chainId prop incase the user
