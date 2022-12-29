@@ -9,7 +9,12 @@ import type {
 } from '@web3-react/types'
 import { Connector } from '@web3-react/types'
 
-type MetaMaskProvider = Provider & { isMetaMask?: boolean; isConnected?: () => boolean; providers?: MetaMaskProvider[] }
+type MetaMaskProvider = Provider & {
+  isMetaMask?: boolean
+  isConnected?: () => boolean
+  providers?: MetaMaskProvider[]
+  selectedAddress?: string
+}
 
 export class NoMetaMaskError extends Error {
   public constructor() {
@@ -116,7 +121,7 @@ export class MetaMask extends Connector {
   }
 
   /**
-   * Initiates a connection.
+   * Initiates a connection and/or adds/switches chain.
    *
    * @param desiredChainIdOrChainParameters - If defined, indicates the desired chain to connect to. If the user is
    * already connected to this chain, no additional steps will be taken. Otherwise, the user will be prompted to switch
@@ -125,8 +130,7 @@ export class MetaMask extends Connector {
    * specified parameters first, before being prompted to switch.
    */
   public async activate(desiredChainIdOrChainParameters?: number | AddEthereumChainParameter): Promise<void> {
-    let cancelActivation: () => void
-    if (!this.provider?.isConnected?.()) cancelActivation = this.actions.startActivation()
+    const cancelActivation = this.provider?.selectedAddress ? null : this.actions.startActivation()
 
     return this.isomorphicInitialize()
       .then(async () => {
@@ -190,7 +194,6 @@ export class MetaMask extends Connector {
         })
       })
       .catch((error) => {
-        this.actions.update({ addingChain: undefined, switchingChain: undefined })
         cancelActivation?.()
         throw error
       })

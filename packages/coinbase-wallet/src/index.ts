@@ -103,7 +103,7 @@ export class CoinbaseWallet extends Connector {
   }
 
   /**
-   * Initiates a connection.
+   * Initiates a connection and/or adds/switches chain.
    *
    * @param desiredChainIdOrChainParameters - If defined, indicates the desired chain to connect to. If the user is
    * already connected to this chain, no additional steps will be taken. Otherwise, the user will be prompted to switch
@@ -117,6 +117,7 @@ export class CoinbaseWallet extends Connector {
         ? desiredChainIdOrChainParameters
         : desiredChainIdOrChainParameters?.chainId
 
+    // Add/Switch Chain if already connected
     if (this.connected) {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       if (!desiredChainId || desiredChainId === parseChainId(this.provider!.chainId)) return
@@ -165,6 +166,7 @@ export class CoinbaseWallet extends Connector {
         })
     }
 
+    // If we're here, we are not connected
     const cancelActivation = this.actions.startActivation()
 
     try {
@@ -175,56 +177,57 @@ export class CoinbaseWallet extends Connector {
         this.provider!.request<string>({ method: 'eth_chainId' }),
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         this.provider!.request<string[]>({ method: 'eth_requestAccounts' }),
-      ]).then(([chainId, accounts]) => {
-        const receivedChainId = parseChainId(chainId)
+      ])
+        .then(([chainId, accounts]) => {
+          const receivedChainId = parseChainId(chainId)
+          if (!desiredChainId || desiredChainId === receivedChainId) {
+            return this.actions.update({
+              chainId: receivedChainId,
+              accounts,
+            })
+          }
 
-        if (!desiredChainId || desiredChainId === receivedChainId)
-          return this.actions.update({
-            chainId: receivedChainId,
-            accounts,
+          // if we're here, we can try to switch networks
+          this.actions.update({
+            switchingChain: {
+              fromChainId: parseChainId(chainId),
+              toChainId: desiredChainId,
+            },
           })
 
-        // if we're here, we can try to switch networks
-        this.actions.update({
-          switchingChain: {
-            fromChainId: parseChainId(chainId),
-            toChainId: desiredChainId,
-          },
+          const desiredChainIdHex = `0x${desiredChainId.toString(16)}`
+
+          return this.provider
+            ?.request<void>({
+              method: 'wallet_switchEthereumChain',
+              params: [{ chainId: desiredChainIdHex }],
+            })
+            .catch(async (error: ProviderRpcError) => {
+              if (error.code === 4902 && typeof desiredChainIdOrChainParameters !== 'number') {
+                // if we're here, we can try to add a new network
+                this.actions.update({
+                  addingChain: {
+                    chainId: desiredChainId,
+                  },
+                })
+
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                return this.provider!.request<void>({
+                  method: 'wallet_addEthereumChain',
+                  params: [{ ...desiredChainIdOrChainParameters, chainId: desiredChainIdHex }],
+                })
+              }
+
+              this.actions.update({ switchingChain: undefined })
+
+              throw error
+            })
         })
-
-        const desiredChainIdHex = `0x${desiredChainId.toString(16)}`
-
-        return this.provider
-          ?.request<void>({
-            method: 'wallet_switchEthereumChain',
-            params: [{ chainId: desiredChainIdHex }],
-          })
-          .catch(async (error: ProviderRpcError) => {
-            if (error.code === 4902 && typeof desiredChainIdOrChainParameters !== 'number') {
-              // if we're here, we can try to add a new network
-              this.actions.update({
-                addingChain: {
-                  chainId: desiredChainId,
-                },
-              })
-
-              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-              return this.provider!.request<void>({
-                method: 'wallet_addEthereumChain',
-                params: [{ ...desiredChainIdOrChainParameters, chainId: desiredChainIdHex }],
-              })
-            }
-
-            this.actions.update({ switchingChain: undefined })
-
-            throw error
-          })
-          .then(() => {
-            this.actions.update({ addingChain: undefined, switchingChain: undefined })
-          })
-      })
+        .catch((error) => {
+          cancelActivation()
+          throw error
+        })
     } catch (error) {
-      this.actions.update({ addingChain: undefined, switchingChain: undefined })
       cancelActivation()
       throw error
     }

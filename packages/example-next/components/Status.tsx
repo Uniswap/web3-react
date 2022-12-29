@@ -10,7 +10,7 @@ export function Status({
   error?: Error
 }) {
   return (
-    <div style={{ whiteSpace: error?.name ? 'normal' : 'pre', marginTop: '1em', width: '100%' }}>
+    <div style={{ marginTop: '1em', width: '100%' }}>
       {error ? (
         <>
           🔴 {error.name ?? 'Error'}

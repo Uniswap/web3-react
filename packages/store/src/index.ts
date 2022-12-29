@@ -44,11 +44,12 @@ export function createWeb3ReactStoreAndActions(): [Web3ReactStore, Actions] {
   function startActivation(): () => void {
     const nullifierCached = ++nullifier
 
-    store.setState({ ...DEFAULT_STATE, activating: true })
+    store.setState({ ...DEFAULT_STATE, activating: true, addingChain: undefined, switchingChain: undefined })
 
-    // return a function that cancels the activation iff nothing else has happened
+    // return a function that cancels the activation if nothing else has happened
     return () => {
-      if (nullifier === nullifierCached) store.setState({ activating: false })
+      if (nullifier === nullifierCached)
+        store.setState({ activating: false, addingChain: undefined, switchingChain: undefined })
     }
   }
 
