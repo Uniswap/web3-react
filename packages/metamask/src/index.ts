@@ -163,7 +163,7 @@ export class MetaMask extends Connector {
 
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           return this.provider
-            .request({
+            ?.request({
               method: 'wallet_switchEthereumChain',
               params: [{ chainId: desiredChainIdHex }],
             })
@@ -177,7 +177,7 @@ export class MetaMask extends Connector {
                 })
 
                 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                return this.provider.request({
+                return this.provider?.request({
                   method: 'wallet_addEthereumChain',
                   params: [{ ...desiredChainIdOrChainParameters, chainId: desiredChainIdHex }],
                 })
