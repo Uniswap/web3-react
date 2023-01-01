@@ -582,7 +582,6 @@ const polygonConfiguration: AddEthereumChainParameter = {
 }
 
 connector.activate(polygonConfiguration)
-
 ```
 
 ### Connect Eagerly
