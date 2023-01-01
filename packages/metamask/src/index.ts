@@ -162,10 +162,11 @@ export class MetaMask extends Connector {
           const desiredChainIdHex = `0x${desiredChainId.toString(16)}`
 
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          return this.provider!.request({
-            method: 'wallet_switchEthereumChain',
-            params: [{ chainId: desiredChainIdHex }],
-          })
+          return this.provider
+            .request({
+              method: 'wallet_switchEthereumChain',
+              params: [{ chainId: desiredChainIdHex }],
+            })
             .catch((error: ProviderRpcError) => {
               if (error.code === 4902 && typeof desiredChainIdOrChainParameters !== 'number') {
                 // if we're here, we can try to add a new network
@@ -176,7 +177,7 @@ export class MetaMask extends Connector {
                 })
 
                 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                return this.provider!.request({
+                return this.provider.request({
                   method: 'wallet_addEthereumChain',
                   params: [{ ...desiredChainIdOrChainParameters, chainId: desiredChainIdHex }],
                 })
@@ -228,7 +229,7 @@ export class MetaMask extends Connector {
 
       if (desiredChainId && desiredChainId !== currentChainId) {
         try {
-          await this.activate(desiredChainId)
+          await this.activate(desiredChainIdOrChainParameters)
         } catch (error) {
           this.actions.update({ watchingAsset: undefined })
           return true

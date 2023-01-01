@@ -267,7 +267,7 @@ export class CoinbaseWallet extends Connector {
 
       if (desiredChainId && desiredChainId !== currentChainId) {
         try {
-          await this.activate(desiredChainId)
+          await this.activate(desiredChainIdOrChainParameters)
         } catch (error) {
           this.actions.update({ watchingAsset: undefined })
           return true
