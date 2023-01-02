@@ -167,8 +167,8 @@ export class MetaMask extends Connector {
               method: 'wallet_switchEthereumChain',
               params: [{ chainId: desiredChainIdHex }],
             })
-            .catch((error: ProviderRpcError) => {
-              if (error.code === 4902 && typeof desiredChainIdOrChainParameters !== 'number') {
+            .catch((switchingError: ProviderRpcError) => {
+              if (switchingError.code === 4902 && typeof desiredChainIdOrChainParameters !== 'number') {
                 // if we're here, we can try to add a new network
                 this.actions.update({
                   addingChain: {
@@ -177,15 +177,20 @@ export class MetaMask extends Connector {
                 })
 
                 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                return this.provider?.request({
-                  method: 'wallet_addEthereumChain',
-                  params: [{ ...desiredChainIdOrChainParameters, chainId: desiredChainIdHex }],
-                })
+                return this.provider
+                  ?.request({
+                    method: 'wallet_addEthereumChain',
+                    params: [{ ...desiredChainIdOrChainParameters, chainId: desiredChainIdHex }],
+                  })
+                  .catch((addingError: ProviderRpcError) => {
+                    this.actions.update({ addingChain: undefined, switchingChain: undefined })
+                    throw addingError
+                  })
               }
 
-              this.actions.update({ switchingChain: undefined })
+              this.actions.update({ addingChain: undefined, switchingChain: undefined })
 
-              throw error
+              throw switchingError
             })
             .then(() => {
               this.actions.update({ addingChain: undefined, switchingChain: undefined })

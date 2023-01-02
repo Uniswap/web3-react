@@ -151,6 +151,7 @@ export function ConnectWithSelect({
             borderColor: 'rgba(253, 246, 56, 0.4)',
             backgroundColor: 'rgba(253, 246, 56, 0.15)',
           }}
+          disabled={isActivating || !!addingChain || !!switchingChain}
           onClick={onClick}
         >
           Try Again?

@@ -138,8 +138,8 @@ export class CoinbaseWallet extends Connector {
         method: 'wallet_switchEthereumChain',
         params: [{ chainId: desiredChainIdHex }],
       })
-        .catch(async (error: ProviderRpcError) => {
-          if (error.code === 4902 && typeof desiredChainIdOrChainParameters !== 'number') {
+        .catch(async (switchingError: ProviderRpcError) => {
+          if (switchingError.code === 4902 && typeof desiredChainIdOrChainParameters !== 'number') {
             // if we're here, we can try to add a new network
             this.actions.update({
               addingChain: {
@@ -151,12 +151,15 @@ export class CoinbaseWallet extends Connector {
             return this.provider!.request<void>({
               method: 'wallet_addEthereumChain',
               params: [{ ...desiredChainIdOrChainParameters, chainId: desiredChainIdHex }],
+            }).catch((addingError: ProviderRpcError) => {
+              this.actions.update({ addingChain: undefined, switchingChain: undefined })
+              throw addingError
             })
           }
 
           this.actions.update({ switchingChain: undefined })
 
-          throw error
+          throw switchingError
         })
         .then(() => {
           this.actions.update({
@@ -180,6 +183,7 @@ export class CoinbaseWallet extends Connector {
       ])
         .then(([chainId, accounts]) => {
           const receivedChainId = parseChainId(chainId)
+
           if (!desiredChainId || desiredChainId === receivedChainId) {
             return this.actions.update({
               chainId: receivedChainId,
@@ -202,8 +206,8 @@ export class CoinbaseWallet extends Connector {
               method: 'wallet_switchEthereumChain',
               params: [{ chainId: desiredChainIdHex }],
             })
-            .catch(async (error: ProviderRpcError) => {
-              if (error.code === 4902 && typeof desiredChainIdOrChainParameters !== 'number') {
+            .catch(async (switchingError: ProviderRpcError) => {
+              if (switchingError.code === 4902 && typeof desiredChainIdOrChainParameters !== 'number') {
                 // if we're here, we can try to add a new network
                 this.actions.update({
                   addingChain: {
@@ -215,12 +219,15 @@ export class CoinbaseWallet extends Connector {
                 return this.provider!.request<void>({
                   method: 'wallet_addEthereumChain',
                   params: [{ ...desiredChainIdOrChainParameters, chainId: desiredChainIdHex }],
+                }).catch((addingError: ProviderRpcError) => {
+                  this.actions.update({ addingChain: undefined, switchingChain: undefined })
+                  throw addingError
                 })
               }
 
               this.actions.update({ switchingChain: undefined })
 
-              throw error
+              throw switchingError
             })
         })
         .catch((error) => {
