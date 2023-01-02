@@ -229,6 +229,9 @@ export class CoinbaseWallet extends Connector {
 
               throw switchingError
             })
+            .then(() => {
+              this.actions.update({ addingChain: undefined, switchingChain: undefined })
+            })
         })
         .catch((error) => {
           cancelActivation()

@@ -22,7 +22,7 @@ export function WatchAsset({
     <Button
       disabled={!!watchingAsset && watchingAsset.address === assetParams.address}
       style={{ marginTop: '1em' }}
-      onClick={() => void connector.watchAsset(assetParams)}
+      onClick={() => void connector.watchAsset(assetParams).catch((error) => console.log(error))}
     >
       {`Watch ${assetParams.symbol}${desiredChainId ? ` on ${CHAINS[desiredChainId]?.name}` : ''}`}
     </Button>
