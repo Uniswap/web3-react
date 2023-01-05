@@ -14,18 +14,28 @@ export function Chain({
 
   const prefix = addingChain ? 'Adding ' : switchingChain ? 'Switching ' : ''
 
+  const getText = () => {
+    if (addingChain) {
+      const name = CHAINS[addingChain.chainId]?.name
+      return name ? `${name} ${addingChain.chainId}` : addingChain.chainId
+    }
+
+    if (switchingChain) {
+      const fromName = switchingChain?.fromChainId
+        ? CHAINS[switchingChain.fromChainId]?.name ?? switchingChain.fromChainId
+        : ''
+      const toName = switchingChain?.toChainId ? CHAINS[switchingChain.toChainId]?.name ?? switchingChain.toChainId : ''
+
+      return `${fromName} to ${toName}`
+    }
+
+    return CHAINS[chainId]?.name ? `${CHAINS[chainId]?.name} (${chainId})` : chainId
+  }
+
   return (
     <div>
-      {`${prefix}Chain: `}
-      <b>
-        {addingChain
-          ? `${CHAINS[addingChain.chainId]?.name ?? addingChain.chainId}`
-          : switchingChain
-          ? `${
-              switchingChain?.fromChainId ? CHAINS[switchingChain.fromChainId]?.name ?? switchingChain.fromChainId : ''
-            } to ${CHAINS[switchingChain.toChainId]?.name ?? switchingChain.toChainId}`
-          : `${CHAINS[chainId]?.name ?? chainId}`}
-      </b>
+      {`${prefix}Network: `}
+      <b>{getText()}</b>
     </div>
   )
 }

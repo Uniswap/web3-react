@@ -45,8 +45,12 @@ describe('Url', () => {
         expect(store.getState()).toEqual({
           chainId: Number.parseInt(chainId, 16),
           accounts,
+          accountIndex: undefined,
           activating: false,
           error: undefined,
+          addingChain: undefined,
+          switchingChain: undefined,
+          watchingAsset: undefined,
         })
       })
     })

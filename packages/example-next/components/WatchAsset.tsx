@@ -18,13 +18,17 @@ export function WatchAsset({
       : assetParams.desiredChainIdOrChainParameters?.chainId
     : undefined
 
+  const watchAsset = () => {
+    void connector.watchAsset(assetParams).catch((error) => console.log(error))
+  }
+
+  const isWatching = !!watchingAsset && watchingAsset.address === assetParams.address
+
   return (
-    <Button
-      disabled={!!watchingAsset && watchingAsset.address === assetParams.address}
-      style={{ marginTop: '1em' }}
-      onClick={() => void connector.watchAsset(assetParams).catch((error) => console.log(error))}
-    >
-      {`Watch ${assetParams.symbol}${desiredChainId ? ` on ${CHAINS[desiredChainId]?.name}` : ''}`}
+    <Button disabled={isWatching} style={{ marginTop: '1em' }} onClick={watchAsset}>
+      {isWatching
+        ? 'Pending watch...'
+        : `Watch ${assetParams.symbol}${desiredChainId ? ` on ${CHAINS[desiredChainId]?.name}` : ''}`}
     </Button>
   )
 }

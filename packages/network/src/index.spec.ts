@@ -34,8 +34,12 @@ describe('Network', () => {
       expect(store.getState()).toEqual({
         chainId: undefined,
         accounts: undefined,
+        accountIndex: undefined,
         activating: false,
         error: undefined,
+        addingChain: undefined,
+        switchingChain: undefined,
+        watchingAsset: undefined,
       })
     })
 
@@ -53,8 +57,12 @@ describe('Network', () => {
         expect(store.getState()).toEqual({
           chainId: Number.parseInt(chainId, 16),
           accounts,
+          accountIndex: undefined,
           activating: false,
           error: undefined,
+          addingChain: undefined,
+          switchingChain: undefined,
+          watchingAsset: undefined,
         })
       })
     })
@@ -83,8 +91,12 @@ describe('Network', () => {
       expect(store.getState()).toEqual({
         chainId: Number.parseInt(chainId, 16),
         accounts,
+        accountIndex: undefined,
         activating: false,
         error: undefined,
+        addingChain: undefined,
+        switchingChain: undefined,
+        watchingAsset: undefined,
       })
     })
   })
@@ -110,8 +122,12 @@ describe('Network', () => {
         expect(store.getState()).toEqual({
           chainId: 1,
           accounts,
+          accountIndex: undefined,
           activating: false,
           error: undefined,
+          addingChain: undefined,
+          switchingChain: undefined,
+          watchingAsset: undefined,
         })
       })
 
@@ -125,8 +141,12 @@ describe('Network', () => {
         expect(store.getState()).toEqual({
           chainId: 2,
           accounts,
+          accountIndex: undefined,
           activating: false,
           error: undefined,
+          addingChain: undefined,
+          switchingChain: undefined,
+          watchingAsset: undefined,
         })
       })
     })

@@ -14,13 +14,16 @@ import { getPriorityConnector } from './hooks'
 export type Web3ContextType<T extends BaseProvider = Web3Provider> = {
   connector: Connector
   chainId: ReturnType<Web3ReactPriorityHooks['useSelectedChainId']>
+  accountIndex: ReturnType<Web3ReactPriorityHooks['useSelectedAccountIndex']>
   accounts: ReturnType<Web3ReactPriorityHooks['useSelectedAccounts']>
-  isActivating: ReturnType<Web3ReactPriorityHooks['useSelectedIsActivating']>
   account: ReturnType<Web3ReactPriorityHooks['useSelectedAccount']>
+  isActivating: ReturnType<Web3ReactPriorityHooks['useSelectedIsActivating']>
   isActive: ReturnType<Web3ReactPriorityHooks['useSelectedIsActive']>
   provider: T | undefined
   ENSNames: ReturnType<Web3ReactPriorityHooks['useSelectedENSNames']>
   ENSName: ReturnType<Web3ReactPriorityHooks['useSelectedENSName']>
+  ENSAvatars: ReturnType<Web3ReactPriorityHooks['useSelectedENSAvatars']>
+  ENSAvatar: ReturnType<Web3ReactPriorityHooks['useSelectedENSAvatar']>
   addingChain: ReturnType<Web3ReactPriorityHooks['useSelectedAddingChain']>
   switchingChain: ReturnType<Web3ReactPriorityHooks['useSelectedSwitchingChain']>
   watchingAsset: ReturnType<Web3ReactPriorityHooks['useSelectedWatchingAsset']>
@@ -73,13 +76,16 @@ export function Web3ReactProvider({
   const {
     usePriorityConnector,
     useSelectedChainId,
+    useSelectedAccountIndex,
     useSelectedAccounts,
-    useSelectedIsActivating,
     useSelectedAccount,
+    useSelectedIsActivating,
     useSelectedIsActive,
     useSelectedProvider,
     useSelectedENSNames,
     useSelectedENSName,
+    useSelectedENSAvatars,
+    useSelectedENSAvatar,
     useSelectedAddingChain,
     useSelectedSwitchingChain,
     useSelectedWatchingAsset,
@@ -102,6 +108,7 @@ export function Web3ReactProvider({
   )
 
   const chainId = useSelectedChainId(connector)
+  const accountIndex = useSelectedAccountIndex(connector)
   const accounts = useSelectedAccounts(connector)
   const account = useSelectedAccount(connector)
   const isActivating = useSelectedIsActivating(connector)
@@ -115,6 +122,8 @@ export function Web3ReactProvider({
   const provider = useSelectedProvider(connector, network)
   const ENSNames = useSelectedENSNames(connector, lookupENS ? provider : undefined)
   const ENSName = useSelectedENSName(connector, lookupENS ? provider : undefined)
+  const ENSAvatars = useSelectedENSAvatars(connector, lookupENS ? provider : undefined, ENSNames)
+  const ENSAvatar = useSelectedENSAvatar(connector, lookupENS ? provider : undefined, ENSName)
 
   const addingChain = useSelectedAddingChain(connector)
   const switchingChain = useSelectedSwitchingChain(connector)
@@ -125,13 +134,16 @@ export function Web3ReactProvider({
       value={{
         connector,
         chainId,
+        accountIndex,
         accounts,
-        isActivating,
         account,
+        isActivating,
         isActive,
         provider,
         ENSNames,
         ENSName,
+        ENSAvatars,
+        ENSAvatar,
         hooks,
         addingChain,
         switchingChain,

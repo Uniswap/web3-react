@@ -78,7 +78,7 @@ export class WalletConnect extends Connector {
   }
 
   private accountsChangedListener = (accounts: string[]): void => {
-    this.actions.update({ accounts })
+    this.actions.update({ accounts, accountIndex: accounts?.length ? 0 : undefined })
   }
 
   private URIListener = (_: Error | null, payload: { params: string[] }): void => {
@@ -133,7 +133,7 @@ export class WalletConnect extends Connector {
         .request<string | number>({ method: 'eth_chainId' })
         .then((chainId) => parseChainId(chainId))
 
-      this.actions.update({ chainId, accounts })
+      this.actions.update({ chainId, accounts, accountIndex: accounts?.length ? 0 : undefined })
     } catch (error) {
       cancelActivation()
       throw error
@@ -147,7 +147,7 @@ export class WalletConnect extends Connector {
     // this early return clause catches some common cases if activate is called after connection has been established
     if (this.provider?.connected) {
       if (!desiredChainId || desiredChainId === this.provider.chainId) return
-      // beacuse the provider is already connected, we can ignore the suppressUserPrompts
+      // because the provider is already connected, we can ignore the suppressUserPrompts
       return this.provider.request<void>({
         method: 'wallet_switchEthereumChain',
         params: [{ chainId: `0x${desiredChainId.toString(16)}` }],
@@ -176,7 +176,11 @@ export class WalletConnect extends Connector {
         parseChainId(chainId)
       )
 
-      this.actions.update({ chainId, accounts })
+      this.actions.update({
+        chainId,
+        accounts: accounts ?? [],
+        accountIndex: accounts?.length ? 0 : undefined,
+      })
     } catch (error) {
       cancelActivation()
       throw error

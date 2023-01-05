@@ -13,15 +13,18 @@ import { Chain } from './Chain'
 import { ConnectWithSelect } from './ConnectWithSelect'
 import { Status } from './Status'
 import { WatchAsset } from './WatchAsset'
+import Spacer from './Spacer'
 
 interface Props {
   connector: MetaMask | WalletConnect | CoinbaseWallet | Network | GnosisSafe
   chainId: ReturnType<Web3ReactHooks['useChainId']>
+  accountIndex?: ReturnType<Web3ReactHooks['useAccountIndex']>
   isActivating: ReturnType<Web3ReactHooks['useIsActivating']>
   isActive: ReturnType<Web3ReactHooks['useIsActive']>
   error: Error | undefined
   setError: (error: Error | undefined) => void
   ENSNames: ReturnType<Web3ReactHooks['useENSNames']>
+  ENSAvatars: ReturnType<Web3ReactHooks['useENSAvatars']>
   provider?: ReturnType<Web3ReactHooks['useProvider']>
   addingChain?: ReturnType<Web3ReactHooks['useAddingChain']>
   switchingChain?: ReturnType<Web3ReactHooks['useSwitchingChain']>
@@ -29,16 +32,19 @@ interface Props {
   accounts?: string[]
   isPriority?: boolean
   isSelected?: boolean
+  walletLogo?: string
 }
 
 export function Card({
   connector,
   chainId,
+  accountIndex,
   isActivating,
   isActive,
   error,
   setError,
   ENSNames,
+  ENSAvatars,
   accounts,
   provider,
   addingChain,
@@ -46,6 +52,7 @@ export function Card({
   watchingAsset,
   isPriority,
   isSelected,
+  walletLogo,
 }: Props) {
   const chainConfig = chainId ? CHAINS[chainId] : undefined
   const { nativeWrappedToken: wrappedMatic } = CHAINS[polygonMainChainId]
@@ -66,20 +73,47 @@ export function Card({
         backgroundColor: 'rgb(14,16,22)',
       }}
     >
-      <b>{getName(connector)}</b>
+      <div
+        style={{
+          display: 'inline-flex',
+          justifyContent: 'flex-start',
+          alignItems: 'center',
+          overflow: 'hidden',
+          maxWidth: '100%',
+        }}
+      >
+        {walletLogo && (
+          <img
+            src={walletLogo}
+            style={{
+              width: 24,
+              height: 24,
+              marginRight: '8px',
+              borderRadius: '50%',
+              overflow: 'hidden',
+              backgroundColor: 'red',
+            }}
+          />
+        )}
+        <b>{getName(connector)}</b>
+      </div>
       <div style={{ marginBottom: '1rem' }}>
         <Status isActivating={isActivating} isActive={isActive} error={error} />
       </div>
       <div style={{ whiteSpace: 'pre' }}>
-        Priority: <b>{isPriority ? ' ✅' : ' ❌'}</b>
+        Priority: <b style={{ fontSize: '0.875em' }}>{isPriority ? ' ✅' : ' ❌'}</b>
       </div>
       <div style={{ whiteSpace: 'pre' }}>
-        Selected: <b>{isSelected ? ' ✅' : ' ❌'}</b>
+        Selected: <b style={{ fontSize: '0.875em' }}>{isSelected ? ' ✅' : ' ❌'}</b>
       </div>
       <Chain chainId={chainId} addingChain={addingChain} switchingChain={switchingChain} />
-      <div style={{ marginBottom: '1rem' }}>
-        <Accounts accounts={accounts} provider={provider} ENSNames={ENSNames} />
-      </div>
+      <Accounts
+        accountIndex={accountIndex}
+        accounts={accounts}
+        provider={provider}
+        ENSNames={ENSNames}
+        ENSAvatars={ENSAvatars}
+      />
       <ConnectWithSelect
         connector={connector}
         chainId={chainId}
@@ -93,7 +127,8 @@ export function Card({
       />
       {connector?.watchAsset && (
         <>
-          <b style={{ marginTop: '1rem' }}>Watch Asset</b>
+          <Spacer />
+          <b>Watch Asset</b>
           {chainConfig && chainId !== polygonMainChainId && (
             <WatchAsset
               watchingAsset={watchingAsset}

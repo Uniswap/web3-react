@@ -35,7 +35,11 @@ describe('MetaMask', () => {
     expect(store.getState()).toEqual({
       chainId: Number.parseInt(chainId, 16),
       accounts,
+      accountIndex: undefined,
       activating: false,
+      addingChain: undefined,
+      switchingChain: undefined,
+      watchingAsset: undefined,
     })
   })
 })

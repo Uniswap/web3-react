@@ -8,6 +8,7 @@ import { WalletConnect } from '@web3-react/walletconnect'
 import { useCallback, useState } from 'react'
 import { CHAINS, getAddChainParameters, URLS } from '../utils/chains'
 import { Button } from './Button'
+import Spacer from './Spacer'
 
 function ChainSelect({
   chainId,
@@ -134,126 +135,148 @@ export function ConnectWithSelect({
 
   if (error) {
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-start' }}>
-        {!(connector instanceof GnosisSafe) && (
-          <ChainSelect
-            chainId={desiredChainId}
-            switchChain={switchChain}
-            displayDefault={displayDefault}
-            chainIds={chainIds}
-            isPendingChainAdd={!!addingChain}
-            isPendingChainSwitch={!!switchingChain}
-          />
-        )}
-        <div style={{ marginBottom: '1rem' }} />
-        <Button
-          style={{
-            borderColor: 'rgba(253, 246, 56, 0.4)',
-            backgroundColor: 'rgba(253, 246, 56, 0.15)',
-          }}
-          disabled={isActivating || !!addingChain || !!switchingChain}
-          onClick={onClick}
-        >
-          Try Again?
-        </Button>
-      </div>
+      <>
+        <Spacer />
+        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-start' }}>
+          {!(connector instanceof GnosisSafe) && (
+            <ChainSelect
+              chainId={desiredChainId}
+              switchChain={switchChain}
+              displayDefault={displayDefault}
+              chainIds={chainIds}
+              isPendingChainAdd={!!addingChain}
+              isPendingChainSwitch={!!switchingChain}
+            />
+          )}
+          <div style={{ marginBottom: '1rem' }} />
+          <Button
+            style={{
+              borderColor: 'rgba(253, 246, 56, 0.4)',
+              backgroundColor: 'rgba(253, 246, 56, 0.15)',
+            }}
+            disabled={isActivating || !!addingChain || !!switchingChain}
+            onClick={onClick}
+          >
+            Try Again?
+          </Button>
+          <div style={{ marginBottom: '1rem' }} />
+          <Button
+            style={{
+              borderColor: 'rgba(168, 56, 253, 0.4)',
+              backgroundColor: 'rgba(168, 56, 253, 0.15)',
+            }}
+            onClick={() => setSelectedConnector(connector)}
+            disabled={isSelected}
+          >
+            Select
+          </Button>
+        </div>
+      </>
     )
   } else if (isActive) {
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-start' }}>
-        {!(connector instanceof GnosisSafe) && (
-          <ChainSelect
-            chainId={desiredChainId === -1 ? -1 : chainId}
-            switchChain={switchChain}
-            displayDefault={displayDefault}
-            chainIds={chainIds}
-            isPendingChainAdd={!!addingChain}
-            isPendingChainSwitch={!!switchingChain}
-          />
-        )}
-        <div style={{ marginBottom: '1rem' }} />
-        <Button
-          style={{
-            marginBottom: '1rem',
-            borderColor: 'rgba(253, 56, 56, 0.4)',
-            backgroundColor: 'rgba(253, 56, 56, 0.15)',
-          }}
-          onClick={() => {
-            if (connector?.deactivate) {
-              void connector.deactivate()
-            } else {
-              void connector.resetState()
-            }
-          }}
-        >
-          Disconnect
-        </Button>
-        <Button
-          style={{
-            borderColor: 'rgba(168, 56, 253, 0.4)',
-            backgroundColor: 'rgba(168, 56, 253, 0.15)',
-          }}
-          onClick={() => setSelectedConnector(connector)}
-          disabled={isSelected}
-        >
-          Select
-        </Button>
-      </div>
+      <>
+        <Spacer />
+        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-start' }}>
+          {!(connector instanceof GnosisSafe) && (
+            <ChainSelect
+              chainId={desiredChainId === -1 ? -1 : chainId}
+              switchChain={switchChain}
+              displayDefault={displayDefault}
+              chainIds={chainIds}
+              isPendingChainAdd={!!addingChain}
+              isPendingChainSwitch={!!switchingChain}
+            />
+          )}
+          <div style={{ marginBottom: '1rem' }} />
+          <Button
+            style={{
+              marginBottom: '1rem',
+              borderColor: 'rgba(253, 56, 56, 0.4)',
+              backgroundColor: 'rgba(253, 56, 56, 0.15)',
+            }}
+            onClick={() => {
+              if (connector?.deactivate) {
+                void connector.deactivate()
+              } else {
+                void connector.resetState()
+              }
+            }}
+          >
+            Disconnect
+          </Button>
+          <Button
+            style={{
+              borderColor: 'rgba(168, 56, 253, 0.4)',
+              backgroundColor: 'rgba(168, 56, 253, 0.15)',
+            }}
+            onClick={() => setSelectedConnector(connector)}
+            disabled={isSelected}
+          >
+            Select
+          </Button>
+        </div>
+      </>
     )
   } else {
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-start' }}>
-        {!(connector instanceof GnosisSafe) && (
-          <ChainSelect
-            chainId={desiredChainId}
-            switchChain={isActivating ? undefined : switchChain}
-            displayDefault={displayDefault}
-            chainIds={chainIds}
-            isPendingChainAdd={!!addingChain}
-            isPendingChainSwitch={!!switchingChain}
-          />
-        )}
-        <div style={{ marginBottom: '1rem' }} />
-        <Button
-          style={{
-            marginBottom: '1rem',
-            borderColor: 'rgba(56, 253, 72, 0.4)',
-            backgroundColor: 'rgba(56, 253, 72, 0.15)',
-          }}
-          onClick={
-            isActivating
-              ? undefined
-              : () =>
-                  connector instanceof GnosisSafe
-                    ? void connector
-                        .activate()
-                        .then(() => setError(undefined))
-                        .catch(setError)
-                    : connector instanceof WalletConnect || connector instanceof Network
-                    ? connector
-                        .activate(desiredChainId === -1 ? undefined : desiredChainId)
-                        .then(() => setError(undefined))
-                        .catch(setError)
-                    : connector
-                        .activate(desiredChainId === -1 ? undefined : getAddChainParameters(desiredChainId))
-                        .then(() => setError(undefined))
-                        .catch(setError)
-          }
-          disabled={isActivating}
-        >
-          Connect
-        </Button>
-        <Button
-          style={{
-            borderColor: 'rgba(168, 56, 253, 0.4)',
-            backgroundColor: 'rgba(168, 56, 253, 0.15)',
-          }}
-          onClick={() => setSelectedConnector(connector)}
-          disabled={isSelected}
-        >
-          Select
-        </Button>
-      </div>
+      <>
+        <Spacer />
+        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-start' }}>
+          {!(connector instanceof GnosisSafe) && (
+            <>
+              <ChainSelect
+                chainId={desiredChainId}
+                switchChain={isActivating ? undefined : switchChain}
+                displayDefault={displayDefault}
+                chainIds={chainIds}
+                isPendingChainAdd={!!addingChain}
+                isPendingChainSwitch={!!switchingChain}
+              />
+              <div style={{ marginBottom: '1rem' }} />
+            </>
+          )}
+          <Button
+            style={{
+              marginBottom: '1rem',
+              borderColor: 'rgba(56, 253, 72, 0.4)',
+              backgroundColor: 'rgba(56, 253, 72, 0.15)',
+            }}
+            onClick={
+              isActivating
+                ? undefined
+                : () =>
+                    connector instanceof GnosisSafe
+                      ? void connector
+                          .activate()
+                          .then(() => setError(undefined))
+                          .catch(setError)
+                      : connector instanceof WalletConnect || connector instanceof Network
+                      ? connector
+                          .activate(desiredChainId === -1 ? undefined : desiredChainId)
+                          .then(() => setError(undefined))
+                          .catch(setError)
+                      : connector
+                          .activate(desiredChainId === -1 ? undefined : getAddChainParameters(desiredChainId))
+                          .then(() => setError(undefined))
+                          .catch(setError)
+            }
+            disabled={isActivating}
+          >
+            Connect
+          </Button>
+          <Button
+            style={{
+              borderColor: 'rgba(168, 56, 253, 0.4)',
+              backgroundColor: 'rgba(168, 56, 253, 0.15)',
+            }}
+            onClick={() => setSelectedConnector(connector)}
+            disabled={isSelected}
+          >
+            Select
+          </Button>
+        </div>
+      </>
     )
   }
 }

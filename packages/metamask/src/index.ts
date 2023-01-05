@@ -6,6 +6,8 @@ import type {
   ProviderConnectInfo,
   ProviderRpcError,
   WatchAssetParameters,
+  Web3WalletPermission,
+  PermissionCaveat,
 } from '@web3-react/types'
 import { Connector } from '@web3-react/types'
 
@@ -50,6 +52,32 @@ export class MetaMask extends Connector {
     this.options = options
   }
 
+  private get selectedAddress() {
+    return this.provider?.selectedAddress
+  }
+
+  private async getAccounts(): Promise<string[] | undefined> {
+    try {
+      const permissions: Array<Web3WalletPermission> = ((await this.provider?.request({
+        method: 'wallet_getPermissions',
+      })) || []) as Array<Web3WalletPermission>
+
+      // Get the account permissions
+      const accountsPermission = permissions.find(
+        (permission) => permission?.parentCapability === 'eth_accounts'
+      ) as Web3WalletPermission
+
+      // Extract the accounts
+      const accounts =
+        accountsPermission?.caveats?.find((caveat: PermissionCaveat) => caveat.type === 'restrictReturnedAccounts')
+          ?.value ?? undefined
+
+      return accounts
+    } catch (error) {
+      return undefined
+    }
+  }
+
   private async isomorphicInitialize(): Promise<void> {
     if (this.eagerConnection) return
 
@@ -81,13 +109,19 @@ export class MetaMask extends Connector {
           this.actions.update({ chainId: parseChainId(chainId) })
         })
 
-        this.provider.on('accountsChanged', (accounts: string[]): void => {
-          if (accounts.length === 0) {
-            // handle this edge case by disconnecting
-            this.actions.resetState()
-          } else {
-            this.actions.update({ accounts })
+        this.provider.on('accountsChanged', (baseAccounts: string[]): void => {
+          const handleChange = async () => {
+            const accounts = (await this.getAccounts()) ?? baseAccounts
+            if (accounts.length === 0) {
+              // handle this edge case by disconnecting
+              this.actions.resetState()
+            } else {
+              const index = accounts.indexOf(this?.selectedAddress ?? '')
+              this.actions.update({ accounts, accountIndex: index < 0 ? undefined : index })
+            }
           }
+
+          void handleChange()
         })
       }
     }))
@@ -104,9 +138,12 @@ export class MetaMask extends Connector {
       this.provider.request({ method: 'eth_chainId' }) as Promise<string>,
       this.provider.request({ method: 'eth_accounts' }) as Promise<string[]>,
     ])
-      .then(([chainId, accounts]) => {
+      .then(async ([chainId, baseAccounts]) => {
+        const accounts = (await this.getAccounts()) ?? baseAccounts
+
         if (accounts.length) {
-          this.actions.update({ chainId: parseChainId(chainId), accounts })
+          const index = accounts.indexOf(this?.selectedAddress ?? '')
+          this.actions.update({ chainId: parseChainId(chainId), accounts, accountIndex: index < 0 ? undefined : index })
         } else {
           throw new Error('No accounts returned')
         }
@@ -130,7 +167,7 @@ export class MetaMask extends Connector {
    * specified parameters first, before being prompted to switch.
    */
   public async activate(desiredChainIdOrChainParameters?: number | AddEthereumChainParameter): Promise<void> {
-    const cancelActivation = this.provider?.selectedAddress ? null : this.actions.startActivation()
+    const cancelActivation = this.selectedAddress ? null : this.actions.startActivation()
 
     return this.isomorphicInitialize()
       .then(async () => {
@@ -139,7 +176,9 @@ export class MetaMask extends Connector {
         return Promise.all([
           this.provider.request({ method: 'eth_chainId' }) as Promise<string>,
           this.provider.request({ method: 'eth_requestAccounts' }) as Promise<string[]>,
-        ]).then(([chainId, accounts]) => {
+        ]).then(async ([chainId, baseAccounts]) => {
+          const accounts = (await this.getAccounts()) ?? baseAccounts
+
           const receivedChainId = parseChainId(chainId)
           const desiredChainId =
             typeof desiredChainIdOrChainParameters === 'number'
@@ -148,7 +187,12 @@ export class MetaMask extends Connector {
 
           // if there's no desired chain, or it's equal to the received, update
           if (!desiredChainId || receivedChainId === desiredChainId) {
-            return this.actions.update({ chainId: receivedChainId, accounts })
+            const index = accounts.indexOf(this?.selectedAddress ?? '')
+            return this.actions.update({
+              chainId: receivedChainId,
+              accounts,
+              accountIndex: index < 0 ? undefined : index,
+            })
           }
 
           // if we're here, we can try to switch networks

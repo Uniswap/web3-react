@@ -5,11 +5,13 @@ import { coinbaseWallet, hooks } from '../config/connectors/coinbaseWallet'
 
 const {
   useChainId,
+  useAccountIndex,
   useAccounts,
   useIsActivating,
   useIsActive,
   useProvider,
   useENSNames,
+  useENSAvatars,
   useAddingChain,
   useSwitchingChain,
   useWatchingAsset,
@@ -26,6 +28,7 @@ export default function CoinbaseWalletCard() {
   const isSelected = connector === coinbaseWallet
 
   const chainId = useChainId()
+  const accountIndex = useAccountIndex()
   const accounts = useAccounts()
   const isActivating = useIsActivating()
 
@@ -33,6 +36,7 @@ export default function CoinbaseWalletCard() {
 
   const provider = useProvider()
   const ENSNames = useENSNames(provider)
+  const ENSAvatars = useENSAvatars(provider, ENSNames)
 
   const addingChain = useAddingChain()
   const switchingChain = useSwitchingChain()
@@ -49,11 +53,14 @@ export default function CoinbaseWalletCard() {
 
   return (
     <Card
+      walletLogo={coinbaseWallet.getWalletLogoUrl('circle', 24)}
       connector={coinbaseWallet}
       chainId={chainId}
+      accountIndex={accountIndex}
       isActivating={isActivating}
       isActive={isActive}
       ENSNames={ENSNames}
+      ENSAvatars={ENSAvatars}
       provider={provider}
       accounts={accounts}
       addingChain={addingChain}

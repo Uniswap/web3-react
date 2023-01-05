@@ -1,4 +1,5 @@
 import type { CoinbaseWalletProvider, CoinbaseWalletSDK } from '@coinbase/wallet-sdk'
+import { LogoType } from '@coinbase/wallet-sdk/dist/assets/wallet-logo'
 import type {
   Actions,
   AddEthereumChainParameter,
@@ -10,6 +11,10 @@ import { Connector } from '@web3-react/types'
 
 function parseChainId(chainId: string | number) {
   return typeof chainId === 'number' ? chainId : Number.parseInt(chainId, chainId.startsWith('0x') ? 16 : 10)
+}
+
+abstract class CoinbaseConnector extends Connector {
+  public getWalletLogoUrl?(type: LogoType, width?: number): string | undefined
 }
 
 type CoinbaseWalletSDKOptions = ConstructorParameters<typeof CoinbaseWalletSDK>[0] & { url: string }
@@ -24,7 +29,7 @@ export interface CoinbaseWalletConstructorArgs {
   onError?: (error: Error) => void
 }
 
-export class CoinbaseWallet extends Connector {
+export class CoinbaseWallet extends CoinbaseConnector {
   /** {@inheritdoc Connector.provider} */
   public provider: CoinbaseWalletProvider | undefined
 
@@ -42,8 +47,8 @@ export class CoinbaseWallet extends Connector {
   }
 
   // the `connected` property, is bugged, but this works as a hack to check connection status
-  private get connected() {
-    return !!this.provider?.selectedAddress
+  private get selectedAddress() {
+    return this.provider?.selectedAddress
   }
 
   private async isomorphicInitialize(): Promise<void> {
@@ -72,7 +77,7 @@ export class CoinbaseWallet extends Connector {
           // handle this edge case by disconnecting
           this.actions.resetState()
         } else {
-          this.actions.update({ accounts })
+          this.actions.update({ accounts, accountIndex: accounts?.length ? 0 : undefined })
         }
       })
     }))
@@ -85,7 +90,7 @@ export class CoinbaseWallet extends Connector {
     try {
       await this.isomorphicInitialize()
 
-      if (!this.connected) throw new Error('No existing connection')
+      if (!this.selectedAddress) throw new Error('No existing connection')
 
       return Promise.all([
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -94,7 +99,11 @@ export class CoinbaseWallet extends Connector {
         this.provider!.request<string[]>({ method: 'eth_accounts' }),
       ]).then(([chainId, accounts]) => {
         if (!accounts.length) throw new Error('No accounts returned')
-        this.actions.update({ chainId: parseChainId(chainId), accounts })
+        this.actions.update({
+          chainId: parseChainId(chainId),
+          accounts,
+          accountIndex: accounts?.length ? 0 : undefined,
+        })
       })
     } catch (error) {
       cancelActivation()
@@ -118,7 +127,7 @@ export class CoinbaseWallet extends Connector {
         : desiredChainIdOrChainParameters?.chainId
 
     // Add/Switch Chain if already connected
-    if (this.connected) {
+    if (this.selectedAddress) {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       if (!desiredChainId || desiredChainId === parseChainId(this.provider!.chainId)) return
 
@@ -188,6 +197,7 @@ export class CoinbaseWallet extends Connector {
             return this.actions.update({
               chainId: receivedChainId,
               accounts,
+              accountIndex: accounts?.length ? 0 : undefined,
             })
           }
 
@@ -246,6 +256,10 @@ export class CoinbaseWallet extends Connector {
   /** {@inheritdoc Connector.deactivate} */
   public deactivate(): void {
     this.coinbaseWallet?.disconnect()
+  }
+
+  public getWalletLogoUrl?(type: LogoType, width?: number): string | undefined {
+    return this.coinbaseWallet?.getCoinbaseWalletLogo(type, width)
   }
 
   public async watchAsset({

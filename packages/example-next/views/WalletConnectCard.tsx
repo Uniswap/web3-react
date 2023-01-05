@@ -4,7 +4,16 @@ import { useEffect, useState } from 'react'
 import { Card } from '../components/Card'
 import { hooks, walletConnect } from '../config/connectors/walletConnect'
 
-const { useChainId, useAccounts, useIsActivating, useIsActive, useProvider, useENSNames } = hooks
+const {
+  useChainId,
+  useAccounts,
+  useAccountIndex,
+  useIsActivating,
+  useIsActive,
+  useProvider,
+  useENSNames,
+  useENSAvatars,
+} = hooks
 
 export default function WalletConnectCard() {
   const {
@@ -18,12 +27,14 @@ export default function WalletConnectCard() {
 
   const chainId = useChainId()
   const accounts = useAccounts()
+  const accountIndex = useAccountIndex()
   const isActivating = useIsActivating()
 
   const isActive = useIsActive()
 
   const provider = useProvider()
   const ENSNames = useENSNames(provider)
+  const ENSAvatars = useENSAvatars(provider, ENSNames)
 
   const [error, setError] = useState(undefined)
 
@@ -43,11 +54,13 @@ export default function WalletConnectCard() {
 
   return (
     <Card
+      accountIndex={accountIndex}
       connector={walletConnect}
       chainId={chainId}
       isActivating={isActivating}
       isActive={isActive}
       ENSNames={ENSNames}
+      ENSAvatars={ENSAvatars}
       provider={provider}
       accounts={accounts}
       error={error}

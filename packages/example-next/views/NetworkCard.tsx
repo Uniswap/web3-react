@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import { Card } from '../components/Card'
 import { hooks, network } from '../config/connectors/network'
 
-const { useChainId, useAccounts, useIsActivating, useIsActive, useProvider, useENSNames } = hooks
+const { useChainId, useAccounts, useIsActivating, useIsActive, useProvider, useENSNames, useENSAvatars } = hooks
 
 export default function NetworkCard() {
   const {
@@ -23,6 +23,7 @@ export default function NetworkCard() {
 
   const provider = useProvider()
   const ENSNames = useENSNames(provider)
+  const ENSAvatars = useENSAvatars(provider, ENSNames)
 
   const [error, setError] = useState(undefined)
 
@@ -40,6 +41,7 @@ export default function NetworkCard() {
       isActivating={isActivating}
       isActive={isActive}
       ENSNames={ENSNames}
+      ENSAvatars={ENSAvatars}
       provider={provider}
       accounts={accounts}
       error={error}

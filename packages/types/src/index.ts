@@ -13,6 +13,7 @@ export type SwitchingChainInfo = {
 export interface Web3ReactState extends State {
   chainId: number | undefined
   accounts: string[] | undefined
+  accountIndex: number | undefined
   activating: boolean
   addingChain: AddingChainInfo | undefined
   switchingChain: SwitchingChainInfo | undefined
@@ -25,6 +26,7 @@ export type Web3ReactStateUpdate =
   | {
       chainId: number
       accounts: string[]
+      accountIndex?: never
       addingChain?: never
       switchingChain?: never
       watchingAsset?: never
@@ -32,6 +34,7 @@ export type Web3ReactStateUpdate =
   | {
       chainId: number
       accounts?: never
+      accountIndex?: never
       addingChain?: never
       switchingChain?: never
       watchingAsset?: never
@@ -39,6 +42,7 @@ export type Web3ReactStateUpdate =
   | {
       chainId?: never
       accounts: string[]
+      accountIndex?: never
       addingChain?: never
       switchingChain?: never
       watchingAsset?: never
@@ -46,6 +50,7 @@ export type Web3ReactStateUpdate =
   | {
       chainId?: never
       accounts?: never
+      accountIndex?: never
       addingChain?: never
       switchingChain?: never
       watchingAsset: WatchAssetParameters | undefined
@@ -53,6 +58,7 @@ export type Web3ReactStateUpdate =
   | {
       chainId?: never
       accounts?: never
+      accountIndex?: never
       addingChain: AddingChainInfo | undefined
       switchingChain: SwitchingChainInfo | undefined
       watchingAsset?: never
@@ -60,6 +66,7 @@ export type Web3ReactStateUpdate =
   | {
       chainId?: never
       accounts?: never
+      accountIndex?: never
       addingChain: AddingChainInfo | undefined
       switchingChain?: never
       watchingAsset?: never
@@ -67,8 +74,25 @@ export type Web3ReactStateUpdate =
   | {
       chainId?: never
       accounts?: never
+      accountIndex?: never
       addingChain?: never
       switchingChain: SwitchingChainInfo | undefined
+      watchingAsset?: never
+    }
+  | {
+      chainId?: never
+      accounts?: string[]
+      accountIndex: number | undefined
+      addingChain?: never
+      switchingChain?: never
+      watchingAsset?: never
+    }
+  | {
+      chainId: number
+      accountIndex: number | undefined
+      accounts?: string[]
+      addingChain?: never
+      switchingChain?: never
       watchingAsset?: never
     }
 
@@ -99,6 +123,18 @@ export interface ProviderRpcError extends Error {
   message: string
   code: number
   data?: unknown
+}
+
+// per EIP-2255
+export type PermissionCaveat = { type: string; value: string[] }
+
+// per EIP-2255
+export interface Web3WalletPermission {
+  caveats?: PermissionCaveat[]
+  date?: number
+  id?: string
+  invoker?: string
+  parentCapability: string
 }
 
 // per EIP-3085

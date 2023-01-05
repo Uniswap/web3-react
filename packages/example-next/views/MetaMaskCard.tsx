@@ -6,10 +6,12 @@ import { hooks, metaMask } from '../config/connectors/metaMask'
 const {
   useChainId,
   useAccounts,
+  useAccountIndex,
   useIsActivating,
   useIsActive,
   useProvider,
   useENSNames,
+  useENSAvatars,
   useAddingChain,
   useSwitchingChain,
   useWatchingAsset,
@@ -27,12 +29,14 @@ export default function MetaMaskCard() {
 
   const chainId = useChainId()
   const accounts = useAccounts()
+  const accountIndex = useAccountIndex()
   const isActivating = useIsActivating()
 
   const isActive = useIsActive()
 
   const provider = useProvider()
   const ENSNames = useENSNames(provider)
+  const ENSAvatars = useENSAvatars(provider, ENSNames)
 
   const addingChain = useAddingChain()
   const switchingChain = useSwitchingChain()
@@ -51,9 +55,11 @@ export default function MetaMaskCard() {
     <Card
       connector={metaMask}
       chainId={chainId}
+      accountIndex={accountIndex}
       isActivating={isActivating}
       isActive={isActive}
       ENSNames={ENSNames}
+      ENSAvatars={ENSAvatars}
       provider={provider}
       accounts={accounts}
       addingChain={addingChain}

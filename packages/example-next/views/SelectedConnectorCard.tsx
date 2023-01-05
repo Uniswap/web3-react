@@ -2,6 +2,8 @@ import { useWeb3React } from '@web3-react/core'
 import { Accounts } from '../components/Accounts'
 import { Button } from '../components/Button'
 import { Chain } from '../components/Chain'
+import Signer from '../components/Signer'
+import Spacer from '../components/Spacer'
 import { Status } from '../components/Status'
 import { getName } from '../utils/connectors'
 
@@ -9,8 +11,10 @@ export default function SelectedConnectorCard() {
   const {
     connector,
     chainId,
-    ENSNames,
+    accountIndex,
     accounts,
+    ENSNames,
+    ENSAvatars,
     provider,
     isActivating,
     isActive,
@@ -38,20 +42,23 @@ export default function SelectedConnectorCard() {
         backgroundColor: 'rgba(168, 56, 253, 0.15)',
       }}
     >
-      <b>Selected Connector</b>
+      <b>{`Selected Connector (${getName(connector)})`}</b>
       <div style={{ marginBottom: '1rem' }}>
         <Status isActivating={isActivating} isActive={isActive} />
       </div>
-      <div>
-        Name: <b>{getName(connector)}</b>
-      </div>
       <Chain chainId={chainId} />
-      <div style={{ marginBottom: '1rem' }}>
-        <Accounts accounts={accounts} provider={provider} ENSNames={ENSNames} />
-      </div>
-      <Button style={{ marginBottom: '1rem' }} onClick={() => setSelectedConnector()} disabled={isPriority}>
+      <Accounts
+        accountIndex={accountIndex}
+        accounts={accounts}
+        provider={provider}
+        ENSNames={ENSNames}
+        ENSAvatars={ENSAvatars}
+      />
+      <Spacer />
+      <Button onClick={() => setSelectedConnector()} disabled={isPriority}>
         {`Reset to ${priorityConnectorName}`}
       </Button>
+      {isActive && <Signer provider={provider} account={accounts ? (accounts[accountIndex] as string) : ''} />}
     </div>
   )
 }

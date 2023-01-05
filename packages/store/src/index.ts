@@ -23,6 +23,7 @@ function validateAccount(account: string): string {
 const DEFAULT_STATE = {
   chainId: undefined,
   accounts: undefined,
+  accountIndex: undefined,
   activating: false,
   addingChain: undefined,
   switchingChain: undefined,
@@ -85,8 +86,12 @@ export function createWeb3ReactStoreAndActions(): [Web3ReactStore, Actions] {
         activating = false
       }
 
+      // these properties may be set to undefined
       const stateUpdatePropertyNames = Object.getOwnPropertyNames(stateUpdate)
 
+      const accountIndex = stateUpdatePropertyNames.includes('accountIndex')
+        ? stateUpdate.accountIndex
+        : existingState.accountIndex
       const addingChain = stateUpdatePropertyNames.includes('addingChain')
         ? stateUpdate.addingChain
         : existingState.addingChain
@@ -97,7 +102,7 @@ export function createWeb3ReactStoreAndActions(): [Web3ReactStore, Actions] {
         ? stateUpdate.watchingAsset
         : existingState.watchingAsset
 
-      return { chainId, accounts, activating, addingChain, switchingChain, watchingAsset }
+      return { chainId, accountIndex, accounts, activating, addingChain, switchingChain, watchingAsset }
     })
   }
 

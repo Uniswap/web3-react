@@ -257,8 +257,12 @@ describe('EIP1193', () => {
       expect(store.getState()).toEqual({
         chainId: 1,
         accounts: undefined,
+        accountIndex: undefined,
         activating: false,
         error: undefined,
+        addingChain: undefined,
+        switchingChain: undefined,
+        watchingAsset: undefined,
       })
     })
 
@@ -268,7 +272,12 @@ describe('EIP1193', () => {
       expect(store.getState()).toEqual({
         chainId: undefined,
         accounts: undefined,
+        accountIndex: undefined,
         activating: false,
+        error: undefined,
+        addingChain: undefined,
+        switchingChain: undefined,
+        watchingAsset: undefined,
       })
     })
 
@@ -278,7 +287,12 @@ describe('EIP1193', () => {
       expect(store.getState()).toEqual({
         chainId: 1,
         accounts: undefined,
+        accountIndex: undefined,
         activating: false,
+        error: undefined,
+        addingChain: undefined,
+        switchingChain: undefined,
+        watchingAsset: undefined,
       })
     })
 
@@ -288,7 +302,12 @@ describe('EIP1193', () => {
       expect(store.getState()).toEqual({
         chainId: undefined,
         accounts,
+        accountIndex: undefined,
         activating: false,
+        error: undefined,
+        addingChain: undefined,
+        switchingChain: undefined,
+        watchingAsset: undefined,
       })
     })
 
@@ -299,7 +318,12 @@ describe('EIP1193', () => {
       expect(store.getState()).toEqual({
         chainId: 1,
         accounts,
+        accountIndex: undefined,
         activating: false,
+        error: undefined,
+        addingChain: undefined,
+        switchingChain: undefined,
+        watchingAsset: undefined,
       })
     })
 
@@ -310,7 +334,12 @@ describe('EIP1193', () => {
       expect(store.getState()).toEqual({
         chainId: 1,
         accounts,
+        accountIndex: undefined,
         activating: false,
+        error: undefined,
+        addingChain: undefined,
+        switchingChain: undefined,
+        watchingAsset: undefined,
       })
     })
   })

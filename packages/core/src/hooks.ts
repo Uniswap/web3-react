@@ -89,6 +89,12 @@ export function getSelectedConnector(
     return values[getIndex(connector)]
   }
 
+  function useSelectedAccountIndex(connector: Connector) {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const values = initializedConnectors.map(([, { useAccountIndex }]) => useAccountIndex())
+    return values[getIndex(connector)]
+  }
+
   function useSelectedIsActivating(connector: Connector) {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const values = initializedConnectors.map(([, { useIsActivating }]) => useIsActivating())
@@ -138,6 +144,24 @@ export function getSelectedConnector(
     return values[index]
   }
 
+  function useSelectedENSAvatars(connector: Connector, provider?: BaseProvider, ensNames?: (string | null)[]) {
+    const index = getIndex(connector)
+    const values = initializedConnectors.map(([, { useENSAvatars }], i) =>
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      useENSAvatars(i === index ? provider : undefined, ensNames)
+    )
+    return values[index]
+  }
+
+  function useSelectedENSAvatar(connector: Connector, provider?: BaseProvider, ensName?: string | null | undefined) {
+    const index = getIndex(connector)
+    const values = initializedConnectors.map(([, { useENSAvatar }], i) =>
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      useENSAvatar(i === index ? provider : undefined, ensName)
+    )
+    return values[index]
+  }
+
   function useSelectedAddingChain(connector: Connector) {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const values = initializedConnectors.map(([, { useAddingChain }]) => useAddingChain())
@@ -160,12 +184,15 @@ export function getSelectedConnector(
     useSelectedStore,
     useSelectedChainId,
     useSelectedAccounts,
+    useSelectedAccountIndex,
     useSelectedIsActivating,
     useSelectedAccount,
     useSelectedIsActive,
     useSelectedProvider,
     useSelectedENSNames,
     useSelectedENSName,
+    useSelectedENSAvatars,
+    useSelectedENSAvatar,
     useSelectedAddingChain,
     useSelectedSwitchingChain,
     useSelectedWatchingAsset,
@@ -186,12 +213,15 @@ export function getPriorityConnector(
     useSelectedStore,
     useSelectedChainId,
     useSelectedAccounts,
+    useSelectedAccountIndex,
     useSelectedIsActivating,
     useSelectedAccount,
     useSelectedIsActive,
     useSelectedProvider,
     useSelectedENSNames,
     useSelectedENSName,
+    useSelectedENSAvatars,
+    useSelectedENSAvatar,
     useSelectedAddingChain,
     useSelectedSwitchingChain,
     useSelectedWatchingAsset,
@@ -214,6 +244,10 @@ export function getPriorityConnector(
 
   function usePriorityAccounts() {
     return useSelectedAccounts(usePriorityConnector())
+  }
+
+  function usePriorityAccountIndex() {
+    return useSelectedAccountIndex(usePriorityConnector())
   }
 
   function usePriorityIsActivating() {
@@ -245,6 +279,14 @@ export function getPriorityConnector(
     return useSelectedENSName(usePriorityConnector(), provider)
   }
 
+  function usePriorityENSAvatars(provider?: BaseProvider) {
+    return useSelectedENSAvatars(usePriorityConnector(), provider)
+  }
+
+  function usePriorityENSAvatar(provider?: BaseProvider) {
+    return useSelectedENSAvatar(usePriorityConnector(), provider)
+  }
+
   function usePriorityAddingChain() {
     return useSelectedAddingChain(usePriorityConnector())
   }
@@ -261,12 +303,15 @@ export function getPriorityConnector(
     useSelectedStore,
     useSelectedChainId,
     useSelectedAccounts,
+    useSelectedAccountIndex,
     useSelectedIsActivating,
     useSelectedAccount,
     useSelectedIsActive,
     useSelectedProvider,
     useSelectedENSNames,
     useSelectedENSName,
+    useSelectedENSAvatars,
+    useSelectedENSAvatar,
     useSelectedAddingChain,
     useSelectedSwitchingChain,
     useSelectedWatchingAsset,
@@ -274,12 +319,15 @@ export function getPriorityConnector(
     usePriorityStore,
     usePriorityChainId,
     usePriorityAccounts,
+    usePriorityAccountIndex,
     usePriorityIsActivating,
     usePriorityAccount,
     usePriorityIsActive,
     usePriorityProvider,
     usePriorityENSNames,
     usePriorityENSName,
+    usePriorityENSAvatars,
+    usePriorityENSAvatar,
     usePriorityAddingChain,
     usePrioritySwitchingChain,
     usePriorityWatchingAsset,
@@ -287,12 +335,13 @@ export function getPriorityConnector(
 }
 
 const CHAIN_ID = ({ chainId }: Web3ReactState) => chainId
+const ACCOUNT_INDEX = ({ accountIndex }: Web3ReactState) => accountIndex
 const ACCOUNTS = ({ accounts }: Web3ReactState) => accounts
 const ACCOUNTS_EQUALITY_CHECKER: EqualityChecker<Web3ReactState['accounts']> = (oldAccounts, newAccounts) =>
   (oldAccounts === undefined && newAccounts === undefined) ||
   (oldAccounts !== undefined &&
     oldAccounts.length === newAccounts?.length &&
-    oldAccounts.every((oldAccount, i) => oldAccount === newAccounts[i]))
+    oldAccounts.every((oldAccount: string, i: number) => oldAccount === newAccounts[i]))
 const ACTIVATING = ({ activating }: Web3ReactState) => activating
 const ADDING = ({ addingChain }: Web3ReactState) => addingChain
 const SWITCHING = ({ switchingChain }: Web3ReactState) => switchingChain
@@ -305,6 +354,10 @@ function getStateHooks(useConnector: UseBoundStore<Web3ReactStore>) {
 
   function useAccounts(): Web3ReactState['accounts'] {
     return useConnector(ACCOUNTS, ACCOUNTS_EQUALITY_CHECKER)
+  }
+
+  function useAccountIndex(): Web3ReactState['accountIndex'] {
+    return useConnector(ACCOUNT_INDEX)
   }
 
   function useIsActivating(): Web3ReactState['activating'] {
@@ -323,12 +376,29 @@ function getStateHooks(useConnector: UseBoundStore<Web3ReactStore>) {
     return useConnector(WATCHING)
   }
 
-  return { useChainId, useAccounts, useIsActivating, useAddingChain, useSwitchingChain, useWatchingAsset }
+  return {
+    useChainId,
+    useAccounts,
+    useAccountIndex,
+    useIsActivating,
+    useAddingChain,
+    useSwitchingChain,
+    useWatchingAsset,
+  }
 }
 
-function getDerivedHooks({ useChainId, useAccounts, useIsActivating }: ReturnType<typeof getStateHooks>) {
+function getDerivedHooks({
+  useChainId,
+  useAccounts,
+  useAccountIndex,
+  useIsActivating,
+}: ReturnType<typeof getStateHooks>) {
   function useAccount(): string | undefined {
-    return useAccounts()?.[0]
+    const accounts = useAccounts()
+    const accountIndex = useAccountIndex()
+    return accounts?.length && (accountIndex || accountIndex === 0) && accountIndex >= 0
+      ? accounts?.[accountIndex]
+      : undefined
   }
 
   function useIsActive(): boolean {
@@ -351,7 +421,7 @@ function getDerivedHooks({ useChainId, useAccounts, useIsActivating }: ReturnTyp
  * indicated that names cannot be fetched because there's no provider, or they're in the process of being fetched,
  * or `string | null`, depending on whether an ENS name has been set for the account in question or not.
  */
-function useENS(provider?: BaseProvider, accounts: string[] = []): undefined[] | (string | null)[] {
+function useENS(provider?: BaseProvider, accounts: string[] = []): (string | null)[] {
   const [ENSNames, setENSNames] = useState<(string | null)[] | undefined>()
 
   useEffect(() => {
@@ -376,7 +446,37 @@ function useENS(provider?: BaseProvider, accounts: string[] = []): undefined[] |
     }
   }, [provider, accounts])
 
-  return ENSNames ?? new Array<undefined>(accounts.length).fill(undefined)
+  return ENSNames ?? new Array<null>(accounts.length).fill(null)
+}
+
+function useAvatar(provider?: BaseProvider, ensNames?: (string | null)[]): (string | null)[] | undefined {
+  const [ENSAvatars, setENSAvatars] = useState<(string | null)[] | undefined>()
+
+  useEffect(() => {
+    if (provider && ensNames?.length) {
+      let stale = false
+
+      Promise.all(ensNames.map((name) => (name ? provider.getAvatar(name) : Promise.resolve(null))))
+        .then((ENSAvatars) => {
+          if (stale) return
+          setENSAvatars(ENSAvatars)
+        })
+        .catch((error) => {
+          if (stale) return
+          console.debug('Could not fetch ENS avatars', error)
+          setENSAvatars(undefined)
+        })
+
+      return () => {
+        stale = true
+        setENSAvatars(undefined)
+      }
+    } else {
+      setENSAvatars(undefined)
+    }
+  }, [provider, ensNames])
+
+  return ENSAvatars
 }
 
 function getAugmentedHooks<T extends Connector>(
@@ -424,7 +524,7 @@ function getAugmentedHooks<T extends Connector>(
     }, [loaded, enabled, isActive, chainId, network])
   }
 
-  function useENSNames(provider?: BaseProvider): undefined[] | (string | null)[] {
+  function useENSNames(provider?: BaseProvider): (string | null)[] {
     const accounts = useAccounts()
     return useENS(provider, accounts)
   }
@@ -435,5 +535,22 @@ function getAugmentedHooks<T extends Connector>(
     return useENS(provider, accounts)?.[0]
   }
 
-  return { useProvider, useENSNames, useENSName }
+  function useENSAvatars(provider?: BaseProvider, ensNames?: (string | null)[]): (string | null)[] | undefined {
+    const names = useMemo(() => {
+      return ensNames?.every((name) => !name) ? undefined : ensNames
+    }, [ensNames])
+
+    return useAvatar(provider, names)
+  }
+
+  // function useENSAvatars(provider?: BaseProvider, ensNames?: (string | null)[]): (string | null)[] {
+  //   return useAvatar(provider, ensNames)
+  // }
+
+  function useENSAvatar(provider?: BaseProvider, ensName?: undefined | string | null): undefined | string | null {
+    const ensNames = useMemo(() => (ensName === undefined ? undefined : [ensName]), [ensName])
+    return useAvatar(provider, ensNames)?.[0]
+  }
+
+  return { useProvider, useENSNames, useENSName, useENSAvatars, useENSAvatar }
 }
