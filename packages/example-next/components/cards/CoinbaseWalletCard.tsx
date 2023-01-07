@@ -1,33 +1,35 @@
 import { useWeb3React } from '@web3-react/core'
-import { URI_AVAILABLE } from '@web3-react/walletconnect'
 import { useEffect, useState } from 'react'
-import { Card } from '../components/Card'
-import { hooks, walletConnect } from '../config/connectors/walletConnect'
+import { Card } from '../Card'
+import { coinbaseWallet, hooks } from '../../config/connectors/coinbaseWallet'
 
 const {
   useChainId,
-  useAccounts,
   useAccountIndex,
+  useAccounts,
   useIsActivating,
   useIsActive,
   useProvider,
   useENSNames,
   useENSAvatars,
+  useAddingChain,
+  useSwitchingChain,
+  useWatchingAsset,
 } = hooks
 
-export default function WalletConnectCard() {
+export default function CoinbaseWalletCard() {
   const {
     connector,
     hooks: { usePriorityConnector },
   } = useWeb3React()
 
   const priorityConnector = usePriorityConnector()
-  const isPriority = priorityConnector === walletConnect
-  const isSelected = connector === walletConnect
+  const isPriority = priorityConnector === coinbaseWallet
+  const isSelected = connector === coinbaseWallet
 
   const chainId = useChainId()
-  const accounts = useAccounts()
   const accountIndex = useAccountIndex()
+  const accounts = useAccounts()
   const isActivating = useIsActivating()
 
   const isActive = useIsActive()
@@ -36,33 +38,34 @@ export default function WalletConnectCard() {
   const ENSNames = useENSNames(provider)
   const ENSAvatars = useENSAvatars(provider, ENSNames)
 
-  const [error, setError] = useState(undefined)
+  const addingChain = useAddingChain()
+  const switchingChain = useSwitchingChain()
+  const watchingAsset = useWatchingAsset()
 
-  // log URI when available
-  useEffect(() => {
-    walletConnect.events.on(URI_AVAILABLE, (uri: string) => {
-      console.log(`uri: ${uri}`)
-    })
-  }, [])
+  const [error, setError] = useState(undefined)
 
   // attempt to connect eagerly on mount
   useEffect(() => {
-    walletConnect.connectEagerly().catch(() => {
-      console.debug('Failed to connect eagerly to walletConnect')
+    void coinbaseWallet.connectEagerly().catch(() => {
+      console.debug('Failed to connect eagerly to coinbase wallet')
     })
   }, [])
 
   return (
     <Card
-      accountIndex={accountIndex}
-      connector={walletConnect}
+      walletLogo={coinbaseWallet.getWalletLogoUrl('circle', 24)}
+      connector={coinbaseWallet}
       chainId={chainId}
+      accountIndex={accountIndex}
       isActivating={isActivating}
       isActive={isActive}
       ENSNames={ENSNames}
       ENSAvatars={ENSAvatars}
       provider={provider}
       accounts={accounts}
+      addingChain={addingChain}
+      switchingChain={switchingChain}
+      watchingAsset={watchingAsset}
       error={error}
       setError={setError}
       isPriority={isPriority}

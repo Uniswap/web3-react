@@ -85,6 +85,9 @@ export class WalletConnect extends Connector {
     this.events.emit(URI_AVAILABLE, payload.params[0])
   }
 
+  /**
+   * Setup the provider and listen to its events.
+   */
   private async isomorphicInitialize(chainId = this.defaultChainId): Promise<void> {
     if (this.eagerConnection) return
 

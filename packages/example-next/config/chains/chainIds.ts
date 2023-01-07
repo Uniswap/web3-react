@@ -45,3 +45,5 @@ export const testChains = [
   optimismTestChainId,
   plsTestChainId,
 ]
+
+export const allChains = [...mainChains, ...testChains]

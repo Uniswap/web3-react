@@ -1,7 +1,7 @@
 import { useWeb3React } from '@web3-react/core'
 import { useEffect, useState } from 'react'
-import { Card } from '../components/Card'
-import { hooks, metaMask } from '../config/connectors/metaMask'
+import { Card } from '../Card'
+import { hooks, metaMask } from '../../config/connectors/metaMask'
 
 const {
   useChainId,
@@ -19,13 +19,13 @@ const {
 
 export default function MetaMaskCard() {
   const {
-    connector,
+    connector: selectedConnector,
     hooks: { usePriorityConnector },
   } = useWeb3React()
 
   const priorityConnector = usePriorityConnector()
   const isPriority = priorityConnector === metaMask
-  const isSelected = connector === metaMask
+  const isSelected = selectedConnector === metaMask
 
   const chainId = useChainId()
   const accounts = useAccounts()
@@ -53,6 +53,7 @@ export default function MetaMaskCard() {
 
   return (
     <Card
+      walletLogo="https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/MetaMask_Fox.svg/1200px-MetaMask_Fox.svg.png"
       connector={metaMask}
       chainId={chainId}
       accountIndex={accountIndex}

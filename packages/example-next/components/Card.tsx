@@ -1,22 +1,17 @@
-import { CoinbaseWallet } from '@web3-react/coinbase-wallet'
 import { Web3ReactHooks } from '@web3-react/core'
-import { GnosisSafe } from '@web3-react/gnosis-safe'
-import { MetaMask } from '@web3-react/metamask'
-import { Network } from '@web3-react/network'
-import { WalletConnect } from '@web3-react/walletconnect'
 import { polygonMainChainId } from '../config/chains/chainIds'
 import { CHAINS, getAddChainParameters } from '../utils/chains'
 import { getImageUrlFromTrust } from '../utils/helpers'
-import { getName } from '../utils/connectors'
+import { ConnectorType, getName } from '../utils/connectors'
 import { Accounts } from './Accounts'
 import { Chain } from './Chain'
 import { ConnectWithSelect } from './ConnectWithSelect'
 import { Status } from './Status'
-import { WatchAsset } from './WatchAsset'
+import { WatchAssetButton } from './WatchAssetButton'
 import Spacer from './Spacer'
 
 interface Props {
-  connector: MetaMask | WalletConnect | CoinbaseWallet | Network | GnosisSafe
+  connector: ConnectorType
   chainId: ReturnType<Web3ReactHooks['useChainId']>
   accountIndex?: ReturnType<Web3ReactHooks['useAccountIndex']>
   isActivating: ReturnType<Web3ReactHooks['useIsActivating']>
@@ -86,12 +81,11 @@ export function Card({
           <img
             src={walletLogo}
             style={{
-              width: 24,
+              width: 'auto',
               height: 24,
               marginRight: '8px',
               borderRadius: '50%',
               overflow: 'hidden',
-              backgroundColor: 'red',
             }}
           />
         )}
@@ -100,11 +94,11 @@ export function Card({
       <div style={{ marginBottom: '1rem' }}>
         <Status isActivating={isActivating} isActive={isActive} error={error} />
       </div>
-      <div style={{ whiteSpace: 'pre' }}>
-        Priority: <b style={{ fontSize: '0.875em' }}>{isPriority ? ' ✅' : ' ❌'}</b>
+      <div style={{ whiteSpace: 'pre', display: 'flex', alignItems: 'center' }}>
+        Priority: <b style={{ fontSize: '0.7em', lineHeight: '1em' }}>{isPriority ? ' ✅' : ' ❌'}</b>
       </div>
-      <div style={{ whiteSpace: 'pre' }}>
-        Selected: <b style={{ fontSize: '0.875em' }}>{isSelected ? ' ✅' : ' ❌'}</b>
+      <div style={{ whiteSpace: 'pre', display: 'flex', alignItems: 'center' }}>
+        Selected: <b style={{ fontSize: '0.7em', lineHeight: '1em' }}>{isSelected ? ' ✅' : ' ❌'}</b>
       </div>
       <Chain chainId={chainId} addingChain={addingChain} switchingChain={switchingChain} />
       <Accounts
@@ -130,7 +124,7 @@ export function Card({
           <Spacer />
           <b>Watch Asset</b>
           {chainConfig && chainId !== polygonMainChainId && (
-            <WatchAsset
+            <WatchAssetButton
               watchingAsset={watchingAsset}
               connector={connector}
               assetParams={{
@@ -140,7 +134,7 @@ export function Card({
               }}
             />
           )}
-          <WatchAsset
+          <WatchAssetButton
             watchingAsset={watchingAsset}
             connector={connector}
             assetParams={{

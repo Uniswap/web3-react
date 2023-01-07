@@ -1,4 +1,4 @@
-export default function Address({ account, ensName }: { account?: string; ensName?: string }) {
+export default function AddressEllipsis({ account, ensName }: { account?: string; ensName?: string }) {
   if (!account && !ensName) return <b>None</b>
 
   return ensName ? (

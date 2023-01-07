@@ -543,10 +543,6 @@ function getAugmentedHooks<T extends Connector>(
     return useAvatar(provider, names)
   }
 
-  // function useENSAvatars(provider?: BaseProvider, ensNames?: (string | null)[]): (string | null)[] {
-  //   return useAvatar(provider, ensNames)
-  // }
-
   function useENSAvatar(provider?: BaseProvider, ensName?: undefined | string | null): undefined | string | null {
     const ensNames = useMemo(() => (ensName === undefined ? undefined : [ensName]), [ensName])
     return useAvatar(provider, ensNames)?.[0]

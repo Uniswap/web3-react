@@ -1,12 +1,12 @@
-import type { CoinbaseWallet } from '@web3-react/coinbase-wallet'
+import type { AddingChainInfo, SwitchingChainInfo } from '@web3-react/types'
 import { useWeb3React, Web3ReactHooks } from '@web3-react/core'
 import { GnosisSafe } from '@web3-react/gnosis-safe'
-import type { MetaMask } from '@web3-react/metamask'
+import { BscWallet } from '@web3-react/bsc-wallet'
 import { Network } from '@web3-react/network'
-import type { AddingChainInfo, SwitchingChainInfo } from '@web3-react/types'
 import { WalletConnect } from '@web3-react/walletconnect'
 import { useCallback, useState } from 'react'
 import { CHAINS, getAddChainParameters, URLS } from '../utils/chains'
+import { ConnectorType } from '../utils/connectors'
 import { Button } from './Button'
 import Spacer from './Spacer'
 
@@ -37,6 +37,7 @@ function ChainSelect({
         paddingLeft: '8px',
         backgroundColor: 'rgba(255, 255, 255, 0.8)',
         borderColor: 'black',
+        marginBottom: '1rem',
       }}
       value={chainId}
       onChange={(event) => {
@@ -44,7 +45,7 @@ function ChainSelect({
       }}
       disabled={disabled}
     >
-      {displayDefault ? <option value={-1}>Default Chain</option> : null}
+      {!chainId && displayDefault ? <option value={-1}>Select Network</option> : null}
       {chainIds.map((chainId) => (
         <option key={chainId} value={chainId}>
           {CHAINS[chainId]?.name ?? chainId}
@@ -65,7 +66,7 @@ export function ConnectWithSelect({
   addingChain,
   switchingChain,
 }: {
-  connector: MetaMask | WalletConnect | CoinbaseWallet | Network | GnosisSafe
+  connector: ConnectorType
   chainId: ReturnType<Web3ReactHooks['useChainId']>
   isActivating: ReturnType<Web3ReactHooks['useIsActivating']>
   isActive: ReturnType<Web3ReactHooks['useIsActive']>
@@ -81,7 +82,7 @@ export function ConnectWithSelect({
   const displayDefault = !isNetwork
   const chainIds = (isNetwork ? Object.keys(URLS) : Object.keys(CHAINS)).map((chainId) => Number(chainId))
 
-  const [desiredChainId, setDesiredChainId] = useState<number>(isNetwork ? 1 : -1)
+  const [desiredChainId, setDesiredChainId] = useState<number>(isNetwork ? 1 : chainId)
 
   const switchChain = useCallback(
     (desiredChainId: number) => {
@@ -115,7 +116,7 @@ export function ConnectWithSelect({
 
   const onClick = useCallback((): void => {
     setError(undefined)
-    if (connector instanceof GnosisSafe) {
+    if (connector instanceof GnosisSafe || connector instanceof BscWallet) {
       connector
         .activate()
         .then(() => setError(undefined))
@@ -138,7 +139,7 @@ export function ConnectWithSelect({
       <>
         <Spacer />
         <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-start' }}>
-          {!(connector instanceof GnosisSafe) && (
+          {!(connector instanceof GnosisSafe || connector instanceof BscWallet) && (
             <ChainSelect
               chainId={desiredChainId}
               switchChain={switchChain}
@@ -148,7 +149,6 @@ export function ConnectWithSelect({
               isPendingChainSwitch={!!switchingChain}
             />
           )}
-          <div style={{ marginBottom: '1rem' }} />
           <Button
             style={{
               borderColor: 'rgba(253, 246, 56, 0.4)',
@@ -178,7 +178,7 @@ export function ConnectWithSelect({
       <>
         <Spacer />
         <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-start' }}>
-          {!(connector instanceof GnosisSafe) && (
+          {!(connector instanceof GnosisSafe || connector instanceof BscWallet) && (
             <ChainSelect
               chainId={desiredChainId === -1 ? -1 : chainId}
               switchChain={switchChain}
@@ -188,7 +188,6 @@ export function ConnectWithSelect({
               isPendingChainSwitch={!!switchingChain}
             />
           )}
-          <div style={{ marginBottom: '1rem' }} />
           <Button
             style={{
               marginBottom: '1rem',
@@ -223,7 +222,7 @@ export function ConnectWithSelect({
       <>
         <Spacer />
         <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-start' }}>
-          {!(connector instanceof GnosisSafe) && (
+          {!(connector instanceof GnosisSafe || connector instanceof BscWallet) && (
             <>
               <ChainSelect
                 chainId={desiredChainId}
@@ -233,7 +232,6 @@ export function ConnectWithSelect({
                 isPendingChainAdd={!!addingChain}
                 isPendingChainSwitch={!!switchingChain}
               />
-              <div style={{ marginBottom: '1rem' }} />
             </>
           )}
           <Button
@@ -246,7 +244,7 @@ export function ConnectWithSelect({
               isActivating
                 ? undefined
                 : () =>
-                    connector instanceof GnosisSafe
+                    connector instanceof GnosisSafe || connector instanceof BscWallet
                       ? void connector
                           .activate()
                           .then(() => setError(undefined))

@@ -6,15 +6,12 @@ import type {
   ProviderConnectInfo,
   ProviderRpcError,
   WatchAssetParameters,
+  AddEthereumChainParameters,
 } from '@web3-react/types'
 import { Connector } from '@web3-react/types'
 
 function parseChainId(chainId: string | number) {
   return typeof chainId === 'number' ? chainId : Number.parseInt(chainId, chainId.startsWith('0x') ? 16 : 10)
-}
-
-abstract class CoinbaseConnector extends Connector {
-  public getWalletLogoUrl?(type: LogoType, width?: number): string | undefined
 }
 
 type CoinbaseWalletSDKOptions = ConstructorParameters<typeof CoinbaseWalletSDK>[0] & { url: string }
@@ -27,23 +24,26 @@ export interface CoinbaseWalletConstructorArgs {
   actions: Actions
   options: CoinbaseWalletSDKOptions
   onError?: (error: Error) => void
+  chainParameters?: AddEthereumChainParameters
 }
 
-export class CoinbaseWallet extends CoinbaseConnector {
+export class CoinbaseWallet extends Connector {
   /** {@inheritdoc Connector.provider} */
   public provider: CoinbaseWalletProvider | undefined
 
   private readonly options: CoinbaseWalletSDKOptions
   private eagerConnection?: Promise<void>
+  private chainParameters?: AddEthereumChainParameters
 
   /**
    * A `CoinbaseWalletSDK` instance.
    */
   public coinbaseWallet: CoinbaseWalletSDK | undefined
 
-  constructor({ actions, options, onError }: CoinbaseWalletConstructorArgs) {
+  constructor({ actions, options, onError, chainParameters }: CoinbaseWalletConstructorArgs) {
     super(actions, onError)
     this.options = options
+    this.chainParameters = chainParameters
   }
 
   // the `connected` property, is bugged, but this works as a hack to check connection status
@@ -51,6 +51,9 @@ export class CoinbaseWallet extends CoinbaseConnector {
     return this.provider?.selectedAddress
   }
 
+  /**
+   * Setup the provider and listen to its events.
+   */
   private async isomorphicInitialize(): Promise<void> {
     if (this.eagerConnection) return
 
@@ -148,22 +151,35 @@ export class CoinbaseWallet extends CoinbaseConnector {
         params: [{ chainId: desiredChainIdHex }],
       })
         .catch(async (switchingError: ProviderRpcError) => {
-          if (switchingError.code === 4902 && typeof desiredChainIdOrChainParameters !== 'number') {
+          if (switchingError.code === 4902) {
             // if we're here, we can try to add a new network
-            this.actions.update({
-              addingChain: {
-                chainId: desiredChainId,
-              },
-            })
 
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            return this.provider!.request<void>({
-              method: 'wallet_addEthereumChain',
-              params: [{ ...desiredChainIdOrChainParameters, chainId: desiredChainIdHex }],
-            }).catch((addingError: ProviderRpcError) => {
-              this.actions.update({ addingChain: undefined, switchingChain: undefined })
-              throw addingError
-            })
+            // Check if the params have been provided
+            if (typeof desiredChainIdOrChainParameters !== 'number') {
+              this.actions.update({
+                addingChain: {
+                  chainId: desiredChainId,
+                },
+              })
+
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              return this.provider!.request({
+                method: 'wallet_addEthereumChain',
+                params: [{ ...desiredChainIdOrChainParameters, chainId: desiredChainIdHex }],
+              })
+            } else if (this.chainParameters && Object.keys(this.chainParameters).includes(String(desiredChainId))) {
+              this.actions.update({
+                addingChain: {
+                  chainId: desiredChainId,
+                },
+              })
+
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              return this.provider!.request({
+                method: 'wallet_addEthereumChain',
+                params: [{ ...this.chainParameters[desiredChainId], chainId: desiredChainIdHex }],
+              })
+            }
           }
 
           this.actions.update({ switchingChain: undefined })
@@ -217,22 +233,39 @@ export class CoinbaseWallet extends CoinbaseConnector {
               params: [{ chainId: desiredChainIdHex }],
             })
             .catch(async (switchingError: ProviderRpcError) => {
-              if (switchingError.code === 4902 && typeof desiredChainIdOrChainParameters !== 'number') {
+              if (switchingError.code === 4902) {
                 // if we're here, we can try to add a new network
-                this.actions.update({
-                  addingChain: {
-                    chainId: desiredChainId,
-                  },
-                })
 
-                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                return this.provider!.request<void>({
-                  method: 'wallet_addEthereumChain',
-                  params: [{ ...desiredChainIdOrChainParameters, chainId: desiredChainIdHex }],
-                }).catch((addingError: ProviderRpcError) => {
-                  this.actions.update({ addingChain: undefined, switchingChain: undefined })
-                  throw addingError
-                })
+                // Check if the params have been provided
+                if (typeof desiredChainIdOrChainParameters !== 'number') {
+                  this.actions.update({
+                    addingChain: {
+                      chainId: desiredChainId,
+                    },
+                  })
+
+                  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                  await this.provider!.request({
+                    method: 'wallet_addEthereumChain',
+                    params: [{ ...desiredChainIdOrChainParameters, chainId: desiredChainIdHex }],
+                  })
+
+                  return
+                } else if (this.chainParameters && Object.keys(this.chainParameters).includes(String(desiredChainId))) {
+                  this.actions.update({
+                    addingChain: {
+                      chainId: desiredChainId,
+                    },
+                  })
+
+                  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                  await this.provider!.request({
+                    method: 'wallet_addEthereumChain',
+                    params: [{ ...this.chainParameters[desiredChainId], chainId: desiredChainIdHex }],
+                  })
+
+                  return
+                }
               }
 
               this.actions.update({ switchingChain: undefined })

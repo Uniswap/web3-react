@@ -53,6 +53,9 @@ export class GnosisSafe extends Connector {
     return false
   }
 
+  /**
+   * Setup the provider.
+   */
   private async isomorphicInitialize(): Promise<void> {
     if (this.eagerConnection) return
 

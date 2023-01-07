@@ -24,6 +24,7 @@ This is a hosted version of [packages/example-next](packages/example-next).
 | [`@web3-react/url`](packages/url)                         | [![npm](https://img.shields.io/npm/v/@web3-react/url/beta.svg)](https://www.npmjs.com/package/@web3-react/url/v/beta)                         | [![minzip](https://img.shields.io/bundlephobia/minzip/@web3-react/url/beta.svg)](https://bundlephobia.com/result?p=@web3-react/url@beta)                         |                                                                           |
 | [`@web3-react/walletconnect`](packages/walletconnect)     | [![npm](https://img.shields.io/npm/v/@web3-react/walletconnect/beta.svg)](https://www.npmjs.com/package/@web3-react/walletconnect/v/beta)     | [![minzip](https://img.shields.io/bundlephobia/minzip/@web3-react/walletconnect/beta.svg)](https://bundlephobia.com/result?p=@web3-react/walletconnect@beta)     | [WalletConnect](https://walletconnect.org/)                               |
 | [`@web3-react/coinbase-wallet`](packages/coinbase-wallet) | [![npm](https://img.shields.io/npm/v/@web3-react/coinbase-wallet/beta.svg)](https://www.npmjs.com/package/@web3-react/coinbase-wallet/v/beta) | [![minzip](https://img.shields.io/bundlephobia/minzip/@web3-react/coinbase-wallet/beta.svg)](https://bundlephobia.com/result?p=@web3-react/coinbase-wallet@beta) | [Coinbase Wallet](https://docs.cloud.coinbase.com/wallet-sdk/docs)        |
+| [`@web3-react/bsc-wallet`](packages/bsc-wallet) | [![npm](https://img.shields.io/npm/v/@web3-react/bsc-wallet/beta.svg)](https://www.npmjs.com/package/@web3-react/bsc-wallet/v/beta) | [![minzip](https://img.shields.io/bundlephobia/minzip/@web3-react/bsc-wallet/beta.svg)](https://bundlephobia.com/result?p=@web3-react/bsc-wallet@beta) | [BSC Wallet](https://binance-wallet.gitbook.io/binance-chain-wallet/dev/get-started)        |
 
 ## Get Started
 
@@ -76,7 +77,9 @@ While the internals of web3-react have changed fairly dramatically between v6 an
 
 Connectors are now setup independently, in which you may get the connector and its hooks directly, meaning you don't have to use a Web3ReactProvider. If you want a to connect a bunch of connectors, and be able to select what connector to use in the useWeb3React hook, the Web3ReactProvider is what you're looking for.
 
-Let's start by upgrading the packages. This example is using MetaMask and Coinbase Wallet connectors. The @^ will let you choose what package version to install. @web3-react/store and @web3-react/types will be installed as a dependency of @web3-react/core. Zustand will also be installed as a dependency of @web3-react/core, which is used by each connector to keep state. All wallet connectors have new packages so remove all the connectors you have. Keep in mind not all connectors available in v6 are in v8.
+Let's start by upgrading the packages. This example is using MetaMask and Coinbase Wallet connectors, as they have the most features. The @^ will let you choose what package version to install. @web3-react/store and @web3-react/types will be installed as a dependency of @web3-react/core. Zustand will also be installed as a dependency of @web3-react/core, which is used by each connector to keep state. All wallet connectors have new packages so remove all the connectors you have. Keep in mind not all connectors available in v6 are in v8.
+
+You may also take a look through the "example-next" package to see how things are setup.
 
 ### Updating Packages
 
@@ -122,6 +125,21 @@ export const connectorsByName = {
 #### v8
 
 These exports will allow you to interact with each connector individually. We will use these connector exports to setup our Web3ReactProvider, so we can select what connector we want our useWeb3React hook to use.
+
+#### Connector Constructor
+```ts
+{
+  // Methods bound to a zustand store that tracks the state of the connector.
+  actions: Actions
+  // An optional handler which will report errors thrown from event listeners.
+  onError?: (error: Error) => void
+  // Provider specific options.
+  options?: Object
+  // Additional way of providing the connector with chain parameters for adding chains.
+  // If you provide chain parameters this way, you can pass just the chainId to activate().
+  chainParameters?: AddEthereumChainParameters
+}
+```
 
 #### File: metaMask.ts
 ```ts
@@ -227,12 +245,12 @@ const {
 
 return (
     <>
-        <button onClick={() => setSelectedConnector(metaMask)}>
-            Select
-        </button>
-        <button onClick={() => setSelectedConnector()}>
-            Reset to default
-        </button>
+      <button onClick={() => setSelectedConnector(metaMask)}>
+          Select
+      </button>
+      <button onClick={() => setSelectedConnector()}>
+          Reset to default
+      </button>
     </>
 )
 ```
@@ -269,6 +287,7 @@ const {
     // the Web3Provider using the useSelected*() hooks.
     connector,
     chainId,
+    accountIndex, // New
     accounts,
     account,
     isActivating, // New
@@ -276,6 +295,8 @@ const {
     provider, // Formerly "library"
     ENSNames, // New
     ENSName, // New
+    ENSAvatars, // New
+    ENSAvatar, // New
     addingChain, // New
     switchingChain, // New
     watchingAsset, // New
@@ -293,6 +314,7 @@ const {
         // the Web3Provider without setting it as the selectedConnector.
         useSelectedStore, // Note: No helper prop above
         useSelectedChainId,
+        useSelectedAccountIndex,
         useSelectedAccounts,
         useSelectedIsActivating,
         useSelectedAccount,
@@ -300,6 +322,8 @@ const {
         useSelectedProvider,
         useSelectedENSNames,
         useSelectedENSName,
+        useSelectedENSAvatars,
+        useSelectedENSAvatar,
         useSelectedAddingChain,
         useSelectedSwitchingChain,
         useSelectedWatchingAsset,
@@ -309,6 +333,7 @@ const {
         usePriorityConnector,
         usePriorityStore,
         usePriorityChainId,
+        usePriorityAccountIndex,
         usePriorityAccounts,
         usePriorityIsActivating,
         usePriorityAccount,
@@ -316,6 +341,8 @@ const {
         usePriorityProvider,
         usePriorityENSNames,
         usePriorityENSName,
+        usePriorityENSAvatars,
+        usePriorityENSAvatar,
         usePriorityAddingChain,
         usePrioritySwitchingChain,
         usePriorityWatchingAsset,
@@ -332,6 +359,7 @@ const {
     hooks: { 
         useSelectedStore,
         useSelectedChainId,
+        useSelectedAccountIndex,
         useSelectedAccounts,
         useSelectedIsActivating,
         useSelectedAccount,
@@ -339,6 +367,8 @@ const {
         useSelectedProvider,
         useSelectedENSNames,
         useSelectedENSName,
+        useSelectedENSAvatars,
+        useSelectedENSAvatar,
         useSelectedAddingChain,
         useSelectedSwitchingChain,
         useSelectedWatchingAsset,
@@ -357,6 +387,7 @@ const {
     hooks: { 
         usePriorityStore,
         usePriorityChainId,
+        usePriorityAccountIndex,
         usePriorityAccounts,
         usePriorityIsActivating,
         usePriorityAccount,
@@ -364,6 +395,8 @@ const {
         usePriorityProvider,
         usePriorityENSNames,
         usePriorityENSName,
+        usePriorityENSAvatars,
+        usePriorityENSAvatar,
         usePriorityAddingChain,
         usePrioritySwitchingChain,
         usePriorityWatchingAsset,
@@ -384,8 +417,11 @@ const {
     useAccount, 
     useAccounts, 
     useChainId, 
+    useAccountIndex,
     useENSName, 
     useENSNames, 
+    useENSAvatar, 
+    useENSAvatars, 
     useIsActivating,
     useIsActive, 
     useProvider,
@@ -397,9 +433,12 @@ const {
 const [
     account, 
     accounts, 
-    chainId, 
-    ENSName, 
-    ENSNames, 
+    chainId,
+    accountIndex,
+    ENSName,
+    ENSNames,
+    ENSAvatar,
+    ENSAvatars, 
     isActivating, 
     isActive, 
     provider,
@@ -410,8 +449,11 @@ const [
     useAccount(), // Derived hook
     useAccounts(), // State hook
     useChainId(), // State hook
+    useAccountIndex(), // State hook
     useENSName(), // Augmented hook
     useENSNames(), // Augmented hook
+    useENSAvatar(), // Augmented hook
+    useENSAvatars(), // Augmented hook
     useIsActivating(), // State hook
     useIsActive(), // Derived hook
     useProvider(), // Augmented hook
@@ -429,9 +471,12 @@ import { hooks: metaMaskHooks } from './connectors/metaMask'
 const {
     account, 
     accounts, 
-    chainId, 
+    chainId,
+    accountIndex,
     ENSName, 
     ENSNames, 
+    ENSAvatar,
+    ENSAvatars, 
     isActivating, 
     isActive, 
     provider,
@@ -446,8 +491,11 @@ function getPropsFromConnectorHooks(hooks: Web3ReactHooks) {
         useAccount, 
         useAccounts, 
         useChainId, 
+        useAccountIndex,
         useENSName, 
-        useENSNames, 
+        useENSNames,
+        useENSAvatar, 
+        useENSAvatars, 
         useIsActivating,
         useIsActive, 
         useProvider,
@@ -459,9 +507,12 @@ function getPropsFromConnectorHooks(hooks: Web3ReactHooks) {
     const [
         account, 
         accounts, 
-        chainId, 
+        chainId,
+        accountIndex,
         ENSName, 
         ENSNames, 
+        ENSAvatar,
+        ENSAvatars, 
         isActivating, 
         isActive, 
         provider,
@@ -472,8 +523,11 @@ function getPropsFromConnectorHooks(hooks: Web3ReactHooks) {
         useAccount(), // Derived hook
         useAccounts(), // State hook
         useChainId(), // State hook
+        useAccountIndex(), // State hook
         useENSName(), // Augmented hook
         useENSNames(), // Augmented hook
+        useENSAvatar(), // Augmented hook
+        useENSAvatars(), // Augmented hook
         useIsActivating(), // State hook
         useIsActive(), // Derived hook
         useProvider(), // Augmented hook
@@ -486,8 +540,11 @@ function getPropsFromConnectorHooks(hooks: Web3ReactHooks) {
         account, 
         accounts, 
         chainId, 
+        accountIndex,
         ENSName, 
         ENSNames, 
+        ENSAvatar,
+        ENSAvatars, 
         isActivating, 
         isActive, 
         provider,
@@ -561,6 +618,7 @@ connector.activate(137)
 // You may also provide the chains configuration instead of the chainId. 
 // This will allow the connector to add the chain if the connector isn't configured for the given chain.
 // If the chain already exists, it will simply change to the chain.
+// If you passed "chainParameters" to the connectors constructor, you may pass only chainId, as above.
 const polygonConfiguration: AddEthereumChainParameter = {
     chainId: 137;
     chainName: 'Polygon';

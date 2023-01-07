@@ -1,12 +1,12 @@
 import { useWeb3React } from '@web3-react/core'
 import { useEffect, useState } from 'react'
-import { Card } from '../components/Card'
-import { coinbaseWallet, hooks } from '../config/connectors/coinbaseWallet'
+import { Card } from '../Card'
+import { hooks, bscWallet } from '../../config/connectors/bscWallet'
 
 const {
   useChainId,
-  useAccountIndex,
   useAccounts,
+  useAccountIndex,
   useIsActivating,
   useIsActive,
   useProvider,
@@ -17,19 +17,19 @@ const {
   useWatchingAsset,
 } = hooks
 
-export default function CoinbaseWalletCard() {
+export default function MetaMaskCard() {
   const {
-    connector,
+    connector: selectedConnector,
     hooks: { usePriorityConnector },
   } = useWeb3React()
 
   const priorityConnector = usePriorityConnector()
-  const isPriority = priorityConnector === coinbaseWallet
-  const isSelected = connector === coinbaseWallet
+  const isPriority = priorityConnector === bscWallet
+  const isSelected = selectedConnector === bscWallet
 
   const chainId = useChainId()
-  const accountIndex = useAccountIndex()
   const accounts = useAccounts()
+  const accountIndex = useAccountIndex()
   const isActivating = useIsActivating()
 
   const isActive = useIsActive()
@@ -46,15 +46,15 @@ export default function CoinbaseWalletCard() {
 
   // attempt to connect eagerly on mount
   useEffect(() => {
-    void coinbaseWallet.connectEagerly().catch(() => {
-      console.debug('Failed to connect eagerly to coinbase wallet')
+    void bscWallet.connectEagerly().catch(() => {
+      console.debug('Failed to connect eagerly to bsc wallet')
     })
   }, [])
 
   return (
     <Card
-      walletLogo={coinbaseWallet.getWalletLogoUrl('circle', 24)}
-      connector={coinbaseWallet}
+      walletLogo="https://assets-cdn.trustwallet.com/blockchains/smartchain/info/logo.png"
+      connector={bscWallet}
       chainId={chainId}
       accountIndex={accountIndex}
       isActivating={isActivating}

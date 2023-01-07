@@ -4,21 +4,21 @@ import { useTimeout } from '../hooks/hooks'
 import { Button } from './Button'
 import Spacer from './Spacer'
 
-export default function Signer({ provider, account }: { provider?: JsonRpcProvider; account?: string }) {
+export default function SignerButton({ provider, account }: { provider?: JsonRpcProvider; account?: string }) {
   const [isPendingSignature, setIsPendingSignature] = useState(false)
 
   const { start, isTimedOut } = useTimeout({
     startOnMount: false,
-    timeout: 2_000,
+    timeout: 1_000,
   })
 
   const signIt = () => {
     if (!provider || !account) return
     setIsPendingSignature(true)
 
-    const signer = provider.getSigner()
+    const signer = provider.getSigner(account)
     signer
-      .signMessage('Signer Example')
+      .signMessage('Sign me!')
       .then(() => {
         start()
         setIsPendingSignature(false)
@@ -31,7 +31,7 @@ export default function Signer({ provider, account }: { provider?: JsonRpcProvid
   return (
     <>
       <Spacer />
-      <Button disabled={isPendingSignature} onClick={signIt}>
+      <Button disabled={isPendingSignature || isTimedOut} onClick={signIt}>
         {isPendingSignature ? 'Pending Signature...' : isTimedOut ? 'Message Signed!' : 'Sign Message'}
       </Button>
     </>

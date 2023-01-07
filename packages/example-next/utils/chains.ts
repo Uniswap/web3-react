@@ -1,4 +1,4 @@
-import { AddEthereumChainParameter } from '@web3-react/types'
+import { AddEthereumChainParameter, AddEthereumChainParameters } from '@web3-react/types'
 import { ChainConfig } from '../config/chains/chains.interface'
 import {
   arbitrumMainChainId,
@@ -17,6 +17,7 @@ import {
   optimismMainChainId,
   optimismTestChainId,
   plsTestChainId,
+  allChains,
 } from '../config/chains/chainIds'
 import arbitrumMainnet from '../config/chains/arbitrum/mainnet'
 import arbitrumTestnet from '../config/chains/arbitrum/goerli'
@@ -118,3 +119,11 @@ export function getAddChainParameters(chainId: number): AddEthereumChainParamete
     iconUrls,
   }
 }
+
+export const allAddChainParameters: AddEthereumChainParameters = allChains.reduce<{
+  [chainId: number]: AddEthereumChainParameter
+}>((accumulator, chainId) => {
+  accumulator[Number(chainId)] = getAddChainParameters(chainId)
+
+  return accumulator
+}, {})

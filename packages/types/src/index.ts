@@ -151,6 +151,8 @@ export interface AddEthereumChainParameter {
   iconUrls?: string[] // Currently ignored.
 }
 
+export type AddEthereumChainParameters = { [chainId: number]: AddEthereumChainParameter }
+
 // per EIP-747
 export interface WatchAssetParameters {
   desiredChainIdOrChainParameters?: number | AddEthereumChainParameter

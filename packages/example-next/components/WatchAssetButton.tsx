@@ -3,7 +3,7 @@ import { Connector, WatchAssetParameters } from '@web3-react/types'
 import { CHAINS } from '../utils/chains'
 import { Button } from './Button'
 
-export function WatchAsset({
+export function WatchAssetButton({
   watchingAsset,
   connector,
   assetParams,

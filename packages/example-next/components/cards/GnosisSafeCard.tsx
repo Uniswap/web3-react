@@ -1,19 +1,19 @@
 import { useWeb3React } from '@web3-react/core'
 import { useEffect, useState } from 'react'
-import { Card } from '../components/Card'
-import { hooks, network } from '../config/connectors/network'
+import { Card } from '../Card'
+import { gnosisSafe, hooks } from '../../config/connectors/gnosisSafe'
 
 const { useChainId, useAccounts, useIsActivating, useIsActive, useProvider, useENSNames, useENSAvatars } = hooks
 
-export default function NetworkCard() {
+export default function GnosisSafeCard() {
   const {
     connector,
     hooks: { usePriorityConnector },
   } = useWeb3React()
 
   const priorityConnector = usePriorityConnector()
-  const isPriority = priorityConnector === network
-  const isSelected = connector === network
+  const isPriority = priorityConnector === gnosisSafe
+  const isSelected = connector === gnosisSafe
 
   const chainId = useChainId()
   const accounts = useAccounts()
@@ -29,14 +29,15 @@ export default function NetworkCard() {
 
   // attempt to connect eagerly on mount
   useEffect(() => {
-    void network.activate().catch(() => {
-      console.debug('Failed to connect to network')
+    void gnosisSafe.connectEagerly().catch(() => {
+      console.debug('Failed to connect eagerly to gnosis safe')
     })
   }, [])
 
   return (
     <Card
-      connector={network}
+      walletLogo="https://assets-global.website-files.com/61571d3b8fe2e30679056424/6341d34a6a3b918698693b5e_gnosis.png"
+      connector={gnosisSafe}
       chainId={chainId}
       isActivating={isActivating}
       isActive={isActive}

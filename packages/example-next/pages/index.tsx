@@ -1,11 +1,12 @@
 import { Web3ReactProvider } from '@web3-react/core'
 import { connectors } from '../utils/connectors'
-import SelectedConnectorCard from '../views/SelectedConnectorCard'
-import MetaMaskCard from '../views/MetaMaskCard'
-import CoinbaseWalletCard from '../views/CoinbaseWalletCard'
-import WalletConnectCard from '../views/WalletConnectCard'
-import GnosisSafeCard from '../views/GnosisSafeCard'
-import NetworkCard from '../views/NetworkCard'
+import SelectedConnectorCard from '../components/cards/SelectedConnectorCard'
+import MetaMaskCard from '../components/cards/MetaMaskCard'
+import CoinbaseWalletCard from '../components/cards/CoinbaseWalletCard'
+import WalletConnectCard from '../components/cards/WalletConnectCard'
+import GnosisSafeCard from '../components/cards/GnosisSafeCard'
+import BscWalletCard from '../components/cards/BscWalletCard'
+import NetworkCard from '../components/cards/NetworkCard'
 
 export default function Home() {
   return (
@@ -22,6 +23,7 @@ export default function Home() {
         <CoinbaseWalletCard />
         <WalletConnectCard />
         <GnosisSafeCard />
+        <BscWalletCard />
         <NetworkCard />
       </div>
     </Web3ReactProvider>

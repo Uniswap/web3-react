@@ -1,7 +1,7 @@
 import type { Web3ReactHooks } from '@web3-react/core'
 import { formatEther } from '@ethersproject/units'
 import { useBalances } from '../hooks/hooks'
-import Address from './Address'
+import AddressEllipsis from './AddressEllipsis'
 import Spacer from './Spacer'
 
 export function Accounts({
@@ -81,7 +81,7 @@ export function Accounts({
                       style={{ width: 24, height: 24, marginRight: '8px', borderRadius: '50%', overflow: 'hidden' }}
                     />
                   )}
-                  <Address account={address} ensName={ensName} />
+                  <AddressEllipsis account={address} ensName={ensName} />
                 </div>
                 <p style={{ margin: 0, fontSize: '0.8em' }}>{balance ? ` Ξ ${formatEther(balance)}` : null}</p>
               </div>

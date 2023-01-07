@@ -45,7 +45,7 @@ export function createWeb3ReactStoreAndActions(): [Web3ReactStore, Actions] {
   function startActivation(): () => void {
     const nullifierCached = ++nullifier
 
-    store.setState({ ...DEFAULT_STATE, activating: true, addingChain: undefined, switchingChain: undefined })
+    store.setState({ ...DEFAULT_STATE, activating: true })
 
     // return a function that cancels the activation if nothing else has happened
     return () => {
@@ -75,7 +75,7 @@ export function createWeb3ReactStoreAndActions(): [Web3ReactStore, Actions] {
 
     nullifier++
 
-    store.setState((existingState): Web3ReactState => {
+    store.setState((existingState: Web3ReactState): Web3ReactState => {
       // determine the next chainId and accounts
       const chainId = stateUpdate.chainId ?? existingState.chainId
       const accounts = stateUpdate.accounts ?? existingState.accounts

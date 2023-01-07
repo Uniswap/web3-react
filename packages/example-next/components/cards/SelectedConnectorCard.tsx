@@ -1,11 +1,12 @@
 import { useWeb3React } from '@web3-react/core'
-import { Accounts } from '../components/Accounts'
-import { Button } from '../components/Button'
-import { Chain } from '../components/Chain'
-import Signer from '../components/Signer'
-import Spacer from '../components/Spacer'
-import { Status } from '../components/Status'
-import { getName } from '../utils/connectors'
+import { Accounts } from '../Accounts'
+import { Button } from '../Button'
+import { Chain } from '../Chain'
+import SignerButton from '../SignerButton'
+import Spacer from '../Spacer'
+import { Status } from '../Status'
+import { network } from '../../config/connectors/network'
+import { getName } from '../../utils/connectors'
 
 export default function SelectedConnectorCard() {
   const {
@@ -54,11 +55,13 @@ export default function SelectedConnectorCard() {
         ENSNames={ENSNames}
         ENSAvatars={ENSAvatars}
       />
+      {isActive && connector !== network && (
+        <SignerButton provider={provider} account={accounts ? (accounts[accountIndex] as string) : ''} />
+      )}
       <Spacer />
-      <Button onClick={() => setSelectedConnector()} disabled={isPriority}>
-        {`Reset to ${priorityConnectorName}`}
+      <Button style={{ marginBottom: '16px' }} onClick={() => setSelectedConnector()} disabled={isPriority}>
+        {`Reset to Priority (${priorityConnectorName})`}
       </Button>
-      {isActive && <Signer provider={provider} account={accounts ? (accounts[accountIndex] as string) : ''} />}
     </div>
   )
 }

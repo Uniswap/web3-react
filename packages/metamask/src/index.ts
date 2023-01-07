@@ -2,6 +2,7 @@ import type detectEthereumProvider from '@metamask/detect-provider'
 import type {
   Actions,
   AddEthereumChainParameter,
+  AddEthereumChainParameters,
   Provider,
   ProviderConnectInfo,
   ProviderRpcError,
@@ -38,6 +39,7 @@ export interface MetaMaskConstructorArgs {
   actions: Actions
   options?: Parameters<typeof detectEthereumProvider>[0]
   onError?: (error: Error) => void
+  chainParameters?: AddEthereumChainParameters
 }
 
 export class MetaMask extends Connector {
@@ -46,21 +48,26 @@ export class MetaMask extends Connector {
 
   private readonly options?: Parameters<typeof detectEthereumProvider>[0]
   private eagerConnection?: Promise<void>
+  private chainParameters?: AddEthereumChainParameters
 
-  constructor({ actions, options, onError }: MetaMaskConstructorArgs) {
+  constructor({ actions, options, onError, chainParameters }: MetaMaskConstructorArgs) {
     super(actions, onError)
     this.options = options
+    this.chainParameters = chainParameters
   }
 
   private get selectedAddress() {
     return this.provider?.selectedAddress
   }
 
+  /**
+   * Get all connected accounts per EIP-2255.
+   */
   private async getAccounts(): Promise<string[] | undefined> {
     try {
-      const permissions: Array<Web3WalletPermission> = ((await this.provider?.request({
+      const permissions: Web3WalletPermission[] = ((await this.provider?.request({
         method: 'wallet_getPermissions',
-      })) || []) as Array<Web3WalletPermission>
+      })) || []) as Web3WalletPermission[]
 
       // Get the account permissions
       const accountsPermission = permissions.find(
@@ -78,6 +85,9 @@ export class MetaMask extends Connector {
     }
   }
 
+  /**
+   * Setup the provider and listen to its events.
+   */
   private async isomorphicInitialize(): Promise<void> {
     if (this.eagerConnection) return
 
@@ -177,7 +187,7 @@ export class MetaMask extends Connector {
           this.provider.request({ method: 'eth_chainId' }) as Promise<string>,
           this.provider.request({ method: 'eth_requestAccounts' }) as Promise<string[]>,
         ]).then(async ([chainId, baseAccounts]) => {
-          const accounts = (await this.getAccounts()) ?? baseAccounts
+          const accounts: string[] = (await this.getAccounts()) ?? baseAccounts
 
           const receivedChainId = parseChainId(chainId)
           const desiredChainId =
@@ -212,24 +222,35 @@ export class MetaMask extends Connector {
               params: [{ chainId: desiredChainIdHex }],
             })
             .catch((switchingError: ProviderRpcError) => {
-              if (switchingError.code === 4902 && typeof desiredChainIdOrChainParameters !== 'number') {
+              if (switchingError.code === 4902) {
                 // if we're here, we can try to add a new network
-                this.actions.update({
-                  addingChain: {
-                    chainId: desiredChainId,
-                  },
-                })
 
-                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                return this.provider
-                  ?.request({
+                // Check if the params have been provided
+                if (typeof desiredChainIdOrChainParameters !== 'number') {
+                  this.actions.update({
+                    addingChain: {
+                      chainId: desiredChainId,
+                    },
+                  })
+
+                  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                  return this.provider!.request({
                     method: 'wallet_addEthereumChain',
                     params: [{ ...desiredChainIdOrChainParameters, chainId: desiredChainIdHex }],
                   })
-                  .catch((addingError: ProviderRpcError) => {
-                    this.actions.update({ addingChain: undefined, switchingChain: undefined })
-                    throw addingError
+                } else if (this.chainParameters && Object.keys(this.chainParameters).includes(String(desiredChainId))) {
+                  this.actions.update({
+                    addingChain: {
+                      chainId: desiredChainId,
+                    },
                   })
+
+                  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                  return this.provider!.request({
+                    method: 'wallet_addEthereumChain',
+                    params: [{ ...this.chainParameters[desiredChainId], chainId: desiredChainIdHex }],
+                  })
+                }
               }
 
               this.actions.update({ addingChain: undefined, switchingChain: undefined })
@@ -244,6 +265,7 @@ export class MetaMask extends Connector {
         })
       })
       .catch((error) => {
+        console.log('MM ERROR', error)
         cancelActivation?.()
         throw error
       })

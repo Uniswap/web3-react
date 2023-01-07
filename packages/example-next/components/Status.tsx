@@ -10,18 +10,37 @@ export function Status({
   error?: Error
 }) {
   return (
-    <div style={{ marginTop: '1em', width: '100%' }}>
+    <div
+      style={{
+        marginTop: '1em',
+        width: '100%',
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'flex-start',
+        whiteSpace: 'pre',
+      }}
+    >
       {error ? (
         <>
-          🔴 {error.name ?? 'Error'}
+          <p style={{ fontSize: '0.7em', lineHeight: '1em' }}>{`🔴 `}</p>
+          {error.name ?? 'Error'}
           {error.message ? `: ${error.message}` : null}
         </>
       ) : isActivating ? (
-        <>{`🟡  Connecting`}</>
+        <>
+          <p style={{ fontSize: '0.7em', lineHeight: '1em' }}>🟡</p>
+          {' Connecting'}
+        </>
       ) : isActive ? (
-        <>{`🟢  Connected`}</>
+        <>
+          <p style={{ fontSize: '0.7em', lineHeight: '1em' }}>🟢</p>
+          {' Connected'}
+        </>
       ) : (
-        <>{`⚪️  Disconnected`}</>
+        <>
+          <p style={{ fontSize: '0.7em', lineHeight: '1em' }}>⚪️</p>
+          {' Disconnected'}
+        </>
       )}
     </div>
   )

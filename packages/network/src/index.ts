@@ -59,6 +59,9 @@ export class Network extends Connector {
     this.timeout = timeout
   }
 
+  /**
+   * Setup the provider.
+   */
   private async isomorphicInitialize(chainId: number): Promise<JsonRpcProvider> {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     if (this.providerCache[chainId]) return this.providerCache[chainId]!
