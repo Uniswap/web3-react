@@ -4,7 +4,7 @@ import {
   avaxChains,
   bscChains,
   celoChains,
-  maticChains,
+  polygonChains,
   optimismChains,
   plsChains,
 } from '../config/chains/chainIds'
@@ -28,7 +28,7 @@ export function getImageUrlFromTrust(chainId: number, tokenAddress?: string) {
     blockChainName = 'celo'
   }
 
-  if (maticChains.includes(chainId)) {
+  if (polygonChains.includes(chainId)) {
     blockChainName = 'polygon'
   }
 

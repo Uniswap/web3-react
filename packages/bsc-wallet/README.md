@@ -1,1 +1,1 @@
-# @web3-react/metamask
+# @web3-react/bsc-wallet

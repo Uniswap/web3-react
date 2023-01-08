@@ -17,13 +17,13 @@ const {
 
 export default function WalletConnectCard() {
   const {
-    connector,
+    connector: selectedConnector,
     hooks: { usePriorityConnector },
   } = useWeb3React()
 
   const priorityConnector = usePriorityConnector()
   const isPriority = priorityConnector === walletConnect
-  const isSelected = connector === walletConnect
+  const isSelected = selectedConnector === walletConnect
 
   const chainId = useChainId()
   const accounts = useAccounts()
@@ -54,7 +54,7 @@ export default function WalletConnectCard() {
 
   return (
     <Card
-      walletLogo="https://1000logos.net/wp-content/uploads/2022/05/WalletConnect-Logo.png"
+      walletLogoUrl="https://1000logos.net/wp-content/uploads/2022/05/WalletConnect-Logo.png"
       accountIndex={accountIndex}
       connector={walletConnect}
       chainId={chainId}

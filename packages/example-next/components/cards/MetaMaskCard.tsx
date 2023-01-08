@@ -53,7 +53,7 @@ export default function MetaMaskCard() {
 
   return (
     <Card
-      walletLogo="https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/MetaMask_Fox.svg/1200px-MetaMask_Fox.svg.png"
+      walletLogoUrl="https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/MetaMask_Fox.svg/1200px-MetaMask_Fox.svg.png"
       connector={metaMask}
       chainId={chainId}
       accountIndex={accountIndex}

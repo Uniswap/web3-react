@@ -10,10 +10,6 @@ export const URI_AVAILABLE = 'URI_AVAILABLE'
 
 type MockWalletConnectProvider = WalletConnectProvider & EventEmitter
 
-function parseChainId(chainId: string | number) {
-  return typeof chainId === 'string' ? Number.parseInt(chainId) : chainId
-}
-
 type WalletConnectOptions = Omit<IWCEthRpcConnectionOptions, 'rpc' | 'infuraId' | 'chainId'> & {
   rpc: { [chainId: number]: string | string[] }
 }
@@ -74,7 +70,7 @@ export class WalletConnect extends Connector {
   }
 
   private chainChangedListener = (chainId: number | string): void => {
-    this.actions.update({ chainId: parseChainId(chainId) })
+    this.actions.update({ chainId: this.parseChainId(chainId) })
   }
 
   private accountsChangedListener = (accounts: string[]): void => {
@@ -134,7 +130,7 @@ export class WalletConnect extends Connector {
       if (!accounts.length) throw new Error('No accounts returned')
       const chainId = await this.provider
         .request<string | number>({ method: 'eth_chainId' })
-        .then((chainId) => parseChainId(chainId))
+        .then((chainId) => this.parseChainId(chainId))
 
       this.actions.update({ chainId, accounts, accountIndex: accounts?.length ? 0 : undefined })
     } catch (error) {
@@ -176,7 +172,7 @@ export class WalletConnect extends Connector {
 
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const chainId = await this.provider!.request<string | number>({ method: 'eth_chainId' }).then((chainId) =>
-        parseChainId(chainId)
+        this.parseChainId(chainId)
       )
 
       this.actions.update({

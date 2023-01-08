@@ -1,7 +1,7 @@
 import { Web3ReactHooks } from '@web3-react/core'
 import { Connector, WatchAssetParameters } from '@web3-react/types'
 import { CHAINS } from '../utils/chains'
-import { Button } from './Button'
+import Button from './Button'
 
 export function WatchAssetButton({
   watchingAsset,

@@ -19,13 +19,13 @@ const {
 
 export default function CoinbaseWalletCard() {
   const {
-    connector,
+    connector: selectedConnector,
     hooks: { usePriorityConnector },
   } = useWeb3React()
 
   const priorityConnector = usePriorityConnector()
   const isPriority = priorityConnector === coinbaseWallet
-  const isSelected = connector === coinbaseWallet
+  const isSelected = selectedConnector === coinbaseWallet
 
   const chainId = useChainId()
   const accountIndex = useAccountIndex()
@@ -53,7 +53,7 @@ export default function CoinbaseWalletCard() {
 
   return (
     <Card
-      walletLogo={coinbaseWallet.getWalletLogoUrl('circle', 24)}
+      walletLogoUrl={coinbaseWallet.getWalletLogoUrl('circle', 24)}
       connector={coinbaseWallet}
       chainId={chainId}
       accountIndex={accountIndex}

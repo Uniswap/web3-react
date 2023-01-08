@@ -1,7 +1,7 @@
 import type { JsonRpcProvider } from '@ethersproject/providers'
 import { useState } from 'react'
 import { useTimeout } from '../hooks/hooks'
-import { Button } from './Button'
+import Button from './Button'
 import Spacer from './Spacer'
 
 export default function SignerButton({ provider, account }: { provider?: JsonRpcProvider; account?: string }) {

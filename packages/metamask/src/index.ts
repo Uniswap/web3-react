@@ -27,10 +27,6 @@ export class NoMetaMaskError extends Error {
   }
 }
 
-function parseChainId(chainId: string) {
-  return Number.parseInt(chainId, 16)
-}
-
 /**
  * @param options - Options to pass to `@metamask/detect-provider`
  * @param onError - Handler to report errors thrown from eventListeners.
@@ -102,7 +98,7 @@ export class MetaMask extends Connector {
         }
 
         this.provider.on('connect', ({ chainId }: ProviderConnectInfo): void => {
-          this.actions.update({ chainId: parseChainId(chainId) })
+          this.actions.update({ chainId: this.parseChainId(chainId) })
         })
 
         this.provider.on('disconnect', (error: ProviderRpcError): void => {
@@ -116,7 +112,7 @@ export class MetaMask extends Connector {
         })
 
         this.provider.on('chainChanged', (chainId: string): void => {
-          this.actions.update({ chainId: parseChainId(chainId) })
+          this.actions.update({ chainId: this.parseChainId(chainId) })
         })
 
         this.provider.on('accountsChanged', (baseAccounts: string[]): void => {
@@ -153,7 +149,11 @@ export class MetaMask extends Connector {
 
         if (accounts.length) {
           const index = accounts.indexOf(this?.selectedAddress ?? '')
-          this.actions.update({ chainId: parseChainId(chainId), accounts, accountIndex: index < 0 ? undefined : index })
+          this.actions.update({
+            chainId: this.parseChainId(chainId),
+            accounts,
+            accountIndex: index < 0 ? undefined : index,
+          })
         } else {
           throw new Error('No accounts returned')
         }
@@ -189,7 +189,7 @@ export class MetaMask extends Connector {
         ]).then(async ([chainId, baseAccounts]) => {
           const accounts: string[] = (await this.getAccounts()) ?? baseAccounts
 
-          const receivedChainId = parseChainId(chainId)
+          const receivedChainId = this.parseChainId(chainId)
           const desiredChainId =
             typeof desiredChainIdOrChainParameters === 'number'
               ? desiredChainIdOrChainParameters
@@ -213,7 +213,7 @@ export class MetaMask extends Connector {
             },
           })
 
-          const desiredChainIdHex = `0x${desiredChainId.toString(16)}`
+          const desiredChainIdHex = this.formatChainId(desiredChainId)
 
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           return this.provider
@@ -291,7 +291,7 @@ export class MetaMask extends Connector {
 
     // Switch to the correct chain to watch the asset
     if (desiredChainIdOrChainParameters) {
-      const currentChainId = parseChainId((await this.provider.request({ method: 'eth_chainId' })) as string)
+      const currentChainId = this.parseChainId((await this.provider.request({ method: 'eth_chainId' })) as string)
 
       const desiredChainId =
         typeof desiredChainIdOrChainParameters === 'number'

@@ -148,7 +148,7 @@ export interface AddEthereumChainParameter {
   }
   rpcUrls: string[]
   blockExplorerUrls?: string[]
-  iconUrls?: string[] // Currently ignored.
+  iconUrls?: string[]
 }
 
 export type AddEthereumChainParameters = { [chainId: number]: AddEthereumChainParameter }
@@ -179,6 +179,14 @@ export abstract class Connector {
    */
   public customProvider?: unknown
 
+  /**
+   * Chains supported by the connector
+   */
+  public readonly supportedChainIds?: number[]
+
+  /**
+   * Actions to interact with the zustand store
+   */
   protected readonly actions: Actions
 
   /**
@@ -192,9 +200,10 @@ export abstract class Connector {
    * @param onError - An optional handler which will report errors thrown from event listeners.
    * Actions are used by the connector to report changes in connection status.
    */
-  constructor(actions: Actions, onError?: (error: Error) => void) {
+  constructor(actions: Actions, onError?: (error: Error) => void, supportedChains?: number[]) {
     this.actions = actions
     this.onError = onError
+    this.supportedChainIds = supportedChains
   }
 
   /**
@@ -223,4 +232,20 @@ export abstract class Connector {
    * Attempt to add an asset per EIP-747.
    */
   public watchAsset?(params: WatchAssetParameters): Promise<true>
+
+  /**
+   * Helper to convert hex to decimal format
+   */
+  public parseChainId(chainIdHex: string | number): number {
+    return typeof chainIdHex === 'number'
+      ? chainIdHex
+      : Number.parseInt(chainIdHex, chainIdHex.startsWith('0x') ? 16 : 10)
+  }
+
+  /**
+   * Helper to convert decimal to hex format
+   */
+  public formatChainId(chainId: string | number): string {
+    return `0x${chainId.toString(16)}`
+  }
 }

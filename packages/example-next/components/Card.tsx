@@ -1,4 +1,5 @@
-import { Web3ReactHooks } from '@web3-react/core'
+import type { ReactNode } from 'react'
+import type { Web3ReactHooks } from '@web3-react/core'
 import { polygonMainChainId } from '../config/chains/chainIds'
 import { CHAINS, getAddChainParameters } from '../utils/chains'
 import { getImageUrlFromTrust } from '../utils/helpers'
@@ -9,6 +10,7 @@ import { ConnectWithSelect } from './ConnectWithSelect'
 import { Status } from './Status'
 import { WatchAssetButton } from './WatchAssetButton'
 import Spacer from './Spacer'
+import { ChainConfig } from '../config/chains/chains.interface'
 
 interface Props {
   connector: ConnectorType
@@ -27,7 +29,8 @@ interface Props {
   accounts?: string[]
   isPriority?: boolean
   isSelected?: boolean
-  walletLogo?: string
+  walletLogoUrl?: string
+  children: ReactNode
 }
 
 export function Card({
@@ -47,7 +50,8 @@ export function Card({
   watchingAsset,
   isPriority,
   isSelected,
-  walletLogo,
+  walletLogoUrl,
+  children,
 }: Props) {
   const chainConfig = chainId ? CHAINS[chainId] : undefined
   const { nativeWrappedToken: wrappedMatic } = CHAINS[polygonMainChainId]
@@ -77,11 +81,12 @@ export function Card({
           maxWidth: '100%',
         }}
       >
-        {walletLogo && (
+        {walletLogoUrl && (
           <img
-            src={walletLogo}
+            src={walletLogoUrl}
             style={{
               width: 'auto',
+              minWidth: 24,
               height: 24,
               marginRight: '8px',
               borderRadius: '50%',
@@ -94,10 +99,10 @@ export function Card({
       <div style={{ marginBottom: '1rem' }}>
         <Status isActivating={isActivating} isActive={isActive} error={error} />
       </div>
-      <div style={{ whiteSpace: 'pre', display: 'flex', alignItems: 'center' }}>
+      <div style={{ whiteSpace: 'pre', display: 'flex', alignItems: 'center', marginBottom: '4px' }}>
         Priority: <b style={{ fontSize: '0.7em', lineHeight: '1em' }}>{isPriority ? ' ✅' : ' ❌'}</b>
       </div>
-      <div style={{ whiteSpace: 'pre', display: 'flex', alignItems: 'center' }}>
+      <div style={{ whiteSpace: 'pre', display: 'flex', alignItems: 'center', marginBottom: '4px' }}>
         Selected: <b style={{ fontSize: '0.7em', lineHeight: '1em' }}>{isSelected ? ' ✅' : ' ❌'}</b>
       </div>
       <Chain chainId={chainId} addingChain={addingChain} switchingChain={switchingChain} />
@@ -123,17 +128,20 @@ export function Card({
         <>
           <Spacer />
           <b>Watch Asset</b>
-          {chainConfig && chainId !== polygonMainChainId && (
-            <WatchAssetButton
-              watchingAsset={watchingAsset}
-              connector={connector}
-              assetParams={{
-                desiredChainIdOrChainParameters: getAddChainParameters(chainConfig?.chainId),
-                image: getImageUrlFromTrust(chainId, chainConfig?.nativeWrappedToken?.address),
-                ...chainConfig?.nativeWrappedToken,
-              }}
-            />
-          )}
+          {chainConfig &&
+            chainId !== polygonMainChainId &&
+            CHAINS[chainId] &&
+            !!(CHAINS[chainId] as ChainConfig)?.nativeWrappedToken && (
+              <WatchAssetButton
+                watchingAsset={watchingAsset}
+                connector={connector}
+                assetParams={{
+                  desiredChainIdOrChainParameters: getAddChainParameters(chainConfig?.chainId),
+                  image: getImageUrlFromTrust(chainId, chainConfig?.nativeWrappedToken?.address),
+                  ...chainConfig?.nativeWrappedToken,
+                }}
+              />
+            )}
           <WatchAssetButton
             watchingAsset={watchingAsset}
             connector={connector}
@@ -143,6 +151,12 @@ export function Card({
               ...wrappedMatic,
             }}
           />
+        </>
+      )}
+      {children && (
+        <>
+          <Spacer />
+          {children}
         </>
       )}
     </div>

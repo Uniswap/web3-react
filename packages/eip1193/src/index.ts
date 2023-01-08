@@ -1,10 +1,6 @@
 import type { Actions, Provider, ProviderConnectInfo, ProviderRpcError } from '@web3-react/types'
 import { Connector } from '@web3-react/types'
 
-function parseChainId(chainId: string | number) {
-  return typeof chainId === 'string' ? Number.parseInt(chainId, 16) : chainId
-}
-
 /**
  * @param provider - An EIP-1193 ({@link https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1193.md}) provider.
  * @param onError - Handler to report errors thrown from eventListeners.
@@ -25,7 +21,7 @@ export class EIP1193 extends Connector {
     this.provider = provider
 
     this.provider.on('connect', ({ chainId }: ProviderConnectInfo): void => {
-      this.actions.update({ chainId: parseChainId(chainId) })
+      this.actions.update({ chainId: this.parseChainId(chainId) })
     })
 
     this.provider.on('disconnect', (error: ProviderRpcError): void => {
@@ -34,7 +30,7 @@ export class EIP1193 extends Connector {
     })
 
     this.provider.on('chainChanged', (chainId: string): void => {
-      this.actions.update({ chainId: parseChainId(chainId) })
+      this.actions.update({ chainId: this.parseChainId(chainId) })
     })
 
     this.provider.on('accountsChanged', (accounts: string[]): void => {
@@ -51,7 +47,7 @@ export class EIP1193 extends Connector {
       this.provider.request({ method: 'eth_accounts' }) as Promise<string[]>,
     ])
       .then(([chainId, accounts]) => {
-        this.actions.update({ chainId: parseChainId(chainId), accounts })
+        this.actions.update({ chainId: this.parseChainId(chainId), accounts })
       })
       .catch((error) => {
         cancelActivation()
@@ -70,7 +66,7 @@ export class EIP1193 extends Connector {
         .catch(() => this.provider.request({ method: 'eth_accounts' })) as Promise<string[]>,
     ])
       .then(([chainId, accounts]) => {
-        this.actions.update({ chainId: parseChainId(chainId), accounts })
+        this.actions.update({ chainId: this.parseChainId(chainId), accounts })
       })
       .catch((error) => {
         cancelActivation()

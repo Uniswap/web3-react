@@ -53,7 +53,7 @@ export default function MetaMaskCard() {
 
   return (
     <Card
-      walletLogo="https://assets-cdn.trustwallet.com/blockchains/smartchain/info/logo.png"
+      walletLogoUrl="https://assets-cdn.trustwallet.com/blockchains/smartchain/info/logo.png"
       connector={bscWallet}
       chainId={chainId}
       accountIndex={accountIndex}

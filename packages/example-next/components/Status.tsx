@@ -14,33 +14,40 @@ export function Status({
       style={{
         marginTop: '1em',
         width: '100%',
-        display: 'inline-flex',
-        alignItems: 'center',
+        display: 'flex',
+        alignItems: 'flex-start',
         justifyContent: 'flex-start',
         whiteSpace: 'pre',
+        wordWrap: 'break-word',
       }}
     >
       {error ? (
-        <>
-          <p style={{ fontSize: '0.7em', lineHeight: '1em' }}>{`🔴 `}</p>
-          {error.name ?? 'Error'}
-          {error.message ? `: ${error.message}` : null}
-        </>
+        <div
+          style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'flex-start' }}
+        >
+          <div style={{ display: 'inline-flex', alignItems: 'center', width: '100%' }}>
+            <p style={{ fontSize: '0.7em', lineHeight: '1em', marginTop: 8, marginBottom: 8 }}>{`🔴 `}</p>
+            {error?.name ? ` ${error.name}` : ' Error'}
+          </div>
+          <p style={{ width: '100%', whiteSpace: 'normal', marginTop: 8, marginBottom: 8 }}>
+            {error.message ? `- ${error.message}` : null}
+          </p>
+        </div>
       ) : isActivating ? (
-        <>
-          <p style={{ fontSize: '0.7em', lineHeight: '1em' }}>🟡</p>
-          {' Connecting'}
-        </>
+        <div style={{ display: 'inline-flex', alignItems: 'center', width: '100%' }}>
+          <p style={{ fontSize: '0.7em', lineHeight: '0.95em' }}>🟡</p>
+          {'  Connecting'}
+        </div>
       ) : isActive ? (
-        <>
-          <p style={{ fontSize: '0.7em', lineHeight: '1em' }}>🟢</p>
-          {' Connected'}
-        </>
+        <div style={{ display: 'inline-flex', alignItems: 'center', width: '100%' }}>
+          <p style={{ fontSize: '0.7em', lineHeight: '0.95em' }}>🟢</p>
+          {'  Connected'}
+        </div>
       ) : (
-        <>
-          <p style={{ fontSize: '0.7em', lineHeight: '1em' }}>⚪️</p>
-          {' Disconnected'}
-        </>
+        <div style={{ display: 'inline-flex', alignItems: 'center', width: '100%' }}>
+          <p style={{ fontSize: '0.7em', lineHeight: '0.95em' }}>⚪️</p>
+          {'  Disconnected'}
+        </div>
       )}
     </div>
   )

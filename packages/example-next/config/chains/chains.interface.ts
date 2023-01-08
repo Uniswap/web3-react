@@ -5,7 +5,7 @@ export interface ChainConfig {
   name: string
   rpcUrls: string[]
   nativeCurrency: AddEthereumChainParameter['nativeCurrency']
-  nativeWrappedToken: {
+  nativeWrappedToken?: {
     address: string
     name: string
     symbol: string

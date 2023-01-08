@@ -7,13 +7,13 @@ const { useChainId, useAccounts, useIsActivating, useIsActive, useProvider, useE
 
 export default function NetworkCard() {
   const {
-    connector,
+    connector: selectedConnector,
     hooks: { usePriorityConnector },
   } = useWeb3React()
 
   const priorityConnector = usePriorityConnector()
   const isPriority = priorityConnector === network
-  const isSelected = connector === network
+  const isSelected = selectedConnector === network
 
   const chainId = useChainId()
   const accounts = useAccounts()

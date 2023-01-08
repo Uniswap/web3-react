@@ -1,6 +1,6 @@
 import { initializeConnector } from '@web3-react/core'
 import { Empty, EMPTY } from '@web3-react/empty'
-import React from 'react'
+import { StrictMode } from 'react'
 import ReactDOM from 'react-dom'
 
 const [, { useAccount }] = initializeConnector<Empty>(() => EMPTY)
@@ -11,8 +11,8 @@ function Account() {
 }
 
 ReactDOM.render(
-  <React.StrictMode>
+  <StrictMode>
     <Account />
-  </React.StrictMode>,
+  </StrictMode>,
   document.getElementById('root')
 )

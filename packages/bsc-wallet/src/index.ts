@@ -5,17 +5,17 @@ import { Connector } from '@web3-react/types'
 // Will not give a rejection error if the user closes the modal without unlocking
 // May stop emitting accountsChanged
 
-declare global {
-  interface Window {
-    BinanceChain?: BscProvider
-  }
-}
-
 type BscProvider = Provider & {
   chainId?: string
   autoRefreshOnNetworkChange?: boolean
   isConnected?: () => boolean
   switchNetwork?: (chainId: number) => void
+}
+
+declare global {
+  interface Window {
+    BinanceChain?: BscProvider
+  }
 }
 
 type BscWalletOptions = {
@@ -31,10 +31,6 @@ export class NoBscProviderError extends Error {
   }
 }
 
-function parseChainId(chainId: string) {
-  return Number.parseInt(chainId, 16)
-}
-
 /**
  * @param options - Options to pass to the "BinanceChain" provider.
  * @param onError - Handler to report errors thrown from eventListeners.
@@ -43,6 +39,7 @@ export interface BscConstructorArgs {
   actions: Actions
   options?: BscWalletOptions
   onError?: (error: Error) => void
+  supportedChainIds?: number[]
 }
 
 export class BscWallet extends Connector {
@@ -51,8 +48,8 @@ export class BscWallet extends Connector {
 
   private readonly options?: BscWalletOptions
 
-  constructor({ actions, options, onError }: BscConstructorArgs) {
-    super(actions, onError)
+  constructor({ actions, options, onError, supportedChainIds }: BscConstructorArgs) {
+    super(actions, onError, supportedChainIds ?? [1, 56, 97])
     this.options = options
   }
 
@@ -65,7 +62,7 @@ export class BscWallet extends Connector {
       this.provider.on('connect', ({ chainId }: ProviderConnectInfo): void => {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         this.provider!.autoRefreshOnNetworkChange = this.options?.autoRefreshOnNetworkChange ?? true
-        this.actions.update({ chainId: parseChainId(chainId) })
+        this.actions.update({ chainId: this.parseChainId(chainId) })
       })
 
       this.provider.on('disconnect', (error: ProviderRpcError): void => {
@@ -74,7 +71,7 @@ export class BscWallet extends Connector {
       })
 
       this.provider.on('chainChanged', (chainId: string): void => {
-        this.actions.update({ chainId: parseChainId(chainId) })
+        this.actions.update({ chainId: this.parseChainId(chainId) })
       })
 
       this.provider.on('accountsChanged', (accounts: string[]): void => {
@@ -96,6 +93,7 @@ export class BscWallet extends Connector {
     const cancelActivation = this.actions.startActivation()
 
     this.isomorphicInitialize()
+
     if (!this.provider) return cancelActivation()
 
     return Promise.all([
@@ -109,7 +107,7 @@ export class BscWallet extends Connector {
           // this.provider.switchNetwork(0x38).catch((error) => console.log(error))
 
           this.actions.update({
-            chainId: parseChainId(chainId),
+            chainId: this.parseChainId(chainId),
             accounts,
             accountIndex: accounts?.length ? 0 : undefined,
           })
@@ -142,7 +140,7 @@ export class BscWallet extends Connector {
     ])
       .then(([chainId, accounts]) => {
         this.actions.update({
-          chainId: parseChainId(chainId),
+          chainId: this.parseChainId(chainId),
           accounts,
           accountIndex: accounts?.length ? 0 : undefined,
         })

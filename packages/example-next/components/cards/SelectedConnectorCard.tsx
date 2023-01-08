@@ -1,6 +1,6 @@
 import { useWeb3React } from '@web3-react/core'
 import { Accounts } from '../Accounts'
-import { Button } from '../Button'
+import Button from '../Button'
 import { Chain } from '../Chain'
 import SignerButton from '../SignerButton'
 import Spacer from '../Spacer'

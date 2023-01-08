@@ -12,11 +12,28 @@ import {
   ethMainChainId,
   ethGoerliChainId,
   ethSepoliaChainId,
-  polygonMainChainId,
-  polygonTestChainId,
+  etcMainChainId,
+  etcKottiChainId,
+  etcMordorChainId,
+  fantomMainChainId,
+  fantomTestChainId,
+  fuseMainChainId,
+  fuseTestChainId,
+  gnosisMainChainId,
+  lightstreamsMainChainId,
+  lightstreamsTestChainId,
   optimismMainChainId,
   optimismTestChainId,
+  poaMainChainId,
+  poaTestChainId,
+  polygonMainChainId,
+  polygonTestChainId,
   plsTestChainId,
+  rskMainChainId,
+  rskTestChainId,
+  thunderMainChainId,
+  thunderTestChainId,
+  ubiqMainChainId,
   allChains,
 } from '../config/chains/chainIds'
 import arbitrumMainnet from '../config/chains/arbitrum/mainnet'
@@ -30,11 +47,28 @@ import celoTestnet from '../config/chains/celo/alfajores'
 import ethMainnet from '../config/chains/ethereum/mainnet'
 import ethGoerliTestnet from '../config/chains/ethereum/goerli'
 import ethSepoliaTestnet from '../config/chains/ethereum/sepolia'
-import polygonMainnet from '../config/chains/polygon/mainnet'
-import polygonTestnet from '../config/chains/polygon/mumbai'
+import etcMainnet from '../config/chains/classic/mainnet'
+import etcKottiTestnet from '../config/chains/classic/kotti'
+import etcMordorTestnet from '../config/chains/classic/mordor'
+import fantomMainnet from '../config/chains/fantom/mainnet'
+import fantomTestnet from '../config/chains/fantom/testnet'
+import fuseMainnet from '../config/chains/fuse/mainnet'
+import fuseTestnet from '../config/chains/fuse/sparknet'
+import gnosisMainnet from '../config/chains/gnosis/mainnet'
+import lightstreamsMainnet from '../config/chains/lightstreams/mainnet'
+import lightstreamsTestnet from '../config/chains/lightstreams/sirius'
 import optimismMainnet from '../config/chains/optimism/mainnet'
 import optimismTestnet from '../config/chains/optimism/goerli'
+import poaMainnet from '../config/chains/poa/mainnet'
+import poaTestnet from '../config/chains/poa/sokol'
+import polygonMainnet from '../config/chains/polygon/mainnet'
+import polygonTestnet from '../config/chains/polygon/mumbai'
 import plsTestnet from '../config/chains/pulse/testnet'
+import rskMainnet from '../config/chains/rsk/mainnet'
+import rskTestnet from '../config/chains/rsk/testnet'
+import thunderMainnet from '../config/chains/thunder/mainnet'
+import thunderTestnet from '../config/chains/thunder/testnet'
+import ubiqMainnet from '../config/chains/ubiq/mainnet'
 
 export const CHAINS: { [chainId: number]: ChainConfig } = {
   [arbitrumMainChainId]: {
@@ -70,11 +104,35 @@ export const CHAINS: { [chainId: number]: ChainConfig } = {
   [ethSepoliaChainId]: {
     ...ethSepoliaTestnet,
   },
-  [polygonMainChainId]: {
-    ...polygonMainnet,
+  [etcMainChainId]: {
+    ...etcMainnet,
   },
-  [polygonTestChainId]: {
-    ...polygonTestnet,
+  [etcKottiChainId]: {
+    ...etcKottiTestnet,
+  },
+  [etcMordorChainId]: {
+    ...etcMordorTestnet,
+  },
+  [fantomMainChainId]: {
+    ...fantomMainnet,
+  },
+  [fantomTestChainId]: {
+    ...fantomTestnet,
+  },
+  [fuseMainChainId]: {
+    ...fuseMainnet,
+  },
+  [fuseTestChainId]: {
+    ...fuseTestnet,
+  },
+  [gnosisMainChainId]: {
+    ...gnosisMainnet,
+  },
+  [lightstreamsMainChainId]: {
+    ...lightstreamsMainnet,
+  },
+  [lightstreamsTestChainId]: {
+    ...lightstreamsTestnet,
   },
   [optimismMainChainId]: {
     ...optimismMainnet,
@@ -82,8 +140,35 @@ export const CHAINS: { [chainId: number]: ChainConfig } = {
   [optimismTestChainId]: {
     ...optimismTestnet,
   },
+  [poaMainChainId]: {
+    ...poaMainnet,
+  },
+  [poaTestChainId]: {
+    ...poaTestnet,
+  },
+  [polygonMainChainId]: {
+    ...polygonMainnet,
+  },
+  [polygonTestChainId]: {
+    ...polygonTestnet,
+  },
   [plsTestChainId]: {
     ...plsTestnet,
+  },
+  [rskMainChainId]: {
+    ...rskMainnet,
+  },
+  [rskTestChainId]: {
+    ...rskTestnet,
+  },
+  [thunderMainChainId]: {
+    ...thunderMainnet,
+  },
+  [thunderTestChainId]: {
+    ...thunderTestnet,
+  },
+  [ubiqMainChainId]: {
+    ...ubiqMainnet,
   },
 }
 

@@ -7,6 +7,7 @@ import WalletConnectCard from '../components/cards/WalletConnectCard'
 import GnosisSafeCard from '../components/cards/GnosisSafeCard'
 import BscWalletCard from '../components/cards/BscWalletCard'
 import NetworkCard from '../components/cards/NetworkCard'
+import PortisWalletCard from '../components/cards/PortisWalletCard'
 
 export default function Home() {
   return (
@@ -24,6 +25,7 @@ export default function Home() {
         <WalletConnectCard />
         <GnosisSafeCard />
         <BscWalletCard />
+        <PortisWalletCard />
         <NetworkCard />
       </div>
     </Web3ReactProvider>

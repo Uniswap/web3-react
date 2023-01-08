@@ -7,13 +7,13 @@ const { useChainId, useAccounts, useIsActivating, useIsActive, useProvider, useE
 
 export default function GnosisSafeCard() {
   const {
-    connector,
+    connector: selectedConnector,
     hooks: { usePriorityConnector },
   } = useWeb3React()
 
   const priorityConnector = usePriorityConnector()
   const isPriority = priorityConnector === gnosisSafe
-  const isSelected = connector === gnosisSafe
+  const isSelected = selectedConnector === gnosisSafe
 
   const chainId = useChainId()
   const accounts = useAccounts()
@@ -36,7 +36,7 @@ export default function GnosisSafeCard() {
 
   return (
     <Card
-      walletLogo="https://assets-global.website-files.com/61571d3b8fe2e30679056424/6341d34a6a3b918698693b5e_gnosis.png"
+      walletLogoUrl="https://assets-global.website-files.com/61571d3b8fe2e30679056424/6341d34a6a3b918698693b5e_gnosis.png"
       connector={gnosisSafe}
       chainId={chainId}
       isActivating={isActivating}

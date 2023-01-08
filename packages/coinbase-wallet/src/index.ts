@@ -10,10 +10,6 @@ import type {
 } from '@web3-react/types'
 import { Connector } from '@web3-react/types'
 
-function parseChainId(chainId: string | number) {
-  return typeof chainId === 'number' ? chainId : Number.parseInt(chainId, chainId.startsWith('0x') ? 16 : 10)
-}
-
 type CoinbaseWalletSDKOptions = ConstructorParameters<typeof CoinbaseWalletSDK>[0] & { url: string }
 
 /**
@@ -63,7 +59,7 @@ export class CoinbaseWallet extends Connector {
       this.provider = this.coinbaseWallet.makeWeb3Provider(url)
 
       this.provider.on('connect', ({ chainId }: ProviderConnectInfo): void => {
-        this.actions.update({ chainId: parseChainId(chainId) })
+        this.actions.update({ chainId: this.parseChainId(chainId) })
       })
 
       this.provider.on('disconnect', (error: ProviderRpcError): void => {
@@ -72,7 +68,7 @@ export class CoinbaseWallet extends Connector {
       })
 
       this.provider.on('chainChanged', (chainId: string): void => {
-        this.actions.update({ chainId: parseChainId(chainId) })
+        this.actions.update({ chainId: this.parseChainId(chainId) })
       })
 
       this.provider.on('accountsChanged', (accounts: string[]): void => {
@@ -103,7 +99,7 @@ export class CoinbaseWallet extends Connector {
       ]).then(([chainId, accounts]) => {
         if (!accounts.length) throw new Error('No accounts returned')
         this.actions.update({
-          chainId: parseChainId(chainId),
+          chainId: this.parseChainId(chainId),
           accounts,
           accountIndex: accounts?.length ? 0 : undefined,
         })
@@ -132,18 +128,18 @@ export class CoinbaseWallet extends Connector {
     // Add/Switch Chain if already connected
     if (this.selectedAddress) {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      if (!desiredChainId || desiredChainId === parseChainId(this.provider!.chainId)) return
+      if (!desiredChainId || desiredChainId === this.parseChainId(this.provider!.chainId)) return
 
       // if we're here, we can try to switch networks
       this.actions.update({
         switchingChain: {
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          fromChainId: parseChainId(this.provider!.chainId),
+          fromChainId: this.parseChainId(this.provider!.chainId),
           toChainId: desiredChainId,
         },
       })
 
-      const desiredChainIdHex = `0x${desiredChainId.toString(16)}`
+      const desiredChainIdHex = this.formatChainId(desiredChainId)
 
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       return this.provider!.request<void>({
@@ -207,7 +203,7 @@ export class CoinbaseWallet extends Connector {
         this.provider!.request<string[]>({ method: 'eth_requestAccounts' }),
       ])
         .then(([chainId, accounts]) => {
-          const receivedChainId = parseChainId(chainId)
+          const receivedChainId = this.parseChainId(chainId)
 
           if (!desiredChainId || desiredChainId === receivedChainId) {
             return this.actions.update({
@@ -220,12 +216,12 @@ export class CoinbaseWallet extends Connector {
           // if we're here, we can try to switch networks
           this.actions.update({
             switchingChain: {
-              fromChainId: parseChainId(chainId),
+              fromChainId: this.parseChainId(chainId),
               toChainId: desiredChainId,
             },
           })
 
-          const desiredChainIdHex = `0x${desiredChainId.toString(16)}`
+          const desiredChainIdHex = this.formatChainId(desiredChainId)
 
           return this.provider
             ?.request<void>({
@@ -315,7 +311,7 @@ export class CoinbaseWallet extends Connector {
 
     // Switch to the correct chain to watch the asset
     if (desiredChainIdOrChainParameters) {
-      const currentChainId = parseChainId(await this.provider.request({ method: 'eth_chainId' }))
+      const currentChainId = this.parseChainId(await this.provider.request({ method: 'eth_chainId' }))
 
       const desiredChainId =
         typeof desiredChainIdOrChainParameters === 'number'

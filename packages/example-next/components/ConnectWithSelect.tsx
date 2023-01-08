@@ -1,13 +1,19 @@
+import { useCallback, useState } from 'react'
+
 import type { AddingChainInfo, SwitchingChainInfo } from '@web3-react/types'
 import { useWeb3React, Web3ReactHooks } from '@web3-react/core'
-import { GnosisSafe } from '@web3-react/gnosis-safe'
-import { BscWallet } from '@web3-react/bsc-wallet'
-import { Network } from '@web3-react/network'
+
+import { MetaMask } from '@web3-react/metamask'
+import { CoinbaseWallet } from '@web3-react/coinbase-wallet'
 import { WalletConnect } from '@web3-react/walletconnect'
-import { useCallback, useState } from 'react'
-import { CHAINS, getAddChainParameters, URLS } from '../utils/chains'
+import { PortisWallet } from '@web3-react/portis-wallet'
+import { Network } from '@web3-react/network'
+
+import { ethMainChainId } from '../config/chains/chainIds'
+import { CHAINS, getAddChainParameters } from '../utils/chains'
 import { ConnectorType } from '../utils/connectors'
-import { Button } from './Button'
+
+import Button from './Button'
 import Spacer from './Spacer'
 
 function ChainSelect({
@@ -78,116 +84,100 @@ export function ConnectWithSelect({
 }) {
   const { setSelectedConnector } = useWeb3React()
 
+  const isSwitchableNetwork =
+    connector instanceof MetaMask ||
+    connector instanceof CoinbaseWallet ||
+    connector instanceof PortisWallet ||
+    connector instanceof WalletConnect ||
+    connector instanceof Network
+  const isAddableNetwork = connector instanceof MetaMask || connector instanceof CoinbaseWallet
+
   const isNetwork = connector instanceof Network
   const displayDefault = !isNetwork
-  const chainIds = (isNetwork ? Object.keys(URLS) : Object.keys(CHAINS)).map((chainId) => Number(chainId))
+  const chainIds = connector?.supportedChainIds ?? Object.keys(CHAINS).map((chainId) => Number(chainId))
 
-  const [desiredChainId, setDesiredChainId] = useState<number>(isNetwork ? 1 : chainId)
+  const [desiredChainId, setDesiredChainId] = useState<number>(isNetwork ? ethMainChainId : chainId)
 
-  const switchChain = useCallback(
-    (desiredChainId: number) => {
-      setDesiredChainId(desiredChainId)
+  const handleConnect = useCallback(
+    (potentialChainId?: number): void => {
+      if (isActivating) return
+
+      const chain = potentialChainId ?? desiredChainId
+
+      if (isSwitchableNetwork && isAddableNetwork) {
+        connector
+          .activate(chain === -1 ? undefined : getAddChainParameters(chain))
+          .then(() => setError(undefined))
+          .catch(setError)
+      } else if (isSwitchableNetwork) {
+        connector
+          .activate(chain === -1 ? undefined : chain)
+          .then(() => setError(undefined))
+          .catch(setError)
+      } else {
+        connector
+          .activate()
+          .then(() => setError(undefined))
+          .catch(setError)
+      }
+    },
+    [connector, desiredChainId, isActivating, isAddableNetwork, isSwitchableNetwork, setError]
+  )
+
+  const handleSwitchChain = useCallback(
+    (potentialChainId: number) => {
+      setDesiredChainId(potentialChainId)
+
       // if we're already connected to the desired chain, return
-      if (desiredChainId === chainId) {
+      if (potentialChainId === chainId) {
         setError(undefined)
         return
       }
 
       // if they want to connect to the default chain and we're already connected, return
-      if (desiredChainId === -1 && chainId !== undefined) {
+      if (potentialChainId === -1 && chainId !== undefined) {
         setError(undefined)
         return
       }
 
-      if (connector instanceof WalletConnect || connector instanceof Network) {
-        connector
-          .activate(desiredChainId === -1 ? undefined : desiredChainId)
-          .then(() => setError(undefined))
-          .catch(setError)
-      } else {
-        connector
-          .activate(desiredChainId === -1 ? undefined : getAddChainParameters(desiredChainId))
-          .then(() => setError(undefined))
-          .catch(setError)
-      }
+      handleConnect(potentialChainId)
     },
-    [connector, chainId, setError]
+    [chainId, handleConnect, setError]
   )
 
-  const onClick = useCallback((): void => {
+  const handleTryAgain = useCallback((): void => {
     setError(undefined)
-    if (connector instanceof GnosisSafe || connector instanceof BscWallet) {
-      connector
-        .activate()
-        .then(() => setError(undefined))
-        .catch(setError)
-    } else if (connector instanceof WalletConnect || connector instanceof Network) {
-      connector
-        .activate(desiredChainId === -1 ? undefined : desiredChainId)
-        .then(() => setError(undefined))
-        .catch(setError)
-    } else {
-      connector
-        .activate(desiredChainId === -1 ? undefined : getAddChainParameters(desiredChainId))
-        .then(() => setError(undefined))
-        .catch(setError)
-    }
-  }, [connector, desiredChainId, setError])
+    handleConnect()
+  }, [handleConnect, setError])
 
-  if (error) {
-    return (
-      <>
-        <Spacer />
-        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-start' }}>
-          {!(connector instanceof GnosisSafe || connector instanceof BscWallet) && (
-            <ChainSelect
-              chainId={desiredChainId}
-              switchChain={switchChain}
-              displayDefault={displayDefault}
-              chainIds={chainIds}
-              isPendingChainAdd={!!addingChain}
-              isPendingChainSwitch={!!switchingChain}
-            />
-          )}
+  return (
+    <>
+      <Spacer />
+      <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-start' }}>
+        {isSwitchableNetwork && (
+          <ChainSelect
+            chainId={desiredChainId}
+            switchChain={handleSwitchChain}
+            displayDefault={displayDefault}
+            chainIds={chainIds}
+            isPendingChainAdd={!!addingChain}
+            isPendingChainSwitch={!!switchingChain}
+          />
+        )}
+
+        {error ? (
           <Button
             style={{
+              marginBottom: '1rem',
               borderColor: 'rgba(253, 246, 56, 0.4)',
               backgroundColor: 'rgba(253, 246, 56, 0.15)',
             }}
             disabled={isActivating || !!addingChain || !!switchingChain}
-            onClick={onClick}
+            onClick={handleTryAgain}
           >
             Try Again?
           </Button>
-          <div style={{ marginBottom: '1rem' }} />
-          <Button
-            style={{
-              borderColor: 'rgba(168, 56, 253, 0.4)',
-              backgroundColor: 'rgba(168, 56, 253, 0.15)',
-            }}
-            onClick={() => setSelectedConnector(connector)}
-            disabled={isSelected}
-          >
-            Select
-          </Button>
-        </div>
-      </>
-    )
-  } else if (isActive) {
-    return (
-      <>
-        <Spacer />
-        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-start' }}>
-          {!(connector instanceof GnosisSafe || connector instanceof BscWallet) && (
-            <ChainSelect
-              chainId={desiredChainId === -1 ? -1 : chainId}
-              switchChain={switchChain}
-              displayDefault={displayDefault}
-              chainIds={chainIds}
-              isPendingChainAdd={!!addingChain}
-              isPendingChainSwitch={!!switchingChain}
-            />
-          )}
+        ) : isActive ? (
           <Button
             style={{
               marginBottom: '1rem',
@@ -204,77 +194,31 @@ export function ConnectWithSelect({
           >
             Disconnect
           </Button>
-          <Button
-            style={{
-              borderColor: 'rgba(168, 56, 253, 0.4)',
-              backgroundColor: 'rgba(168, 56, 253, 0.15)',
-            }}
-            onClick={() => setSelectedConnector(connector)}
-            disabled={isSelected}
-          >
-            Select
-          </Button>
-        </div>
-      </>
-    )
-  } else {
-    return (
-      <>
-        <Spacer />
-        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-start' }}>
-          {!(connector instanceof GnosisSafe || connector instanceof BscWallet) && (
-            <>
-              <ChainSelect
-                chainId={desiredChainId}
-                switchChain={isActivating ? undefined : switchChain}
-                displayDefault={displayDefault}
-                chainIds={chainIds}
-                isPendingChainAdd={!!addingChain}
-                isPendingChainSwitch={!!switchingChain}
-              />
-            </>
-          )}
+        ) : (
           <Button
             style={{
               marginBottom: '1rem',
               borderColor: 'rgba(56, 253, 72, 0.4)',
               backgroundColor: 'rgba(56, 253, 72, 0.15)',
             }}
-            onClick={
-              isActivating
-                ? undefined
-                : () =>
-                    connector instanceof GnosisSafe || connector instanceof BscWallet
-                      ? void connector
-                          .activate()
-                          .then(() => setError(undefined))
-                          .catch(setError)
-                      : connector instanceof WalletConnect || connector instanceof Network
-                      ? connector
-                          .activate(desiredChainId === -1 ? undefined : desiredChainId)
-                          .then(() => setError(undefined))
-                          .catch(setError)
-                      : connector
-                          .activate(desiredChainId === -1 ? undefined : getAddChainParameters(desiredChainId))
-                          .then(() => setError(undefined))
-                          .catch(setError)
-            }
+            onClick={() => handleConnect()}
             disabled={isActivating}
           >
             Connect
           </Button>
-          <Button
-            style={{
-              borderColor: 'rgba(168, 56, 253, 0.4)',
-              backgroundColor: 'rgba(168, 56, 253, 0.15)',
-            }}
-            onClick={() => setSelectedConnector(connector)}
-            disabled={isSelected}
-          >
-            Select
-          </Button>
-        </div>
-      </>
-    )
-  }
+        )}
+
+        <Button
+          style={{
+            borderColor: 'rgba(168, 56, 253, 0.4)',
+            backgroundColor: 'rgba(168, 56, 253, 0.15)',
+          }}
+          onClick={() => setSelectedConnector(connector)}
+          disabled={isSelected}
+        >
+          Select
+        </Button>
+      </div>
+    </>
+  )
 }
