@@ -66,8 +66,8 @@ export class MetaMask extends Connector {
           // 1013 indicates that MetaMask is attempting to reestablish the connection
           // https://github.com/MetaMask/providers/releases/tag/v8.0.0
           if (error.code === 1013) {
-            console.debug('MetaMask logged connection error 1013: "Try again later"');
-            return;
+            console.debug('MetaMask logged connection error 1013: "Try again later"')
+            return
           }
           this.actions.resetState()
           this.onError?.(error)
