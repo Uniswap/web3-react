@@ -102,7 +102,15 @@ export function createWeb3ReactStoreAndActions(): [Web3ReactStore, Actions] {
         ? stateUpdate.watchingAsset
         : existingState.watchingAsset
 
-      return { chainId, accountIndex, accounts, activating, addingChain, switchingChain, watchingAsset }
+      return {
+        chainId,
+        accountIndex,
+        accounts,
+        activating,
+        addingChain,
+        switchingChain,
+        watchingAsset,
+      }
     })
   }
 

@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { Card } from '../Card'
 import { portisWallet, hooks } from '../../config/connectors/portisWallet'
 import Button from '../Button'
+import Spacer from '../Spacer'
 
 const {
   useChainId,
@@ -16,6 +17,8 @@ const {
   useAddingChain,
   useSwitchingChain,
   useWatchingAsset,
+  useBalances,
+  useBlockNumber,
 } = hooks
 
 function useShowPortis(showBitcoin?: boolean) {
@@ -62,6 +65,9 @@ export default function PortisWalletCard() {
   const switchingChain = useSwitchingChain()
   const watchingAsset = useWatchingAsset()
 
+  const { blockNumber, fetch: fetchBlockNumber } = useBlockNumber(false)
+  const { balances, fetch: fetchBalances } = useBalances(false)
+
   const [error, setError] = useState(undefined)
 
   // attempt to connect eagerly on mount
@@ -90,12 +96,23 @@ export default function PortisWalletCard() {
       setError={setError}
       isPriority={isPriority}
       isSelected={isSelected}
+      blockNumber={blockNumber}
+      balances={balances}
     >
       <Button style={{ marginBottom: '1em' }} disabled={isShowing} onClick={() => void showPortis()}>
         Show Wallet
       </Button>
       <Button disabled={isShowingBitcoin} onClick={() => void showPortisBitcoin()}>
         Show Bitcoin Wallet
+      </Button>
+      <Spacer />
+      <Button
+        onClick={() => {
+          void fetchBlockNumber()
+          void fetchBalances()
+        }}
+      >
+        Refresh
       </Button>
     </Card>
   )

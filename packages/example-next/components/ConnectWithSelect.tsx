@@ -216,7 +216,7 @@ export function ConnectWithSelect({
           onClick={() => setSelectedConnector(connector)}
           disabled={isSelected}
         >
-          Select
+          {isSelected ? 'Selected' : 'Select'}
         </Button>
       </div>
     </>

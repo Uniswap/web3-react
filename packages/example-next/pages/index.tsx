@@ -6,12 +6,13 @@ import CoinbaseWalletCard from '../components/cards/CoinbaseWalletCard'
 import WalletConnectCard from '../components/cards/WalletConnectCard'
 import GnosisSafeCard from '../components/cards/GnosisSafeCard'
 import BscWalletCard from '../components/cards/BscWalletCard'
-import NetworkCard from '../components/cards/NetworkCard'
 import PortisWalletCard from '../components/cards/PortisWalletCard'
+import TronLinkCard from '../components/cards/TronLinkCard'
+import NetworkCard from '../components/cards/NetworkCard'
 
 export default function Home() {
   return (
-    <Web3ReactProvider connectors={connectors}>
+    <Web3ReactProvider connectors={connectors} lookupENS subscribe>
       <div
         className="bg-gray-500"
         style={{ display: 'flex', flexFlow: 'wrap', fontFamily: 'sans-serif', color: 'rgb(201, 209, 217' }}
@@ -26,6 +27,7 @@ export default function Home() {
         <GnosisSafeCard />
         <BscWalletCard />
         <PortisWalletCard />
+        <TronLinkCard />
         <NetworkCard />
       </div>
     </Web3ReactProvider>

@@ -1,4 +1,4 @@
-import type { Actions, Provider, ProviderConnectInfo, ProviderRpcError } from '@web3-react/types'
+import type { Provider, ProviderConnectInfo, ProviderRpcError, ConnectorArgs } from '@web3-react/types'
 import { Connector } from '@web3-react/types'
 
 // BSC Wallet extension bugs:
@@ -35,11 +35,8 @@ export class NoBscProviderError extends Error {
  * @param options - Options to pass to the "BinanceChain" provider.
  * @param onError - Handler to report errors thrown from eventListeners.
  */
-export interface BscConstructorArgs {
-  actions: Actions
+export interface BscConstructorArgs extends ConnectorArgs {
   options?: BscWalletOptions
-  onError?: (error: Error) => void
-  supportedChainIds?: number[]
 }
 
 export class BscWallet extends Connector {
@@ -48,13 +45,18 @@ export class BscWallet extends Connector {
 
   private readonly options?: BscWalletOptions
 
-  constructor({ actions, options, onError, supportedChainIds }: BscConstructorArgs) {
-    super(actions, onError, supportedChainIds ?? [1, 56, 97])
+  constructor({ actions, options, onError, connectorOptions }: BscConstructorArgs) {
+    super(actions, onError, {
+      ...connectorOptions,
+      supportedChainIds: connectorOptions?.supportedChainIds ?? [1, 56, 97],
+    })
     this.options = options
   }
 
   private isomorphicInitialize() {
-    const provider = window?.BinanceChain as BscProvider
+    if (this.provider) return
+
+    const provider = window?.BinanceChain
 
     if (provider) {
       this.provider = provider
@@ -90,11 +92,14 @@ export class BscWallet extends Connector {
 
   /** {@inheritdoc Connector.connectEagerly} */
   public async connectEagerly(): Promise<void> {
-    const cancelActivation = this.actions.startActivation()
+    // BSC Wallet extension will not throw a rejection error if the user closes the modal without unlocking.
+    // Is there is no provider, we will assume the wallet is locked, in which we will not set "isActivating" via "startActivation()"
+    // as the will be no rejection to set "isActivating" to falsy
+    const cancelActivation = !this.provider ? null : this.actions.startActivation()
 
     this.isomorphicInitialize()
 
-    if (!this.provider) return cancelActivation()
+    if (!this.provider) return
 
     return Promise.all([
       this.provider.request({ method: 'eth_chainId' }) as Promise<string>,

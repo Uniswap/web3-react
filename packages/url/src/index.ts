@@ -1,6 +1,6 @@
 import type { JsonRpcProvider } from '@ethersproject/providers'
 import type { ConnectionInfo } from '@ethersproject/web'
-import type { Actions } from '@web3-react/types'
+import type { ConnectorArgs } from '@web3-react/types'
 import { Connector } from '@web3-react/types'
 
 type url = string | ConnectionInfo
@@ -12,8 +12,7 @@ function isUrl(url: url | JsonRpcProvider): url is url {
 /**
  * @param url - An RPC url or a JsonRpcProvider.
  */
-export interface UrlConstructorArgs {
-  actions: Actions
+export interface UrlConstructorArgs extends ConnectorArgs {
   url: url | JsonRpcProvider
 }
 
@@ -25,8 +24,8 @@ export class Url extends Connector {
 
   private readonly url: url | JsonRpcProvider
 
-  constructor({ actions, url }: UrlConstructorArgs) {
-    super(actions)
+  constructor({ actions, url, connectorOptions }: UrlConstructorArgs) {
+    super(actions, undefined, connectorOptions)
     this.url = url
   }
 

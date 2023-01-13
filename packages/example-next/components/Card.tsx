@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import type { BigNumber } from '@ethersproject/bignumber'
 import type { Web3ReactHooks } from '@web3-react/core'
 import { polygonMainChainId } from '../config/chains/chainIds'
 import { CHAINS, getAddChainParameters } from '../utils/chains'
@@ -9,8 +10,8 @@ import { Chain } from './Chain'
 import { ConnectWithSelect } from './ConnectWithSelect'
 import { Status } from './Status'
 import { WatchAssetButton } from './WatchAssetButton'
-import Spacer from './Spacer'
 import { ChainConfig } from '../config/chains/chains.interface'
+import Spacer from './Spacer'
 
 interface Props {
   connector: ConnectorType
@@ -20,8 +21,8 @@ interface Props {
   isActive: ReturnType<Web3ReactHooks['useIsActive']>
   error: Error | undefined
   setError: (error: Error | undefined) => void
-  ENSNames: ReturnType<Web3ReactHooks['useENSNames']>
-  ENSAvatars: ReturnType<Web3ReactHooks['useENSAvatars']>
+  ENSNames?: ReturnType<Web3ReactHooks['useENSNames']>
+  ENSAvatars?: ReturnType<Web3ReactHooks['useENSAvatars']>
   provider?: ReturnType<Web3ReactHooks['useProvider']>
   addingChain?: ReturnType<Web3ReactHooks['useAddingChain']>
   switchingChain?: ReturnType<Web3ReactHooks['useSwitchingChain']>
@@ -30,7 +31,9 @@ interface Props {
   isPriority?: boolean
   isSelected?: boolean
   walletLogoUrl?: string
-  children: ReactNode
+  blockNumber?: number
+  balances?: BigNumber[]
+  children?: ReactNode
 }
 
 export function Card({
@@ -44,17 +47,19 @@ export function Card({
   ENSNames,
   ENSAvatars,
   accounts,
-  provider,
   addingChain,
   switchingChain,
   watchingAsset,
   isPriority,
   isSelected,
   walletLogoUrl,
+  blockNumber,
+  balances,
   children,
 }: Props) {
   const chainConfig = chainId ? CHAINS[chainId] : undefined
   const { nativeWrappedToken: wrappedMatic } = CHAINS[polygonMainChainId]
+  const account = (accounts?.[accountIndex] as string) ?? undefined
 
   return (
     <div
@@ -97,7 +102,7 @@ export function Card({
         <b>{getName(connector)}</b>
       </div>
       <div style={{ marginBottom: '1rem' }}>
-        <Status isActivating={isActivating} isActive={isActive} error={error} />
+        <Status connector={connector} account={account} isActivating={isActivating} isActive={isActive} error={error} />
       </div>
       <div style={{ whiteSpace: 'pre', display: 'flex', alignItems: 'center', marginBottom: '4px' }}>
         Priority: <b style={{ fontSize: '0.7em', lineHeight: '1em' }}>{isPriority ? ' ✅' : ' ❌'}</b>
@@ -105,11 +110,12 @@ export function Card({
       <div style={{ whiteSpace: 'pre', display: 'flex', alignItems: 'center', marginBottom: '4px' }}>
         Selected: <b style={{ fontSize: '0.7em', lineHeight: '1em' }}>{isSelected ? ' ✅' : ' ❌'}</b>
       </div>
-      <Chain chainId={chainId} addingChain={addingChain} switchingChain={switchingChain} />
+      <Chain chainId={chainId} addingChain={addingChain} switchingChain={switchingChain} blockNumber={blockNumber} />
       <Accounts
+        balances={balances}
         accountIndex={accountIndex}
         accounts={accounts}
-        provider={provider}
+        chainId={chainId}
         ENSNames={ENSNames}
         ENSAvatars={ENSAvatars}
       />

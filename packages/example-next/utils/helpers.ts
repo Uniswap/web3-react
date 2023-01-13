@@ -4,10 +4,20 @@ import {
   avaxChains,
   bscChains,
   celoChains,
-  polygonChains,
+  etcChains,
+  fantomChains,
+  // fuseChains,
+  // gnosisChains,
+  // lightstreamsChains,
   optimismChains,
+  polygonChains,
   plsChains,
-} from '../config/chains/chainIds'
+  poaChains,
+  // rskChains,
+  thunderChains,
+  tronChains,
+  ubiqChains,
+} from './../config/chains/chainIds'
 
 export function getImageUrlFromTrust(chainId: number, tokenAddress?: string) {
   let blockChainName = 'ethereum'
@@ -28,16 +38,56 @@ export function getImageUrlFromTrust(chainId: number, tokenAddress?: string) {
     blockChainName = 'celo'
   }
 
-  if (polygonChains.includes(chainId)) {
-    blockChainName = 'polygon'
+  if (etcChains.includes(chainId)) {
+    blockChainName = 'classic'
   }
+
+  if (fantomChains.includes(chainId)) {
+    blockChainName = 'fantom'
+  }
+
+  // if (fuseChains.includes(chainId)) {
+  //   blockChainName = 'fantom'
+  // }
+
+  // if (gnosisChains.includes(chainId)) {
+  //   blockChainName = 'gnosis'
+  // }
+
+  // if (lightstreamsChains.includes(chainId)) {
+  //   blockChainName = 'lightstreams'
+  // }
 
   if (optimismChains.includes(chainId)) {
     blockChainName = 'optimism'
   }
 
+  if (poaChains.includes(chainId)) {
+    blockChainName = 'poa'
+  }
+
+  if (polygonChains.includes(chainId)) {
+    blockChainName = 'polygon'
+  }
+
   if (plsChains.includes(chainId)) {
-    blockChainName = 'ethereum'
+    blockChainName = 'ethereum' // Keep this until mainnet launches
+  }
+
+  // if (rskChains.includes(chainId)) {
+  //   blockChainName = 'rsk'
+  // }
+
+  if (thunderChains.includes(chainId)) {
+    blockChainName = 'thundertoken'
+  }
+
+  if (tronChains.includes(chainId)) {
+    blockChainName = 'tron'
+  }
+
+  if (ubiqChains.includes(chainId)) {
+    blockChainName = 'ubiq'
   }
 
   if (isAddress(tokenAddress)) {

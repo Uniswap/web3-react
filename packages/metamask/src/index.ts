@@ -1,8 +1,7 @@
 import type detectEthereumProvider from '@metamask/detect-provider'
 import type {
-  Actions,
+  ConnectorArgs,
   AddEthereumChainParameter,
-  AddEthereumChainParameters,
   Provider,
   ProviderConnectInfo,
   ProviderRpcError,
@@ -31,11 +30,8 @@ export class NoMetaMaskError extends Error {
  * @param options - Options to pass to `@metamask/detect-provider`
  * @param onError - Handler to report errors thrown from eventListeners.
  */
-export interface MetaMaskConstructorArgs {
-  actions: Actions
+export interface MetaMaskConstructorArgs extends ConnectorArgs {
   options?: Parameters<typeof detectEthereumProvider>[0]
-  onError?: (error: Error) => void
-  chainParameters?: AddEthereumChainParameters
 }
 
 export class MetaMask extends Connector {
@@ -44,12 +40,10 @@ export class MetaMask extends Connector {
 
   private readonly options?: Parameters<typeof detectEthereumProvider>[0]
   private eagerConnection?: Promise<void>
-  private chainParameters?: AddEthereumChainParameters
 
-  constructor({ actions, options, onError, chainParameters }: MetaMaskConstructorArgs) {
-    super(actions, onError)
+  constructor({ actions, options, onError, connectorOptions }: MetaMaskConstructorArgs) {
+    super(actions, onError, connectorOptions)
     this.options = options
-    this.chainParameters = chainParameters
   }
 
   private get selectedAddress() {
@@ -104,10 +98,9 @@ export class MetaMask extends Connector {
         this.provider.on('disconnect', (error: ProviderRpcError): void => {
           // MM Bug Workaround: MM has an existing bug when switching to some chains that are not native to the MM extension. This will stop resetting state when it happens and allow MM to reconnect on the new chain.
           // Error code 1013: MetaMask is attempting to reestablish the connection
-          if (error.code !== 1013) {
-            this.actions.resetState()
-          }
+          if (error.code === 1013) return
 
+          this.actions.resetState()
           this.onError?.(error)
         })
 
@@ -154,6 +147,7 @@ export class MetaMask extends Connector {
             accounts,
             accountIndex: index < 0 ? undefined : index,
           })
+          // void this.startBlockListenerr(this.provider, accounts)
         } else {
           throw new Error('No accounts returned')
         }
@@ -237,6 +231,9 @@ export class MetaMask extends Connector {
                   return this.provider!.request({
                     method: 'wallet_addEthereumChain',
                     params: [{ ...desiredChainIdOrChainParameters, chainId: desiredChainIdHex }],
+                  }).catch((addingError: ProviderRpcError) => {
+                    this.actions.update({ addingChain: undefined, switchingChain: undefined })
+                    throw addingError
                   })
                 } else if (this.chainParameters && Object.keys(this.chainParameters).includes(String(desiredChainId))) {
                   this.actions.update({
@@ -249,6 +246,9 @@ export class MetaMask extends Connector {
                   return this.provider!.request({
                     method: 'wallet_addEthereumChain',
                     params: [{ ...this.chainParameters[desiredChainId], chainId: desiredChainIdHex }],
+                  }).catch((addingError: ProviderRpcError) => {
+                    this.actions.update({ addingChain: undefined, switchingChain: undefined })
+                    throw addingError
                   })
                 }
               }
@@ -265,7 +265,6 @@ export class MetaMask extends Connector {
         })
       })
       .catch((error) => {
-        console.log('MM ERROR', error)
         cancelActivation?.()
         throw error
       })

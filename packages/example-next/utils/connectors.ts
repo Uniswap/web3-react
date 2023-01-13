@@ -7,6 +7,7 @@ import { BscWallet } from '@web3-react/bsc-wallet'
 import { PortisWallet } from '@web3-react/portis-wallet'
 import { GnosisSafe } from '@web3-react/gnosis-safe'
 import { Network } from '@web3-react/network'
+import { TronWallet } from '@web3-react/tron-link'
 
 import { metaMask, hooks as metaMaskHooks } from '../config/connectors/metaMask'
 import { coinbaseWallet, hooks as coinbaseWalletHooks } from '../config/connectors/coinbaseWallet'
@@ -14,9 +15,18 @@ import { walletConnect, hooks as walletConnectHooks } from '../config/connectors
 import { bscWallet, hooks as bscWalletHooks } from '../config/connectors/bscWallet'
 import { portisWallet, hooks as portisWalletHooks } from '../config/connectors/portisWallet'
 import { gnosisSafe, hooks as gnosisSafeHooks } from '../config/connectors/gnosisSafe'
-import { hooks as networkHooks, network } from '../config/connectors/network'
+import { network, hooks as networkHooks } from '../config/connectors/network'
+import { tronWallet, hooks as tronHooks } from '../config/connectors/tronLink'
 
-export type ConnectorType = MetaMask | CoinbaseWallet | WalletConnect | BscWallet | PortisWallet | GnosisSafe | Network
+export type ConnectorType =
+  | MetaMask
+  | CoinbaseWallet
+  | WalletConnect
+  | BscWallet
+  | PortisWallet
+  | GnosisSafe
+  | Network
+  | TronWallet
 
 export function getName(connector: Connector) {
   if (connector instanceof MetaMask) return 'MetaMask'
@@ -26,6 +36,7 @@ export function getName(connector: Connector) {
   if (connector instanceof PortisWallet) return 'Portis Wallet'
   if (connector instanceof GnosisSafe) return 'Gnosis Safe'
   if (connector instanceof Network) return 'Network'
+  if (connector instanceof TronWallet) return 'Tron Link'
   return 'Unknown'
 }
 
@@ -37,6 +48,7 @@ export const connectors: [ConnectorType, Web3ReactHooks][] = [
   [portisWallet, portisWalletHooks],
   [gnosisSafe, gnosisSafeHooks],
   [network, networkHooks],
+  [tronWallet, tronHooks],
 ]
 
 export const connectorInstance = {
@@ -47,6 +59,7 @@ export const connectorInstance = {
   portisWallet,
   gnosisSafe,
   network,
+  tronWallet,
 }
 
 export const connectorHooks = {
@@ -57,4 +70,5 @@ export const connectorHooks = {
   portisWallet: portisWalletHooks,
   gnosisSafe: gnosisSafeHooks,
   network: networkHooks,
+  tronLink: tronHooks,
 }

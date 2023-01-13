@@ -14,15 +14,20 @@ export default function SelectedConnectorCard() {
     chainId,
     accountIndex,
     accounts,
+    blockNumber,
+    balances,
     ENSNames,
     ENSAvatars,
     provider,
     isActivating,
     isActive,
     setSelectedConnector,
+    addingChain,
+    switchingChain,
     hooks: { usePriorityConnector },
   } = useWeb3React()
 
+  const account = (accounts?.[accountIndex] as string) ?? undefined
   const priorityConnector = usePriorityConnector()
   const isPriority = priorityConnector === connector
   const priorityConnectorName = getName(priorityConnector)
@@ -45,19 +50,18 @@ export default function SelectedConnectorCard() {
     >
       <b>{`Selected Connector (${getName(connector)})`}</b>
       <div style={{ marginBottom: '1rem' }}>
-        <Status isActivating={isActivating} isActive={isActive} />
+        <Status connector={connector} account={account} isActivating={isActivating} isActive={isActive} />
       </div>
-      <Chain chainId={chainId} />
+      <Chain chainId={chainId} addingChain={addingChain} switchingChain={switchingChain} blockNumber={blockNumber} />
       <Accounts
+        balances={balances}
         accountIndex={accountIndex}
         accounts={accounts}
-        provider={provider}
+        chainId={chainId}
         ENSNames={ENSNames}
         ENSAvatars={ENSAvatars}
       />
-      {isActive && connector !== network && (
-        <SignerButton provider={provider} account={accounts ? (accounts[accountIndex] as string) : ''} />
-      )}
+      {isActive && connector !== network && <SignerButton provider={provider} account={account} />}
       <Spacer />
       <Button style={{ marginBottom: '16px' }} onClick={() => setSelectedConnector()} disabled={isPriority}>
         {`Reset to Priority (${priorityConnectorName})`}

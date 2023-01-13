@@ -1,9 +1,19 @@
+import type { BigNumber } from '@ethersproject/bignumber'
 import type { Networkish } from '@ethersproject/networks'
 import type { BaseProvider, Web3Provider } from '@ethersproject/providers'
 import type { Connector, Web3ReactStore } from '@web3-react/types'
-import { Context, MutableRefObject, ReactNode, useCallback, useState } from 'react'
-import React, { createContext, useContext, useRef } from 'react'
 import type { Web3ReactHooks, Web3ReactPriorityHooks } from './hooks'
+import type { Dispatch, SetStateAction } from 'react'
+import React, {
+  createContext,
+  useContext,
+  useRef,
+  Context,
+  MutableRefObject,
+  ReactNode,
+  useCallback,
+  useState,
+} from 'react'
 import { getPriorityConnector } from './hooks'
 
 /**
@@ -17,6 +27,12 @@ export type Web3ContextType<T extends BaseProvider = Web3Provider> = {
   accountIndex: ReturnType<Web3ReactPriorityHooks['useSelectedAccountIndex']>
   accounts: ReturnType<Web3ReactPriorityHooks['useSelectedAccounts']>
   account: ReturnType<Web3ReactPriorityHooks['useSelectedAccount']>
+  blockNumber: number
+  fetchBlockNumber: () => Promise<void>
+  balances: BigNumber[]
+  fetchBalances: () => Promise<void>
+  balance: BigNumber
+  fetchBalance: () => Promise<void>
   isActivating: ReturnType<Web3ReactPriorityHooks['useSelectedIsActivating']>
   isActive: ReturnType<Web3ReactPriorityHooks['useSelectedIsActive']>
   provider: T | undefined
@@ -29,6 +45,8 @@ export type Web3ContextType<T extends BaseProvider = Web3Provider> = {
   watchingAsset: ReturnType<Web3ReactPriorityHooks['useSelectedWatchingAsset']>
   hooks: ReturnType<typeof getPriorityConnector>
   setSelectedConnector: (connector?: Connector) => void
+  setSubscribeOnBlock: Dispatch<SetStateAction<boolean>>
+  setLookupENS: Dispatch<SetStateAction<boolean>>
 }
 
 const Web3Context = createContext<Web3ContextType | undefined>(undefined)
@@ -48,6 +66,7 @@ export interface Web3ReactProviderProps {
   defaultSelectedConnector?: Connector
   network?: Networkish
   lookupENS?: boolean
+  subscribe?: boolean
 }
 
 export function Web3ReactProvider({
@@ -56,6 +75,7 @@ export function Web3ReactProvider({
   defaultSelectedConnector,
   network,
   lookupENS = true,
+  subscribe = true,
 }: Web3ReactProviderProps) {
   const cachedConnectors: MutableRefObject<Web3ReactProviderProps['connectors']> = useRef(connectors)
   // because we're calling `getPriorityConnector` with these connectors, we need to ensure that they're not changing in place
@@ -79,6 +99,9 @@ export function Web3ReactProvider({
     useSelectedAccountIndex,
     useSelectedAccounts,
     useSelectedAccount,
+    useSelectedBlockNumber,
+    useSelectedBalances,
+    useSelectedBalance,
     useSelectedIsActivating,
     useSelectedIsActive,
     useSelectedProvider,
@@ -94,6 +117,8 @@ export function Web3ReactProvider({
   const firstActiveConnector = usePriorityConnector()
   const fallbackConnector = defaultSelectedConnector ?? firstActiveConnector
   const [connector, setConnector] = useState<Connector>(fallbackConnector)
+  const [isSubscribe, setSubscribeOnBlock] = useState<boolean>(subscribe)
+  const [isLookup, setLookupENS] = useState<boolean>(lookupENS)
 
   const setSelectedConnector = useCallback(
     (proposedConnector?: Connector) => {
@@ -114,16 +139,20 @@ export function Web3ReactProvider({
   const isActivating = useSelectedIsActivating(connector)
   const isActive = useSelectedIsActive(connector)
 
+  const { blockNumber, fetch: fetchBlockNumber } = useSelectedBlockNumber(connector, isSubscribe)
+  const { balances, fetch: fetchBalances } = useSelectedBalances(connector, isSubscribe)
+  const { balance, fetch: fetchBalance } = useSelectedBalance(connector, isSubscribe)
+
   // note that we've omitted a <T extends BaseProvider = Web3Provider> generic type
   // in Web3ReactProvider, and thus can't pass T through to useSelectedProvider below.
   // this is because if we did so, the type of provider would include T, but that would
   // conflict because Web3Context can't take a generic. however, this isn't particularly
   // important, because useWeb3React (below) is manually typed
   const provider = useSelectedProvider(connector, network)
-  const ENSNames = useSelectedENSNames(connector, lookupENS ? provider : undefined)
-  const ENSName = useSelectedENSName(connector, lookupENS ? provider : undefined)
-  const ENSAvatars = useSelectedENSAvatars(connector, lookupENS ? provider : undefined, ENSNames)
-  const ENSAvatar = useSelectedENSAvatar(connector, lookupENS ? provider : undefined, ENSName)
+  const ENSNames = useSelectedENSNames(connector, isLookup ? provider : undefined)
+  const ENSName = useSelectedENSName(connector, isLookup ? provider : undefined)
+  const ENSAvatars = useSelectedENSAvatars(connector, isLookup ? provider : undefined, ENSNames)
+  const ENSAvatar = useSelectedENSAvatar(connector, isLookup ? provider : undefined, ENSName)
 
   const addingChain = useSelectedAddingChain(connector)
   const switchingChain = useSelectedSwitchingChain(connector)
@@ -132,7 +161,6 @@ export function Web3ReactProvider({
   return (
     <Web3Context.Provider
       value={{
-        connector,
         chainId,
         accountIndex,
         accounts,
@@ -140,15 +168,29 @@ export function Web3ReactProvider({
         isActivating,
         isActive,
         provider,
+
+        setSelectedConnector,
+        connector,
+
+        setSubscribeOnBlock,
+        blockNumber,
+        fetchBlockNumber,
+        balances,
+        fetchBalances,
+        balance,
+        fetchBalance,
+
+        setLookupENS,
         ENSNames,
         ENSName,
         ENSAvatars,
         ENSAvatar,
+
         hooks,
+
         addingChain,
         switchingChain,
         watchingAsset,
-        setSelectedConnector,
       }}
     >
       {children}

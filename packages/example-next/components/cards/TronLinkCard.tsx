@@ -1,38 +1,38 @@
 import { useWeb3React } from '@web3-react/core'
 import { useEffect, useState } from 'react'
 import { Card } from '../Card'
-import { gnosisSafe, hooks } from '../../config/connectors/gnosisSafe'
+import { hooks, tronWallet } from '../../config/connectors/tronLink'
 import Button from '../Button'
 
 const {
   useChainId,
   useAccounts,
+  useAccountIndex,
   useIsActivating,
   useIsActive,
   useProvider,
-  useENSNames,
-  useENSAvatars,
   useBlockNumber,
   useBalances,
+  useWatchingAsset,
 } = hooks
 
-export default function GnosisSafeCard() {
+export default function TronLinkCard() {
   const {
     connector: selectedConnector,
     hooks: { usePriorityConnector },
   } = useWeb3React()
 
   const priorityConnector = usePriorityConnector()
-  const isPriority = priorityConnector === gnosisSafe
-  const isSelected = selectedConnector === gnosisSafe
+  const isPriority = priorityConnector === tronWallet
+  const isSelected = selectedConnector === tronWallet
 
   const provider = useProvider()
   const chainId = useChainId()
   const accounts = useAccounts()
+  const accountIndex = useAccountIndex()
   const isActivating = useIsActivating()
   const isActive = useIsActive()
-  const ENSNames = useENSNames(provider)
-  const ENSAvatars = useENSAvatars(provider, ENSNames)
+  const watchingAsset = useWatchingAsset()
 
   const { blockNumber, fetch: fetchBlockNumber } = useBlockNumber(false)
   const { balances, fetch: fetchBalances } = useBalances(false)
@@ -41,24 +41,24 @@ export default function GnosisSafeCard() {
 
   // attempt to connect eagerly on mount
   useEffect(() => {
-    void gnosisSafe.connectEagerly().catch(() => {
-      console.debug('Failed to connect eagerly to gnosis safe')
+    void tronWallet.connectEagerly().catch(() => {
+      console.debug('Failed to connect eagerly to bsc wallet')
     })
   }, [])
 
   return (
     <Card
-      walletLogoUrl="https://assets-global.website-files.com/61571d3b8fe2e30679056424/6341d34a6a3b918698693b5e_gnosis.png"
-      connector={gnosisSafe}
+      walletLogoUrl="https://styles.redditmedia.com/t5_44alvn/styles/communityIcon_7m97pzfqt1o61.png"
+      connector={tronWallet}
       chainId={chainId}
+      accountIndex={accountIndex}
       isActivating={isActivating}
       isActive={isActive}
-      ENSNames={ENSNames}
-      ENSAvatars={ENSAvatars}
       provider={provider}
       accounts={accounts}
       blockNumber={blockNumber}
       balances={balances}
+      watchingAsset={watchingAsset}
       error={error}
       setError={setError}
       isPriority={isPriority}

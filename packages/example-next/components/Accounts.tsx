@@ -1,24 +1,25 @@
 import type { Web3ReactHooks } from '@web3-react/core'
-import { formatEther } from '@ethersproject/units'
-import { useBalances } from '../hooks/hooks'
+import type { BigNumber } from '@ethersproject/bignumber'
+import { formatUnits } from '@ethersproject/units'
 import AddressEllipsis from './AddressEllipsis'
 import Spacer from './Spacer'
+import { CHAINS } from '../utils/chains'
 
 export function Accounts({
   accountIndex,
   accounts,
-  provider,
+  chainId,
+  balances,
   ENSNames,
   ENSAvatars,
 }: {
   accountIndex: ReturnType<Web3ReactHooks['useAccountIndex']>
   accounts: ReturnType<Web3ReactHooks['useAccounts']>
-  provider: ReturnType<Web3ReactHooks['useProvider']>
+  chainId: number
   ENSNames: ReturnType<Web3ReactHooks['useENSNames']>
   ENSAvatars: ReturnType<Web3ReactHooks['useENSAvatars']>
+  balances: BigNumber[]
 }) {
-  const balances = useBalances(provider, accounts)
-
   if (accounts === undefined) return null
 
   const accountData = accounts.map((address, index) => ({
@@ -83,7 +84,13 @@ export function Accounts({
                   )}
                   <AddressEllipsis account={address} ensName={ensName} />
                 </div>
-                <p style={{ margin: 0, fontSize: '0.8em' }}>{balance ? ` Ξ ${formatEther(balance)}` : null}</p>
+                <p style={{ margin: 0, fontSize: '0.8em' }}>
+                  {balance
+                    ? ` Ξ ${new Intl.NumberFormat(undefined).format(
+                        Number(formatUnits(balance, CHAINS[chainId].nativeCurrency.decimals))
+                      )}`
+                    : null}
+                </p>
               </div>
             )
           })}

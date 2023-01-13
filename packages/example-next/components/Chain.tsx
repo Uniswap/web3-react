@@ -5,10 +5,12 @@ export function Chain({
   chainId,
   addingChain,
   switchingChain,
+  blockNumber,
 }: {
   chainId: ReturnType<Web3ReactHooks['useChainId']>
   addingChain?: ReturnType<Web3ReactHooks['useAddingChain']>
   switchingChain?: ReturnType<Web3ReactHooks['useSwitchingChain']>
+  blockNumber?: number
 }) {
   if (chainId === undefined) return null
 
@@ -34,8 +36,16 @@ export function Chain({
 
   return (
     <div>
-      {`${prefix}Network: `}
-      <b>{getText()}</b>
+      <div>
+        {`${prefix}Network: `}
+        <b>{getText()}</b>
+      </div>
+      {!!blockNumber && (
+        <div style={{ marginTop: 4 }}>
+          {`Block: `}
+          <b>{blockNumber}</b>
+        </div>
+      )}
     </div>
   )
 }

@@ -33,6 +33,9 @@ import {
   rskTestChainId,
   thunderMainChainId,
   thunderTestChainId,
+  tronMainChainId,
+  tronShastaChainId,
+  tronNileChainId,
   ubiqMainChainId,
   allChains,
 } from '../config/chains/chainIds'
@@ -68,6 +71,9 @@ import rskMainnet from '../config/chains/rsk/mainnet'
 import rskTestnet from '../config/chains/rsk/testnet'
 import thunderMainnet from '../config/chains/thunder/mainnet'
 import thunderTestnet from '../config/chains/thunder/testnet'
+import tronMainnet from '../config/chains/tron/mainnet'
+import tronShastaTestnet from '../config/chains/tron/shasta'
+import tronNileTestnet from '../config/chains/tron/nile'
 import ubiqMainnet from '../config/chains/ubiq/mainnet'
 
 export const CHAINS: { [chainId: number]: ChainConfig } = {
@@ -160,6 +166,15 @@ export const CHAINS: { [chainId: number]: ChainConfig } = {
   },
   [rskTestChainId]: {
     ...rskTestnet,
+  },
+  [tronMainChainId]: {
+    ...tronMainnet,
+  },
+  [tronShastaChainId]: {
+    ...tronShastaTestnet,
+  },
+  [tronNileChainId]: {
+    ...tronNileTestnet,
   },
   [thunderMainChainId]: {
     ...thunderMainnet,

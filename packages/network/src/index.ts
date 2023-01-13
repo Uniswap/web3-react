@@ -1,6 +1,6 @@
 import type { JsonRpcProvider } from '@ethersproject/providers'
 import type { ConnectionInfo } from '@ethersproject/web'
-import type { Actions } from '@web3-react/types'
+import type { ConnectorArgs } from '@web3-react/types'
 import { Connector } from '@web3-react/types'
 import { getBestProvider } from './utils'
 
@@ -16,8 +16,7 @@ function isUrl(url: url | JsonRpcProvider): url is url {
  * @param timeout - Timeout, in milliseconds, after which to treat network calls to urls as failed when selecting
  * online providers.
  */
-export interface NetworkConstructorArgs {
-  actions: Actions
+export interface NetworkConstructorArgs extends ConnectorArgs {
   urlMap: { [chainId: number]: url | url[] | JsonRpcProvider | JsonRpcProvider[] }
   defaultChainId?: number
   timeout?: number
@@ -40,8 +39,9 @@ export class Network extends Connector {
     urlMap,
     defaultChainId = Number(Object.keys(urlMap)[0]),
     timeout = 5000,
+    connectorOptions,
   }: NetworkConstructorArgs) {
-    super(actions)
+    super(actions, undefined, connectorOptions)
 
     this.urlMap = Object.keys(urlMap).reduce<typeof this.urlMap>((accumulator, chainId) => {
       const urls = urlMap[Number(chainId)]

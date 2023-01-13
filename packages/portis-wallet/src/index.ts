@@ -1,6 +1,6 @@
 import type Portis from '@portis/web3'
 import type { INetwork, IOptions } from '@portis/web3'
-import type { Actions, ProviderRpcError, Provider } from '@web3-react/types'
+import type { ProviderRpcError, Provider, ConnectorArgs } from '@web3-react/types'
 import { Connector } from '@web3-react/types'
 
 // https://docs.portis.io/#/configuration?id=network
@@ -22,7 +22,7 @@ const chainIdToNetwork: { [network: number]: string } = {
   80001: 'maticMumbai',
 }
 
-type PortisProvider = Provider & {
+interface PortisProvider extends Provider {
   isPortis: boolean
   isConnected(): boolean
   enable(): Promise<string>
@@ -40,11 +40,8 @@ type PortisWalletOptions = {
  * @param options - Options to pass to `@portis/web3`.
  * @param onError - Handler to report errors thrown from eventListeners.
  */
-export interface PortisWalletConstructorArgs {
-  actions: Actions
+export interface PortisWalletConstructorArgs extends ConnectorArgs {
   options: PortisWalletOptions
-  onError?: (error: Error) => void
-  supportedChainIds?: number[]
 }
 
 export class NoPortisProviderError extends Error {
@@ -63,8 +60,13 @@ export class PortisWallet extends Connector {
   private readonly options: PortisWalletOptions
   private eagerConnection?: Promise<void>
 
-  constructor({ actions, options, onError, supportedChainIds }: PortisWalletConstructorArgs) {
-    super(actions, onError, supportedChainIds ?? Object.keys(chainIdToNetwork).map((chainId) => Number(chainId)))
+  constructor({ actions, options, onError, connectorOptions }: PortisWalletConstructorArgs) {
+    super(actions, onError, {
+      ...connectorOptions,
+      supportedChainIds:
+        connectorOptions?.supportedChainIds ?? Object.keys(chainIdToNetwork).map((chainId) => Number(chainId)),
+    })
+
     this.options = options
   }
 
@@ -147,7 +149,6 @@ export class PortisWallet extends Connector {
    */
   public async activate(desiredChainId?: number): Promise<void> {
     const cancelActivation = this.provider?.isConnected?.() ? null : this.actions.startActivation()
-    console.log(this.portis, this.provider)
     await this.isomorphicInitialize()
 
     if (!this.portis || !this.provider) throw new NoPortisProviderError()

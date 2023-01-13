@@ -3,6 +3,7 @@ import { URI_AVAILABLE } from '@web3-react/walletconnect'
 import { useEffect, useState } from 'react'
 import { Card } from '../../components/Card'
 import { hooks, walletConnect } from '../../config/connectors/walletConnect'
+import Button from '../Button'
 
 const {
   useChainId,
@@ -11,6 +12,8 @@ const {
   useIsActivating,
   useIsActive,
   useProvider,
+  useBlockNumber,
+  useBalances,
   useENSNames,
   useENSAvatars,
 } = hooks
@@ -29,12 +32,13 @@ export default function WalletConnectCard() {
   const accounts = useAccounts()
   const accountIndex = useAccountIndex()
   const isActivating = useIsActivating()
-
   const isActive = useIsActive()
-
   const provider = useProvider()
   const ENSNames = useENSNames(provider)
   const ENSAvatars = useENSAvatars(provider, ENSNames)
+
+  const { blockNumber, fetch: fetchBlockNumber } = useBlockNumber(false)
+  const { balances, fetch: fetchBalances } = useBalances(false)
 
   const [error, setError] = useState(undefined)
 
@@ -64,10 +68,21 @@ export default function WalletConnectCard() {
       ENSAvatars={ENSAvatars}
       provider={provider}
       accounts={accounts}
+      blockNumber={blockNumber}
+      balances={balances}
       error={error}
       setError={setError}
       isPriority={isPriority}
       isSelected={isSelected}
-    />
+    >
+      <Button
+        onClick={() => {
+          void fetchBlockNumber()
+          void fetchBalances()
+        }}
+      >
+        Refresh
+      </Button>
+    </Card>
   )
 }

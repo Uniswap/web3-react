@@ -2,6 +2,7 @@ import { useWeb3React } from '@web3-react/core'
 import { useEffect, useState } from 'react'
 import { Card } from '../Card'
 import { hooks, bscWallet } from '../../config/connectors/bscWallet'
+import Button from '../Button'
 
 const {
   useChainId,
@@ -10,14 +11,14 @@ const {
   useIsActivating,
   useIsActive,
   useProvider,
-  useENSNames,
-  useENSAvatars,
+  useBalances,
+  useBlockNumber,
   useAddingChain,
   useSwitchingChain,
   useWatchingAsset,
 } = hooks
 
-export default function MetaMaskCard() {
+export default function BscWalletCard() {
   const {
     connector: selectedConnector,
     hooks: { usePriorityConnector },
@@ -27,20 +28,18 @@ export default function MetaMaskCard() {
   const isPriority = priorityConnector === bscWallet
   const isSelected = selectedConnector === bscWallet
 
+  const provider = useProvider()
   const chainId = useChainId()
   const accounts = useAccounts()
   const accountIndex = useAccountIndex()
   const isActivating = useIsActivating()
-
   const isActive = useIsActive()
-
-  const provider = useProvider()
-  const ENSNames = useENSNames(provider)
-  const ENSAvatars = useENSAvatars(provider, ENSNames)
-
   const addingChain = useAddingChain()
   const switchingChain = useSwitchingChain()
   const watchingAsset = useWatchingAsset()
+
+  const { blockNumber, fetch: fetchBlockNumber } = useBlockNumber(false)
+  const { balances, fetch: fetchBalances } = useBalances(false)
 
   const [error, setError] = useState(undefined)
 
@@ -59,10 +58,10 @@ export default function MetaMaskCard() {
       accountIndex={accountIndex}
       isActivating={isActivating}
       isActive={isActive}
-      ENSNames={ENSNames}
-      ENSAvatars={ENSAvatars}
       provider={provider}
       accounts={accounts}
+      blockNumber={blockNumber}
+      balances={balances}
       addingChain={addingChain}
       switchingChain={switchingChain}
       watchingAsset={watchingAsset}
@@ -70,6 +69,15 @@ export default function MetaMaskCard() {
       setError={setError}
       isPriority={isPriority}
       isSelected={isSelected}
-    />
+    >
+      <Button
+        onClick={() => {
+          void fetchBlockNumber()
+          void fetchBalances()
+        }}
+      >
+        Refresh
+      </Button>
+    </Card>
   )
 }

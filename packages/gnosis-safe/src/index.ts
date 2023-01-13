@@ -1,7 +1,7 @@
 import type { SafeAppProvider } from '@gnosis.pm/safe-apps-provider'
 import type SafeAppsSDK from '@gnosis.pm/safe-apps-sdk'
 import type { Opts } from '@gnosis.pm/safe-apps-sdk'
-import type { Actions } from '@web3-react/types'
+import type { ConnectorArgs } from '@web3-react/types'
 import { Connector } from '@web3-react/types'
 
 export class NoSafeContext extends Error {
@@ -15,8 +15,7 @@ export class NoSafeContext extends Error {
 /**
  * @param options - Options to pass to `@gnosis.pm/safe-apps-sdk`.
  */
-export interface GnosisSafeConstructorArgs {
-  actions: Actions
+export interface GnosisSafeConstructorArgs extends ConnectorArgs {
   options?: Opts
 }
 
@@ -32,8 +31,8 @@ export class GnosisSafe extends Connector {
    */
   public sdk: SafeAppsSDK | undefined
 
-  constructor({ actions, options }: GnosisSafeConstructorArgs) {
-    super(actions)
+  constructor({ actions, options, connectorOptions }: GnosisSafeConstructorArgs) {
+    super(actions, undefined, connectorOptions)
     this.options = options
   }
 

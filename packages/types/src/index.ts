@@ -23,14 +23,7 @@ export interface Web3ReactState extends State {
 export type Web3ReactStore = StoreApi<Web3ReactState>
 
 export type Web3ReactStateUpdate =
-  | {
-      chainId: number
-      accounts: string[]
-      accountIndex?: never
-      addingChain?: never
-      switchingChain?: never
-      watchingAsset?: never
-    }
+  // chainId
   | {
       chainId: number
       accounts?: never
@@ -39,6 +32,7 @@ export type Web3ReactStateUpdate =
       switchingChain?: never
       watchingAsset?: never
     }
+  // accounts
   | {
       chainId?: never
       accounts: string[]
@@ -47,6 +41,61 @@ export type Web3ReactStateUpdate =
       switchingChain?: never
       watchingAsset?: never
     }
+  // chainId, accounts
+  | {
+      chainId: number
+      accounts: string[]
+      accountIndex?: never
+      addingChain?: never
+      switchingChain?: never
+      watchingAsset?: never
+    }
+  // accounts, accountIndex
+  | {
+      chainId?: never
+      accounts?: string[]
+      accountIndex: number | undefined
+      addingChain?: never
+      switchingChain?: never
+      watchingAsset?: never
+    }
+  // chainId, accounts, accountIndex
+  | {
+      chainId: number
+      accounts?: string[]
+      accountIndex: number | undefined
+      addingChain?: never
+      switchingChain?: never
+      watchingAsset?: never
+    }
+  // addingChain
+  | {
+      chainId?: never
+      accounts?: never
+      accountIndex?: never
+      addingChain: AddingChainInfo | undefined
+      switchingChain?: never
+      watchingAsset?: never
+    }
+  // switchingChain
+  | {
+      chainId?: never
+      accounts?: never
+      accountIndex?: never
+      addingChain?: never
+      switchingChain: SwitchingChainInfo | undefined
+      watchingAsset?: never
+    }
+  // addingChain, switchingChain
+  | {
+      chainId?: never
+      accounts?: never
+      accountIndex?: never
+      addingChain: AddingChainInfo | undefined
+      switchingChain: SwitchingChainInfo | undefined
+      watchingAsset?: never
+    }
+  // watchingAsset
   | {
       chainId?: never
       accounts?: never
@@ -55,51 +104,23 @@ export type Web3ReactStateUpdate =
       switchingChain?: never
       watchingAsset: WatchAssetParameters | undefined
     }
-  | {
-      chainId?: never
-      accounts?: never
-      accountIndex?: never
-      addingChain: AddingChainInfo | undefined
-      switchingChain: SwitchingChainInfo | undefined
-      watchingAsset?: never
-    }
-  | {
-      chainId?: never
-      accounts?: never
-      accountIndex?: never
-      addingChain: AddingChainInfo | undefined
-      switchingChain?: never
-      watchingAsset?: never
-    }
-  | {
-      chainId?: never
-      accounts?: never
-      accountIndex?: never
-      addingChain?: never
-      switchingChain: SwitchingChainInfo | undefined
-      watchingAsset?: never
-    }
-  | {
-      chainId?: never
-      accounts?: string[]
-      accountIndex: number | undefined
-      addingChain?: never
-      switchingChain?: never
-      watchingAsset?: never
-    }
-  | {
-      chainId: number
-      accountIndex: number | undefined
-      accounts?: string[]
-      addingChain?: never
-      switchingChain?: never
-      watchingAsset?: never
-    }
 
 export interface Actions {
   startActivation: () => () => void
   update: (stateUpdate: Web3ReactStateUpdate) => void
   resetState: () => void
+}
+
+export interface ConnectorOptions {
+  supportedChainIds?: number[]
+  isBlockNumberEnabled?: boolean
+  chainParameters?: AddEthereumChainParameters
+}
+
+export interface ConnectorArgs {
+  actions: Actions
+  onError?: (error: Error) => void
+  connectorOptions?: ConnectorOptions
 }
 
 // per EIP-1193
@@ -144,7 +165,7 @@ export interface AddEthereumChainParameter {
   nativeCurrency: {
     name: string
     symbol: string // 2-6 characters long
-    decimals: 18
+    decimals: number | 18
   }
   rpcUrls: string[]
   blockExplorerUrls?: string[]
@@ -156,9 +177,10 @@ export type AddEthereumChainParameters = { [chainId: number]: AddEthereumChainPa
 // per EIP-747
 export interface WatchAssetParameters {
   desiredChainIdOrChainParameters?: number | AddEthereumChainParameter
+  type?: string
   address: string // The address that the token is at.
   symbol: string // A ticker symbol or shorthand, up to 5 chars.
-  decimals: number // The number of decimals in the token
+  decimals: number | 18 // The number of decimals in the token
   image: string // A string url of the token logo
 }
 
@@ -180,6 +202,12 @@ export abstract class Connector {
   public customProvider?: unknown
 
   /**
+   * Optional way of providing the connector with chain parameters.
+   * No need to pass "AddEthereumChainParameter" to "activate" if this options is provided.
+   */
+  public chainParameters?: AddEthereumChainParameters
+
+  /**
    * Chains supported by the connector
    */
   public readonly supportedChainIds?: number[]
@@ -188,6 +216,16 @@ export abstract class Connector {
    * Actions to interact with the zustand store
    */
   protected readonly actions: Actions
+
+  /**
+   * Wether the listener is on
+   */
+  public disableWatcher = true
+
+  /**
+   * Wether the listener running
+   */
+  public watchingBlocks = false
 
   /**
    * An optional handler which will report errors thrown from event listeners. Any errors caused from
@@ -200,10 +238,13 @@ export abstract class Connector {
    * @param onError - An optional handler which will report errors thrown from event listeners.
    * Actions are used by the connector to report changes in connection status.
    */
-  constructor(actions: Actions, onError?: (error: Error) => void, supportedChains?: number[]) {
+  constructor(actions: Actions, onError?: (error: Error) => void, connectorOptions?: ConnectorOptions) {
     this.actions = actions
     this.onError = onError
-    this.supportedChainIds = supportedChains
+
+    this.supportedChainIds = connectorOptions?.supportedChainIds
+    this.disableWatcher = !connectorOptions?.isBlockNumberEnabled
+    this.chainParameters = connectorOptions?.chainParameters
   }
 
   /**

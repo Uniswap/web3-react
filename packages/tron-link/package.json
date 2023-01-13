@@ -1,7 +1,8 @@
 {
-  "name": "@web3-react/core",
+  "name": "@web3-react/tron-link",
   "keywords": [
-    "web3-react"
+    "web3-react",
+    "tron-link"
   ],
   "author": "Noah Zinsmeister <noahwz@gmail.com>",
   "license": "GPL-3.0-or-later",
@@ -9,7 +10,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "version": "8.0.35-beta.0",
+  "version": "8.0.20-beta.0",
   "files": [
     "dist/*"
   ],
@@ -23,18 +24,10 @@
     "start": "tsc --watch"
   },
   "dependencies": {
-    "@web3-react/store": "^8.0.25-beta.0",
-    "@web3-react/types": "^8.0.20-beta.0",
-    "zustand": "^4.0.0-rc.0"
-  },
-  "peerDependencies": {
-    "react": ">=16.8"
-  },
-  "optionalDependencies": {
-    "@ethersproject/providers": "^5.7.2"
+    "@web3-react/types": "^8.0.20-beta.0"
   },
   "devDependencies": {
     "@ethersproject/bignumber": "^5.7.0",
-    "@ethersproject/networks": "^5.7.1"
+    "@web3-react/store": "^8.0.25-beta.0"
   }
 }

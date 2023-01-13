@@ -30,6 +30,9 @@ export const rskMainChainId = 30
 export const rskTestChainId = 31
 export const thunderMainChainId = 108
 export const thunderTestChainId = 18
+export const tronMainChainId = 728126428
+export const tronShastaChainId = 2494104990
+export const tronNileChainId = 3448148188
 export const ubiqMainChainId = 8
 
 export const arbitrumChains = [arbitrumMainChainId, arbitrumTestChainId]
@@ -48,6 +51,8 @@ export const rskChains = [rskMainChainId, rskTestChainId]
 export const poaChains = [poaMainChainId, poaTestChainId]
 export const polygonChains = [polygonMainChainId, polygonTestChainId]
 export const thunderChains = [thunderMainChainId, thunderTestChainId]
+export const tronChains = [tronMainChainId, tronShastaChainId, tronNileChainId]
+export const ubiqChains = [ubiqMainChainId]
 
 export const mainChains = [
   arbitrumMainChainId,
@@ -65,6 +70,7 @@ export const mainChains = [
   polygonMainChainId,
   rskMainChainId,
   thunderMainChainId,
+  tronMainChainId,
   ubiqMainChainId,
 ]
 
@@ -86,6 +92,8 @@ export const testChains = [
   plsTestChainId,
   rskTestChainId,
   thunderTestChainId,
+  tronShastaChainId,
+  tronNileChainId,
 ]
 
 export const allChains = [...mainChains, ...testChains]

@@ -1,6 +1,6 @@
 import type WalletConnectProvider from '@walletconnect/ethereum-provider'
 import type { IWCEthRpcConnectionOptions } from '@walletconnect/types'
-import type { Actions, ProviderRpcError } from '@web3-react/types'
+import type { ConnectorArgs, ProviderRpcError } from '@web3-react/types'
 import { Connector } from '@web3-react/types'
 import EventEmitter3 from 'eventemitter3'
 import type { EventEmitter } from 'node:events'
@@ -21,12 +21,10 @@ type WalletConnectOptions = Omit<IWCEthRpcConnectionOptions, 'rpc' | 'infuraId' 
  * online urls.
  * @param onError - Handler to report errors thrown from eventListeners.
  */
-export interface WalletConnectConstructorArgs {
-  actions: Actions
+export interface WalletConnectConstructorArgs extends ConnectorArgs {
   options: WalletConnectOptions
   defaultChainId?: number
   timeout?: number
-  onError?: (error: Error) => void
 }
 
 /**
@@ -50,8 +48,15 @@ export class WalletConnect extends Connector {
 
   private eagerConnection?: Promise<void>
 
-  constructor({ actions, options, defaultChainId, timeout = 5000, onError }: WalletConnectConstructorArgs) {
-    super(actions, onError)
+  constructor({
+    actions,
+    options,
+    defaultChainId,
+    timeout = 5000,
+    onError,
+    connectorOptions,
+  }: WalletConnectConstructorArgs) {
+    super(actions, onError, connectorOptions)
 
     const { rpc, ...rest } = options
     this.options = rest

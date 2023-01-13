@@ -5,5 +5,6 @@ import { MetaMask } from '@web3-react/metamask'
 import { allAddChainParameters } from '../../utils/chains'
 
 export const [metaMask, hooks]: [MetaMask, Web3ReactHooks, Web3ReactStore] = initializeConnector<MetaMask>(
-  (actions) => new MetaMask({ actions, chainParameters: allAddChainParameters })
+  (actions) =>
+    new MetaMask({ actions, connectorOptions: { chainParameters: allAddChainParameters, isBlockNumberEnabled: true } })
 )

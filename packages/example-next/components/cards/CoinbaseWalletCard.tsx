@@ -2,6 +2,7 @@ import { useWeb3React } from '@web3-react/core'
 import { useEffect, useState } from 'react'
 import { Card } from '../Card'
 import { coinbaseWallet, hooks } from '../../config/connectors/coinbaseWallet'
+import Button from '../Button'
 
 const {
   useChainId,
@@ -10,6 +11,8 @@ const {
   useIsActivating,
   useIsActive,
   useProvider,
+  useBalances,
+  useBlockNumber,
   useENSNames,
   useENSAvatars,
   useAddingChain,
@@ -27,20 +30,20 @@ export default function CoinbaseWalletCard() {
   const isPriority = priorityConnector === coinbaseWallet
   const isSelected = selectedConnector === coinbaseWallet
 
+  const provider = useProvider()
   const chainId = useChainId()
   const accountIndex = useAccountIndex()
   const accounts = useAccounts()
   const isActivating = useIsActivating()
-
   const isActive = useIsActive()
-
-  const provider = useProvider()
-  const ENSNames = useENSNames(provider)
-  const ENSAvatars = useENSAvatars(provider, ENSNames)
-
   const addingChain = useAddingChain()
   const switchingChain = useSwitchingChain()
   const watchingAsset = useWatchingAsset()
+  const ENSNames = useENSNames(provider)
+  const ENSAvatars = useENSAvatars(provider, ENSNames)
+
+  const { blockNumber, fetch: fetchBlockNumber } = useBlockNumber(false)
+  const { balances, fetch: fetchBalances } = useBalances(false)
 
   const [error, setError] = useState(undefined)
 
@@ -63,6 +66,8 @@ export default function CoinbaseWalletCard() {
       ENSAvatars={ENSAvatars}
       provider={provider}
       accounts={accounts}
+      blockNumber={blockNumber}
+      balances={balances}
       addingChain={addingChain}
       switchingChain={switchingChain}
       watchingAsset={watchingAsset}
@@ -70,6 +75,15 @@ export default function CoinbaseWalletCard() {
       setError={setError}
       isPriority={isPriority}
       isSelected={isSelected}
-    />
+    >
+      <Button
+        onClick={() => {
+          void fetchBlockNumber()
+          void fetchBalances()
+        }}
+      >
+        Refresh
+      </Button>
+    </Card>
   )
 }

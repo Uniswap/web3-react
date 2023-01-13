@@ -1,12 +1,11 @@
 import type { CoinbaseWalletProvider, CoinbaseWalletSDK } from '@coinbase/wallet-sdk'
-import { LogoType } from '@coinbase/wallet-sdk/dist/assets/wallet-logo'
+import type { LogoType } from '@coinbase/wallet-sdk/dist/assets/wallet-logo'
 import type {
-  Actions,
+  ConnectorArgs,
   AddEthereumChainParameter,
   ProviderConnectInfo,
   ProviderRpcError,
   WatchAssetParameters,
-  AddEthereumChainParameters,
 } from '@web3-react/types'
 import { Connector } from '@web3-react/types'
 
@@ -16,11 +15,8 @@ type CoinbaseWalletSDKOptions = ConstructorParameters<typeof CoinbaseWalletSDK>[
  * @param options - Options to pass to `@coinbase/wallet-sdk`.
  * @param onError - Handler to report errors thrown from eventListeners.
  */
-export interface CoinbaseWalletConstructorArgs {
-  actions: Actions
+export interface CoinbaseWalletConstructorArgs extends ConnectorArgs {
   options: CoinbaseWalletSDKOptions
-  onError?: (error: Error) => void
-  chainParameters?: AddEthereumChainParameters
 }
 
 export class CoinbaseWallet extends Connector {
@@ -29,17 +25,15 @@ export class CoinbaseWallet extends Connector {
 
   private readonly options: CoinbaseWalletSDKOptions
   private eagerConnection?: Promise<void>
-  private chainParameters?: AddEthereumChainParameters
 
   /**
    * A `CoinbaseWalletSDK` instance.
    */
   public coinbaseWallet: CoinbaseWalletSDK | undefined
 
-  constructor({ actions, options, onError, chainParameters }: CoinbaseWalletConstructorArgs) {
-    super(actions, onError)
+  constructor({ actions, options, onError, connectorOptions }: CoinbaseWalletConstructorArgs) {
+    super(actions, onError, connectorOptions)
     this.options = options
-    this.chainParameters = chainParameters
   }
 
   // the `connected` property, is bugged, but this works as a hack to check connection status
@@ -162,6 +156,9 @@ export class CoinbaseWallet extends Connector {
               return this.provider!.request({
                 method: 'wallet_addEthereumChain',
                 params: [{ ...desiredChainIdOrChainParameters, chainId: desiredChainIdHex }],
+              }).catch((addingError: ProviderRpcError) => {
+                this.actions.update({ addingChain: undefined, switchingChain: undefined })
+                throw addingError
               })
             } else if (this.chainParameters && Object.keys(this.chainParameters).includes(String(desiredChainId))) {
               this.actions.update({
@@ -174,6 +171,9 @@ export class CoinbaseWallet extends Connector {
               return this.provider!.request({
                 method: 'wallet_addEthereumChain',
                 params: [{ ...this.chainParameters[desiredChainId], chainId: desiredChainIdHex }],
+              }).catch((addingError: ProviderRpcError) => {
+                this.actions.update({ addingChain: undefined, switchingChain: undefined })
+                throw addingError
               })
             }
           }
@@ -244,6 +244,9 @@ export class CoinbaseWallet extends Connector {
                   await this.provider!.request({
                     method: 'wallet_addEthereumChain',
                     params: [{ ...desiredChainIdOrChainParameters, chainId: desiredChainIdHex }],
+                  }).catch((addingError: ProviderRpcError) => {
+                    this.actions.update({ addingChain: undefined, switchingChain: undefined })
+                    throw addingError
                   })
 
                   return
@@ -258,6 +261,9 @@ export class CoinbaseWallet extends Connector {
                   await this.provider!.request({
                     method: 'wallet_addEthereumChain',
                     params: [{ ...this.chainParameters[desiredChainId], chainId: desiredChainIdHex }],
+                  }).catch((addingError: ProviderRpcError) => {
+                    this.actions.update({ addingChain: undefined, switchingChain: undefined })
+                    throw addingError
                   })
 
                   return
