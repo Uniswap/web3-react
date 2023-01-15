@@ -96,10 +96,13 @@ export class MetaMask extends Connector {
         })
 
         this.provider.on('disconnect', (error: ProviderRpcError): void => {
-          // MM Bug Workaround: MM has an existing bug when switching to some chains that are not native to the MM extension. This will stop resetting state when it happens and allow MM to reconnect on the new chain.
-          // Error code 1013: MetaMask is attempting to reestablish the connection
-          if (error.code === 1013) return
-
+          // 1013 indicates that MetaMask is attempting to reestablish the connection
+          // https://github.com/MetaMask/providers/releases/tag/v8.0.0
+          if (error.code === 1013) {
+            console.debug('MetaMask logged connection error 1013: "Try again later"')
+            return
+          }
+          
           this.actions.resetState()
           this.onError?.(error)
         })
