@@ -1,10 +1,9 @@
 import type { Networkish } from '@ethersproject/networks'
 import type { BaseProvider, Web3Provider } from '@ethersproject/providers'
 import type { Actions, Connector, Web3ReactState, Web3ReactStore } from '@web3-react/types'
-import type { EqualityChecker, UseBoundStore } from 'zustand'
+import { useStore } from 'zustand'
 import { createWeb3ReactStoreAndActions } from '@web3-react/store'
 import { useEffect, useMemo, useState } from 'react'
-import create from 'zustand'
 
 let DynamicProvider: typeof Web3Provider | null | undefined
 async function importProvider(): Promise<void> {
@@ -41,9 +40,8 @@ export function initializeConnector<T extends Connector>(
   const [store, actions] = createWeb3ReactStoreAndActions()
 
   const connector = f(actions)
-  const useConnector = create(store)
 
-  const stateHooks = getStateHooks(useConnector)
+  const stateHooks = getStateHooks(store)
   const derivedHooks = getDerivedHooks(stateHooks)
   const augmentedHooks = getAugmentedHooks<T>(connector, stateHooks, derivedHooks)
 
@@ -334,46 +332,42 @@ export function getPriorityConnector(
   }
 }
 
-const CHAIN_ID = ({ chainId }: Web3ReactState) => chainId
-const ACCOUNT_INDEX = ({ accountIndex }: Web3ReactState) => accountIndex
-const ACCOUNTS = ({ accounts }: Web3ReactState) => accounts
-const ACCOUNTS_EQUALITY_CHECKER: EqualityChecker<Web3ReactState['accounts']> = (oldAccounts, newAccounts) =>
-  (oldAccounts === undefined && newAccounts === undefined) ||
-  (oldAccounts !== undefined &&
-    oldAccounts.length === newAccounts?.length &&
-    oldAccounts.every((oldAccount: string, i: number) => oldAccount === newAccounts[i]))
-const ACTIVATING = ({ activating }: Web3ReactState) => activating
-const ADDING = ({ addingChain }: Web3ReactState) => addingChain
-const SWITCHING = ({ switchingChain }: Web3ReactState) => switchingChain
-const WATCHING = ({ watchingAsset }: Web3ReactState) => watchingAsset
-
-function getStateHooks(useConnector: UseBoundStore<Web3ReactStore>) {
+function getStateHooks(store: Web3ReactStore) {
   function useChainId(): Web3ReactState['chainId'] {
-    return useConnector(CHAIN_ID)
+    return useStore(store, ({ chainId }) => chainId)
   }
 
   function useAccounts(): Web3ReactState['accounts'] {
-    return useConnector(ACCOUNTS, ACCOUNTS_EQUALITY_CHECKER)
+    return useStore(
+      store,
+      ({ accounts }) => accounts ?? [],
+      // Equality Checker
+      (oldAccounts: string[], newAccounts: string[]) =>
+        (oldAccounts === undefined && newAccounts === undefined) ||
+        (oldAccounts !== undefined &&
+          oldAccounts.length === newAccounts?.length &&
+          oldAccounts.every((oldAccount: string, i: number) => oldAccount === newAccounts[i]))
+    )
   }
 
   function useAccountIndex(): Web3ReactState['accountIndex'] {
-    return useConnector(ACCOUNT_INDEX)
+    return useStore(store, ({ accountIndex }) => accountIndex)
   }
 
   function useIsActivating(): Web3ReactState['activating'] {
-    return useConnector(ACTIVATING)
+    return useStore(store, ({ activating }) => activating)
   }
 
   function useAddingChain(): Web3ReactState['addingChain'] {
-    return useConnector(ADDING)
+    return useStore(store, ({ addingChain }) => addingChain)
   }
 
   function useSwitchingChain(): Web3ReactState['switchingChain'] {
-    return useConnector(SWITCHING)
+    return useStore(store, ({ switchingChain }) => switchingChain)
   }
 
   function useWatchingAsset(): Web3ReactState['watchingAsset'] {
-    return useConnector(WATCHING)
+    return useStore(store, ({ watchingAsset }) => watchingAsset)
   }
 
   return {

@@ -81,6 +81,8 @@ export function useBlockNumber(
   }, [connector, getBlock, provider])
 
   useEffect(() => {
+    if (skip) return
+
     setError(undefined)
 
     if (!provider || !connector) {
@@ -88,9 +90,9 @@ export function useBlockNumber(
       return
     }
 
-    setIsLoading(true)
-
     let stale = false
+
+    setIsLoading(true)
 
     // Get block at least once
     void getBlock()
@@ -106,9 +108,9 @@ export function useBlockNumber(
       })
 
     // Only EVM Connectors for now
-    if (provider?.on) {
+    if (provider?.on && !skip) {
       const updateBlock = (blockNumber: number) => {
-        if (!blockNumber || stale || skip) return
+        if (!blockNumber || stale) return
 
         setBlockNumber(blockNumber)
         setIsLoading(false)
