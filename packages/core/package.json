@@ -25,7 +25,7 @@
   "dependencies": {
     "@web3-react/store": "^8.0.25-beta.0",
     "@web3-react/types": "^8.0.20-beta.0",
-    "zustand": "^4.0.0-rc.0"
+    "zustand": "4.0.0-rc.0"
   },
   "peerDependencies": {
     "react": ">=16.8"
@@ -34,7 +34,6 @@
     "@ethersproject/providers": "^5.7.2"
   },
   "devDependencies": {
-    "@ethersproject/bignumber": "^5.7.0",
     "@ethersproject/networks": "^5.7.1"
   }
 }

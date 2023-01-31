@@ -1,35 +1,28 @@
 import { Web3ReactProvider } from '@web3-react/core'
 import { connectors } from '../utils/connectors'
-import SelectedConnectorCard from '../components/cards/SelectedConnectorCard'
-import MetaMaskCard from '../components/cards/MetaMaskCard'
-import CoinbaseWalletCard from '../components/cards/CoinbaseWalletCard'
-import WalletConnectCard from '../components/cards/WalletConnectCard'
-import GnosisSafeCard from '../components/cards/GnosisSafeCard'
-import BscWalletCard from '../components/cards/BscWalletCard'
-import PortisWalletCard from '../components/cards/PortisWalletCard'
-import TronLinkCard from '../components/cards/TronLinkCard'
-import NetworkCard from '../components/cards/NetworkCard'
+import Head from 'next/head'
+import NavBar from '../components/molecules/NavBar'
+import CardContainer from '../components/organisms/CardContainer'
 
 export default function Home() {
   return (
-    <Web3ReactProvider connectors={connectors} lookupENS subscribe>
-      <div
-        className="bg-gray-500"
-        style={{ display: 'flex', flexFlow: 'wrap', fontFamily: 'sans-serif', color: 'rgb(201, 209, 217' }}
-      >
-        <style jsx global>{`
-          ${'body {background: rgb(3,4,11);}'}
-        `}</style>
-        <SelectedConnectorCard />
-        <MetaMaskCard />
-        <CoinbaseWalletCard />
-        <WalletConnectCard />
-        <GnosisSafeCard />
-        <BscWalletCard />
-        <PortisWalletCard />
-        <TronLinkCard />
-        <NetworkCard />
-      </div>
-    </Web3ReactProvider>
+    <>
+      <style jsx global>{`
+        ${'body {background: rgb(3,4,11);}'}
+      `}</style>
+      <Head>
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+        <link rel="manifest" href="/site.webmanifest" />
+        <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#EF1978" />
+        <meta name="msapplication-TileColor" content="#EF1978" />
+        <meta name="theme-color" content="#000000" />
+      </Head>
+      <NavBar />
+      <Web3ReactProvider connectors={connectors} lookupENS>
+        <CardContainer />
+      </Web3ReactProvider>
+    </>
   )
 }

@@ -4,11 +4,11 @@ import type {
   AddEthereumChainParameter,
   Provider,
   ProviderConnectInfo,
-  ProviderRpcError,
   WatchAssetParameters,
   Web3WalletPermission,
   PermissionCaveat,
 } from '@web3-react/types'
+import { ProviderRpcError, Web3ReactState } from '@web3-react/types'
 import { Connector } from '@web3-react/types'
 
 type MetaMaskProvider = Provider & {
@@ -102,7 +102,7 @@ export class MetaMask extends Connector {
             console.debug('MetaMask logged connection error 1013: "Try again later"')
             return
           }
-          
+
           this.actions.resetState()
           this.onError?.(error)
         })
@@ -130,38 +130,37 @@ export class MetaMask extends Connector {
   }
 
   /** {@inheritdoc Connector.connectEagerly} */
-  public async connectEagerly(): Promise<void> {
+  public async connectEagerly(): Promise<Web3ReactState> {
     const cancelActivation = this.actions.startActivation()
 
     await this.isomorphicInitialize()
+
     if (!this.provider) return cancelActivation()
 
-    return Promise.all([
-      this.provider.request({ method: 'eth_chainId' }) as Promise<string>,
-      this.provider.request({ method: 'eth_accounts' }) as Promise<string[]>,
-    ])
-      .then(async ([chainId, baseAccounts]) => {
-        const accounts = (await this.getAccounts()) ?? baseAccounts
+    try {
+      const [chainId, baseAccounts] = (await Promise.all([
+        this.provider.request({ method: 'eth_chainId' }),
+        this.provider.request({ method: 'eth_accounts' }),
+      ])) as [string, string[]]
 
-        if (accounts.length) {
-          const index = accounts.indexOf(this?.selectedAddress ?? '')
-          this.actions.update({
-            chainId: this.parseChainId(chainId),
-            accounts,
-            accountIndex: index < 0 ? undefined : index,
-          })
-          // void this.startBlockListenerr(this.provider, accounts)
-        } else {
-          throw new Error('No accounts returned')
-        }
+      const accounts = (await this.getAccounts()) ?? baseAccounts
+
+      if (!accounts.length) throw new Error('No accounts returned')
+
+      const index = accounts.indexOf(this?.selectedAddress ?? '')
+
+      return this.actions.update({
+        chainId: this.parseChainId(chainId),
+        accounts,
+        accountIndex: index < 0 ? undefined : index,
       })
-      .catch((error) => {
-        console.debug('Could not connect eagerly', error)
-        // we should be able to use `cancelActivation` here, but on mobile, metamask emits a 'connect'
-        // event, meaning that chainId is updated, and cancelActivation doesn't work because an intermediary
-        // update has occurred, so we reset state instead
-        this.actions.resetState()
-      })
+    } catch (error) {
+      console.debug('Could not connect eagerly', error)
+      // we should be able to use `cancelActivation` here, but on mobile, metamask emits a 'connect'
+      // event, meaning that chainId is updated, and cancelActivation doesn't work because an intermediary
+      // update has occurred, so we reset state instead
+      return this.actions.resetState()
+    }
   }
 
   /**
@@ -173,104 +172,123 @@ export class MetaMask extends Connector {
    * argument is of type AddEthereumChainParameter, in which case the user will be prompted to add the chain with the
    * specified parameters first, before being prompted to switch.
    */
-  public async activate(desiredChainIdOrChainParameters?: number | AddEthereumChainParameter): Promise<void> {
+  public async activate(desiredChainIdOrChainParameters?: number | AddEthereumChainParameter): Promise<Web3ReactState> {
     const cancelActivation = this.selectedAddress ? null : this.actions.startActivation()
 
-    return this.isomorphicInitialize()
-      .then(async () => {
-        if (!this.provider) throw new NoMetaMaskError()
+    await this.isomorphicInitialize()
 
-        return Promise.all([
-          this.provider.request({ method: 'eth_chainId' }) as Promise<string>,
-          this.provider.request({ method: 'eth_requestAccounts' }) as Promise<string[]>,
-        ]).then(async ([chainId, baseAccounts]) => {
-          const accounts: string[] = (await this.getAccounts()) ?? baseAccounts
+    if (!this.provider) throw new NoMetaMaskError()
 
-          const receivedChainId = this.parseChainId(chainId)
-          const desiredChainId =
-            typeof desiredChainIdOrChainParameters === 'number'
-              ? desiredChainIdOrChainParameters
-              : desiredChainIdOrChainParameters?.chainId
+    const desiredChainId =
+      typeof desiredChainIdOrChainParameters === 'number'
+        ? desiredChainIdOrChainParameters
+        : desiredChainIdOrChainParameters?.chainId
 
-          // if there's no desired chain, or it's equal to the received, update
-          if (!desiredChainId || receivedChainId === desiredChainId) {
-            const index = accounts.indexOf(this?.selectedAddress ?? '')
-            return this.actions.update({
-              chainId: receivedChainId,
-              accounts,
-              accountIndex: index < 0 ? undefined : index,
-            })
-          }
+    try {
+      const currentChainId = this.parseChainId((await this.provider.request({ method: 'eth_chainId' })) as string)
 
-          // if we're here, we can try to switch networks
-          this.actions.update({
-            switchingChain: {
-              fromChainId: receivedChainId,
-              toChainId: desiredChainId,
-            },
-          })
+      // We're on the chainId we need, go ahead and connect
+      if (!desiredChainIdOrChainParameters || !desiredChainId || currentChainId === desiredChainId) {
+        const baseAccounts = (await this.provider.request({ method: 'eth_requestAccounts' })) as string[]
 
-          const desiredChainIdHex = this.formatChainId(desiredChainId)
+        // Check if we have access to get all connected accounts as per EIP-2255
+        const accounts: string[] = (await this.getAccounts()) ?? baseAccounts
 
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          return this.provider
-            ?.request({
-              method: 'wallet_switchEthereumChain',
-              params: [{ chainId: desiredChainIdHex }],
-            })
-            .catch((switchingError: ProviderRpcError) => {
-              if (switchingError.code === 4902) {
-                // if we're here, we can try to add a new network
+        const index = accounts.indexOf(this?.selectedAddress ?? '')
 
-                // Check if the params have been provided
-                if (typeof desiredChainIdOrChainParameters !== 'number') {
-                  this.actions.update({
-                    addingChain: {
-                      chainId: desiredChainId,
-                    },
-                  })
-
-                  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                  return this.provider!.request({
-                    method: 'wallet_addEthereumChain',
-                    params: [{ ...desiredChainIdOrChainParameters, chainId: desiredChainIdHex }],
-                  }).catch((addingError: ProviderRpcError) => {
-                    this.actions.update({ addingChain: undefined, switchingChain: undefined })
-                    throw addingError
-                  })
-                } else if (this.chainParameters && Object.keys(this.chainParameters).includes(String(desiredChainId))) {
-                  this.actions.update({
-                    addingChain: {
-                      chainId: desiredChainId,
-                    },
-                  })
-
-                  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                  return this.provider!.request({
-                    method: 'wallet_addEthereumChain',
-                    params: [{ ...this.chainParameters[desiredChainId], chainId: desiredChainIdHex }],
-                  }).catch((addingError: ProviderRpcError) => {
-                    this.actions.update({ addingChain: undefined, switchingChain: undefined })
-                    throw addingError
-                  })
-                }
-              }
-
-              this.actions.update({ addingChain: undefined, switchingChain: undefined })
-
-              throw switchingError
-            })
-            .then(() => {
-              this.actions.update({ addingChain: undefined, switchingChain: undefined })
-
-              return this.activate(desiredChainId)
-            })
+        return this.actions.update({
+          chainId: currentChainId,
+          accounts,
+          accountIndex: index < 0 ? undefined : index,
         })
+      }
+
+      // Attempt to add/switch the chain to the desired chain
+      await this.switchChain(desiredChainIdOrChainParameters, currentChainId)
+
+      // Reattempt connection now being on the correct chainId
+      return this.activate(desiredChainId)
+    } catch (error) {
+      cancelActivation?.()
+      throw error
+    }
+  }
+
+  /**
+   *
+   * @param desiredChainIdOrChainParameters - The chainId or the chainIds parameters to add. You must provider the parameters if they were not passed to the connectors constructor.
+   */
+  public async addChain(desiredChainIdOrChainParameters: number | AddEthereumChainParameter) {
+    const desiredChainId =
+      typeof desiredChainIdOrChainParameters === 'number'
+        ? desiredChainIdOrChainParameters
+        : desiredChainIdOrChainParameters?.chainId
+
+    const desiredChainIdHex = this.formatChainId(desiredChainId)
+
+    try {
+      if (!this.provider) throw Error('No provider found.')
+
+      // Check if the params have been provided
+      if (typeof desiredChainIdOrChainParameters !== 'number') {
+        await this.provider.request({
+          method: 'wallet_addEthereumChain',
+          params: [{ ...desiredChainIdOrChainParameters, chainId: desiredChainIdHex }],
+        })
+      }
+      // Check if the params were given to the connectors options
+      else if (this.chainParameters && Object.keys(this.chainParameters).includes(String(desiredChainId))) {
+        await this.provider.request({
+          method: 'wallet_addEthereumChain',
+          params: [{ ...this.chainParameters[desiredChainId], chainId: desiredChainIdHex }],
+        })
+      }
+
+      this.actions.update({ addingChain: undefined, switchingChain: undefined })
+    } catch (addingError) {
+      this.actions.update({ addingChain: undefined, switchingChain: undefined })
+      throw addingError
+    }
+  }
+
+  /**
+   * Switch the chainId of the connector. If the chainId is not configured in the wallet, it will attempt to add the chainId parameters, then switch to the chainId. You must provider the parameters if they were not passed to the connectors constructor.
+   * @param desiredChainIdOrChainParameters - The chainId or the chainIds parameters to switch to
+   * @param currentChainId - The current chainId we are switching from
+   */
+  public async switchChain(
+    desiredChainIdOrChainParameters: number | AddEthereumChainParameter,
+    currentChainId?: number
+  ) {
+    const desiredChainId =
+      typeof desiredChainIdOrChainParameters === 'number'
+        ? desiredChainIdOrChainParameters
+        : desiredChainIdOrChainParameters?.chainId
+    const desiredChainIdHex = this.formatChainId(desiredChainId)
+
+    this.actions.update({
+      switchingChain: {
+        fromChainId: currentChainId,
+        toChainId: desiredChainId,
+      },
+    })
+
+    try {
+      if (!this.provider) throw Error('No provider found.')
+
+      await this.provider.request({
+        method: 'wallet_switchEthereumChain',
+        params: [{ chainId: desiredChainIdHex }],
       })
-      .catch((error) => {
-        cancelActivation?.()
-        throw error
-      })
+
+      this.actions.update({ addingChain: undefined, switchingChain: undefined })
+    } catch (switchingError) {
+      if ((switchingError as ProviderRpcError)?.code === 4902) {
+        await this.addChain(desiredChainIdOrChainParameters)
+      } else {
+        throw switchingError
+      }
+    }
   }
 
   public async watchAsset({
@@ -279,7 +297,7 @@ export class MetaMask extends Connector {
     symbol,
     decimals,
     image,
-  }: WatchAssetParameters): Promise<true> {
+  }: WatchAssetParameters): Promise<boolean> {
     if (!this.provider) throw new Error('No provider')
 
     this.actions.update({
@@ -308,14 +326,15 @@ export class MetaMask extends Connector {
           return true
         }
 
-        // We need a small delay before calling the next request to the provider or else it won't work.
+        // We need a small delay before calling the next request to the provider or else it will prevent the user request popup and queue up the tokens to be added.
         await new Promise((resolve) => {
           setTimeout(resolve, 100)
         })
       }
     }
-    return this.provider
-      .request({
+
+    try {
+      const success = await this.provider.request({
         method: 'wallet_watchAsset',
         params: {
           type: 'ERC20', // Initially only supports ERC20, but eventually more!
@@ -327,13 +346,13 @@ export class MetaMask extends Connector {
           },
         },
       })
-      .catch(() => {
-        this.actions.update({ watchingAsset: undefined })
-      })
-      .then((success) => {
-        this.actions.update({ watchingAsset: undefined })
-        if (!success) throw new Error('Rejected')
-        return true
-      })
+
+      this.actions.update({ watchingAsset: undefined })
+      if (!success) throw new Error('Rejected')
+      return true
+    } catch (error) {
+      this.actions.update({ watchingAsset: undefined })
+      return true
+    }
   }
 }

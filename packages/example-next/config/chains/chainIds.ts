@@ -4,6 +4,8 @@ export const avaxMainChainId = 43114
 export const avaxTestChainId = 43113
 export const bscMainChainId = 56
 export const bscTestChainId = 97
+export const cardanoMainChainId = 1400000001
+export const cardanoPreProdChainId = 1400000000
 export const celoMainChainId = 42220
 export const celoTestChainId = 44787
 export const etcMainChainId = 61
@@ -28,6 +30,9 @@ export const polygonMainChainId = 137
 export const polygonTestChainId = 80001
 export const rskMainChainId = 30
 export const rskTestChainId = 31
+export const solMainChainId = 1399811149
+export const solDevChainId = 1399811150
+export const solTestChainId = 1399811151
 export const thunderMainChainId = 108
 export const thunderTestChainId = 18
 export const tronMainChainId = 728126428
@@ -38,6 +43,7 @@ export const ubiqMainChainId = 8
 export const arbitrumChains = [arbitrumMainChainId, arbitrumTestChainId]
 export const avaxChains = [avaxMainChainId, avaxTestChainId]
 export const bscChains = [bscMainChainId, bscTestChainId]
+export const cardanoChains = [cardanoMainChainId, cardanoPreProdChainId]
 export const celoChains = [celoMainChainId, celoTestChainId]
 export const etcChains = [etcMainChainId, etcKottiChainId, etcMordorChainId]
 export const ethChains = [ethMainChainId, ethGoerliChainId, ethSepoliaChainId]
@@ -48,6 +54,7 @@ export const lightstreamsChains = [lightstreamsMainChainId, lightstreamsTestChai
 export const optimismChains = [optimismMainChainId, optimismTestChainId]
 export const plsChains = [plsTestChainId]
 export const rskChains = [rskMainChainId, rskTestChainId]
+export const solChains = [solMainChainId, solDevChainId, solTestChainId]
 export const poaChains = [poaMainChainId, poaTestChainId]
 export const polygonChains = [polygonMainChainId, polygonTestChainId]
 export const thunderChains = [thunderMainChainId, thunderTestChainId]
@@ -58,6 +65,7 @@ export const mainChains = [
   arbitrumMainChainId,
   avaxMainChainId,
   bscMainChainId,
+  cardanoMainChainId,
   celoMainChainId,
   etcMainChainId,
   ethMainChainId,
@@ -69,6 +77,7 @@ export const mainChains = [
   poaMainChainId,
   polygonMainChainId,
   rskMainChainId,
+  solMainChainId,
   thunderMainChainId,
   tronMainChainId,
   ubiqMainChainId,
@@ -78,6 +87,7 @@ export const testChains = [
   arbitrumTestChainId,
   avaxTestChainId,
   bscTestChainId,
+  cardanoPreProdChainId,
   celoTestChainId,
   etcKottiChainId,
   etcMordorChainId,
@@ -91,9 +101,13 @@ export const testChains = [
   polygonTestChainId,
   plsTestChainId,
   rskTestChainId,
+  solDevChainId,
+  solTestChainId,
   thunderTestChainId,
   tronShastaChainId,
   tronNileChainId,
 ]
 
-export const allChains = [...mainChains, ...testChains]
+export const allEvmChainIds = [...mainChains, ...testChains].filter(
+  (chainId) => ![...tronChains, ...solChains, ...cardanoChains].includes(chainId)
+)

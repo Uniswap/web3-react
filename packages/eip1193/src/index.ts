@@ -1,4 +1,4 @@
-import type { ConnectorArgs, Provider, ProviderConnectInfo, ProviderRpcError } from '@web3-react/types'
+import type { ConnectorArgs, Provider, ProviderConnectInfo, ProviderRpcError, Web3ReactState } from '@web3-react/types'
 import { Connector } from '@web3-react/types'
 
 /**
@@ -37,7 +37,7 @@ export class EIP1193 extends Connector {
   }
 
   /** {@inheritdoc Connector.connectEagerly} */
-  public async connectEagerly(): Promise<void> {
+  public async connectEagerly(): Promise<Web3ReactState> {
     const cancelActivation = this.actions.startActivation()
 
     return Promise.all([
@@ -45,7 +45,7 @@ export class EIP1193 extends Connector {
       this.provider.request({ method: 'eth_accounts' }) as Promise<string[]>,
     ])
       .then(([chainId, accounts]) => {
-        this.actions.update({ chainId: this.parseChainId(chainId), accounts })
+        return this.actions.update({ chainId: this.parseChainId(chainId), accounts })
       })
       .catch((error) => {
         cancelActivation()
@@ -54,7 +54,7 @@ export class EIP1193 extends Connector {
   }
 
   /** {@inheritdoc Connector.activate} */
-  public async activate(): Promise<void> {
+  public async activate(): Promise<Web3ReactState> {
     const cancelActivation = this.actions.startActivation()
 
     return Promise.all([
@@ -64,7 +64,7 @@ export class EIP1193 extends Connector {
         .catch(() => this.provider.request({ method: 'eth_accounts' })) as Promise<string[]>,
     ])
       .then(([chainId, accounts]) => {
-        this.actions.update({ chainId: this.parseChainId(chainId), accounts })
+        return this.actions.update({ chainId: this.parseChainId(chainId), accounts })
       })
       .catch((error) => {
         cancelActivation()

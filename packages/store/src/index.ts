@@ -42,15 +42,18 @@ export function createWeb3ReactStoreAndActions(): [Web3ReactStore, Actions] {
    * @returns cancelActivation - A function that cancels the activation by setting activating to false,
    * as long as there haven't been any intervening updates.
    */
-  function startActivation(): () => void {
+  function startActivation(): () => Web3ReactState {
     const nullifierCached = ++nullifier
 
     store.setState({ ...DEFAULT_STATE, activating: true })
 
     // return a function that cancels the activation if nothing else has happened
-    return () => {
-      if (nullifier === nullifierCached)
+    return (): Web3ReactState => {
+      if (nullifier === nullifierCached) {
         store.setState({ activating: false, addingChain: undefined, switchingChain: undefined })
+      }
+
+      return store.getState()
     }
   }
 
@@ -60,14 +63,14 @@ export function createWeb3ReactStoreAndActions(): [Web3ReactStore, Actions] {
    *
    * @param stateUpdate - The state update to report.
    */
-  function update(stateUpdate: Web3ReactStateUpdate): void {
+  function update(stateUpdate: Web3ReactStateUpdate, skipValidation?: boolean): Web3ReactState {
     // validate chainId statically, independent of existing state
-    if (stateUpdate.chainId !== undefined) {
+    if (stateUpdate.chainId !== undefined && !skipValidation) {
       validateChainId(stateUpdate.chainId)
     }
 
     // validate accounts statically, independent of existing state
-    if (stateUpdate.accounts !== undefined) {
+    if (stateUpdate.accounts !== undefined && !skipValidation) {
       for (let i = 0; i < stateUpdate.accounts.length; i++) {
         stateUpdate.accounts[i] = validateAccount(stateUpdate.accounts[i])
       }
@@ -112,15 +115,25 @@ export function createWeb3ReactStoreAndActions(): [Web3ReactStore, Actions] {
         watchingAsset,
       }
     })
+
+    return store.getState()
   }
 
   /**
    * Resets connector state back to the default state.
    */
-  function resetState(): void {
+  function resetState(): Web3ReactState {
     nullifier++
     store.setState(DEFAULT_STATE)
+    return DEFAULT_STATE
   }
 
-  return [store, { startActivation, update, resetState }]
+  /**
+   * Returns the connectors state.
+   */
+  function getState(): Web3ReactState {
+    return store.getState()
+  }
+
+  return [store, { startActivation, update, resetState, getState }]
 }

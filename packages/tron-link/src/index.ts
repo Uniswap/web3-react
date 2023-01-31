@@ -4,6 +4,7 @@ import type {
   ProviderRpcError,
   WatchAssetParameters,
   RequestArguments,
+  Web3ReactState,
 } from '@web3-react/types'
 import { BigNumber } from '@ethersproject/bignumber'
 import { Connector } from '@web3-react/types'
@@ -32,14 +33,12 @@ export interface TronProvider extends Provider {
   fullNode: { host: string }
   request(args: RequestArguments): Promise<unknown>
   trx: {
-    sign: (hex: string) => void
+    sign: (hex: string) => Promise<void>
     getBalance: (address: string) => Promise<BigNumber>
     getCurrentBlock: () => Promise<{ block_header: { raw_data: { number: number } } }>
   }
   getBalance: (address: string) => Promise<BigNumber>
   getBlockNumber: () => Promise<number>
-  lookupAddress: (address: string | Promise<string>) => Promise<null | string>
-  getSigner: () => { signMessage: (hex: string) => void }
 }
 
 export interface TronLink {
@@ -67,45 +66,6 @@ export const tronChainId = 728126428 // 0x2b6653dc
 export const shastaChainId = 2494104990 // 0x94a9059e
 export const nileChainId = 3448148188 // 0xcd8690dc
 
-function generateTronProvider(): TronProvider | undefined {
-  if (!window?.tronWeb) return undefined
-
-  const provider = window.tronWeb as TronProvider
-  const trx = provider.trx
-
-  function convertAddressTo41(address: string) {
-    if (address.startsWith('41')) {
-      return address
-    } else if (address.startsWith('0x')) {
-      return '41' + address.substring(2)
-    } else if (provider) {
-      // Base58 to 41
-      return provider.address.toHex(address)
-    }
-
-    return address
-  }
-
-  return {
-    ...provider,
-    getBalance: async (address: string) => {
-      if (!trx) return Promise.resolve(BigNumber.from(0))
-      const amountSun = await trx.getBalance(convertAddressTo41(address))
-      return BigNumber.from(amountSun)
-    },
-    getBlockNumber: async () => {
-      const res = await trx.getCurrentBlock()
-      return res?.block_header?.raw_data?.number ?? 0
-    },
-    lookupAddress: (address: string | Promise<string>) => {
-      return Promise.resolve(null)
-    },
-    getSigner: () => {
-      return { signMessage: (hex: string) => trx.sign(provider.toHex(hex)) }
-    },
-  }
-}
-
 /**
  * @param options - Options to pass to the "provider" provider.
  * @param onError - Handler to report errors thrown from eventListeners.
@@ -114,7 +74,7 @@ export interface TronConstructorArgs extends ConnectorArgs {
   options?: TronLinkOptions
 }
 
-export class TronWallet extends Connector {
+export class TronLink extends Connector {
   /** {@inheritdoc Connector.provider} */
   public readonly provider: undefined
   /** {@inheritdoc Connector.customProvider} */
@@ -154,6 +114,19 @@ export class TronWallet extends Connector {
     return address
   }
 
+  public convertAddressTo41(address: string) {
+    if (address.startsWith('41')) {
+      return address
+    } else if (address.startsWith('0x')) {
+      return '41' + address.substring(2)
+    } else if (this.customProvider) {
+      // Base58 to 41
+      return this.customProvider.address.toHex(address)
+    }
+
+    return address
+  }
+
   /**
    * Setup the provider and listen to its events.
    */
@@ -162,13 +135,19 @@ export class TronWallet extends Connector {
 
     // Check if tron link is installed
     const tronLink = window?.tronLink
-    if (!tronLink || !tronLink.ready) return
+    if (!tronLink) return
 
     // Set options
     this.tronLink = tronLink
     this.tronLink.tronLinkParams = { websiteName: this.options?.websiteName, websiteIcon: this.options?.websiteIcon }
 
-    this.customProvider = generateTronProvider()
+    if (!tronLink.ready) return
+
+    const provider = window.tronWeb
+
+    if (!provider) return
+
+    this.customProvider = provider
 
     const callbacks = (event: {
       data: {
@@ -227,40 +206,39 @@ export class TronWallet extends Connector {
   }
 
   /** {@inheritdoc Connector.connectEagerly} */
-  public async connectEagerly(): Promise<void> {
+  public async connectEagerly(): Promise<Web3ReactState> {
     const cancelActivation = this.actions.startActivation()
 
     this.isomorphicInitialize()
 
     if (!this.customProvider) return cancelActivation()
 
-    // Contrary to the name, this doesn't return accounts, it returns a status code 200 if it has an account
-    const requestAccounts = this.customProvider.request({ method: 'tron_requestAccounts' }) as Promise<{
-      code: number
-      message: string
-    }>
+    try {
+      const { code } = (await this.customProvider.request({
+        method: 'tron_requestAccounts',
+      })) as {
+        code: number
+        message: string
+      }
 
-    return await requestAccounts
-      .then(({ code }: { code: number; message: string }) => {
-        if (code === 4001) throw new Error('No accounts found')
+      if (code === 4001) throw new Error('No accounts found')
 
-        // Grab the address
-        const address = this.customProvider?.defaultAddress?.hex
-          ? this.convertAddressTo0x(this.customProvider?.defaultAddress?.hex)
-          : undefined
+      // Grab the address
+      const address = this.customProvider?.defaultAddress?.hex
+        ? this.convertAddressTo0x(this.customProvider?.defaultAddress?.hex)
+        : undefined
 
-        if (!address) throw new Error('No accounts found')
+      if (!address) throw new Error('No accounts found')
 
-        this.actions.update({
-          chainId: this.getChainId(),
-          accounts: [address],
-          accountIndex: address ? 0 : undefined,
-        })
+      return this.actions.update({
+        chainId: this.getChainId(),
+        accounts: [address],
+        accountIndex: address ? 0 : undefined,
       })
-      .catch((error: ProviderRpcError) => {
-        console.debug('connectEagerly Could not connect eagerly', error)
-        cancelActivation?.()
-      })
+    } catch (error) {
+      console.debug('connectEagerly Could not connect eagerly', error)
+      return cancelActivation?.()
+    }
   }
 
   /**
@@ -271,9 +249,13 @@ export class TronWallet extends Connector {
 
     this.isomorphicInitialize()
 
-    if (!this.customProvider) throw new NoTronProviderError()
+    if (!this.tronLink) throw new NoTronProviderError()
 
-    // Contrary to the name, this doesn't return accounts, it returns a status code 200 if it has an account
+    if (!this.customProvider) {
+      cancelActivation?.()
+      throw new Error('Unlock Wallet')
+    }
+
     const requestAccounts = this.customProvider.request({ method: 'tron_requestAccounts' }) as Promise<{
       code: number
       message: string
@@ -301,7 +283,7 @@ export class TronWallet extends Connector {
       })
   }
 
-  public async watchAsset({ type, address, symbol, decimals, image }: WatchAssetParameters): Promise<true> {
+  public async watchAsset({ type, address, symbol, decimals, image }: WatchAssetParameters): Promise<boolean> {
     if (!this.customProvider) throw new Error('No provider')
 
     this.actions.update({
@@ -328,11 +310,12 @@ export class TronWallet extends Connector {
       })
       .catch(() => {
         this.actions.update({ watchingAsset: undefined })
+        return false
       })
-      .then((success) => {
+      .then((res) => {
+        const success = res as boolean
         this.actions.update({ watchingAsset: undefined })
-        if (!success) throw new Error('Rejected')
-        return true
+        return success
       })
   }
 }

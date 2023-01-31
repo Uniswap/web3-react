@@ -13,6 +13,7 @@ export const [coinbaseWallet, hooks]: [CoinbaseWallet, Web3ReactHooks, Web3React
           url: URLS[1][0],
           appName: 'web3-react',
           reloadOnDisconnect: false,
+          darkMode: true,
         },
         connectorOptions: { chainParameters: allAddChainParameters },
       })

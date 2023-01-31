@@ -1,5 +1,5 @@
 import type { EventEmitter } from 'node:events'
-import type { State, StoreApi } from 'zustand'
+import type { StoreApi } from 'zustand'
 
 export type AddingChainInfo = {
   chainId: number
@@ -10,7 +10,7 @@ export type SwitchingChainInfo = {
   toChainId: number
 }
 
-export interface Web3ReactState extends State {
+export interface Web3ReactState {
   chainId: number | undefined
   accounts: string[] | undefined
   accountIndex: number | undefined
@@ -106,14 +106,14 @@ export type Web3ReactStateUpdate =
     }
 
 export interface Actions {
-  startActivation: () => () => void
-  update: (stateUpdate: Web3ReactStateUpdate) => void
-  resetState: () => void
+  startActivation: () => () => Web3ReactState
+  update: (stateUpdate: Web3ReactStateUpdate, skipValidation?: boolean) => Web3ReactState
+  resetState: () => Web3ReactState
+  getState: () => Web3ReactState
 }
 
 export interface ConnectorOptions {
   supportedChainIds?: number[]
-  isBlockNumberEnabled?: boolean
   chainParameters?: AddEthereumChainParameters
 }
 
@@ -218,16 +218,6 @@ export abstract class Connector {
   protected readonly actions: Actions
 
   /**
-   * Wether the listener is on
-   */
-  public disableWatcher = true
-
-  /**
-   * Wether the listener running
-   */
-  public watchingBlocks = false
-
-  /**
    * An optional handler which will report errors thrown from event listeners. Any errors caused from
    * user-defined behavior will be thrown inline through a Promise.
    */
@@ -243,7 +233,6 @@ export abstract class Connector {
     this.onError = onError
 
     this.supportedChainIds = connectorOptions?.supportedChainIds
-    this.disableWatcher = !connectorOptions?.isBlockNumberEnabled
     this.chainParameters = connectorOptions?.chainParameters
   }
 
@@ -255,14 +244,21 @@ export abstract class Connector {
   }
 
   /**
+   * Reset the state of the connector without otherwise interacting with the connection.
+   */
+  public getState(): Web3ReactState {
+    return this.actions.getState()
+  }
+
+  /**
    * Initiate a connection.
    */
-  public abstract activate(...args: unknown[]): Promise<void> | void
+  public abstract activate(...args: unknown[]): Promise<Web3ReactState> | Promise<void> | void
 
   /**
    * Attempt to initiate a connection, failing silently
    */
-  public connectEagerly?(...args: unknown[]): Promise<void> | void
+  public connectEagerly?(...args: unknown[]): Promise<Web3ReactState> | Promise<void> | void
 
   /**
    * Un-initiate a connection. Only needs to be defined if a connection requires specific logic on disconnect.
@@ -272,7 +268,7 @@ export abstract class Connector {
   /**
    * Attempt to add an asset per EIP-747.
    */
-  public watchAsset?(params: WatchAssetParameters): Promise<true>
+  public watchAsset?(params: WatchAssetParameters): Promise<boolean>
 
   /**
    * Helper to convert hex to decimal format

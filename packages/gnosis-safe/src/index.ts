@@ -1,7 +1,7 @@
 import type { SafeAppProvider } from '@gnosis.pm/safe-apps-provider'
 import type SafeAppsSDK from '@gnosis.pm/safe-apps-sdk'
 import type { Opts } from '@gnosis.pm/safe-apps-sdk'
-import type { ConnectorArgs } from '@web3-react/types'
+import type { ConnectorArgs, Web3ReactState } from '@web3-react/types'
 import { Connector } from '@web3-react/types'
 
 export class NoSafeContext extends Error {
@@ -79,8 +79,8 @@ export class GnosisSafe extends Connector {
   }
 
   /** {@inheritdoc Connector.connectEagerly} */
-  public async connectEagerly(): Promise<void> {
-    if (!this.inIframe) return
+  public async connectEagerly(): Promise<Web3ReactState> {
+    if (!this.inIframe) return this.actions.getState()
 
     const cancelActivation = this.actions.startActivation()
 
@@ -88,7 +88,7 @@ export class GnosisSafe extends Connector {
       await this.isomorphicInitialize()
       if (!this.provider) throw new NoSafeContext()
 
-      this.actions.update({
+      return this.actions.update({
         chainId: this.provider.chainId,
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         accounts: [await this.sdk!.safe.getInfo().then(({ safeAddress }) => safeAddress)],
@@ -99,7 +99,7 @@ export class GnosisSafe extends Connector {
     }
   }
 
-  public async activate(): Promise<void> {
+  public async activate(): Promise<Web3ReactState> {
     if (!this.inIframe) throw new NoSafeContext()
 
     // only show activation if this is a first-time connection
@@ -110,7 +110,7 @@ export class GnosisSafe extends Connector {
       .then(async () => {
         if (!this.provider) throw new NoSafeContext()
 
-        this.actions.update({
+        return this.actions.update({
           chainId: this.provider.chainId,
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           accounts: [await this.sdk!.safe.getInfo().then(({ safeAddress }) => safeAddress)],

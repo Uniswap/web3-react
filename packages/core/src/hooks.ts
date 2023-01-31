@@ -2,9 +2,8 @@ import type { Networkish } from '@ethersproject/networks'
 import type { BaseProvider, Web3Provider } from '@ethersproject/providers'
 import type { Actions, Connector, Web3ReactState, Web3ReactStore } from '@web3-react/types'
 import type { EqualityChecker, UseBoundStore } from 'zustand'
-import { BigNumber } from '@ethersproject/bignumber'
 import { createWeb3ReactStoreAndActions } from '@web3-react/store'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import create from 'zustand'
 
 let DynamicProvider: typeof Web3Provider | null | undefined
@@ -114,24 +113,6 @@ export function getSelectedConnector(
     return values[getIndex(connector)]
   }
 
-  function useSelectedBlockNumber(connector: Connector, subscribe?: boolean, skip?: boolean) {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    const values = initializedConnectors.map(([, { useBlockNumber }]) => useBlockNumber(subscribe, skip))
-    return values[getIndex(connector)]
-  }
-
-  function useSelectedBalances(connector: Connector, subscribe?: boolean, accounts?: string[]) {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    const values = initializedConnectors.map(([, { useBalances }]) => useBalances(subscribe, accounts))
-    return values[getIndex(connector)]
-  }
-
-  function useSelectedBalance(connector: Connector, subscribe?: boolean) {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    const values = initializedConnectors.map(([, { useBalance }]) => useBalance(subscribe))
-    return values[getIndex(connector)]
-  }
-
   /**
    * @typeParam T - A type argument must only be provided if one or more of the connectors passed to
    * getSelectedConnector is using `connector.customProvider`, in which case it must match every possible type of this
@@ -207,9 +188,6 @@ export function getSelectedConnector(
     useSelectedIsActivating,
     useSelectedAccount,
     useSelectedIsActive,
-    useSelectedBlockNumber,
-    useSelectedBalances,
-    useSelectedBalance,
     useSelectedProvider,
     useSelectedENSNames,
     useSelectedENSName,
@@ -239,9 +217,6 @@ export function getPriorityConnector(
     useSelectedIsActivating,
     useSelectedAccount,
     useSelectedIsActive,
-    useSelectedBlockNumber,
-    useSelectedBalances,
-    useSelectedBalance,
     useSelectedProvider,
     useSelectedENSNames,
     useSelectedENSName,
@@ -285,18 +260,6 @@ export function getPriorityConnector(
 
   function usePriorityIsActive() {
     return useSelectedIsActive(usePriorityConnector())
-  }
-
-  function usePriorityBlockNumber() {
-    return useSelectedBlockNumber(usePriorityConnector())
-  }
-
-  function usePriorityBalances() {
-    return useSelectedBalances(usePriorityConnector())
-  }
-
-  function usePriorityBalance() {
-    return useSelectedBalances(usePriorityConnector())
   }
 
   /**
@@ -344,9 +307,6 @@ export function getPriorityConnector(
     useSelectedIsActivating,
     useSelectedAccount,
     useSelectedIsActive,
-    useSelectedBlockNumber,
-    useSelectedBalances,
-    useSelectedBalance,
     useSelectedProvider,
     useSelectedENSNames,
     useSelectedENSName,
@@ -363,9 +323,6 @@ export function getPriorityConnector(
     usePriorityIsActivating,
     usePriorityAccount,
     usePriorityIsActive,
-    usePriorityBlockNumber,
-    usePriorityBalances,
-    usePriorityBalance,
     usePriorityProvider,
     usePriorityENSNames,
     usePriorityENSName,
@@ -468,7 +425,7 @@ function useENS(provider?: BaseProvider, accounts: string[] = []): (string | nul
   const [ENSNames, setENSNames] = useState<(string | null)[] | undefined>()
 
   useEffect(() => {
-    if (provider && accounts.length) {
+    if (provider && accounts.length && provider?.lookupAddress) {
       let stale = false
 
       Promise.all(accounts.map((account) => provider.lookupAddress(account)))
@@ -567,120 +524,6 @@ function getAugmentedHooks<T extends Connector>(
     }, [loaded, enabled, isActive, chainId, network])
   }
 
-  /**
-   * @param subscribe - Whether to poll data
-   * @param skip - Whether to prevent state execution
-   */
-  function useBlockNumber(subscribe?: boolean, skip?: boolean): { blockNumber: number; fetch: () => Promise<void> } {
-    const provider = useProvider()
-    const chainId = useChainId()
-    const [blockNumber, setBlockNumber] = useState<number>(0)
-
-    const fetch = useCallback(async () => {
-      if (!provider) return
-      setBlockNumber(await provider.getBlockNumber())
-    }, [provider])
-
-    useEffect(() => {
-      if (provider) {
-        let stale = false
-
-        const updateBlock = (blockNumber: number) => {
-          if (!blockNumber || stale || skip) return
-
-          setBlockNumber(blockNumber)
-        }
-
-        // Get block at least once
-        void fetch()
-
-        if (!subscribe) return
-
-        provider.on?.('block', (blockNumber: number) => void updateBlock(blockNumber))
-
-        return () => {
-          provider.off?.('block', (blockNumber: number) => void updateBlock(blockNumber))
-          stale = true
-        }
-      }
-
-      return undefined
-    }, [
-      provider,
-      chainId, // Forces fetch on chain change
-      subscribe,
-      skip,
-      fetch,
-    ])
-
-    return { blockNumber, fetch }
-  }
-
-  function useBalances(
-    subscribe?: boolean,
-    accounts?: string[]
-  ): { balances: BigNumber[]; fetch: () => Promise<void> } {
-    const provider = useProvider()
-    const chainId = useChainId()
-
-    const currentAccounts = useAccounts()
-    const addresses = accounts ?? currentAccounts
-
-    const [balances, setBalances] = useState<BigNumber[]>(
-      new Array<BigNumber>(addresses?.length ?? 0).fill(BigNumber.from(0))
-    )
-    const { blockNumber } = useBlockNumber(subscribe, !subscribe)
-
-    const fetch = useCallback(async () => {
-      if (!provider || !addresses?.length) return
-
-      setBalances(await Promise.all(addresses.map((account: string) => provider.getBalance(account))))
-    }, [provider, addresses])
-
-    useEffect(() => {
-      const getBalances = async () => {
-        if (!provider || !addresses?.length) return
-
-        let stale = false
-
-        try {
-          const balances = await Promise.all(addresses.map((account: string) => provider.getBalance(account)))
-
-          if (stale) return
-
-          setBalances(balances)
-        } catch (error) {
-          setBalances([])
-        }
-
-        return () => {
-          stale = true
-        }
-      }
-
-      void getBalances()
-    }, [
-      provider,
-      addresses,
-      blockNumber, // Used to trigger on every block, if subscribed.
-      chainId, // Forces fetch on chain change
-    ])
-
-    return { balances, fetch }
-  }
-
-  /**
-   * @param subscribe - Whether to poll data
-   */
-  function useBalance(subscribe?: boolean, account?: string): { balance: BigNumber; fetch: () => Promise<void> } {
-    const currentAccount = useAccount()
-    const address = account ?? currentAccount
-    const memoizedAddress = useMemo(() => (address === undefined ? undefined : [address]), [address])
-    const { balances, fetch } = useBalances(subscribe, memoizedAddress)
-
-    return { balance: balances[0], fetch }
-  }
-
   function useENSNames(provider?: BaseProvider): (string | null)[] {
     const accounts = useAccounts()
     return useENS(provider, accounts)
@@ -705,5 +548,5 @@ function getAugmentedHooks<T extends Connector>(
     return useAvatar(provider, ensNames)?.[0]
   }
 
-  return { useProvider, useENSNames, useENSName, useENSAvatars, useENSAvatar, useBlockNumber, useBalances, useBalance }
+  return { useProvider, useENSNames, useENSName, useENSAvatars, useENSAvatar }
 }

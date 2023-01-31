@@ -25,6 +25,8 @@
   "dependencies": {
     "@ethersproject/address": "^5",
     "@web3-react/types": "^8.0.20-beta.0",
-    "zustand": "^4.0.0-rc.0"
+    "add": "^2.0.6",
+    "yarn": "^1.22.19",
+    "zustand": "4.0.0-rc.0"
   }
 }

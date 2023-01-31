@@ -7,6 +7,8 @@ import {
   avaxTestChainId,
   bscMainChainId,
   bscTestChainId,
+  cardanoMainChainId,
+  cardanoPreProdChainId,
   celoMainChainId,
   celoTestChainId,
   ethMainChainId,
@@ -31,13 +33,16 @@ import {
   plsTestChainId,
   rskMainChainId,
   rskTestChainId,
+  solMainChainId,
+  solDevChainId,
+  solTestChainId,
   thunderMainChainId,
   thunderTestChainId,
   tronMainChainId,
   tronShastaChainId,
   tronNileChainId,
   ubiqMainChainId,
-  allChains,
+  allEvmChainIds,
 } from '../config/chains/chainIds'
 import arbitrumMainnet from '../config/chains/arbitrum/mainnet'
 import arbitrumTestnet from '../config/chains/arbitrum/goerli'
@@ -45,6 +50,8 @@ import avaxMainnet from '../config/chains/avalanche/mainnet'
 import avaxTestnet from '../config/chains/avalanche/fuji'
 import bscMainnet from '../config/chains/smart/mainnet'
 import bscTestnet from '../config/chains/smart/testnet'
+import cardanoMainnet from '../config/chains/cardano/mainnet'
+import cardanoPreProd from '../config/chains/cardano/preProd'
 import celoMainnet from '../config/chains/celo/mainnet'
 import celoTestnet from '../config/chains/celo/alfajores'
 import ethMainnet from '../config/chains/ethereum/mainnet'
@@ -69,6 +76,9 @@ import polygonTestnet from '../config/chains/polygon/mumbai'
 import plsTestnet from '../config/chains/pulse/testnet'
 import rskMainnet from '../config/chains/rsk/mainnet'
 import rskTestnet from '../config/chains/rsk/testnet'
+import solMainnet from '../config/chains/sol/mainnet'
+import solDevnet from '../config/chains/sol/devnet'
+import solTestnet from '../config/chains/sol/testnet'
 import thunderMainnet from '../config/chains/thunder/mainnet'
 import thunderTestnet from '../config/chains/thunder/testnet'
 import tronMainnet from '../config/chains/tron/mainnet'
@@ -94,6 +104,12 @@ export const CHAINS: { [chainId: number]: ChainConfig } = {
   },
   [bscTestChainId]: {
     ...bscTestnet,
+  },
+  [cardanoMainChainId]: {
+    ...cardanoMainnet,
+  },
+  [cardanoPreProdChainId]: {
+    ...cardanoPreProd,
   },
   [celoMainChainId]: {
     ...celoMainnet,
@@ -167,6 +183,15 @@ export const CHAINS: { [chainId: number]: ChainConfig } = {
   [rskTestChainId]: {
     ...rskTestnet,
   },
+  [solMainChainId]: {
+    ...solMainnet,
+  },
+  [solDevChainId]: {
+    ...solDevnet,
+  },
+  [solTestChainId]: {
+    ...solTestnet,
+  },
   [tronMainChainId]: {
     ...tronMainnet,
   },
@@ -220,7 +245,7 @@ export function getAddChainParameters(chainId: number): AddEthereumChainParamete
   }
 }
 
-export const allAddChainParameters: AddEthereumChainParameters = allChains.reduce<{
+export const allAddChainParameters: AddEthereumChainParameters = allEvmChainIds.reduce<{
   [chainId: number]: AddEthereumChainParameter
 }>((accumulator, chainId) => {
   accumulator[Number(chainId)] = getAddChainParameters(chainId)

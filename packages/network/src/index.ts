@@ -1,6 +1,6 @@
 import type { JsonRpcProvider } from '@ethersproject/providers'
 import type { ConnectionInfo } from '@ethersproject/web'
-import type { ConnectorArgs } from '@web3-react/types'
+import type { ConnectorArgs, Web3ReactState } from '@web3-react/types'
 import { Connector } from '@web3-react/types'
 import { getBestProvider } from './utils'
 
@@ -84,7 +84,7 @@ export class Network extends Connector {
    *
    * @param desiredChainId - The desired chain to connect to.
    */
-  public async activate(desiredChainId = this.defaultChainId): Promise<void> {
+  public async activate(desiredChainId = this.defaultChainId): Promise<Web3ReactState> {
     let cancelActivation: () => void
     if (!this.providerCache[desiredChainId]) {
       cancelActivation = this.actions.startActivation()
@@ -95,7 +95,7 @@ export class Network extends Connector {
         this.customProvider = customProvider
 
         const { chainId } = await this.customProvider.getNetwork()
-        this.actions.update({ chainId, accounts: [] })
+        return this.actions.update({ chainId, accounts: [] })
       })
       .catch((error: Error) => {
         cancelActivation?.()

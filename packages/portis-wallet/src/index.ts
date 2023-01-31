@@ -1,6 +1,6 @@
 import type Portis from '@portis/web3'
 import type { INetwork, IOptions } from '@portis/web3'
-import type { ProviderRpcError, Provider, ConnectorArgs } from '@web3-react/types'
+import type { Provider, ConnectorArgs, Web3ReactState } from '@web3-react/types'
 import { Connector } from '@web3-react/types'
 
 // https://docs.portis.io/#/configuration?id=network
@@ -112,32 +112,27 @@ export class PortisWallet extends Connector {
   }
 
   /** {@inheritdoc Connector.connectEagerly} */
-  public async connectEagerly(): Promise<void> {
+  public async connectEagerly(): Promise<Web3ReactState> {
     const cancelActivation = this.actions.startActivation()
 
     await this.isomorphicInitialize()
 
     if (!this.provider) return cancelActivation()
 
-    return Promise.all([
-      this.provider.send('eth_chainId') as Promise<string>,
-      this.provider.send('eth_accounts') as Promise<string[]>,
-    ])
-      .then(([chainId, accounts]) => {
-        if (accounts?.length) {
-          this.actions.update({
-            chainId: this.parseChainId(chainId),
-            accounts,
-            accountIndex: accounts?.length ? 0 : undefined,
-          })
-        } else {
-          throw new Error('No accounts returned')
-        }
+    try {
+      const [chainId, accounts] = (await Promise.all([
+        this.provider.request({ method: 'eth_chainId' }),
+        this.provider.request({ method: 'eth_accounts' }),
+      ])) as [string, string[]]
+
+      return this.actions.update({
+        chainId: this.parseChainId(chainId),
+        accounts,
+        accountIndex: accounts?.length ? 0 : undefined,
       })
-      .catch((error: ProviderRpcError) => {
-        console.debug('Could not connect eagerly', error)
-        cancelActivation?.()
-      })
+    } catch (error) {
+      return cancelActivation()
+    }
   }
 
   /**
@@ -147,7 +142,7 @@ export class PortisWallet extends Connector {
    * already connected to this chain, no additional steps will be taken. Otherwise, the user will be prompted to switch
    * to the chain.
    */
-  public async activate(desiredChainId?: number): Promise<void> {
+  public async activate(desiredChainId?: number): Promise<Web3ReactState> {
     const cancelActivation = this.provider?.isConnected?.() ? null : this.actions.startActivation()
     await this.isomorphicInitialize()
 

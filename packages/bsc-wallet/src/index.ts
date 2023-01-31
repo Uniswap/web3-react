@@ -1,4 +1,4 @@
-import type { Provider, ProviderConnectInfo, ProviderRpcError, ConnectorArgs } from '@web3-react/types'
+import type { Provider, ProviderConnectInfo, ProviderRpcError, ConnectorArgs, Web3ReactState } from '@web3-react/types'
 import { Connector } from '@web3-react/types'
 
 // BSC Wallet extension bugs:
@@ -91,15 +91,16 @@ export class BscWallet extends Connector {
   }
 
   /** {@inheritdoc Connector.connectEagerly} */
-  public async connectEagerly(): Promise<void> {
+  public async connectEagerly(): Promise<Web3ReactState> {
     // BSC Wallet extension will not throw a rejection error if the user closes the modal without unlocking.
     // Is there is no provider, we will assume the wallet is locked, in which we will not set "isActivating" via "startActivation()"
     // as the will be no rejection to set "isActivating" to falsy
-    const cancelActivation = !this.provider ? null : this.actions.startActivation()
 
     this.isomorphicInitialize()
 
-    if (!this.provider) return
+    if (!this.provider) return this.actions.getState()
+
+    const cancelActivation = this.actions.startActivation()
 
     return Promise.all([
       this.provider.request({ method: 'eth_chainId' }) as Promise<string>,
@@ -109,9 +110,9 @@ export class BscWallet extends Connector {
         if (accounts?.length) {
           // BSC doesn't seem to let you use this function. Always returns that it can't find the chain.
           // Once it is supported, then this connector can be update to support changing chains.
-          // this.provider.switchNetwork(0x38).catch((error) => console.log(error))
+          // this.provider.switchNetwork(0x38)
 
-          this.actions.update({
+          return this.actions.update({
             chainId: this.parseChainId(chainId),
             accounts,
             accountIndex: accounts?.length ? 0 : undefined,
@@ -122,29 +123,30 @@ export class BscWallet extends Connector {
       })
       .catch((error: ProviderRpcError) => {
         console.debug('Could not connect eagerly', error)
-        cancelActivation?.()
+        return cancelActivation()
       })
   }
 
   /**
    * Initiates a connection.
    */
-  public async activate(): Promise<void> {
+  public async activate(): Promise<Web3ReactState> {
     // BSC Wallet extension will not throw a rejection error if the user closes the modal without unlocking.
     // Is there is no provider, we will assume the wallet is locked, in which we will not set "isActivating" via "startActivation()"
     // as the will be no rejection to set "isActivating" to falsy
-    const cancelActivation = !this.provider || this.provider?.isConnected?.() ? null : this.actions.startActivation()
 
     this.isomorphicInitialize()
 
     if (!this.provider) throw new NoBscProviderError()
+
+    const cancelActivation = this.provider?.isConnected?.() ? null : this.actions.startActivation()
 
     return Promise.all([
       this.provider.request({ method: 'eth_chainId' }) as Promise<string>,
       this.provider.request({ method: 'eth_requestAccounts' }) as Promise<string[]>,
     ])
       .then(([chainId, accounts]) => {
-        this.actions.update({
+        return this.actions.update({
           chainId: this.parseChainId(chainId),
           accounts,
           accountIndex: accounts?.length ? 0 : undefined,

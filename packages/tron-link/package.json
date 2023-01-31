@@ -2,7 +2,8 @@
   "name": "@web3-react/tron-link",
   "keywords": [
     "web3-react",
-    "tron-link"
+    "tron-link",
+    "tron"
   ],
   "author": "Noah Zinsmeister <noahwz@gmail.com>",
   "license": "GPL-3.0-or-later",

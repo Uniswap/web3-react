@@ -7,7 +7,7 @@ import type {
   ProviderRpcError,
   WatchAssetParameters,
 } from '@web3-react/types'
-import { Connector } from '@web3-react/types'
+import { Connector, Web3ReactState } from '@web3-react/types'
 
 type CoinbaseWalletSDKOptions = ConstructorParameters<typeof CoinbaseWalletSDK>[0] & { url: string }
 
@@ -17,6 +17,14 @@ type CoinbaseWalletSDKOptions = ConstructorParameters<typeof CoinbaseWalletSDK>[
  */
 export interface CoinbaseWalletConstructorArgs extends ConnectorArgs {
   options: CoinbaseWalletSDKOptions
+}
+
+export class NoCoinbaseWalletError extends Error {
+  public constructor() {
+    super('Coinbase not installed')
+    this.name = NoCoinbaseWalletError.name
+    Object.setPrototypeOf(this, NoCoinbaseWalletError.prototype)
+  }
 }
 
 export class CoinbaseWallet extends Connector {
@@ -77,30 +85,30 @@ export class CoinbaseWallet extends Connector {
   }
 
   /** {@inheritdoc Connector.connectEagerly} */
-  public async connectEagerly(): Promise<void> {
+  public async connectEagerly(): Promise<Web3ReactState> {
     const cancelActivation = this.actions.startActivation()
 
+    await this.isomorphicInitialize()
+
+    if (!this.provider) return cancelActivation()
+
     try {
-      await this.isomorphicInitialize()
+      const [chainId, accounts] = (await Promise.all([
+        this.provider.request({ method: 'eth_chainId' }),
+        this.provider.request({ method: 'eth_accounts' }),
+      ])) as [string, string[]]
 
-      if (!this.selectedAddress) throw new Error('No existing connection')
+      if (!accounts.length) throw new Error('No accounts returned')
 
-      return Promise.all([
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        this.provider!.request<string>({ method: 'eth_chainId' }),
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        this.provider!.request<string[]>({ method: 'eth_accounts' }),
-      ]).then(([chainId, accounts]) => {
-        if (!accounts.length) throw new Error('No accounts returned')
-        this.actions.update({
-          chainId: this.parseChainId(chainId),
-          accounts,
-          accountIndex: accounts?.length ? 0 : undefined,
-        })
+      const index = accounts.indexOf(this?.selectedAddress ?? '')
+
+      return this.actions.update({
+        chainId: this.parseChainId(chainId),
+        accounts,
+        accountIndex: index < 0 ? undefined : index,
       })
     } catch (error) {
-      cancelActivation()
-      throw error
+      return cancelActivation()
     }
   }
 
@@ -113,177 +121,51 @@ export class CoinbaseWallet extends Connector {
    * AddEthereumChainParameter, in which case the user will be prompted to add the chain with the specified parameters
    * first, before being prompted to switch.
    */
-  public async activate(desiredChainIdOrChainParameters?: number | AddEthereumChainParameter): Promise<void> {
+  public async activate(desiredChainIdOrChainParameters?: number | AddEthereumChainParameter): Promise<Web3ReactState> {
+    const cancelActivation = this.selectedAddress ? null : this.actions.startActivation()
+
+    await this.isomorphicInitialize()
+
+    if (!this.provider) throw new NoCoinbaseWalletError()
+
     const desiredChainId =
       typeof desiredChainIdOrChainParameters === 'number'
         ? desiredChainIdOrChainParameters
         : desiredChainIdOrChainParameters?.chainId
 
-    // Add/Switch Chain if already connected
-    if (this.selectedAddress) {
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      if (!desiredChainId || desiredChainId === this.parseChainId(this.provider!.chainId)) return
-
-      // if we're here, we can try to switch networks
-      this.actions.update({
-        switchingChain: {
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          fromChainId: this.parseChainId(this.provider!.chainId),
-          toChainId: desiredChainId,
-        },
-      })
-
-      const desiredChainIdHex = this.formatChainId(desiredChainId)
-
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      return this.provider!.request<void>({
-        method: 'wallet_switchEthereumChain',
-        params: [{ chainId: desiredChainIdHex }],
-      })
-        .catch(async (switchingError: ProviderRpcError) => {
-          if (switchingError.code === 4902) {
-            // if we're here, we can try to add a new network
-
-            // Check if the params have been provided
-            if (typeof desiredChainIdOrChainParameters !== 'number') {
-              this.actions.update({
-                addingChain: {
-                  chainId: desiredChainId,
-                },
-              })
-
-              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-              return this.provider!.request({
-                method: 'wallet_addEthereumChain',
-                params: [{ ...desiredChainIdOrChainParameters, chainId: desiredChainIdHex }],
-              }).catch((addingError: ProviderRpcError) => {
-                this.actions.update({ addingChain: undefined, switchingChain: undefined })
-                throw addingError
-              })
-            } else if (this.chainParameters && Object.keys(this.chainParameters).includes(String(desiredChainId))) {
-              this.actions.update({
-                addingChain: {
-                  chainId: desiredChainId,
-                },
-              })
-
-              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-              return this.provider!.request({
-                method: 'wallet_addEthereumChain',
-                params: [{ ...this.chainParameters[desiredChainId], chainId: desiredChainIdHex }],
-              }).catch((addingError: ProviderRpcError) => {
-                this.actions.update({ addingChain: undefined, switchingChain: undefined })
-                throw addingError
-              })
-            }
-          }
-
-          this.actions.update({ switchingChain: undefined })
-
-          throw switchingError
-        })
-        .then(() => {
-          this.actions.update({
-            addingChain: undefined,
-            switchingChain: undefined,
-          })
-        })
-    }
-
-    // If we're here, we are not connected
-    const cancelActivation = this.actions.startActivation()
-
     try {
-      await this.isomorphicInitialize()
+      const currentChainId = this.parseChainId(await this.provider.request({ method: 'eth_chainId' }))
 
-      return Promise.all([
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        this.provider!.request<string>({ method: 'eth_chainId' }),
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        this.provider!.request<string[]>({ method: 'eth_requestAccounts' }),
-      ])
-        .then(([chainId, accounts]) => {
-          const receivedChainId = this.parseChainId(chainId)
+      // Already connected
+      if (this.selectedAddress) {
+        // Add/switch chain
+        if (desiredChainIdOrChainParameters && currentChainId !== desiredChainId) {
+          await this.switchChain(desiredChainIdOrChainParameters, currentChainId)
+        }
 
-          if (!desiredChainId || desiredChainId === receivedChainId) {
-            return this.actions.update({
-              chainId: receivedChainId,
-              accounts,
-              accountIndex: accounts?.length ? 0 : undefined,
-            })
-          }
+        return this.actions.getState()
+      }
 
-          // if we're here, we can try to switch networks
-          this.actions.update({
-            switchingChain: {
-              fromChainId: this.parseChainId(chainId),
-              toChainId: desiredChainId,
-            },
-          })
+      // We're on the chainId we need, go ahead and connect
+      if (!desiredChainIdOrChainParameters || !desiredChainId || currentChainId === desiredChainId) {
+        const accounts: string[] = await this.provider.request({ method: 'eth_requestAccounts' })
 
-          const desiredChainIdHex = this.formatChainId(desiredChainId)
+        const index = accounts.indexOf(this?.selectedAddress ?? '')
 
-          return this.provider
-            ?.request<void>({
-              method: 'wallet_switchEthereumChain',
-              params: [{ chainId: desiredChainIdHex }],
-            })
-            .catch(async (switchingError: ProviderRpcError) => {
-              if (switchingError.code === 4902) {
-                // if we're here, we can try to add a new network
-
-                // Check if the params have been provided
-                if (typeof desiredChainIdOrChainParameters !== 'number') {
-                  this.actions.update({
-                    addingChain: {
-                      chainId: desiredChainId,
-                    },
-                  })
-
-                  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                  await this.provider!.request({
-                    method: 'wallet_addEthereumChain',
-                    params: [{ ...desiredChainIdOrChainParameters, chainId: desiredChainIdHex }],
-                  }).catch((addingError: ProviderRpcError) => {
-                    this.actions.update({ addingChain: undefined, switchingChain: undefined })
-                    throw addingError
-                  })
-
-                  return
-                } else if (this.chainParameters && Object.keys(this.chainParameters).includes(String(desiredChainId))) {
-                  this.actions.update({
-                    addingChain: {
-                      chainId: desiredChainId,
-                    },
-                  })
-
-                  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                  await this.provider!.request({
-                    method: 'wallet_addEthereumChain',
-                    params: [{ ...this.chainParameters[desiredChainId], chainId: desiredChainIdHex }],
-                  }).catch((addingError: ProviderRpcError) => {
-                    this.actions.update({ addingChain: undefined, switchingChain: undefined })
-                    throw addingError
-                  })
-
-                  return
-                }
-              }
-
-              this.actions.update({ switchingChain: undefined })
-
-              throw switchingError
-            })
-            .then(() => {
-              this.actions.update({ addingChain: undefined, switchingChain: undefined })
-            })
+        return this.actions.update({
+          chainId: currentChainId,
+          accounts,
+          accountIndex: index < 0 ? undefined : index,
         })
-        .catch((error) => {
-          cancelActivation()
-          throw error
-        })
+      }
+
+      // Attempt to add/switch the chain to the desired chain
+      await this.switchChain(desiredChainIdOrChainParameters, currentChainId)
+
+      // Reattempt connection now being on the correct chainId
+      return this.activate(desiredChainId)
     } catch (error) {
-      cancelActivation()
+      cancelActivation?.()
       throw error
     }
   }
@@ -295,6 +177,83 @@ export class CoinbaseWallet extends Connector {
 
   public getWalletLogoUrl?(type: LogoType, width?: number): string | undefined {
     return this.coinbaseWallet?.getCoinbaseWalletLogo(type, width)
+  }
+
+  /**
+   *
+   * @param desiredChainIdOrChainParameters - The chainId or the chainIds parameters to add. You must provider the parameters if they were not passed to the connectors constructor.
+   */
+  public async addChain(desiredChainIdOrChainParameters: number | AddEthereumChainParameter) {
+    const desiredChainId =
+      typeof desiredChainIdOrChainParameters === 'number'
+        ? desiredChainIdOrChainParameters
+        : desiredChainIdOrChainParameters?.chainId
+
+    const desiredChainIdHex = this.formatChainId(desiredChainId)
+
+    try {
+      if (!this.provider) throw Error('No provider found.')
+
+      // Check if the params have been provided
+      if (typeof desiredChainIdOrChainParameters !== 'number') {
+        await this.provider.request({
+          method: 'wallet_addEthereumChain',
+          params: [{ ...desiredChainIdOrChainParameters, chainId: desiredChainIdHex }],
+        })
+      }
+      // Check if the params were given to the connectors options
+      else if (this.chainParameters && Object.keys(this.chainParameters).includes(String(desiredChainId))) {
+        await this.provider.request({
+          method: 'wallet_addEthereumChain',
+          params: [{ ...this.chainParameters[desiredChainId], chainId: desiredChainIdHex }],
+        })
+      }
+
+      this.actions.update({ addingChain: undefined, switchingChain: undefined })
+    } catch (addingError) {
+      this.actions.update({ addingChain: undefined, switchingChain: undefined })
+      throw addingError
+    }
+  }
+
+  /**
+   * Switch the chainId of the connector. If the chainId is not configured in the wallet, it will attempt to add the chainId parameters, then switch to the chainId. You must provider the parameters if they were not passed to the connectors constructor.
+   * @param desiredChainIdOrChainParameters - The chainId or the chainIds parameters to switch to
+   * @param currentChainId - The current chainId we are switching from
+   */
+  public async switchChain(
+    desiredChainIdOrChainParameters: number | AddEthereumChainParameter,
+    currentChainId?: number
+  ) {
+    const desiredChainId =
+      typeof desiredChainIdOrChainParameters === 'number'
+        ? desiredChainIdOrChainParameters
+        : desiredChainIdOrChainParameters?.chainId
+    const desiredChainIdHex = this.formatChainId(desiredChainId)
+
+    this.actions.update({
+      switchingChain: {
+        fromChainId: currentChainId,
+        toChainId: desiredChainId,
+      },
+    })
+
+    try {
+      if (!this.provider) throw Error('No provider found.')
+
+      await this.provider.request({
+        method: 'wallet_switchEthereumChain',
+        params: [{ chainId: desiredChainIdHex }],
+      })
+
+      this.actions.update({ addingChain: undefined, switchingChain: undefined })
+    } catch (switchingError) {
+      if ((switchingError as ProviderRpcError)?.code === 4902) {
+        await this.addChain(desiredChainIdOrChainParameters)
+      } else {
+        throw switchingError
+      }
+    }
   }
 
   public async watchAsset({

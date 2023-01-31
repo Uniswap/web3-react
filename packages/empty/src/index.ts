@@ -7,8 +7,8 @@ export class Empty extends Connector {
   /**
    * No-op. May be called if it simplifies application code.
    */
-  public activate() {
-    void 0
+  public activate(): Promise<void> {
+    return Promise.resolve()
   }
 }
 

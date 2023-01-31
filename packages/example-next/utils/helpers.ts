@@ -3,6 +3,7 @@ import {
   arbitrumChains,
   avaxChains,
   bscChains,
+  cardanoChains,
   celoChains,
   etcChains,
   fantomChains,
@@ -14,6 +15,7 @@ import {
   plsChains,
   poaChains,
   // rskChains,
+  solChains,
   thunderChains,
   tronChains,
   ubiqChains,
@@ -32,6 +34,10 @@ export function getImageUrlFromTrust(chainId: number, tokenAddress?: string) {
 
   if (bscChains.includes(chainId)) {
     blockChainName = 'smartchain'
+  }
+
+  if (cardanoChains.includes(chainId)) {
+    blockChainName = 'cardano'
   }
 
   if (celoChains.includes(chainId)) {
@@ -77,6 +83,10 @@ export function getImageUrlFromTrust(chainId: number, tokenAddress?: string) {
   // if (rskChains.includes(chainId)) {
   //   blockChainName = 'rsk'
   // }
+
+  if (solChains.includes(chainId)) {
+    blockChainName = 'solana'
+  }
 
   if (thunderChains.includes(chainId)) {
     blockChainName = 'thundertoken'
