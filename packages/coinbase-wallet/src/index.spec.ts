@@ -35,7 +35,7 @@ describe('Coinbase Wallet', () => {
 
       const mockProvider = connector.provider as unknown as MockEIP1193Provider
       mockProvider.eth_chainId.mockResolvedValue('0x0' as never)
-      mockProvider.eth_accounts.mockResolvedValue([] as never)
+      mockProvider.eth_requestAccounts.mockResolvedValue([] as never)
       mockProvider.chainId = chainId
       mockProvider.accounts = accounts
     })
