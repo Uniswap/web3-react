@@ -42,39 +42,30 @@ export class EIP1193 extends Connector {
     })
   }
 
-  /** {@inheritdoc Connector.connectEagerly} */
-  public async connectEagerly(): Promise<void> {
+  private async activateAccounts(requestAccounts: () => Promise<string[]>): Promise<void> {
     const cancelActivation = this.actions.startActivation()
 
-    return Promise.all([
-      this.provider.request({ method: 'eth_chainId' }) as Promise<string>,
-      this.provider.request({ method: 'eth_accounts' }) as Promise<string[]>,
-    ])
-      .then(([chainId, accounts]) => {
-        this.actions.update({ chainId: parseChainId(chainId), accounts })
-      })
-      .catch((error) => {
+    try {
+      // Wallets may resolve eth_chainId and hang on eth_accounts pending user interaction, which may include changing
+      // chains; they should be requested serially, with accounts first, so that the chainId can settle.
+      const accounts = await requestAccounts()
+      const chainId = await this.provider.request({ method: 'eth_chainId' }) as string
+      this.actions.update({ chainId: parseChainId(chainId), accounts })
+    } catch (error) {
         cancelActivation()
         throw error
-      })
+    }
+  }
+
+  /** {@inheritdoc Connector.connectEagerly} */
+  public async connectEagerly(): Promise<void> {
+    return this.activateAccounts(() => this.provider.request({ method: 'eth_accounts' }) as Promise<string[]>)
   }
 
   /** {@inheritdoc Connector.activate} */
   public async activate(): Promise<void> {
-    const cancelActivation = this.actions.startActivation()
-
-    return Promise.all([
-      this.provider.request({ method: 'eth_chainId' }) as Promise<string>,
-      this.provider
+    return this.activateAccounts(() => this.provider
         .request({ method: 'eth_requestAccounts' })
-        .catch(() => this.provider.request({ method: 'eth_accounts' })) as Promise<string[]>,
-    ])
-      .then(([chainId, accounts]) => {
-        this.actions.update({ chainId: parseChainId(chainId), accounts })
-      })
-      .catch((error) => {
-        cancelActivation()
-        throw error
-      })
+        .catch(() => this.provider.request({ method: 'eth_accounts' })) as Promise<string[]>)
   }
 }

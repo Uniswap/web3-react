@@ -85,17 +85,14 @@ export class CoinbaseWallet extends Connector {
     try {
       await this.isomorphicInitialize()
 
-      if (!this.connected) throw new Error('No existing connection')
+      if (!this.provider || !this.connected) throw new Error('No existing connection')
 
-      return Promise.all([
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        this.provider!.request<string>({ method: 'eth_chainId' }),
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        this.provider!.request<string[]>({ method: 'eth_accounts' }),
-      ]).then(([chainId, accounts]) => {
-        if (!accounts.length) throw new Error('No accounts returned')
-        this.actions.update({ chainId: parseChainId(chainId), accounts })
-      })
+      // Wallets may resolve eth_chainId and hang on eth_accounts pending user interaction, which may include changing
+      // chains; they should be requested serially, with accounts first, so that the chainId can settle.
+      const accounts = await this.provider.request<string[]>({ method: 'eth_accounts' }) 
+      if (!accounts.length) throw new Error('No accounts returned')
+      const chainId = await this.provider.request<string>({ method: 'eth_chainId' }) 
+      this.actions.update({ chainId: parseChainId(chainId), accounts })
     } catch (error) {
       cancelActivation()
       throw error
@@ -117,20 +114,18 @@ export class CoinbaseWallet extends Connector {
         ? desiredChainIdOrChainParameters
         : desiredChainIdOrChainParameters?.chainId
 
-    if (this.connected) {
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      if (!desiredChainId || desiredChainId === parseChainId(this.provider!.chainId)) return
+    if (this.provider && this.connected) {
+      if (!desiredChainId || desiredChainId === parseChainId(this.provider.chainId)) return
 
       const desiredChainIdHex = `0x${desiredChainId.toString(16)}`
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      return this.provider!.request<void>({
+      return this.provider.request<void>({
         method: 'wallet_switchEthereumChain',
         params: [{ chainId: desiredChainIdHex }],
       }).catch(async (error: ProviderRpcError) => {
         if (error.code === 4902 && typeof desiredChainIdOrChainParameters !== 'number') {
+          if (!this.provider) throw new Error('No provider')
           // if we're here, we can try to add a new network
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          return this.provider!.request<void>({
+          return this.provider.request<void>({
             method: 'wallet_addEthereumChain',
             params: [{ ...desiredChainIdOrChainParameters, chainId: desiredChainIdHex }],
           })
@@ -144,38 +139,36 @@ export class CoinbaseWallet extends Connector {
 
     try {
       await this.isomorphicInitialize()
+      if (!this.provider) throw new Error('No provider')
 
-      return Promise.all([
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        this.provider!.request<string>({ method: 'eth_chainId' }),
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        this.provider!.request<string[]>({ method: 'eth_requestAccounts' }),
-      ]).then(([chainId, accounts]) => {
-        const receivedChainId = parseChainId(chainId)
+      // Wallets may resolve eth_chainId and hang on eth_accounts pending user interaction, which may include changing
+      // chains; they should be requested serially, with accounts first, so that the chainId can settle.
+      const accounts = await this.provider.request<string[]>({ method: 'eth_requestAccounts' })
+      const chainId = await this.provider.request<string>({ method: 'eth_chainId' })
+      const receivedChainId = parseChainId(chainId)
 
-        if (!desiredChainId || desiredChainId === receivedChainId)
-          return this.actions.update({ chainId: receivedChainId, accounts })
+      if (!desiredChainId || desiredChainId === receivedChainId)
+        return this.actions.update({ chainId: receivedChainId, accounts })
 
-        // if we're here, we can try to switch networks
-        const desiredChainIdHex = `0x${desiredChainId.toString(16)}`
-        return this.provider
-          ?.request<void>({
-            method: 'wallet_switchEthereumChain',
-            params: [{ chainId: desiredChainIdHex }],
-          })
-          .catch(async (error: ProviderRpcError) => {
-            if (error.code === 4902 && typeof desiredChainIdOrChainParameters !== 'number') {
-              // if we're here, we can try to add a new network
-              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-              return this.provider!.request<void>({
-                method: 'wallet_addEthereumChain',
-                params: [{ ...desiredChainIdOrChainParameters, chainId: desiredChainIdHex }],
-              })
-            }
+      // if we're here, we can try to switch networks
+      const desiredChainIdHex = `0x${desiredChainId.toString(16)}`
+      return this.provider
+        ?.request<void>({
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId: desiredChainIdHex }],
+        })
+        .catch(async (error: ProviderRpcError) => {
+          if (error.code === 4902 && typeof desiredChainIdOrChainParameters !== 'number') {
+            if (!this.provider) throw new Error('No provider')
+            // if we're here, we can try to add a new network
+            return this.provider.request<void>({
+              method: 'wallet_addEthereumChain',
+              params: [{ ...desiredChainIdOrChainParameters, chainId: desiredChainIdHex }],
+            })
+          }
 
-            throw error
-          })
-      })
+          throw error
+        })
     } catch (error) {
       cancelActivation()
       throw error
