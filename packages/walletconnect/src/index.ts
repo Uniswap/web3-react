@@ -127,13 +127,12 @@ export class WalletConnect extends Connector {
 
       // for walletconnect, we always use sequential instead of parallel fetches because otherwise
       // chainId defaults to 1 even if the connecting wallet isn't on mainnet
-      const accounts = await this.provider?.request<string[]>({ method: 'eth_accounts' })
+      await this.provider.request({ method: 'eth_accounts' })
+      await this.provider.request({ method: 'eth_chainId' })
+      const { chainId, accounts } = this.provider // use the synchronous getter in case there have been updates
       if (!accounts.length) throw new Error('No accounts returned')
-      const chainId = await this.provider
-        .request<string | number>({ method: 'eth_chainId' })
-        .then((chainId) => parseChainId(chainId))
 
-      this.actions.update({ chainId, accounts })
+      this.actions.update({ chainId: parseChainId(chainId), accounts })
     } catch (error) {
       cancelActivation()
       throw error
@@ -147,7 +146,7 @@ export class WalletConnect extends Connector {
     // this early return clause catches some common cases if activate is called after connection has been established
     if (this.provider?.connected) {
       if (!desiredChainId || desiredChainId === this.provider.chainId) return
-      // beacuse the provider is already connected, we can ignore the suppressUserPrompts
+      // because the provider is already connected, we can ignore the suppressUserPrompts
       return this.provider.request<void>({
         method: 'wallet_switchEthereumChain',
         params: [{ chainId: `0x${desiredChainId.toString(16)}` }],
@@ -161,22 +160,22 @@ export class WalletConnect extends Connector {
 
     try {
       await this.isomorphicInitialize(desiredChainId)
+      if (!this.provider) throw new Error('No provider')
 
-      const accounts = await this.provider
-        ?.request<string[]>({ method: 'eth_requestAccounts' })
+      // for walletconnect, we always use sequential instead of parallel fetches because otherwise
+      // chainId defaults to 1 even if the connecting wallet isn't on mainnet
+      await this.provider
+        .request({ method: 'eth_requestAccounts' })
         // if a user triggers the walletconnect modal, closes it, and then tries to connect again,
         // the modal will not trigger. by deactivating when this happens, we prevent the bug.
         .catch(async (error: Error) => {
           if (error?.message === 'User closed modal') await this.deactivate()
           throw error
         })
+      await this.provider.request({ method: 'eth_chainId' })
+      const { chainId, accounts } = this.provider // use the synchronous getter in case there have been updates
 
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      const chainId = await this.provider!.request<string | number>({ method: 'eth_chainId' }).then((chainId) =>
-        parseChainId(chainId)
-      )
-
-      this.actions.update({ chainId, accounts })
+      this.actions.update({ chainId: parseChainId(chainId), accounts })
     } catch (error) {
       cancelActivation()
       throw error

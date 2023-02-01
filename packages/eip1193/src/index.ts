@@ -55,7 +55,7 @@ export class EIP1193 extends Connector {
     this.chainId = this.accounts = undefined
     return Promise.all([
       this.provider.request({ method: 'eth_chainId' }) as Promise<string>,
-      (eager ? this.provider.request({ method: 'eth_requestAccounts' }) : this.provider
+      (eager ? this.provider.request({ method: 'eth_accounts' }) : this.provider
         .request({ method: 'eth_requestAccounts' })
         .catch(() => this.provider.request({ method: 'eth_accounts' }))) as Promise<string[]>,
     ])

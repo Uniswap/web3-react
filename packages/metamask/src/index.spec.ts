@@ -28,14 +28,14 @@ describe('MetaMask', () => {
 
   test('#activate', async () => {
     mockProvider.eth_chainId.mockResolvedValue('0x0' as never)
-    mockProvider.eth_accounts.mockResolvedValue([] as never)
+    mockProvider.eth_requestAccounts.mockResolvedValue([] as never)
     mockProvider.chainId = chainId
     mockProvider.accounts = accounts
 
     await connector.activate()
 
     expect(mockProvider.eth_chainId).toHaveBeenCalled()
-    expect(mockProvider.eth_accounts).toHaveBeenCalled()
+    expect(mockProvider.eth_requestAccounts).toHaveBeenCalled()
     expect(store.getState()).toEqual({
       chainId: Number.parseInt(chainId, 16),
       accounts,

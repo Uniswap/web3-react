@@ -29,7 +29,7 @@ const accounts: string[] = []
 describe('WalletConnect', () => {
   let store: Web3ReactStore
   let connector: WalletConnect
-  let mockConnector: MockMockWalletConnectProvider
+  let mockProvider: MockMockWalletConnectProvider
 
   describe('works', () => {
     beforeEach(async () => {
@@ -40,11 +40,14 @@ describe('WalletConnect', () => {
 
     test('#activate', async () => {
       await connector.connectEagerly().catch(() => {})
-      mockConnector = connector.provider as unknown as MockMockWalletConnectProvider
-      mockConnector.chainId = chainId
-      mockConnector.accounts = accounts
+      mockProvider = connector.provider as unknown as MockMockWalletConnectProvider
+      mockProvider.eth_chainId.mockResolvedValue('0x0' as never)
+      mockProvider.eth_requestAccounts.mockResolvedValue([] as never)
+      mockProvider.chainId = chainId
+      mockProvider.accounts = accounts
       await connector.activate()
 
+      expect(mockProvider.eth_requestAccounts).toHaveBeenCalled()
       expect(store.getState()).toEqual({
         chainId: Number.parseInt(chainId, 16),
         accounts,
