@@ -19,7 +19,6 @@ const accounts: string[] = []
 describe('Coinbase Wallet', () => {
   let store: Web3ReactStore
   let connector: CoinbaseWallet
-  let mockConnector: MockEIP1193Provider
 
   describe('connectEagerly = true', () => {
     beforeEach(async () => {
@@ -34,9 +33,11 @@ describe('Coinbase Wallet', () => {
       })
       await connector.connectEagerly().catch(() => {})
 
-      mockConnector = connector.provider as unknown as MockEIP1193Provider
-      mockConnector.chainId = chainId
-      mockConnector.accounts = accounts
+      const mockProvider = connector.provider as unknown as MockEIP1193Provider
+      mockProvider.eth_chainId.mockResolvedValue('0x0' as never)
+      mockProvider.eth_accounts.mockResolvedValue([] as never)
+      mockProvider.chainId = chainId
+      mockProvider.accounts = accounts
     })
 
     test('#activate', async () => {
