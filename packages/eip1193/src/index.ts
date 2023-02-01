@@ -19,10 +19,6 @@ export class EIP1193 extends Connector {
   /** {@inheritdoc Connector.provider} */
   provider: Provider
 
-  /** Cached state, used to observe any *Changed events while requesting data. */
-  private chainId?: string
-  private accounts?: string[]
-
   constructor({ actions, provider, onError }: EIP1193ConstructorArgs) {
     super(actions, onError)
 
@@ -39,35 +35,28 @@ export class EIP1193 extends Connector {
 
     this.provider.on('chainChanged', (chainId: string): void => {
       this.actions.update({ chainId: parseChainId(chainId) })
-      this.chainId = chainId
     })
 
     this.provider.on('accountsChanged', (accounts: string[]): void => {
       this.actions.update({ accounts })
-      this.accounts = accounts
     })
   }
 
   private async connect(eager: boolean): Promise<void> {
     const cancelActivation = this.actions.startActivation()
 
-    // Observe any *Changed events which update the data after it has been requested.
-    this.chainId = this.accounts = undefined
-    return Promise.all([
-      this.provider.request({ method: 'eth_chainId' }) as Promise<string>,
-      (eager ? this.provider.request({ method: 'eth_accounts' }) : this.provider
-        .request({ method: 'eth_requestAccounts' })
-        .catch(() => this.provider.request({ method: 'eth_accounts' }))) as Promise<string[]>,
-    ])
-      .then(([chainId, accounts]) => {
-        chainId = this.chainId ?? chainId
-        accounts = this.accounts ?? accounts
-        this.actions.update({ chainId: parseChainId(chainId), accounts })
-      })
-      .catch((error) => {
+    try {
+      // Wallets may resolve eth_chainId and hang on eth_accounts pending user interaction, which may include changing
+      // chains; they should be requested serially, with accounts first, so that the chainId can settle.
+      const accounts = await (eager ? this.provider.request({ method: 'eth_accounts' }) : this.provider
+          .request({ method: 'eth_requestAccounts' })
+          .catch(() => this.provider.request({ method: 'eth_accounts' }))) as string[]
+      const chainId = await this.provider.request({ method: 'eth_chainId' }) as string
+      this.actions.update({ chainId: parseChainId(chainId), accounts })
+    } catch (error) {
         cancelActivation()
         throw error
-      })
+    }
   }
 
   /** {@inheritdoc Connector.connectEagerly} */

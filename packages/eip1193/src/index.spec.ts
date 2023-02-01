@@ -103,23 +103,8 @@ describe('EIP1193', () => {
         expect(mockProvider.eth_chainId.mock.calls.length).toBe(1)
         expect(mockProvider.eth_accounts.mock.calls.length).toBe(1)
         expect(mockProvider.eth_requestAccounts.mock.calls.length).toBe(0)
-      })
-    
-      test('succeeds with updating state', async () => {
-        mockProvider.chainId = chainId
-        mockProvider.accounts = accounts
-
-        connector = new EIP1193({ actions, provider: mockProvider })
-        const connect = connector.connectEagerly()
-        mockProvider.emitChainChanged('0x2')
-        mockProvider.emitAccountsChanged(['0x0000000000000000000000000000000000000000'])
-        await connect
-
-        expect(store.getState()).toEqual({
-          chainId: 2,
-          accounts: ['0x0000000000000000000000000000000000000000'],
-          activating: false,
-        })
+        expect(mockProvider.eth_chainId.mock.invocationCallOrder[0])
+          .toBeGreaterThan(mockProvider.eth_accounts.mock.invocationCallOrder[0])
       })
     })
 
@@ -147,22 +132,8 @@ describe('EIP1193', () => {
           expect(mockProvider.eth_chainId.mock.calls.length).toBe(1)
           expect(mockProvider.eth_accounts.mock.calls.length).toBe(0)
           expect(mockProvider.eth_requestAccounts.mock.calls.length).toBe(1)
-        })
-
-        test('with updating state', async () => {
-          mockProvider.chainId = chainId
-          mockProvider.accounts = accounts
-
-          const connect = connector.activate()
-          mockProvider.emitChainChanged('0x2')
-          mockProvider.emitAccountsChanged(['0x0000000000000000000000000000000000000000'])
-          await connect
-
-          expect(store.getState()).toEqual({
-            chainId: 2,
-            accounts: ['0x0000000000000000000000000000000000000000'],
-            activating: false,
-          })
+          expect(mockProvider.eth_chainId.mock.invocationCallOrder[0])
+            .toBeGreaterThan(mockProvider.eth_requestAccounts.mock.invocationCallOrder[0])
         })
 
         test(`chainId = ${chainId}`, async () => {

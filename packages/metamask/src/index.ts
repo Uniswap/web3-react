@@ -98,29 +98,26 @@ export class MetaMask extends Connector {
   public async connectEagerly(): Promise<void> {
     const cancelActivation = this.actions.startActivation()
 
-    await this.isomorphicInitialize()
-    if (!this.provider) return cancelActivation()
+    try {
+      await this.isomorphicInitialize()
+      if (!this.provider) return cancelActivation()
 
-    return Promise.all([
-      this.provider.request({ method: 'eth_accounts' }) as Promise<string[]>,
-      this.provider.request({ method: 'eth_chainId' }) as Promise<string>,
-    ])
-      .then(([accounts]) => {
-        if (!this.provider) throw new Error('No provider')
-        const { chainId } = this.provider // use the synchronous getter in case there have been updates
-        if (accounts.length) {
-          this.actions.update({ chainId: parseChainId(chainId), accounts })
-        } else {
-          throw new Error('No accounts returned')
-        }
-      })
-      .catch((error) => {
+      // Wallets may resolve eth_chainId and hang on eth_accounts pending user interaction, which may include changing
+      // chains; they should be requested serially, with accounts first, so that the chainId can settle.
+      const accounts = await this.provider.request({ method: 'eth_accounts' }) as string[]
+      const chainId = await this.provider.request({ method: 'eth_chainId' }) as string
+      if (accounts.length) {
+        this.actions.update({ chainId: parseChainId(chainId), accounts })
+      } else {
+        throw new Error('No accounts returned')
+      }
+    } catch (error) {
         console.debug('Could not connect eagerly', error)
         // we should be able to use `cancelActivation` here, but on mobile, metamask emits a 'connect'
         // event, meaning that chainId is updated, and cancelActivation doesn't work because an intermediary
         // update has occurred, so we reset state instead
         this.actions.resetState()
-      })
+    }
   }
 
   /**
@@ -140,43 +137,40 @@ export class MetaMask extends Connector {
       .then(async () => {
         if (!this.provider) throw new NoMetaMaskError()
 
-        return Promise.all([
-          this.provider.request({ method: 'eth_requestAccounts' }) as Promise<string[]>,
-          this.provider.request({ method: 'eth_chainId' }) as Promise<string>,
-        ]).then(([accounts]) => {
-          if (!this.provider) throw new Error('No provider')
-          const { chainId } = this.provider // use the synchronous getter in case there have been updates
-          const receivedChainId = parseChainId(chainId)
-          const desiredChainId =
-            typeof desiredChainIdOrChainParameters === 'number'
-              ? desiredChainIdOrChainParameters
-              : desiredChainIdOrChainParameters?.chainId
+        // Wallets may resolve eth_chainId and hang on eth_accounts pending user interaction, which may include changing
+        // chains; they should be requested serially, with accounts first, so that the chainId can settle.
+        const accounts = await this.provider.request({ method: 'eth_requestAccounts' }) as string[]
+        const chainId = await this.provider.request({ method: 'eth_chainId' }) as string
+        const receivedChainId = parseChainId(chainId)
+        const desiredChainId =
+          typeof desiredChainIdOrChainParameters === 'number'
+            ? desiredChainIdOrChainParameters
+            : desiredChainIdOrChainParameters?.chainId
 
-          // if there's no desired chain, or it's equal to the received, update
-          if (!desiredChainId || receivedChainId === desiredChainId)
-            return this.actions.update({ chainId: receivedChainId, accounts })
+        // if there's no desired chain, or it's equal to the received, update
+        if (!desiredChainId || receivedChainId === desiredChainId)
+          return this.actions.update({ chainId: receivedChainId, accounts })
 
-          const desiredChainIdHex = `0x${desiredChainId.toString(16)}`
+        const desiredChainIdHex = `0x${desiredChainId.toString(16)}`
 
-          // if we're here, we can try to switch networks
-          return this.provider.request({
-            method: 'wallet_switchEthereumChain',
-            params: [{ chainId: desiredChainIdHex }],
-          })
-            .catch((error: ProviderRpcError) => {
-              if (error.code === 4902 && typeof desiredChainIdOrChainParameters !== 'number') {
-                if (!this.provider) throw new Error('No provider')
-                // if we're here, we can try to add a new network
-                return this.provider.request({
-                  method: 'wallet_addEthereumChain',
-                  params: [{ ...desiredChainIdOrChainParameters, chainId: desiredChainIdHex }],
-                })
-              }
-
-              throw error
-            })
-            .then(() => this.activate(desiredChainId))
+        // if we're here, we can try to switch networks
+        return this.provider.request({
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId: desiredChainIdHex }],
         })
+          .catch((error: ProviderRpcError) => {
+            if (error.code === 4902 && typeof desiredChainIdOrChainParameters !== 'number') {
+              if (!this.provider) throw new Error('No provider')
+              // if we're here, we can try to add a new network
+              return this.provider.request({
+                method: 'wallet_addEthereumChain',
+                params: [{ ...desiredChainIdOrChainParameters, chainId: desiredChainIdHex }],
+              })
+            }
+
+            throw error
+          })
+          .then(() => this.activate(desiredChainId))
       })
       .catch((error) => {
         cancelActivation?.()

@@ -40,14 +40,19 @@ describe('WalletConnect', () => {
 
     test('#activate', async () => {
       await connector.connectEagerly().catch(() => {})
+
       mockProvider = connector.provider as unknown as MockMockWalletConnectProvider
-      mockProvider.eth_chainId.mockResolvedValue('0x0' as never)
-      mockProvider.eth_requestAccounts.mockResolvedValue([] as never)
       mockProvider.chainId = chainId
       mockProvider.accounts = accounts
+
       await connector.activate()
 
       expect(mockProvider.eth_requestAccounts).toHaveBeenCalled()
+      expect(mockProvider.eth_accounts).not.toHaveBeenCalled()
+      expect(mockProvider.eth_chainId_number).toHaveBeenCalled()
+      expect(mockProvider.eth_chainId_number.mock.invocationCallOrder[0])
+        .toBeGreaterThan(mockProvider.eth_requestAccounts.mock.invocationCallOrder[0])
+
       expect(store.getState()).toEqual({
         chainId: Number.parseInt(chainId, 16),
         accounts,
