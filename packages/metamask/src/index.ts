@@ -9,7 +9,13 @@ import type {
 } from '@web3-react/types'
 import { Connector } from '@web3-react/types'
 
-type MetaMaskProvider = Provider & { isMetaMask?: boolean; isConnected?: () => boolean; providers?: MetaMaskProvider[] }
+type MetaMaskProvider = Provider & {
+  isMetaMask?: boolean
+  isConnected?: () => boolean
+  providers?: MetaMaskProvider[]
+  get chainId(): string
+  get accounts(): string[]
+}
 
 export class NoMetaMaskError extends Error {
   public constructor() {
@@ -85,6 +91,12 @@ export class MetaMask extends Connector {
             this.actions.update({ accounts })
           }
         })
+
+        // Initialize chainId/accounts in the ethers wrapper.
+        await Promise.all([
+          this.provider.request({ method: 'eth_chainId' }),
+          this.provider.request({ method: 'eth_accounts' }),
+        ])
       }
     }))
   }
@@ -96,11 +108,11 @@ export class MetaMask extends Connector {
     await this.isomorphicInitialize()
     if (!this.provider) return cancelActivation()
 
-    return Promise.all([
-      this.provider.request({ method: 'eth_chainId' }) as Promise<string>,
-      this.provider.request({ method: 'eth_accounts' }) as Promise<string[]>,
-    ])
-      .then(([chainId, accounts]) => {
+    return Promise.resolve()
+      .then(() => {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        const { chainId, accounts }= this.provider!
+
         if (accounts.length) {
           this.actions.update({ chainId: parseChainId(chainId), accounts })
         } else {
@@ -133,10 +145,10 @@ export class MetaMask extends Connector {
       .then(async () => {
         if (!this.provider) throw new NoMetaMaskError()
 
-        return Promise.all([
-          this.provider.request({ method: 'eth_chainId' }) as Promise<string>,
-          this.provider.request({ method: 'eth_requestAccounts' }) as Promise<string[]>,
-        ]).then(([chainId, accounts]) => {
+        return Promise.resolve().then(() => {
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          const { chainId, accounts } = this.provider!
+
           const receivedChainId = parseChainId(chainId)
           const desiredChainId =
             typeof desiredChainIdOrChainParameters === 'number'

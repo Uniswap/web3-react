@@ -49,7 +49,7 @@ export class CoinbaseWallet extends Connector {
   private async isomorphicInitialize(): Promise<void> {
     if (this.eagerConnection) return
 
-    await (this.eagerConnection = import('@coinbase/wallet-sdk').then((m) => {
+    await (this.eagerConnection = import('@coinbase/wallet-sdk').then(async (m) => {
       const { url, ...options } = this.options
       this.coinbaseWallet = new m.default(options)
       this.provider = this.coinbaseWallet.makeWeb3Provider(url)
@@ -75,6 +75,10 @@ export class CoinbaseWallet extends Connector {
           this.actions.update({ accounts })
         }
       })
+
+      
+      // Initialize chainId values in the ethers wrapper.
+      await this.provider.request({ method: 'eth_chainId' })
     }))
   }
 
@@ -87,14 +91,11 @@ export class CoinbaseWallet extends Connector {
 
       if (!this.connected) throw new Error('No existing connection')
 
-      return Promise.all([
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        this.provider!.request<string>({ method: 'eth_chainId' }),
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        this.provider!.request<string[]>({ method: 'eth_accounts' }),
-      ]).then(([chainId, accounts]) => {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      return this.provider!.request<string[]>({ method: 'eth_accounts' }).then((accounts) => {
         if (!accounts.length) throw new Error('No accounts returned')
-        this.actions.update({ chainId: parseChainId(chainId), accounts })
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        this.actions.update({ chainId: parseChainId(this.provider!.chainId), accounts })
       })
     } catch (error) {
       cancelActivation()
@@ -145,13 +146,10 @@ export class CoinbaseWallet extends Connector {
     try {
       await this.isomorphicInitialize()
 
-      return Promise.all([
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      return this.provider!.request<string[]>({ method: 'eth_requestAccounts' }).then((accounts) => {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        this.provider!.request<string>({ method: 'eth_chainId' }),
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        this.provider!.request<string[]>({ method: 'eth_requestAccounts' }),
-      ]).then(([chainId, accounts]) => {
-        const receivedChainId = parseChainId(chainId)
+        const receivedChainId = parseChainId(this.provider!.chainId)
 
         if (!desiredChainId || desiredChainId === receivedChainId)
           return this.actions.update({ chainId: receivedChainId, accounts })

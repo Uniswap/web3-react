@@ -19,6 +19,10 @@ export class EIP1193 extends Connector {
   /** {@inheritdoc Connector.provider} */
   provider: Provider
 
+  /** Cached state, used to observe any *Changed events while requesting data. */
+  private chainId?: string
+  private accounts?: string[]
+
   constructor({ actions, provider, onError }: EIP1193ConstructorArgs) {
     super(actions, onError)
 
@@ -35,10 +39,12 @@ export class EIP1193 extends Connector {
 
     this.provider.on('chainChanged', (chainId: string): void => {
       this.actions.update({ chainId: parseChainId(chainId) })
+      this.chainId = chainId
     })
 
     this.provider.on('accountsChanged', (accounts: string[]): void => {
       this.actions.update({ accounts })
+      this.accounts = accounts
     })
   }
 
@@ -46,11 +52,15 @@ export class EIP1193 extends Connector {
   public async connectEagerly(): Promise<void> {
     const cancelActivation = this.actions.startActivation()
 
+    // Observe any *Changed events which update the data after it has been requested.
+    this.chainId = this.accounts = undefined
     return Promise.all([
       this.provider.request({ method: 'eth_chainId' }) as Promise<string>,
       this.provider.request({ method: 'eth_accounts' }) as Promise<string[]>,
     ])
       .then(([chainId, accounts]) => {
+        chainId = this.chainId ?? chainId
+        accounts = this.accounts ?? accounts
         this.actions.update({ chainId: parseChainId(chainId), accounts })
       })
       .catch((error) => {
@@ -63,6 +73,8 @@ export class EIP1193 extends Connector {
   public async activate(): Promise<void> {
     const cancelActivation = this.actions.startActivation()
 
+    // Observe any *Changed events which update the data after it has been requested.
+    this.chainId = this.accounts = undefined
     return Promise.all([
       this.provider.request({ method: 'eth_chainId' }) as Promise<string>,
       this.provider
@@ -70,6 +82,8 @@ export class EIP1193 extends Connector {
         .catch(() => this.provider.request({ method: 'eth_accounts' })) as Promise<string[]>,
     ])
       .then(([chainId, accounts]) => {
+        chainId = this.chainId ?? chainId
+        accounts = this.accounts ?? accounts
         this.actions.update({ chainId: parseChainId(chainId), accounts })
       })
       .catch((error) => {
