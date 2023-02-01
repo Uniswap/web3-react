@@ -90,8 +90,8 @@ export class CoinbaseWallet extends Connector {
       // Wallets may resolve eth_chainId and hang on eth_accounts pending user interaction, which may include changing
       // chains; they should be requested serially, with accounts first, so that the chainId can settle.
       const accounts = await this.provider.request<string[]>({ method: 'eth_accounts' }) 
-      const chainId = await this.provider.request<string>({ method: 'eth_chainId' }) 
       if (!accounts.length) throw new Error('No accounts returned')
+      const chainId = await this.provider.request<string>({ method: 'eth_chainId' }) 
       this.actions.update({ chainId: parseChainId(chainId), accounts })
     } catch (error) {
       cancelActivation()

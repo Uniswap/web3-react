@@ -42,15 +42,13 @@ export class EIP1193 extends Connector {
     })
   }
 
-  private async connect(eager: boolean): Promise<void> {
+  private async activateAccounts(requestAccounts: () => Promise<string[]>): Promise<void> {
     const cancelActivation = this.actions.startActivation()
 
     try {
       // Wallets may resolve eth_chainId and hang on eth_accounts pending user interaction, which may include changing
       // chains; they should be requested serially, with accounts first, so that the chainId can settle.
-      const accounts = await (eager ? this.provider.request({ method: 'eth_accounts' }) : this.provider
-          .request({ method: 'eth_requestAccounts' })
-          .catch(() => this.provider.request({ method: 'eth_accounts' }))) as string[]
+      const accounts = await requestAccounts()
       const chainId = await this.provider.request({ method: 'eth_chainId' }) as string
       this.actions.update({ chainId: parseChainId(chainId), accounts })
     } catch (error) {
@@ -61,11 +59,13 @@ export class EIP1193 extends Connector {
 
   /** {@inheritdoc Connector.connectEagerly} */
   public async connectEagerly(): Promise<void> {
-    return this.connect(true)
+    return this.activateAccounts(() => this.provider.request({ method: 'eth_accounts' }) as Promise<string[]>)
   }
 
   /** {@inheritdoc Connector.activate} */
   public async activate(): Promise<void> {
-    return this.connect(false)
+    return this.activateAccounts(() => this.provider
+        .request({ method: 'eth_requestAccounts' })
+        .catch(() => this.provider.request({ method: 'eth_accounts' })) as Promise<string[]>)
   }
 }
