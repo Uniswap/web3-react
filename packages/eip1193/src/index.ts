@@ -48,15 +48,16 @@ export class EIP1193 extends Connector {
     })
   }
 
-  /** {@inheritdoc Connector.connectEagerly} */
-  public async connectEagerly(): Promise<void> {
+  private async connect(eager: boolean): Promise<void> {
     const cancelActivation = this.actions.startActivation()
 
     // Observe any *Changed events which update the data after it has been requested.
     this.chainId = this.accounts = undefined
     return Promise.all([
       this.provider.request({ method: 'eth_chainId' }) as Promise<string>,
-      this.provider.request({ method: 'eth_accounts' }) as Promise<string[]>,
+      (eager ? this.provider.request({ method: 'eth_requestAccounts' }) : this.provider
+        .request({ method: 'eth_requestAccounts' })
+        .catch(() => this.provider.request({ method: 'eth_accounts' }))) as Promise<string[]>,
     ])
       .then(([chainId, accounts]) => {
         chainId = this.chainId ?? chainId
@@ -69,26 +70,13 @@ export class EIP1193 extends Connector {
       })
   }
 
+  /** {@inheritdoc Connector.connectEagerly} */
+  public async connectEagerly(): Promise<void> {
+    return this.connect(true)
+  }
+
   /** {@inheritdoc Connector.activate} */
   public async activate(): Promise<void> {
-    const cancelActivation = this.actions.startActivation()
-
-    // Observe any *Changed events which update the data after it has been requested.
-    this.chainId = this.accounts = undefined
-    return Promise.all([
-      this.provider.request({ method: 'eth_chainId' }) as Promise<string>,
-      this.provider
-        .request({ method: 'eth_requestAccounts' })
-        .catch(() => this.provider.request({ method: 'eth_accounts' })) as Promise<string[]>,
-    ])
-      .then(([chainId, accounts]) => {
-        chainId = this.chainId ?? chainId
-        accounts = this.accounts ?? accounts
-        this.actions.update({ chainId: parseChainId(chainId), accounts })
-      })
-      .catch((error) => {
-        cancelActivation()
-        throw error
-      })
+    return this.connect(false)
   }
 }
