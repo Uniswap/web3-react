@@ -1,5 +1,5 @@
 Arguments: 
-  /Users/nizmo/.nvm/versions/node/v16.14.0/bin/node /opt/homebrew/Cellar/yarn/1.22.17_2/libexec/bin/yarn.js add @solflare-wallet/pfp
+  /Users/nizmo/.nvm/versions/node/v16.14.0/bin/node /opt/homebrew/Cellar/yarn/1.22.17_2/libexec/bin/yarn.js add @reduxjs/toolkit
 
 PATH: 
   /Users/nizmo/.nvm/versions/node/v16.14.0/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Library/Apple/usr/bin:/Users/nizmo/.nvm/versions/node/v16.14.0/bin:/opt/homebrew/bin:/opt/homebrew/sbin
@@ -14,12 +14,17 @@ Platform:
   darwin arm64
 
 Trace: 
-  SyntaxError: /Users/nizmo/Documents/dApps/web3-react/package.json: Unexpected token } in JSON at position 1471
-      at JSON.parse (<anonymous>)
-      at /opt/homebrew/Cellar/yarn/1.22.17_2/libexec/lib/cli.js:1625:59
-      at Generator.next (<anonymous>)
-      at step (/opt/homebrew/Cellar/yarn/1.22.17_2/libexec/lib/cli.js:310:30)
-      at /opt/homebrew/Cellar/yarn/1.22.17_2/libexec/lib/cli.js:321:13
+  Error: https://registry.yarnpkg.com/@web3-react%2fbsc-wallet: Not found
+      at Request.params.callback [as _callback] (/opt/homebrew/Cellar/yarn/1.22.17_2/libexec/lib/cli.js:67029:18)
+      at Request.self.callback (/opt/homebrew/Cellar/yarn/1.22.17_2/libexec/lib/cli.js:140883:22)
+      at Request.emit (node:events:520:28)
+      at Request.<anonymous> (/opt/homebrew/Cellar/yarn/1.22.17_2/libexec/lib/cli.js:141855:10)
+      at Request.emit (node:events:520:28)
+      at IncomingMessage.<anonymous> (/opt/homebrew/Cellar/yarn/1.22.17_2/libexec/lib/cli.js:141777:12)
+      at Object.onceWrapper (node:events:639:28)
+      at IncomingMessage.emit (node:events:532:35)
+      at endReadableNT (node:internal/streams/readable:1346:12)
+      at processTicksAndRejections (node:internal/process/task_queues:83:21)
 
 npm manifest: 
   {
@@ -35,6 +40,23 @@ npm manifest:
       "@ethersproject/experimental": "^5.6.0",
       "@ethersproject/providers": "^5.6.0",
       "@ethersproject/units": "^5.6.0",
+      "@web3-react/bsc-wallet": "8.0.20-beta.0",
+      "@web3-react/coinbase-wallet": "8.0.34-beta.0",
+      "@web3-react/core": "8.0.35-beta.0",
+      "@web3-react/eip1193": "8.0.26-beta.0",
+      "@web3-react/empty": "8.0.20-beta.0",
+      "@web3-react/gnosis-safe": "8.0.7-beta.0",
+      "@web3-react/metamask": "8.0.29-beta.0",
+      "@web3-react/nami": "8.0.20-beta.0",
+      "@web3-react/network": "8.0.27-beta.0",
+      "@web3-react/phantom": "8.0.20-beta.0",
+      "@web3-react/portis-wallet": "8.0.20-beta.0",
+      "@web3-react/solflare": "8.0.20-beta.0",
+      "@web3-react/tron-link": "8.0.20-beta.0",
+      "@web3-react/types": "8.0.20-beta.0",
+      "@web3-react/url": "8.0.25-beta.0",
+      "@web3-react/walletconnect": "8.0.36-beta.0",
+      "@web3-react/yoroi": "8.0.20-beta.0",
       "next": "^13.1.6",
       "react-dom": "^18.2.0"
     }

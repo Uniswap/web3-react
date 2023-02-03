@@ -1,7 +1,8 @@
 {
-  "name": "@web3-react/types",
+  "name": "@web3-react/store-redux",
   "keywords": [
-    "web3-react"
+    "web3-react",
+    "redux"
   ],
   "author": "Noah Zinsmeister <noahwz@gmail.com>",
   "license": "GPL-3.0-or-later",
@@ -9,7 +10,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "version": "8.0.20-beta.0",
+  "version": "8.0.25-beta.0",
   "files": [
     "dist/*"
   ],
@@ -23,11 +24,8 @@
     "start": "tsc --watch"
   },
   "dependencies": {
+    "@ethersproject/address": "^5",
     "@reduxjs/toolkit": "^1.9.2",
-    "zustand": "^4.3.2"
-  },
-  "devDependencies": {
-    "@ethersproject/networks": "^5.7.1",
-    "@ethersproject/providers": "^5.7.2"
+    "@web3-react/types": "^8.0.20-beta.0"
   }
 }

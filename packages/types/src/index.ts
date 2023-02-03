@@ -1,5 +1,8 @@
 import type { EventEmitter } from 'node:events'
 import type { StoreApi } from 'zustand'
+import type { EnhancedStore } from '@reduxjs/toolkit'
+import type { BaseProvider, Web3Provider } from '@ethersproject/providers'
+import type { Networkish } from '@ethersproject/networks'
 
 export type AddingChainInfo = {
   chainId: number
@@ -20,7 +23,72 @@ export interface Web3ReactState {
   watchingAsset: WatchAssetParameters | undefined
 }
 
+export type Web3ReactReduxStore = EnhancedStore<Web3ReactState>
 export type Web3ReactStore = StoreApi<Web3ReactState>
+
+export type Web3ReactSelectors = {
+  useStore: (connector: Connector) => Web3ReactReduxStore
+  useChainId: (connector: Connector) => number | undefined
+  useAccounts: (connector: Connector) => string[] | undefined
+  useAccountIndex: (connector: Connector) => number | undefined
+  useIsActivating: (connector: Connector) => boolean | undefined
+  useAccount: (connector: Connector) => string | undefined
+  useIsActive: (connector: Connector) => boolean | undefined
+  useProvider<T extends BaseProvider = Web3Provider>(connector?: Connector, network?: Networkish): T | undefined
+  useENSNames: (connector: Connector, provider?: BaseProvider) => (string | null)[] | undefined
+  useENSName: (connector: Connector, provider?: BaseProvider) => undefined | string | null
+  useENSAvatars: (
+    connector: Connector,
+    provider?: BaseProvider,
+    ensNames?: (string | null)[]
+  ) => (string | null)[] | undefined
+  useENSAvatar: (
+    connector: Connector,
+    provider?: BaseProvider,
+    ensName?: undefined | string | null
+  ) => undefined | string | null
+  useAddingChain: (connector: Connector) => AddingChainInfo | undefined
+  useSwitchingChain: (connector: Connector) => SwitchingChainInfo | undefined
+  useWatchingAsset: (connector: Connector) => WatchAssetParameters | undefined
+}
+
+export type Web3SelectedSelectors = {
+  useSelectedStore: Web3ReactSelectors['useStore']
+  useSelectedChainId: Web3ReactSelectors['useChainId']
+  useSelectedAccounts: Web3ReactSelectors['useAccounts']
+  useSelectedAccountIndex: Web3ReactSelectors['useAccountIndex']
+  useSelectedIsActivating: Web3ReactSelectors['useIsActivating']
+  useSelectedAccount: Web3ReactSelectors['useAccount']
+  useSelectedIsActive: Web3ReactSelectors['useIsActive']
+  useSelectedProvider: Web3ReactSelectors['useProvider']
+  useSelectedENSNames: Web3ReactSelectors['useENSNames']
+  useSelectedENSName: Web3ReactSelectors['useENSName']
+  useSelectedENSAvatars: Web3ReactSelectors['useENSAvatars']
+  useSelectedENSAvatar: Web3ReactSelectors['useENSAvatar']
+  useSelectedAddingChain: Web3ReactSelectors['useAddingChain']
+  useSelectedSwitchingChain: Web3ReactSelectors['useSwitchingChain']
+  useSelectedWatchingAsset: Web3ReactSelectors['useWatchingAsset']
+}
+
+export type Web3PrioritySelectors = {
+  usePriorityConnector: () => Connector
+
+  usePriorityStore: Web3ReactSelectors['useStore']
+  usePriorityChainId: Web3ReactSelectors['useChainId']
+  usePriorityAccounts: Web3ReactSelectors['useAccounts']
+  usePriorityAccountIndex: Web3ReactSelectors['useAccountIndex']
+  usePriorityIsActivating: Web3ReactSelectors['useIsActivating']
+  usePriorityAccount: Web3ReactSelectors['useAccount']
+  usePriorityIsActive: Web3ReactSelectors['useIsActive']
+  usePriorityProvider: Partial<Web3ReactSelectors['useProvider']>
+  usePriorityENSNames: Partial<Web3ReactSelectors['useENSNames']>
+  usePriorityENSName: Partial<Web3ReactSelectors['useENSName']>
+  usePriorityENSAvatars: Partial<Web3ReactSelectors['useENSAvatars']>
+  usePriorityENSAvatar: Partial<Web3ReactSelectors['useENSAvatar']>
+  usePriorityAddingChain: Web3ReactSelectors['useAddingChain']
+  usePrioritySwitchingChain: Web3ReactSelectors['useSwitchingChain']
+  usePriorityWatchingAsset: Web3ReactSelectors['useWatchingAsset']
+}
 
 export type Web3ReactStateUpdate =
   // chainId

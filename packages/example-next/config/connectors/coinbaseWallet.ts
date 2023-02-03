@@ -1,6 +1,6 @@
-import type { Web3ReactHooks } from '@web3-react/core'
+import type { Web3ReactHooks } from '@web3-react/core-redux'
 import type { Web3ReactStore } from '@web3-react/types'
-import { initializeConnector } from '@web3-react/core'
+import { initializeConnector } from '@web3-react/core-redux'
 import { allAddChainParameters, URLS } from '../../utils/chains'
 import { CoinbaseWallet } from '@web3-react/coinbase-wallet'
 
@@ -16,5 +16,6 @@ export const [coinbaseWallet, hooks]: [CoinbaseWallet, Web3ReactHooks, Web3React
           darkMode: true,
         },
         connectorOptions: { chainParameters: allAddChainParameters },
-      })
+      }),
+    'Coinbase'
   )
