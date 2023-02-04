@@ -88,25 +88,16 @@ export class CoinbaseWallet extends Connector {
   public async connectEagerly(): Promise<Web3ReactState> {
     const cancelActivation = this.actions.startActivation()
 
-    await this.isomorphicInitialize()
-
-    if (!this.provider) return cancelActivation()
-
     try {
-      const [chainId, accounts] = (await Promise.all([
-        this.provider.request({ method: 'eth_chainId' }),
-        this.provider.request({ method: 'eth_accounts' }),
-      ])) as [string, string[]]
+      await this.isomorphicInitialize()
+      if (!this.provider || !this.selectedAddress) throw new Error('No existing connection')
 
+      // Wallets may resolve eth_chainId and hang on eth_accounts pending user interaction, which may include changing
+      // chains; they should be requested serially, with accounts first, so that the chainId can settle.
+      const accounts = await this.provider.request<string[]>({ method: 'eth_accounts' })
       if (!accounts.length) throw new Error('No accounts returned')
-
-      const index = accounts.indexOf(this?.selectedAddress ?? '')
-
-      return this.actions.update({
-        chainId: this.parseChainId(chainId),
-        accounts,
-        accountIndex: index < 0 ? undefined : index,
-      })
+      const chainId = await this.provider.request<string>({ method: 'eth_chainId' })
+      return this.actions.update({ chainId: this.parseChainId(chainId), accounts })
     } catch (error) {
       return cancelActivation()
     }

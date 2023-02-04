@@ -2,7 +2,7 @@ import { createWeb3ReactStoreAndActions } from '@web3-react/store'
 import type { Actions, RequestArguments, Web3ReactStore } from '@web3-react/types'
 import EventEmitter from 'node:events'
 import { WalletConnect } from '.'
-import { MockEIP1193Provider } from '../../eip1193/src/index.spec'
+import { MockEIP1193Provider } from '../../eip1193/src/mock'
 
 // necessary because walletconnect returns chainId as a number
 class MockMockWalletConnectProvider extends MockEIP1193Provider {
@@ -29,7 +29,7 @@ const accounts: string[] = []
 describe('WalletConnect', () => {
   let store: Web3ReactStore
   let connector: WalletConnect
-  let mockConnector: MockMockWalletConnectProvider
+  let mockProvider: MockMockWalletConnectProvider
 
   describe('works', () => {
     beforeEach(async () => {
@@ -40,10 +40,18 @@ describe('WalletConnect', () => {
 
     test('#activate', async () => {
       await connector.connectEagerly().catch(() => {})
-      mockConnector = connector.provider as unknown as MockMockWalletConnectProvider
-      mockConnector.chainId = chainId
-      mockConnector.accounts = accounts
+
+      mockProvider = connector.provider as unknown as MockMockWalletConnectProvider
+      mockProvider.chainId = chainId
+      mockProvider.accounts = accounts
+
       await connector.activate()
+
+      expect(mockProvider.eth_requestAccounts).toHaveBeenCalled()
+      expect(mockProvider.eth_accounts).not.toHaveBeenCalled()
+      expect(mockProvider.eth_chainId_number).toHaveBeenCalled()
+      expect(mockProvider.eth_chainId_number.mock.invocationCallOrder[0])
+        .toBeGreaterThan(mockProvider.eth_requestAccounts.mock.invocationCallOrder[0])
 
       expect(store.getState()).toEqual({
         chainId: Number.parseInt(chainId, 16),

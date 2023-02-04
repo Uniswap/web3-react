@@ -16,6 +16,8 @@ type MetaMaskProvider = Provider & {
   isConnected?: () => boolean
   providers?: MetaMaskProvider[]
   selectedAddress?: string
+  get chainId(): string
+  get accounts(): string[]
 }
 
 export class NoMetaMaskError extends Error {
@@ -133,15 +135,15 @@ export class MetaMask extends Connector {
   public async connectEagerly(): Promise<Web3ReactState> {
     const cancelActivation = this.actions.startActivation()
 
-    await this.isomorphicInitialize()
-
-    if (!this.provider) return cancelActivation()
-
     try {
-      const [chainId, baseAccounts] = (await Promise.all([
-        this.provider.request({ method: 'eth_chainId' }),
-        this.provider.request({ method: 'eth_accounts' }),
-      ])) as [string, string[]]
+      await this.isomorphicInitialize()
+      if (!this.provider) return cancelActivation()
+
+      // Wallets may resolve eth_chainId and hang on eth_accounts pending user interaction, which may include changing
+      // chains; they should be requested serially, with accounts first, so that the chainId can settle.
+      const baseAccounts = (await this.provider.request({ method: 'eth_accounts' })) as string[]
+      if (!baseAccounts.length) throw new Error('No accounts returned')
+      const chainId = (await this.provider.request({ method: 'eth_chainId' })) as string
 
       const accounts = (await this.getAccounts()) ?? baseAccounts
 

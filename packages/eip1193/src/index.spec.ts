@@ -4,53 +4,13 @@ import { createWeb3ReactStoreAndActions } from '@web3-react/store'
 import type { Actions, ProviderRpcError, RequestArguments, Web3ReactStore } from '@web3-react/types'
 import { EventEmitter } from 'node:events'
 import { EIP1193 } from '.'
+import { MockEIP1193Provider } from './mock'
 
 class MockProviderRpcError extends Error {
   public code: number
   constructor() {
     super('Mock Provider RPC Error')
     this.code = 4200
-  }
-}
-
-export class MockEIP1193Provider extends EventEmitter {
-  public chainId?: string
-  public accounts?: string[]
-
-  public eth_chainId = jest.fn((chainId?: string) => chainId)
-  public eth_accounts = jest.fn((accounts?: string[]) => accounts)
-  public eth_requestAccounts = jest.fn((accounts?: string[]) => accounts)
-
-  public request(x: RequestArguments): Promise<unknown> {
-    // make sure to throw if we're "not connected"
-    if (!this.chainId) return Promise.reject(new Error())
-
-    switch (x.method) {
-      case 'eth_chainId':
-        return Promise.resolve(this.eth_chainId(this.chainId))
-      case 'eth_accounts':
-        return Promise.resolve(this.eth_accounts(this.accounts))
-      case 'eth_requestAccounts':
-        return Promise.resolve(this.eth_requestAccounts(this.accounts))
-      default:
-        throw new Error()
-    }
-  }
-
-  public emitConnect(chainId: string) {
-    this.emit('connect', { chainId })
-  }
-
-  public emitDisconnect(error: ProviderRpcError) {
-    this.emit('disconnect', error)
-  }
-
-  public emitChainChanged(chainId: string) {
-    this.emit('chainChanged', chainId)
-  }
-
-  public emitAccountsChanged(accounts: string[]) {
-    this.emit('accountsChanged', accounts)
   }
 }
 
@@ -132,7 +92,7 @@ describe('EIP1193', () => {
         mockProvider.accounts = accounts
 
         connector = new EIP1193({ actions, provider: mockProvider })
-        await connector.connectEagerly().catch(() => {})
+        await connector.connectEagerly()
 
         expect(store.getState()).toEqual({
           chainId: 1,
@@ -143,6 +103,8 @@ describe('EIP1193', () => {
         expect(mockProvider.eth_chainId.mock.calls.length).toBe(1)
         expect(mockProvider.eth_accounts.mock.calls.length).toBe(1)
         expect(mockProvider.eth_requestAccounts.mock.calls.length).toBe(0)
+        expect(mockProvider.eth_chainId.mock.invocationCallOrder[0])
+          .toBeGreaterThan(mockProvider.eth_accounts.mock.invocationCallOrder[0])
       })
     })
 
@@ -170,6 +132,8 @@ describe('EIP1193', () => {
           expect(mockProvider.eth_chainId.mock.calls.length).toBe(1)
           expect(mockProvider.eth_accounts.mock.calls.length).toBe(0)
           expect(mockProvider.eth_requestAccounts.mock.calls.length).toBe(1)
+          expect(mockProvider.eth_chainId.mock.invocationCallOrder[0])
+            .toBeGreaterThan(mockProvider.eth_requestAccounts.mock.invocationCallOrder[0])
         })
 
         test(`chainId = ${chainId}`, async () => {

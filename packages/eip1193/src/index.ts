@@ -36,39 +36,33 @@ export class EIP1193 extends Connector {
     })
   }
 
-  /** {@inheritdoc Connector.connectEagerly} */
-  public async connectEagerly(): Promise<Web3ReactState> {
+  private async activateAccounts(requestAccounts: () => Promise<string[]>): Promise<Web3ReactState> {
     const cancelActivation = this.actions.startActivation()
 
-    return Promise.all([
-      this.provider.request({ method: 'eth_chainId' }) as Promise<string>,
-      this.provider.request({ method: 'eth_accounts' }) as Promise<string[]>,
-    ])
-      .then(([chainId, accounts]) => {
-        return this.actions.update({ chainId: this.parseChainId(chainId), accounts })
-      })
-      .catch((error) => {
-        cancelActivation()
-        throw error
-      })
+    try {
+      // Wallets may resolve eth_chainId and hang on eth_accounts pending user interaction, which may include changing
+      // chains; they should be requested serially, with accounts first, so that the chainId can settle.
+      const accounts = await requestAccounts()
+      const chainId = (await this.provider.request({ method: 'eth_chainId' })) as string
+      return this.actions.update({ chainId: this.parseChainId(chainId), accounts })
+    } catch (error) {
+      cancelActivation()
+      throw error
+    }
+  }
+
+  /** {@inheritdoc Connector.connectEagerly} */
+  public async connectEagerly(): Promise<Web3ReactState> {
+    return this.activateAccounts(() => this.provider.request({ method: 'eth_accounts' }) as Promise<string[]>)
   }
 
   /** {@inheritdoc Connector.activate} */
   public async activate(): Promise<Web3ReactState> {
-    const cancelActivation = this.actions.startActivation()
-
-    return Promise.all([
-      this.provider.request({ method: 'eth_chainId' }) as Promise<string>,
-      this.provider
-        .request({ method: 'eth_requestAccounts' })
-        .catch(() => this.provider.request({ method: 'eth_accounts' })) as Promise<string[]>,
-    ])
-      .then(([chainId, accounts]) => {
-        return this.actions.update({ chainId: this.parseChainId(chainId), accounts })
-      })
-      .catch((error) => {
-        cancelActivation()
-        throw error
-      })
+    return this.activateAccounts(
+      () =>
+        this.provider
+          .request({ method: 'eth_requestAccounts' })
+          .catch(() => this.provider.request({ method: 'eth_accounts' })) as Promise<string[]>
+    )
   }
 }
