@@ -77,7 +77,7 @@ export class WalletConnect extends Connector {
     }
     
     const rpcMap = this.rpcMap
-    const resolvedRpcMap = rpcMap ? Object.fromEntries(
+    const rpcBestUrlMap = rpcMap ? Object.fromEntries(
       await Promise.all(
         Object.entries(rpcMap).map(
           async ([chainId, map]): Promise<[string, string]> => [
@@ -98,12 +98,12 @@ export class WalletConnect extends Connector {
       chains.unshift(desiredChainId)
     }
     
-    return (this.eagerConnection = import('@walletconnect/ethereum-provider').then(async (m) => {
-      const provider = this.provider = await m.default.init({
+    return (this.eagerConnection = import('@walletconnect/ethereum-provider').then(async (ethProviderModule) => {
+      const provider = this.provider = await ethProviderModule.default.init({
         ...this.options,
         chains,
         showQrModal: false,
-        rpcMap: resolvedRpcMap,
+        rpcMap: rpcBestUrlMap,
       }) as unknown as MockWalletConnectProvider
       provider.on('disconnect', this.disconnectListener)
       provider.on('chainChanged', this.chainChangedListener)
