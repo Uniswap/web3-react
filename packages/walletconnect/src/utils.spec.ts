@@ -38,14 +38,14 @@ jest.mock('@walletconnect/jsonrpc-provider', () => ({
 }))
 
 describe('getBestUrl', () => {
-  test('works with 1 url (success)', async () => {
-    const url = await getBestUrl(['succeed_0'], 100)
+  test('works with a single string', async () => {
+    const url = await getBestUrl('succeed_0', 100)
     expect(url).toBe('succeed_0')
   })
 
-  test('works with 1 url (failure)', async () => {
-    const url = await getBestUrl(['fail_0'], 100)
-    expect(url).toBe('fail_0')
+  test('works with 1 url (success)', async () => {
+    const url = await getBestUrl(['succeed_0'], 100)
+    expect(url).toBe('succeed_0')
   })
 
   test('works with 2 urls (success/failure)', async () => {

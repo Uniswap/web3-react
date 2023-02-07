@@ -35,7 +35,7 @@ describe('WalletConnect', () => {
     beforeEach(async () => {
       let actions: Actions
       ;[store, actions] = createWeb3ReactStoreAndActions()
-      connector = new WalletConnect({ actions, options: { rpc: {} } })
+      connector = new WalletConnect({ actions, options: { projectId: '', chains: [1] } })
     })
 
     test('#activate', async () => {

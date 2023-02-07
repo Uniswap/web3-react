@@ -2,8 +2,9 @@
  * @param urls - An array of URLs to try to connect to.
  * @param timeout - How long to wait before a call is considered failed, in ms.
  */
-export async function getBestUrl(urls: string[], timeout: number): Promise<string> {
+export async function getBestUrl(urls: string | string[], timeout: number): Promise<string> {
   // if we only have 1 url, it's the best!
+  if (typeof urls === 'string') return urls
   if (urls.length === 1) return urls[0]
 
   const [HttpConnection, JsonRpcProvider] = await Promise.all([

@@ -1,5 +1,4 @@
 import type WalletConnectProvider from '@walletconnect/ethereum-provider'
-import type { IWCEthRpcConnectionOptions } from '@walletconnect/types'
 import type { Actions, ProviderRpcError } from '@web3-react/types'
 import { Connector } from '@web3-react/types'
 import EventEmitter3 from 'eventemitter3'
@@ -10,17 +9,13 @@ export const URI_AVAILABLE = 'URI_AVAILABLE'
 
 type MockWalletConnectProvider = WalletConnectProvider & EventEmitter
 
-function parseChainId(chainId: string | number) {
-  return typeof chainId === 'string' ? Number.parseInt(chainId) : chainId
-}
-
-type WalletConnectOptions = Omit<IWCEthRpcConnectionOptions, 'rpc' | 'infuraId' | 'chainId'> & {
-  rpc: { [chainId: number]: string | string[] }
+// @todo document why `rpcMap` type is changed
+type WalletConnectOptions = Omit<Parameters<typeof WalletConnectProvider.init>[0], 'rpcMap'> & {
+  rpcMap?: { [chainId: number]: string | string[] }
 }
 
 /**
  * @param options - Options to pass to `@walletconnect/ethereum-provider`
- * @param defaultChainId - The chainId to connect to in activate if one is not provided.
  * @param timeout - Timeout, in milliseconds, after which to treat network calls to urls as failed when selecting
  * online urls.
  * @param onError - Handler to report errors thrown from eventListeners.
@@ -28,18 +23,8 @@ type WalletConnectOptions = Omit<IWCEthRpcConnectionOptions, 'rpc' | 'infuraId' 
 export interface WalletConnectConstructorArgs {
   actions: Actions
   options: WalletConnectOptions
-  defaultChainId?: number
   timeout?: number
   onError?: (error: Error) => void
-}
-
-/**
- * @param desiredChainId - The desired chainId to connect to.
- * @param preventUserPrompt - If true, will suppress user-facing interactions and only connect silently.
- */
-export interface ActivateOptions {
-  desiredChainId?: number
-  onlyIfAlreadyConnected?: boolean
 }
 
 export class WalletConnect extends Connector {
@@ -48,23 +33,20 @@ export class WalletConnect extends Connector {
   public readonly events = new EventEmitter3()
 
   private readonly options: Omit<WalletConnectOptions, 'rpc'>
-  private readonly rpc: { [chainId: number]: string[] }
-  private readonly defaultChainId: number
+
+  private readonly rpcMap?: Record<number, string | string[]>
+
   private readonly timeout: number
 
-  private eagerConnection?: Promise<void>
+  private eagerConnection?: Promise<MockWalletConnectProvider>
 
-  constructor({ actions, options, defaultChainId, timeout = 5000, onError }: WalletConnectConstructorArgs) {
+  constructor({ actions, options, timeout = 5000, onError }: WalletConnectConstructorArgs) {
     super(actions, onError)
 
-    const { rpc, ...rest } = options
+    const { rpcMap, ...rest } = options
+
     this.options = rest
-    this.rpc = Object.keys(rpc).reduce<{ [chainId: number]: string[] }>((accumulator, chainId) => {
-      const value = rpc[Number(chainId)]
-      accumulator[Number(chainId)] = Array.isArray(value) ? value : [value]
-      return accumulator
-    }, {})
-    this.defaultChainId = defaultChainId ?? Number(Object.keys(this.rpc)[0])
+    this.rpcMap = rpcMap
     this.timeout = timeout
   }
 
@@ -73,47 +55,49 @@ export class WalletConnect extends Connector {
     if (error) this.onError?.(error)
   }
 
-  private chainChangedListener = (chainId: number | string): void => {
-    this.actions.update({ chainId: parseChainId(chainId) })
+  private chainChangedListener = (chainId: number): void => {
+    this.actions.update({ chainId })
   }
 
   private accountsChangedListener = (accounts: string[]): void => {
     this.actions.update({ accounts })
   }
 
-  private URIListener = (_: Error | null, payload: { params: string[] }): void => {
-    this.events.emit(URI_AVAILABLE, payload.params[0])
+  private URIListener = (uri: string): void => {
+    this.events.emit(URI_AVAILABLE, uri)
   }
 
-  private async isomorphicInitialize(chainId = this.defaultChainId): Promise<void> {
-    if (this.eagerConnection) return
+  private async isomorphicInitialize(): Promise<MockWalletConnectProvider> {
+    if (this.eagerConnection) return this.eagerConnection
 
-    // because we can only use 1 url per chainId, we need to decide between multiple, where necessary
-    const rpc = Promise.all(
-      Object.keys(this.rpc).map(
-        async (chainId): Promise<[number, string]> => [
-          Number(chainId),
-          await getBestUrl(this.rpc[Number(chainId)], this.timeout),
-        ]
+    if (this.provider) {
+      await this.deactivate()
+    }
+    
+    const rpcMap = this.rpcMap
+    const resolvedRpcMap = rpcMap ? Object.fromEntries(
+      await Promise.all(
+        Object.entries(rpcMap).map(
+          async ([chainId, map]): Promise<[string, string]> => [
+            `${chainId}`,
+            await getBestUrl(map, this.timeout),
+          ]
+        )
       )
-    ).then((results) =>
-      results.reduce<{ [chainId: number]: string }>((accumulator, [chainId, url]) => {
-        accumulator[chainId] = url
-        return accumulator
-      }, {})
-    )
-
+    ) : undefined
+    
     return (this.eagerConnection = import('@walletconnect/ethereum-provider').then(async (m) => {
-      this.provider = new m.default({
+      const provider = this.provider = await m.default.init({
         ...this.options,
-        chainId,
-        rpc: await rpc,
+        rpcMap: resolvedRpcMap,
       }) as unknown as MockWalletConnectProvider
 
-      this.provider.on('disconnect', this.disconnectListener)
-      this.provider.on('chainChanged', this.chainChangedListener)
-      this.provider.on('accountsChanged', this.accountsChangedListener)
-      this.provider.connector.on('display_uri', this.URIListener)
+      provider.on('disconnect', this.disconnectListener)
+      provider.on('chainChanged', this.chainChangedListener)
+      provider.on('accountsChanged', this.accountsChangedListener)
+      provider.on('display_uri', this.URIListener)
+      
+      return provider
     }))
   }
 
@@ -121,22 +105,18 @@ export class WalletConnect extends Connector {
   public async connectEagerly(): Promise<void> {
     const cancelActivation = this.actions.startActivation()
 
+    /**
+     * WalletConnect automatically restores the session on `init` and updates the `accounts` and `chainId` properties.
+     * Therefore, it is not neccessary to call `eth_accounts` and `eth_chainId` to get the accounts and chainId.
+     */
     try {
-      await this.isomorphicInitialize()
-      if (!this.provider?.connected) throw Error('No existing connection')
-
-      // for walletconnect, we always use sequential instead of parallel fetches because otherwise
-      // chainId defaults to 1 even if the connecting wallet isn't on mainnet
-      const accounts = await this.provider?.request<string[]>({ method: 'eth_accounts' })
-      if (!accounts.length) throw new Error('No accounts returned')
-      const chainId = await this.provider
-        .request<string | number>({ method: 'eth_chainId' })
-        .then((chainId) => parseChainId(chainId))
-
-      this.actions.update({ chainId, accounts })
-    } catch (error) {
+      const provider = await this.isomorphicInitialize()
+      if (!provider.accounts.length) {
+        throw new Error('No accounts returned')
+      }
+      this.actions.update({ accounts: provider.accounts, chainId: provider.chainId })
+    } finally {
       cancelActivation()
-      throw error
     }
   }
 
@@ -144,10 +124,12 @@ export class WalletConnect extends Connector {
    * @param desiredChainId - The desired chainId to connect to.
    */
   public async activate(desiredChainId?: number): Promise<void> {
-    // this early return clause catches some common cases if activate is called after connection has been established
-    if (this.provider?.connected) {
+    // If we are already have an established session, we should switch chains instead
+    if (this.provider?.session) {
       if (!desiredChainId || desiredChainId === this.provider.chainId) return
-      // beacuse the provider is already connected, we can ignore the suppressUserPrompts
+      if (!this.options.chains.includes(desiredChainId)) {
+        throw new Error(`No rpc configuration for chain ${desiredChainId}`)
+      }
       return this.provider.request<void>({
         method: 'wallet_switchEthereumChain',
         params: [{ chainId: `0x${desiredChainId.toString(16)}` }],
@@ -156,30 +138,26 @@ export class WalletConnect extends Connector {
 
     const cancelActivation = this.actions.startActivation()
 
-    // if we're trying to connect to a specific chain that we're not already initialized for, we have to re-initialize
-    if (desiredChainId && desiredChainId !== this.provider?.chainId) await this.deactivate()
-
     try {
-      await this.isomorphicInitialize(desiredChainId)
+      // @todo we need to provide a way to initialise with a given chain. waiting for an update
+      // whether `desiredChainId` is first item in `chains` array 
+      const provider = await this.isomorphicInitialize()
 
-      const accounts = await this.provider
-        ?.request<string[]>({ method: 'eth_requestAccounts' })
-        // if a user triggers the walletconnect modal, closes it, and then tries to connect again,
-        // the modal will not trigger. by deactivating when this happens, we prevent the bug.
-        .catch(async (error: Error) => {
-          if (error?.message === 'User closed modal') await this.deactivate()
-          throw error
-        })
+      await provider.enable()
 
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      const chainId = await this.provider!.request<string | number>({ method: 'eth_chainId' }).then((chainId) =>
-        parseChainId(chainId)
-      )
-
-      this.actions.update({ chainId, accounts })
-    } catch (error) {
+      // if a user triggers the walletconnect modal, closes it, and then tries to connect again,
+      // the modal will not trigger. by deactivating when this happens, we prevent the bug.
+      //
+      // @todo `provider.enable` no longer throws an error when the user closes the modal.
+      // Find a better way.
+      //
+      // .catch(async (error: Error) => {
+      //   if (error?.message === 'User closed modal') await this.deactivate()
+      //   throw error
+      // })
+      this.actions.update({ chainId: provider.chainId, accounts: provider.accounts })
+    } finally {
       cancelActivation()
-      throw error
     }
   }
 
@@ -188,8 +166,7 @@ export class WalletConnect extends Connector {
     this.provider?.off('disconnect', this.disconnectListener)
     this.provider?.off('chainChanged', this.chainChangedListener)
     this.provider?.off('accountsChanged', this.accountsChangedListener)
-    // we don't unregister the display_uri handler because the walletconnect types/inheritances are really broken.
-    // it doesn't matter, anyway, as the connector object is destroyed
+    this.provider?.off('display_uri', this.URIListener)
     await this.provider?.disconnect()
     this.provider = undefined
     this.eagerConnection = undefined

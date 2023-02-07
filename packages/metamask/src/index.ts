@@ -59,6 +59,7 @@ export class MetaMask extends Connector {
         }
 
         this.provider.on('connect', ({ chainId }: ProviderConnectInfo): void => {
+          console.log(chainId)
           this.actions.update({ chainId: parseChainId(chainId) })
         })
 
@@ -174,6 +175,24 @@ export class MetaMask extends Connector {
         cancelActivation?.()
         throw error
       })
+  }
+
+  public async deactivate() {
+    if (!this.provider) throw new NoMetaMaskError()
+
+    await this.provider.request({
+      method: "wallet_requestPermissions",
+      params: [{
+          eth_accounts: {}
+      }]
+  })
+
+  await this.provider.request({
+    method: 'eth_requestAccounts'
+})
+  
+
+    this.actions.resetState()
   }
 
   public async watchAsset({ address, symbol, decimals, image }: WatchAssetParameters): Promise<true> {
