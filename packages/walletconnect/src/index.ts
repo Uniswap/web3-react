@@ -21,7 +21,7 @@ type WalletConnectOptions = Omit<Parameters<typeof WalletConnectProvider.init>[0
 
 /**
  * @param options - Options to pass to `@walletconnect/ethereum-provider`
-*  @param defaultChainId - The chainId to connect to in activate if one is not provided.
+ * @param defaultChainId - The chainId to connect to in activate if one is not provided.
  * @param timeout - Timeout, in milliseconds, after which to treat network calls to urls as failed when selecting
  * online urls.
  * @param onError - Handler to report errors thrown from eventListeners.
@@ -111,7 +111,6 @@ export class WalletConnect extends Connector {
       const provider = (this.provider = (await ethProviderModule.default.init({
         ...this.options,
         chains,
-        showQrModal: false,
         rpcMap: rpcBestUrlMap,
       })) as unknown as MockWalletConnectProvider)
       provider.on('disconnect', this.disconnectListener)
