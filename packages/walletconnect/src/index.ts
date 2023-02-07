@@ -75,18 +75,17 @@ export class WalletConnect extends Connector {
     if (this.provider) {
       await this.deactivate()
     }
-    
+
     const rpcMap = this.rpcMap
-    const rpcBestUrlMap = rpcMap ? Object.fromEntries(
-      await Promise.all(
-        Object.entries(rpcMap).map(
-          async ([chainId, map]): Promise<[string, string]> => [
-            `${chainId}`,
-            await getBestUrl(map, this.timeout),
-          ]
+    const rpcBestUrlMap = rpcMap
+      ? Object.fromEntries(
+          await Promise.all(
+            Object.entries(rpcMap).map(
+              async ([chainId, map]): Promise<[string, string]> => [`${chainId}`, await getBestUrl(map, this.timeout)]
+            )
+          )
         )
-      )
-    ) : undefined
+      : undefined
 
     const chains = [...this.chains]
     if (desiredChainId) {
@@ -97,14 +96,14 @@ export class WalletConnect extends Connector {
       chains.splice(idx, 1)
       chains.unshift(desiredChainId)
     }
-    
+
     return (this.eagerConnection = import('@walletconnect/ethereum-provider').then(async (ethProviderModule) => {
-      const provider = this.provider = await ethProviderModule.default.init({
+      const provider = (this.provider = (await ethProviderModule.default.init({
         ...this.options,
         chains,
         showQrModal: false,
         rpcMap: rpcBestUrlMap,
-      }) as unknown as MockWalletConnectProvider
+      })) as unknown as MockWalletConnectProvider)
       provider.on('disconnect', this.disconnectListener)
       provider.on('chainChanged', this.chainChangedListener)
       provider.on('accountsChanged', this.accountsChangedListener)
@@ -152,7 +151,7 @@ export class WalletConnect extends Connector {
 
       await provider.enable()
 
-      // @todo this method no longer throws an error but is pending forever. Issue raised. 
+      // @todo this method no longer throws an error but is pending forever. Issue raised.
       //
       // .catch(async (error: Error) => {
       //   if (error?.message === 'User closed modal') await this.deactivate()
