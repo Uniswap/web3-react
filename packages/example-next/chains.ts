@@ -89,7 +89,7 @@ export const MAINNET_CHAINS: ChainConfig = {
 
 export const TESTNET_CHAINS: ChainConfig = {
   5: {
-    urls: [infuraUrl('goerli')].filter((url) => url !== ''),
+    urls: [infuraUrl('goerli')].filter(Boolean),
     name: 'Görli',
   },
   69: {
@@ -105,7 +105,7 @@ export const TESTNET_CHAINS: ChainConfig = {
     blockExplorerUrls: ['https://testnet.arbiscan.io'],
   },
   80001: {
-    urls: [infuraUrl('polygon-mumbai')].filter((url) => url !== ''),
+    urls: [infuraUrl('polygon-mumbai')].filter(Boolean),
     name: 'Polygon Mumbai',
     nativeCurrency: MATIC,
     blockExplorerUrls: ['https://mumbai.polygonscan.com'],
