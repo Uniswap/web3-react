@@ -51,18 +51,19 @@ export function ConnectWithSelect({
   error: Error | undefined
   setError: (error: Error | undefined) => void
 }) {
-  const isNetwork = connector instanceof Network
-  const displayDefault = !isNetwork
   const chainIds = (() => {
-    switch (true) {
-      case isNetwork:
+    switch (connector.constructor) {
+      case Network:
         return Object.keys(URLS)
-      case connector instanceof WalletConnect:
+      case WalletConnect:
         return Object.keys(MAINNET_CHAINS)
       default:
         return Object.keys(CHAINS)
     }
   })().map(Number)
+
+  const isNetwork = connector instanceof Network
+  const displayDefault = !isNetwork
 
   const [desiredChainId, setDesiredChainId] = useState<number>(isNetwork ? 1 : -1)
 
