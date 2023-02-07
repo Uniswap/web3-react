@@ -7,7 +7,7 @@ export const [walletConnect, hooks] = initializeConnector<WalletConnect>(
     new WalletConnect({
       actions,
       options: {
-        projectId: 'a6cc11517a10f6f12953fd67b1eb67e7',
+        projectId: process.env.walletConnectProjectId,
         chains: Object.keys(MAINNET_CHAINS).map(Number),
       },
     })
