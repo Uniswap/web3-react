@@ -5,7 +5,7 @@ import type { MetaMask } from '@web3-react/metamask'
 import { Network } from '@web3-react/network'
 import { WalletConnect } from '@web3-react/walletconnect'
 import { useCallback, useState } from 'react'
-import { CHAINS, getAddChainParameters, URLS } from '../chains'
+import { CHAINS, getAddChainParameters, MAINNET_CHAINS, URLS } from '../chains'
 
 function ChainSelect({
   chainId,
@@ -55,10 +55,10 @@ export function ConnectWithSelect({
   const displayDefault = !isNetwork
   const chainIds = (() => {
     switch (true) {
-      case connector instanceof Network:
+      case isNetwork:
         return Object.keys(URLS)
       case connector instanceof WalletConnect:
-        return connector.options.chains
+        return Object.keys(MAINNET_CHAINS)
       default:
         return Object.keys(CHAINS)
     }
