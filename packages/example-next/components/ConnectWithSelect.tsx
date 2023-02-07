@@ -52,10 +52,10 @@ export function ConnectWithSelect({
   setError: (error: Error | undefined) => void
 }) {
   const chainIds = (() => {
-    switch (connector.constructor) {
-      case Network:
+    switch (true) {
+      case connector instanceof Network:
         return Object.keys(URLS)
-      case WalletConnect:
+      case connector instanceof WalletConnect:
         return Object.keys(MAINNET_CHAINS)
       default:
         return Object.keys(CHAINS)
