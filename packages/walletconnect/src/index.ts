@@ -21,6 +21,7 @@ type WalletConnectOptions = Omit<Parameters<typeof WalletConnectProvider.init>[0
 
 /**
  * @param options - Options to pass to `@walletconnect/ethereum-provider`
+*  @param defaultChainId - The chainId to connect to in activate if one is not provided.
  * @param timeout - Timeout, in milliseconds, after which to treat network calls to urls as failed when selecting
  * online urls.
  * @param onError - Handler to report errors thrown from eventListeners.
@@ -28,6 +29,7 @@ type WalletConnectOptions = Omit<Parameters<typeof WalletConnectProvider.init>[0
 export interface WalletConnectConstructorArgs {
   actions: Actions
   options: WalletConnectOptions
+  defaultChainId?: number
   timeout?: number
   onError?: (error: Error) => void
 }
@@ -41,19 +43,22 @@ export class WalletConnect extends Connector {
 
   private readonly rpcMap?: Record<number, string | string[]>
   private readonly chains: number[]
+  private readonly defaultChainId?: number
 
   private readonly timeout: number
 
   private eagerConnection?: Promise<MockWalletConnectProvider>
 
-  constructor({ actions, options, timeout = 5000, onError }: WalletConnectConstructorArgs) {
+  constructor({ actions, options, defaultChainId, timeout = 5000, onError }: WalletConnectConstructorArgs) {
     super(actions, onError)
 
     const { rpcMap, chains, ...rest } = options
 
     this.options = rest
     this.chains = chains
+    this.defaultChainId = defaultChainId
     this.rpcMap = rpcMap
+
     this.timeout = timeout
   }
 
@@ -74,7 +79,7 @@ export class WalletConnect extends Connector {
     this.events.emit(URI_AVAILABLE, uri)
   }
 
-  private async isomorphicInitialize(desiredChainId?: number): Promise<MockWalletConnectProvider> {
+  private async isomorphicInitialize(desiredChainId: number | undefined = this.defaultChainId): Promise<MockWalletConnectProvider> {
     if (this.eagerConnection) return this.eagerConnection
 
     if (this.provider) {
