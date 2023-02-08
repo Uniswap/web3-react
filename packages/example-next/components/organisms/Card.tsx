@@ -98,7 +98,7 @@ export function Card({
         addingChain={addingChain}
         switchingChain={switchingChain}
       />
-      <WatchAssetView connector={connector} chainId={chainId} watchingAsset={watchingAsset} />
+      {isActive && <WatchAssetView connector={connector} chainId={chainId} watchingAsset={watchingAsset} />}
       {children && (
         <>
           <SpacerView />

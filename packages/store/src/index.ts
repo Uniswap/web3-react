@@ -92,9 +92,15 @@ export function createWeb3ReactStoreAndActions(): [Web3ReactStore, Actions] {
       // these properties may be set to undefined
       const stateUpdatePropertyNames = Object.getOwnPropertyNames(stateUpdate)
 
-      const accountIndex = stateUpdatePropertyNames.includes('accountIndex')
+      let accountIndex = stateUpdatePropertyNames.includes('accountIndex')
         ? stateUpdate.accountIndex
         : existingState.accountIndex
+
+      // ensure we assign an account index if there are accounts
+      if (!accountIndex && !!accounts?.length) {
+        accountIndex = 0
+      }
+
       const addingChain = stateUpdatePropertyNames.includes('addingChain')
         ? stateUpdate.addingChain
         : existingState.addingChain

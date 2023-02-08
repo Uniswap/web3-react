@@ -4,7 +4,7 @@ import type { NamiProvider } from '@web3-react/nami'
 import { useCallback, useEffect, useState } from 'react'
 
 import { BigNumber } from '@ethersproject/bignumber'
-import { JsonRpcProvider } from '@ethersproject/providers'
+import { Web3Provider } from '@ethersproject/providers'
 
 import { Web3ReactHooks } from '@web3-react/core'
 
@@ -278,7 +278,7 @@ export function useSignMessage({
   onRejected,
 }: {
   connector?: Connector
-  provider?: JsonRpcProvider
+  provider?: Web3Provider
   account?: string
   onSigned?: () => void
   onRejected?: () => void

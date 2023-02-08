@@ -19,6 +19,7 @@ import WalletConnectCard from './connectorCards/WalletConnectCard'
 import YoroiWalletCard from './connectorCards/YoroiWalletCard'
 import Tabs from '../molecules/Tabs'
 
+const tabTitles = ['All', 'EVM', 'Cardano', 'Solana', 'Tron']
 const tabIndex = {
   ALL: 0,
   EVM: 1,
@@ -26,7 +27,7 @@ const tabIndex = {
   Solana: 3,
   Tron: 4,
 }
-const tabTitles = ['All', 'EVM', 'Cardano', 'Solana', 'Tron']
+
 const tabChainIds = [
   0,
   ethMainChainId, // Using ETH icon for all EVMs
@@ -43,16 +44,20 @@ export default function CardContainer() {
   const handleSelectedIndex = (index: number) => {
     let connector: Connector
 
-    if (!tabChainIds[index]) {
+    if (!index) {
       setSelectedConnector()
-    } else if (tabChainIds[index] === ethMainChainId) {
-      connector = evmConnectors.find(([connector]) => !!connector.getState().accounts.length)?.[0]
-    } else if (tabChainIds[index] === cardanoMainChainId) {
-      connector = cardanoConnectors.find(([connector]) => !connector.getState().accounts.length)?.[0]
-    } else if (tabChainIds[index] === solMainChainId) {
-      connector = solanaConnectors.find(([connector]) => !connector.getState().accounts.length)?.[0]
-    } else if (tabChainIds[index] === tronMainChainId) {
-      connector = tronConnectors.find(([connector]) => !connector.getState().accounts.length)?.[0]
+    } else if (index === tabIndex.EVM) {
+      connector =
+        evmConnectors.find(([connector]) => !!connector.getState().accounts?.length)?.[0] ?? evmConnectors[0][0]
+    } else if (index === tabIndex.Cardano) {
+      connector =
+        cardanoConnectors.find(([connector]) => !!connector.getState().accounts?.length)?.[0] ?? cardanoConnectors[0][0]
+    } else if (index === tabIndex.Solana) {
+      connector =
+        solanaConnectors.find(([connector]) => !!connector.getState().accounts?.length)?.[0] ?? solanaConnectors[0][0]
+    } else if (index === tabIndex.Tron) {
+      connector =
+        tronConnectors.find(([connector]) => !!connector.getState().accounts?.length)?.[0] ?? tronConnectors[0][0]
     }
 
     setSelectedConnector(connector)
@@ -66,14 +71,26 @@ export default function CardContainer() {
 
   return (
     <div>
-      <Tabs
-        data={tabTitles.map((title, index) => ({
-          title,
-          iconUrl: index === 0 ? undefined : getImageUrlFromTrust(tabChainIds[index]),
-        }))}
-        selectedIndex={selectedIndex}
-        setSelectedIndex={handleSelectedIndex}
-      />
+      <div
+        style={{
+          padding: '1rem',
+          margin: '1rem',
+          overflow: 'hidden',
+          border: '1px solid',
+          borderRadius: '1rem',
+          borderColor: '#30363d',
+          backgroundColor: 'rgb(14,16,22)',
+        }}
+      >
+        <Tabs
+          data={tabTitles.map((title, index) => ({
+            title,
+            iconUrl: index === 0 ? undefined : getImageUrlFromTrust(tabChainIds[index]),
+          }))}
+          selectedIndex={selectedIndex}
+          setSelectedIndex={handleSelectedIndex}
+        />
+      </div>
       <div
         className="bg-gray-500"
         style={{

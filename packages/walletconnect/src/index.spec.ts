@@ -50,14 +50,18 @@ describe('WalletConnect', () => {
       expect(mockProvider.eth_requestAccounts).toHaveBeenCalled()
       expect(mockProvider.eth_accounts).not.toHaveBeenCalled()
       expect(mockProvider.eth_chainId_number).toHaveBeenCalled()
-      expect(mockProvider.eth_chainId_number.mock.invocationCallOrder[0])
-        .toBeGreaterThan(mockProvider.eth_requestAccounts.mock.invocationCallOrder[0])
+      expect(mockProvider.eth_chainId_number.mock.invocationCallOrder[0]).toBeGreaterThan(
+        mockProvider.eth_requestAccounts.mock.invocationCallOrder[0]
+      )
 
       expect(store.getState()).toEqual({
         chainId: Number.parseInt(chainId, 16),
         accounts,
         activating: false,
         error: undefined,
+        addingChain: undefined,
+        switchingChain: undefined,
+        watchingAsset: undefined,
       })
     })
   })

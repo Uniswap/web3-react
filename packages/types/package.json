@@ -22,12 +22,10 @@
     "build": "tsc",
     "start": "tsc --watch"
   },
-  "dependencies": {
-    "@reduxjs/toolkit": "^1.9.2",
-    "zustand": "^4.3.2"
-  },
   "devDependencies": {
     "@ethersproject/networks": "^5.7.1",
-    "@ethersproject/providers": "^5.7.2"
+    "@ethersproject/providers": "^5.7.2",
+    "@reduxjs/toolkit": "^1.9.2",
+    "zustand": "^4.3.2"
   }
 }

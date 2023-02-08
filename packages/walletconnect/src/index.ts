@@ -183,7 +183,7 @@ export class WalletConnect extends Connector {
 
       this.actions.update({
         chainId: this.parseChainId(chainId),
-        accounts: accounts ?? [],
+        accounts: accounts,
         accountIndex: accounts?.length ? 0 : undefined,
       })
     } catch (error) {

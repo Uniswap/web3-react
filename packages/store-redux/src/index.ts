@@ -1,12 +1,4 @@
-import type {
-  Actions,
-  Web3ReactState,
-  Web3ReactStateUpdate,
-  Web3ReactReduxStore,
-  AddingChainInfo,
-  SwitchingChainInfo,
-  WatchAssetParameters,
-} from '@web3-react/types'
+import type { Actions, Web3ReactState, Web3ReactStateUpdate, Web3ReactReduxStore } from '@web3-react/types'
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { configureStore, createSlice } from '@reduxjs/toolkit'
 import { getAddress } from '@ethersproject/address'
@@ -38,27 +30,6 @@ const DEFAULT_STATE: Web3ReactState = {
   watchingAsset: undefined,
 }
 
-export type Web3ReactStateUpdateExtended =
-  | Web3ReactStateUpdate
-  | {
-      activating: boolean
-      chainId?: never
-      accounts?: never
-      accountIndex?: never
-      addingChain?: never
-      switchingChain: undefined
-      watchingAsset: undefined
-    }
-  | {
-      activating: boolean
-      chainId: number | undefined
-      accounts: string[] | undefined
-      accountIndex: number | undefined
-      addingChain: AddingChainInfo | undefined
-      switchingChain: SwitchingChainInfo | undefined
-      watchingAsset: WatchAssetParameters | undefined
-    }
-
 export function createWeb3ReactStoreAndActions(connectorName?: string): [Web3ReactReduxStore, Actions] {
   const web3ReactSlice = createSlice({
     name: connectorName ?? 'Web3React',
@@ -66,7 +37,7 @@ export function createWeb3ReactStoreAndActions(connectorName?: string): [Web3Rea
     reducers: {
       update: (
         existingState: Web3ReactState,
-        action: PayloadAction<Web3ReactStateUpdateExtended & { skipValidation?: boolean }>
+        action: PayloadAction<Web3ReactStateUpdate & { skipValidation?: boolean }>
       ) => {
         const stateUpdate = action.payload
 
@@ -87,7 +58,7 @@ export function createWeb3ReactStoreAndActions(connectorName?: string): [Web3Rea
         const accounts = stateUpdate.accounts ?? existingState.accounts
 
         // ensure that the activating flag is cleared when appropriate
-        let activating = existingState.activating
+        let activating = stateUpdate.activating ?? existingState.activating
         if (activating && chainId && accounts) {
           activating = false
         }
@@ -95,9 +66,15 @@ export function createWeb3ReactStoreAndActions(connectorName?: string): [Web3Rea
         // these properties may be set to undefined
         const stateUpdatePropertyNames = Object.getOwnPropertyNames(stateUpdate)
 
-        const accountIndex = stateUpdatePropertyNames.includes('accountIndex')
+        let accountIndex = stateUpdatePropertyNames.includes('accountIndex')
           ? stateUpdate.accountIndex
           : existingState.accountIndex
+
+        // ensure we assign an account index if there are accounts
+        if (!accountIndex && !!accounts?.length) {
+          accountIndex = 0
+        }
+
         const addingChain = stateUpdatePropertyNames.includes('addingChain')
           ? stateUpdate.addingChain
           : existingState.addingChain
@@ -130,12 +107,14 @@ export function createWeb3ReactStoreAndActions(connectorName?: string): [Web3Rea
     },
   })
 
-  const store = configureStore({ reducer: web3ReactSlice.reducer })
+  const store = configureStore({ reducer: web3ReactSlice.reducer, devTools: { name: connectorName } })
 
   const { update, resetState } = web3ReactSlice.actions
 
   const actions: Actions = {
     startActivation: (): (() => Web3ReactState) => {
+      store.dispatch(update({ activating: true }))
+
       // return a function that cancels the activation if nothing else has happened
       return (): Web3ReactState => {
         store.dispatch(update({ activating: false, addingChain: undefined, switchingChain: undefined }))

@@ -143,11 +143,11 @@ export class MetaMask extends Connector {
       // chains; they should be requested serially, with accounts first, so that the chainId can settle.
       const baseAccounts = (await this.provider.request({ method: 'eth_accounts' })) as string[]
       if (!baseAccounts.length) throw new Error('No accounts returned')
-      const chainId = (await this.provider.request({ method: 'eth_chainId' })) as string
 
       const accounts = (await this.getAccounts()) ?? baseAccounts
-
       if (!accounts.length) throw new Error('No accounts returned')
+
+      const chainId = (await this.provider.request({ method: 'eth_chainId' })) as string
 
       const index = accounts.indexOf(this?.selectedAddress ?? '')
 
@@ -177,27 +177,29 @@ export class MetaMask extends Connector {
   public async activate(desiredChainIdOrChainParameters?: number | AddEthereumChainParameter): Promise<Web3ReactState> {
     const cancelActivation = this.selectedAddress ? null : this.actions.startActivation()
 
-    await this.isomorphicInitialize()
-
-    if (!this.provider) throw new NoMetaMaskError()
-
-    const desiredChainId =
-      typeof desiredChainIdOrChainParameters === 'number'
-        ? desiredChainIdOrChainParameters
-        : desiredChainIdOrChainParameters?.chainId
-
     try {
+      await this.isomorphicInitialize()
+
+      if (!this.provider) throw new NoMetaMaskError()
+
+      const baseAccounts = (await this.provider.request({ method: 'eth_requestAccounts' })) as string[]
+
+      // Check if we have access to get all connected accounts as per EIP-2255
+      const accounts: string[] = (await this.getAccounts()) ?? baseAccounts
+
+      // Get the account index
+      const index = accounts.indexOf(this?.selectedAddress ?? '')
+
+      // Request chainId after account request, incase user changes chain during process
       const currentChainId = this.parseChainId((await this.provider.request({ method: 'eth_chainId' })) as string)
 
+      const desiredChainId =
+        typeof desiredChainIdOrChainParameters === 'number'
+          ? desiredChainIdOrChainParameters
+          : desiredChainIdOrChainParameters?.chainId
+
       // We're on the chainId we need, go ahead and connect
-      if (!desiredChainIdOrChainParameters || !desiredChainId || currentChainId === desiredChainId) {
-        const baseAccounts = (await this.provider.request({ method: 'eth_requestAccounts' })) as string[]
-
-        // Check if we have access to get all connected accounts as per EIP-2255
-        const accounts: string[] = (await this.getAccounts()) ?? baseAccounts
-
-        const index = accounts.indexOf(this?.selectedAddress ?? '')
-
+      if (!desiredChainId || currentChainId === desiredChainId) {
         return this.actions.update({
           chainId: currentChainId,
           accounts,
@@ -206,7 +208,7 @@ export class MetaMask extends Connector {
       }
 
       // Attempt to add/switch the chain to the desired chain
-      await this.switchChain(desiredChainIdOrChainParameters, currentChainId)
+      await this.switchChain(desiredChainId, currentChainId)
 
       // Reattempt connection now being on the correct chainId
       return this.activate(desiredChainId)

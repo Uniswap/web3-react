@@ -1,4 +1,4 @@
-import type { ProviderRpcError, RequestArguments } from '@web3-react/types'
+import type { ProviderRpcError, RequestArguments, Web3WalletPermission } from '@web3-react/types'
 import { EventEmitter } from 'node:events'
 
 export class MockEIP1193Provider extends EventEmitter {
@@ -8,6 +8,7 @@ export class MockEIP1193Provider extends EventEmitter {
   public eth_chainId = jest.fn((chainId?: string) => chainId)
   public eth_accounts = jest.fn((accounts?: string[]) => accounts)
   public eth_requestAccounts = jest.fn((accounts?: string[]) => accounts)
+  public wallet_getPermissions = jest.fn((permissions?: Web3WalletPermission[]) => permissions)
 
   public request(x: RequestArguments): Promise<unknown> {
     // make sure to throw if we're "not connected"
@@ -20,6 +21,8 @@ export class MockEIP1193Provider extends EventEmitter {
         return Promise.resolve(this.eth_accounts(this.accounts))
       case 'eth_requestAccounts':
         return Promise.resolve(this.eth_requestAccounts(this.accounts))
+      // case 'wallet_getPermissions':
+      //   return Promise.resolve(this.wallet_getPermissions(this.accounts))
       default:
         throw new Error()
     }

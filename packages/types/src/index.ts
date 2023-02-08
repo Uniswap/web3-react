@@ -23,155 +23,59 @@ export interface Web3ReactState {
   watchingAsset: WatchAssetParameters | undefined
 }
 
+export type Web3ReactStateUpdate = Partial<Web3ReactState>
+
 export type Web3ReactReduxStore = EnhancedStore<Web3ReactState>
 export type Web3ReactStore = StoreApi<Web3ReactState>
 
-export type Web3ReactSelectors = {
-  useStore: (connector: Connector) => Web3ReactReduxStore
-  useChainId: (connector: Connector) => number | undefined
-  useAccounts: (connector: Connector) => string[] | undefined
-  useAccountIndex: (connector: Connector) => number | undefined
-  useIsActivating: (connector: Connector) => boolean | undefined
-  useAccount: (connector: Connector) => string | undefined
-  useIsActive: (connector: Connector) => boolean | undefined
-  useProvider<T extends BaseProvider = Web3Provider>(connector?: Connector, network?: Networkish): T | undefined
-  useENSNames: (connector: Connector, provider?: BaseProvider) => (string | null)[] | undefined
-  useENSName: (connector: Connector, provider?: BaseProvider) => undefined | string | null
-  useENSAvatars: (
+export type Web3SelectedSelectors = {
+  useSelectedStore: (connector: Connector) => Web3ReactReduxStore
+  useSelectedChainId: (connector: Connector) => number | undefined
+  useSelectedAccounts: (connector: Connector) => string[] | undefined
+  useSelectedAccountIndex: (connector: Connector) => number | undefined
+  useSelectedIsActivating: (connector: Connector) => boolean | undefined
+  useSelectedAccount: (connector: Connector) => string | undefined
+  useSelectedIsActive: (connector: Connector) => boolean | undefined
+  useSelectedProvider: <T extends BaseProvider = Web3Provider>(
+    connector: Connector,
+    network?: Networkish
+  ) => T | undefined
+  useSelectedENSNames: (connector: Connector, provider?: BaseProvider) => (string | null)[] | undefined
+  useSelectedENSName: (connector: Connector, provider?: BaseProvider) => undefined | string | null
+  useSelectedENSAvatars: (
     connector: Connector,
     provider?: BaseProvider,
     ensNames?: (string | null)[]
   ) => (string | null)[] | undefined
-  useENSAvatar: (
+  useSelectedENSAvatar: (
     connector: Connector,
     provider?: BaseProvider,
     ensName?: undefined | string | null
   ) => undefined | string | null
-  useAddingChain: (connector: Connector) => AddingChainInfo | undefined
-  useSwitchingChain: (connector: Connector) => SwitchingChainInfo | undefined
-  useWatchingAsset: (connector: Connector) => WatchAssetParameters | undefined
-}
-
-export type Web3SelectedSelectors = {
-  useSelectedStore: Web3ReactSelectors['useStore']
-  useSelectedChainId: Web3ReactSelectors['useChainId']
-  useSelectedAccounts: Web3ReactSelectors['useAccounts']
-  useSelectedAccountIndex: Web3ReactSelectors['useAccountIndex']
-  useSelectedIsActivating: Web3ReactSelectors['useIsActivating']
-  useSelectedAccount: Web3ReactSelectors['useAccount']
-  useSelectedIsActive: Web3ReactSelectors['useIsActive']
-  useSelectedProvider: Web3ReactSelectors['useProvider']
-  useSelectedENSNames: Web3ReactSelectors['useENSNames']
-  useSelectedENSName: Web3ReactSelectors['useENSName']
-  useSelectedENSAvatars: Web3ReactSelectors['useENSAvatars']
-  useSelectedENSAvatar: Web3ReactSelectors['useENSAvatar']
-  useSelectedAddingChain: Web3ReactSelectors['useAddingChain']
-  useSelectedSwitchingChain: Web3ReactSelectors['useSwitchingChain']
-  useSelectedWatchingAsset: Web3ReactSelectors['useWatchingAsset']
+  useSelectedAddingChain: (connector: Connector) => AddingChainInfo | undefined
+  useSelectedSwitchingChain: (connector: Connector) => SwitchingChainInfo | undefined
+  useSelectedWatchingAsset: (connector: Connector) => WatchAssetParameters | undefined
 }
 
 export type Web3PrioritySelectors = {
   usePriorityConnector: () => Connector
 
-  usePriorityStore: Web3ReactSelectors['useStore']
-  usePriorityChainId: Web3ReactSelectors['useChainId']
-  usePriorityAccounts: Web3ReactSelectors['useAccounts']
-  usePriorityAccountIndex: Web3ReactSelectors['useAccountIndex']
-  usePriorityIsActivating: Web3ReactSelectors['useIsActivating']
-  usePriorityAccount: Web3ReactSelectors['useAccount']
-  usePriorityIsActive: Web3ReactSelectors['useIsActive']
-  usePriorityProvider: Partial<Web3ReactSelectors['useProvider']>
-  usePriorityENSNames: Partial<Web3ReactSelectors['useENSNames']>
-  usePriorityENSName: Partial<Web3ReactSelectors['useENSName']>
-  usePriorityENSAvatars: Partial<Web3ReactSelectors['useENSAvatars']>
-  usePriorityENSAvatar: Partial<Web3ReactSelectors['useENSAvatar']>
-  usePriorityAddingChain: Web3ReactSelectors['useAddingChain']
-  usePrioritySwitchingChain: Web3ReactSelectors['useSwitchingChain']
-  usePriorityWatchingAsset: Web3ReactSelectors['useWatchingAsset']
+  usePriorityStore: () => Web3ReactReduxStore
+  usePriorityChainId: () => number | undefined
+  usePriorityAccounts: () => string[] | undefined
+  usePriorityAccountIndex: () => number | undefined
+  usePriorityIsActivating: () => boolean | undefined
+  usePriorityAccount: () => string | undefined
+  usePriorityIsActive: () => boolean | undefined
+  usePriorityProvider: <T extends BaseProvider = Web3Provider>(network?: Networkish) => T | undefined
+  usePriorityENSNames: (provider?: BaseProvider) => (string | null)[] | undefined
+  usePriorityENSName: (provider?: BaseProvider) => undefined | string | null
+  usePriorityENSAvatars: (provider?: BaseProvider, ensNames?: (string | null)[]) => (string | null)[] | undefined
+  usePriorityENSAvatar: (provider?: BaseProvider, ensName?: undefined | string | null) => undefined | string | null
+  usePriorityAddingChain: () => AddingChainInfo | undefined
+  usePrioritySwitchingChain: () => SwitchingChainInfo | undefined
+  usePriorityWatchingAsset: () => WatchAssetParameters | undefined
 }
-
-export type Web3ReactStateUpdate =
-  // chainId
-  | {
-      chainId: number
-      accounts?: never
-      accountIndex?: never
-      addingChain?: never
-      switchingChain?: never
-      watchingAsset?: never
-    }
-  // accounts
-  | {
-      chainId?: never
-      accounts: string[]
-      accountIndex?: never
-      addingChain?: never
-      switchingChain?: never
-      watchingAsset?: never
-    }
-  // chainId, accounts
-  | {
-      chainId: number
-      accounts: string[]
-      accountIndex?: never
-      addingChain?: never
-      switchingChain?: never
-      watchingAsset?: never
-    }
-  // accounts, accountIndex
-  | {
-      chainId?: never
-      accounts?: string[]
-      accountIndex: number | undefined
-      addingChain?: never
-      switchingChain?: never
-      watchingAsset?: never
-    }
-  // chainId, accounts, accountIndex
-  | {
-      chainId: number
-      accounts?: string[]
-      accountIndex: number | undefined
-      addingChain?: never
-      switchingChain?: never
-      watchingAsset?: never
-    }
-  // addingChain
-  | {
-      chainId?: never
-      accounts?: never
-      accountIndex?: never
-      addingChain: AddingChainInfo | undefined
-      switchingChain?: never
-      watchingAsset?: never
-    }
-  // switchingChain
-  | {
-      chainId?: never
-      accounts?: never
-      accountIndex?: never
-      addingChain?: never
-      switchingChain: SwitchingChainInfo | undefined
-      watchingAsset?: never
-    }
-  // addingChain, switchingChain
-  | {
-      chainId?: never
-      accounts?: never
-      accountIndex?: never
-      addingChain: AddingChainInfo | undefined
-      switchingChain: SwitchingChainInfo | undefined
-      watchingAsset?: never
-    }
-  // watchingAsset
-  | {
-      chainId?: never
-      accounts?: never
-      accountIndex?: never
-      addingChain?: never
-      switchingChain?: never
-      watchingAsset: WatchAssetParameters | undefined
-    }
 
 export interface Actions {
   startActivation: () => () => Web3ReactState

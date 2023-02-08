@@ -28,6 +28,9 @@ describe('Url', () => {
         accounts: undefined,
         activating: false,
         error: undefined,
+        addingChain: undefined,
+        switchingChain: undefined,
+        watchingAsset: undefined,
       })
     })
 

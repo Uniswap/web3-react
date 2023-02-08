@@ -1,5 +1,4 @@
-import { createWeb3ReactStoreAndActions } from '@web3-react/store/src'
-import { MAX_SAFE_CHAIN_ID } from './validators'
+import { createWeb3ReactStoreAndActions, MAX_SAFE_CHAIN_ID } from '.'
 
 describe('#createWeb3ReactStoreAndActions', () => {
   test('uninitialized', () => {
@@ -7,8 +6,12 @@ describe('#createWeb3ReactStoreAndActions', () => {
     expect(store.getState()).toEqual({
       chainId: undefined,
       accounts: undefined,
+      accountIndex: undefined,
       activating: false,
       error: undefined,
+      addingChain: undefined,
+      switchingChain: undefined,
+      watchingAsset: undefined,
     })
   })
 
@@ -19,8 +22,12 @@ describe('#createWeb3ReactStoreAndActions', () => {
       expect(store.getState()).toEqual({
         chainId: undefined,
         accounts: undefined,
+        accountIndex: undefined,
         activating: true,
         error: undefined,
+        addingChain: undefined,
+        switchingChain: undefined,
+        watchingAsset: undefined,
       })
     })
 
@@ -33,8 +40,12 @@ describe('#createWeb3ReactStoreAndActions', () => {
       expect(store.getState()).toEqual({
         chainId: undefined,
         accounts: undefined,
+        accountIndex: undefined,
         activating: false,
         error: undefined,
+        addingChain: undefined,
+        switchingChain: undefined,
+        watchingAsset: undefined,
       })
     })
   })
@@ -59,8 +70,12 @@ describe('#createWeb3ReactStoreAndActions', () => {
       expect(store.getState()).toEqual({
         chainId,
         accounts: undefined,
+        accountIndex: undefined,
         activating: false,
         error: undefined,
+        addingChain: undefined,
+        switchingChain: undefined,
+        watchingAsset: undefined,
       })
     })
 
@@ -72,8 +87,12 @@ describe('#createWeb3ReactStoreAndActions', () => {
         expect(store.getState()).toEqual({
           chainId: undefined,
           accounts,
+          accountIndex: undefined,
           activating: false,
           error: undefined,
+          addingChain: undefined,
+          switchingChain: undefined,
+          watchingAsset: undefined,
         })
       })
 
@@ -84,8 +103,12 @@ describe('#createWeb3ReactStoreAndActions', () => {
         expect(store.getState()).toEqual({
           chainId: undefined,
           accounts,
+          accountIndex: 0,
           activating: false,
           error: undefined,
+          addingChain: undefined,
+          switchingChain: undefined,
+          watchingAsset: undefined,
         })
       })
 
@@ -96,8 +119,12 @@ describe('#createWeb3ReactStoreAndActions', () => {
         expect(store.getState()).toEqual({
           chainId: undefined,
           accounts,
+          accountIndex: 0,
           activating: false,
           error: undefined,
+          addingChain: undefined,
+          switchingChain: undefined,
+          watchingAsset: undefined,
         })
       })
     })
@@ -110,8 +137,12 @@ describe('#createWeb3ReactStoreAndActions', () => {
       expect(store.getState()).toEqual({
         chainId,
         accounts,
+        accountIndex: undefined,
         activating: false,
         error: undefined,
+        addingChain: undefined,
+        switchingChain: undefined,
+        watchingAsset: undefined,
       })
     })
 
@@ -123,8 +154,12 @@ describe('#createWeb3ReactStoreAndActions', () => {
       expect(store.getState()).toEqual({
         chainId,
         accounts: undefined,
+        accountIndex: undefined,
         activating: true,
         error: undefined,
+        addingChain: undefined,
+        switchingChain: undefined,
+        watchingAsset: undefined,
       })
     })
 
@@ -136,8 +171,12 @@ describe('#createWeb3ReactStoreAndActions', () => {
       expect(store.getState()).toEqual({
         chainId: undefined,
         accounts,
+        accountIndex: undefined,
         activating: true,
         error: undefined,
+        addingChain: undefined,
+        switchingChain: undefined,
+        watchingAsset: undefined,
       })
     })
 
@@ -150,8 +189,12 @@ describe('#createWeb3ReactStoreAndActions', () => {
       expect(store.getState()).toEqual({
         chainId,
         accounts,
+        accountIndex: undefined,
         activating: false,
         error: undefined,
+        addingChain: undefined,
+        switchingChain: undefined,
+        watchingAsset: undefined,
       })
     })
   })

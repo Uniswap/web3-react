@@ -5,7 +5,6 @@ import type {
   Connector,
   Web3ReactState,
   Web3ReactReduxStore,
-  Web3ReactSelectors,
   Web3SelectedSelectors,
   Web3PrioritySelectors,
 } from '@web3-react/types'
@@ -30,9 +29,9 @@ export type Web3ReactHooks = ReturnType<typeof getStateHooks> &
   ReturnType<typeof getDerivedHooks> &
   ReturnType<typeof getAugmentedHooks>
 
-export type Web3ReactSelectedHooks = ReturnType<typeof getSelectedConnector>
+export type Web3ReactSelectedHooks = ReturnType<typeof getSelectedConnectorHooks>
 
-export type Web3ReactPriorityHooks = ReturnType<typeof getPriorityConnector>
+export type Web3ReactPriorityHooks = ReturnType<typeof getPriorityConnectorHooks>
 
 /**
  * Wraps the initialization of a `connector`. Creates a redux `store` with `actions` bound to it, and then passes
@@ -67,16 +66,16 @@ function computeIsActive({ chainId, accounts, activating }: Partial<Web3ReactSta
  * @param initializedConnectors - Two or more [connector, hooks(, store)] arrays, as returned from initializeConnector.
  * @returns hooks - A variety of convenience hooks that wrap the hooks returned from initializeConnector.
  */
-export function getSelectedConnector(
+export function getSelectedConnectorHooks(
   ...initializedConnectors: [Connector, Web3ReactHooks][] | [Connector, Web3ReactHooks, Web3ReactReduxStore][]
 ): Web3SelectedSelectors {
-  function getIndex(connector: Connector) {
+  const getIndex = (connector: Connector) => {
     const index = initializedConnectors.findIndex(([initializedConnector]) => connector === initializedConnector)
     if (index === -1) throw new Error('Connector not found')
     return index
   }
 
-  function useSelectedStore(connector: Connector): ReturnType<Web3ReactSelectors['useStore']> {
+  const useSelectedStore = (connector: Connector) => {
     const store = initializedConnectors[getIndex(connector)][2]
     if (!store) throw new Error('Stores not passed')
     return store
@@ -84,37 +83,37 @@ export function getSelectedConnector(
 
   // the following code calls hooks in a map a lot, which violates the eslint rule.
   // this is ok, though, because initializedConnectors never changes, so the same hooks are called each time
-  function useSelectedChainId(connector: Connector): ReturnType<Web3ReactSelectors['useChainId']> {
+  const useSelectedChainId = (connector: Connector) => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const values = initializedConnectors.map(([, { useChainId }]) => useChainId())
     return values[getIndex(connector)]
   }
 
-  function useSelectedAccounts(connector: Connector): ReturnType<Web3ReactSelectors['useAccounts']> {
+  const useSelectedAccounts = (connector: Connector) => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const values = initializedConnectors.map(([, { useAccounts }]) => useAccounts())
     return values[getIndex(connector)]
   }
 
-  function useSelectedAccountIndex(connector: Connector): ReturnType<Web3ReactSelectors['useAccountIndex']> {
+  const useSelectedAccountIndex = (connector: Connector) => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const values = initializedConnectors.map(([, { useAccountIndex }]) => useAccountIndex())
     return values[getIndex(connector)]
   }
 
-  function useSelectedIsActivating(connector: Connector): ReturnType<Web3ReactSelectors['useIsActivating']> {
+  const useSelectedIsActivating = (connector: Connector) => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const values = initializedConnectors.map(([, { useIsActivating }]) => useIsActivating())
     return values[getIndex(connector)]
   }
 
-  function useSelectedAccount(connector: Connector): ReturnType<Web3ReactSelectors['useAccount']> {
+  const useSelectedAccount = (connector: Connector) => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const values = initializedConnectors.map(([, { useAccount }]) => useAccount())
     return values[getIndex(connector)]
   }
 
-  function useSelectedIsActive(connector: Connector): ReturnType<Web3ReactSelectors['useIsActive']> {
+  const useSelectedIsActive = (connector: Connector) => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const values = initializedConnectors.map(([, { useIsActive }]) => useIsActive())
     return values[getIndex(connector)]
@@ -122,23 +121,20 @@ export function getSelectedConnector(
 
   /**
    * @typeParam T - A type argument must only be provided if one or more of the connectors passed to
-   * getSelectedConnector is using `connector.customProvider`, in which case it must match every possible type of this
+   * getSelectedConnectorHooks is using `connector.customProvider`, in which case it must match every possible type of this
    * property, over all connectors.
    */
-  function useSelectedProvider<T extends BaseProvider = Web3Provider>(
+  const useSelectedProvider = <T extends BaseProvider = Web3Provider>(
     connector: Connector,
     network?: Networkish
-  ): T | undefined {
+  ): T | undefined => {
     const index = getIndex(connector)
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const values = initializedConnectors.map(([, { useProvider }], i) => useProvider<T>(network, i === index))
     return values[index]
   }
 
-  function useSelectedENSNames(
-    connector: Connector,
-    provider?: BaseProvider
-  ): ReturnType<Web3ReactSelectors['useENSNames']> {
+  const useSelectedENSNames = (connector: Connector, provider?: BaseProvider) => {
     const index = getIndex(connector)
     const values = initializedConnectors.map(([, { useENSNames }], i) =>
       // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -147,21 +143,14 @@ export function getSelectedConnector(
     return values[index]
   }
 
-  function useSelectedENSName(
-    connector: Connector,
-    provider?: BaseProvider
-  ): ReturnType<Web3ReactSelectors['useENSName']> {
+  const useSelectedENSName = (connector: Connector, provider?: BaseProvider) => {
     const index = getIndex(connector)
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const values = initializedConnectors.map(([, { useENSName }], i) => useENSName(i === index ? provider : undefined))
     return values[index]
   }
 
-  function useSelectedENSAvatars(
-    connector: Connector,
-    provider?: BaseProvider,
-    ensNames?: (string | null)[]
-  ): ReturnType<Web3ReactSelectors['useENSAvatars']> {
+  const useSelectedENSAvatars = (connector: Connector, provider?: BaseProvider, ensNames?: (string | null)[]) => {
     const index = getIndex(connector)
     const values = initializedConnectors.map(([, { useENSAvatars }], i) =>
       // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -170,11 +159,7 @@ export function getSelectedConnector(
     return values[index]
   }
 
-  function useSelectedENSAvatar(
-    connector: Connector,
-    provider?: BaseProvider,
-    ensName?: string | null | undefined
-  ): ReturnType<Web3ReactSelectors['useENSAvatar']> {
+  const useSelectedENSAvatar = (connector: Connector, provider?: BaseProvider, ensName?: string | null | undefined) => {
     const index = getIndex(connector)
     const values = initializedConnectors.map(([, { useENSAvatar }], i) =>
       // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -183,19 +168,19 @@ export function getSelectedConnector(
     return values[index]
   }
 
-  function useSelectedAddingChain(connector: Connector): ReturnType<Web3ReactSelectors['useAddingChain']> {
+  const useSelectedAddingChain = (connector: Connector) => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const values = initializedConnectors.map(([, { useAddingChain }]) => useAddingChain())
     return values[getIndex(connector)]
   }
 
-  function useSelectedSwitchingChain(connector: Connector): ReturnType<Web3ReactSelectors['useSwitchingChain']> {
+  const useSelectedSwitchingChain = (connector: Connector) => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const values = initializedConnectors.map(([, { useSwitchingChain }]) => useSwitchingChain())
     return values[getIndex(connector)]
   }
 
-  function useSelectedWatchingAsset(connector: Connector): ReturnType<Web3ReactSelectors['useWatchingAsset']> {
+  const useSelectedWatchingAsset = (connector: Connector) => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const values = initializedConnectors.map(([, { useWatchingAsset }]) => useWatchingAsset())
     return values[getIndex(connector)]
@@ -227,7 +212,7 @@ export function getSelectedConnector(
  * @param initializedConnectors - Two or more [connector, hooks(, store)] arrays, as returned from initializeConnector.
  * @returns hooks - A variety of convenience hooks that wrap the hooks returned from initializeConnector.
  */
-export function getPriorityConnector(
+export function getPriorityConnectorHooks(
   ...initializedConnectors: [Connector, Web3ReactHooks][] | [Connector, Web3ReactHooks, Web3ReactReduxStore][]
 ): Web3SelectedSelectors & Web3PrioritySelectors {
   const {
@@ -246,77 +231,77 @@ export function getPriorityConnector(
     useSelectedAddingChain,
     useSelectedSwitchingChain,
     useSelectedWatchingAsset,
-  } = getSelectedConnector(...initializedConnectors)
+  } = getSelectedConnectorHooks(...initializedConnectors)
 
-  function usePriorityConnector() {
+  const usePriorityConnector = () => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const values = initializedConnectors.map(([, { useIsActive }]) => useIsActive())
     const index = values.findIndex((isActive) => isActive)
     return initializedConnectors[index === -1 ? 0 : index][0]
   }
 
-  function usePriorityStore() {
+  const usePriorityStore = () => {
     return useSelectedStore(usePriorityConnector())
   }
 
-  function usePriorityChainId() {
+  const usePriorityChainId = () => {
     return useSelectedChainId(usePriorityConnector())
   }
 
-  function usePriorityAccounts() {
+  const usePriorityAccounts = () => {
     return useSelectedAccounts(usePriorityConnector())
   }
 
-  function usePriorityAccountIndex() {
+  const usePriorityAccountIndex = () => {
     return useSelectedAccountIndex(usePriorityConnector())
   }
 
-  function usePriorityIsActivating() {
+  const usePriorityIsActivating = () => {
     return useSelectedIsActivating(usePriorityConnector())
   }
 
-  function usePriorityAccount() {
+  const usePriorityAccount = () => {
     return useSelectedAccount(usePriorityConnector())
   }
 
-  function usePriorityIsActive() {
+  const usePriorityIsActive = () => {
     return useSelectedIsActive(usePriorityConnector())
   }
 
   /**
    * @typeParam T - A type argument must only be provided if one or more of the connectors passed to
-   * getPriorityConnector is using `connector.customProvider`, in which case it must match every possible type of this
+   * getPriorityConnectorHooks is using `connector.customProvider`, in which case it must match every possible type of this
    * property, over all connectors.
    */
-  function usePriorityProvider<T extends BaseProvider = Web3Provider>(network?: Networkish) {
+  const usePriorityProvider = <T extends BaseProvider = Web3Provider>(network?: Networkish) => {
     return useSelectedProvider<T>(usePriorityConnector(), network)
   }
 
-  function usePriorityENSNames(provider?: BaseProvider) {
+  const usePriorityENSNames = (provider?: BaseProvider) => {
     return useSelectedENSNames(usePriorityConnector(), provider)
   }
 
-  function usePriorityENSName(provider?: BaseProvider) {
+  const usePriorityENSName = (provider?: BaseProvider) => {
     return useSelectedENSName(usePriorityConnector(), provider)
   }
 
-  function usePriorityENSAvatars(provider?: BaseProvider) {
+  const usePriorityENSAvatars = (provider?: BaseProvider) => {
     return useSelectedENSAvatars(usePriorityConnector(), provider)
   }
 
-  function usePriorityENSAvatar(provider?: BaseProvider) {
+  const usePriorityENSAvatar = (provider?: BaseProvider) => {
     return useSelectedENSAvatar(usePriorityConnector(), provider)
   }
 
-  function usePriorityAddingChain() {
+  const usePriorityAddingChain = () => {
     return useSelectedAddingChain(usePriorityConnector())
   }
 
-  function usePrioritySwitchingChain() {
+  const usePrioritySwitchingChain = () => {
     return useSelectedSwitchingChain(usePriorityConnector())
   }
 
-  function usePriorityWatchingAsset() {
+  const usePriorityWatchingAsset = () => {
     return useSelectedWatchingAsset(usePriorityConnector())
   }
 
@@ -357,8 +342,8 @@ export function getPriorityConnector(
 
 const CHAIN_ID = ({ chainId }: Web3ReactState) => chainId
 const ACCOUNT_INDEX = ({ accountIndex }: Web3ReactState) => accountIndex
-const ACCOUNTS = ({ accounts }: Web3ReactState) => accounts ?? []
-const ACCOUNTS_EQUALITY_CHECKER = (oldAccounts: string[], newAccounts: string[]) =>
+const ACCOUNTS = ({ accounts }: Web3ReactState) => accounts
+const ACCOUNTS_EQUALITY_CHECKER = (oldAccounts?: string[], newAccounts?: string[]) =>
   (oldAccounts === undefined && newAccounts === undefined) ||
   (oldAccounts !== undefined &&
     oldAccounts.length === newAccounts?.length &&
@@ -373,15 +358,8 @@ function useStore<U>(
   selector: (state: Web3ReactState) => U,
   equalityFn?: (a: U, b: U) => boolean
 ): U {
-  // if (selector === void 0) {
-  //   // eslint-disable-next-line @typescript-eslint/unbound-method
-  //   selector = store.getState
-  // }
-
   // eslint-disable-next-line @typescript-eslint/unbound-method
-  const res = useSyncExternalStoreWithSelector(store.subscribe, store.getState, store.getState, selector, equalityFn)
-
-  return res
+  return useSyncExternalStoreWithSelector(store.subscribe, store.getState, store.getState, selector, equalityFn)
 }
 
 function getStateHooks(store: Web3ReactReduxStore) {

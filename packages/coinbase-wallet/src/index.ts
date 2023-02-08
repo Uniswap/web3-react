@@ -95,8 +95,11 @@ export class CoinbaseWallet extends Connector {
       // Wallets may resolve eth_chainId and hang on eth_accounts pending user interaction, which may include changing
       // chains; they should be requested serially, with accounts first, so that the chainId can settle.
       const accounts = await this.provider.request<string[]>({ method: 'eth_accounts' })
+
       if (!accounts.length) throw new Error('No accounts returned')
+
       const chainId = await this.provider.request<string>({ method: 'eth_chainId' })
+
       return this.actions.update({ chainId: this.parseChainId(chainId), accounts })
     } catch (error) {
       return cancelActivation()
@@ -115,34 +118,24 @@ export class CoinbaseWallet extends Connector {
   public async activate(desiredChainIdOrChainParameters?: number | AddEthereumChainParameter): Promise<Web3ReactState> {
     const cancelActivation = this.selectedAddress ? null : this.actions.startActivation()
 
-    await this.isomorphicInitialize()
-
-    if (!this.provider) throw new NoCoinbaseWalletError()
-
-    const desiredChainId =
-      typeof desiredChainIdOrChainParameters === 'number'
-        ? desiredChainIdOrChainParameters
-        : desiredChainIdOrChainParameters?.chainId
-
     try {
+      await this.isomorphicInitialize()
+
+      if (!this.provider) throw new NoCoinbaseWalletError()
+
+      const accounts: string[] = await this.provider.request({ method: 'eth_requestAccounts' })
+
+      const index = accounts.indexOf(this?.selectedAddress ?? '')
+
       const currentChainId = this.parseChainId(await this.provider.request({ method: 'eth_chainId' }))
 
-      // Already connected
-      if (this.selectedAddress) {
-        // Add/switch chain
-        if (desiredChainIdOrChainParameters && currentChainId !== desiredChainId) {
-          await this.switchChain(desiredChainIdOrChainParameters, currentChainId)
-        }
-
-        return this.actions.getState()
-      }
+      const desiredChainId =
+        typeof desiredChainIdOrChainParameters === 'number'
+          ? desiredChainIdOrChainParameters
+          : desiredChainIdOrChainParameters?.chainId
 
       // We're on the chainId we need, go ahead and connect
-      if (!desiredChainIdOrChainParameters || !desiredChainId || currentChainId === desiredChainId) {
-        const accounts: string[] = await this.provider.request({ method: 'eth_requestAccounts' })
-
-        const index = accounts.indexOf(this?.selectedAddress ?? '')
-
+      if (!desiredChainId || currentChainId === desiredChainId) {
         return this.actions.update({
           chainId: currentChainId,
           accounts,
@@ -151,7 +144,7 @@ export class CoinbaseWallet extends Connector {
       }
 
       // Attempt to add/switch the chain to the desired chain
-      await this.switchChain(desiredChainIdOrChainParameters, currentChainId)
+      await this.switchChain(desiredChainId, currentChainId)
 
       // Reattempt connection now being on the correct chainId
       return this.activate(desiredChainId)

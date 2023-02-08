@@ -13,7 +13,7 @@ import React, {
   useCallback,
   useState,
 } from 'react'
-import { getPriorityConnector } from './hooks'
+import { getPriorityConnectorHooks } from './hooks'
 
 /**
  * @typeParam T - A type argument must only be provided if one or more of the connectors passed to Web3ReactProvider
@@ -36,7 +36,7 @@ export type Web3ContextType<T extends BaseProvider = Web3Provider> = {
   addingChain: ReturnType<Web3ReactPriorityHooks['useSelectedAddingChain']>
   switchingChain: ReturnType<Web3ReactPriorityHooks['useSelectedSwitchingChain']>
   watchingAsset: ReturnType<Web3ReactPriorityHooks['useSelectedWatchingAsset']>
-  hooks: ReturnType<typeof getPriorityConnector>
+  hooks: ReturnType<typeof getPriorityConnectorHooks>
   setSelectedConnector: (connector?: Connector) => void
   setLookupENS: Dispatch<SetStateAction<boolean>>
 }
@@ -68,7 +68,7 @@ export function Web3ReactProvider({
   lookupENS = true,
 }: Web3ReactProviderProps) {
   const cachedConnectors: MutableRefObject<Web3ReactProviderProps['connectors']> = useRef(connectors)
-  // because we're calling `getPriorityConnector` with these connectors, we need to ensure that they're not changing in place
+  // because we're calling `getPriorityConnectorHooks` with these connectors, we need to ensure that they're not changing in place
   if (
     connectors.length != cachedConnectors.current.length ||
     connectors.some((connector, i) => {
@@ -82,7 +82,7 @@ export function Web3ReactProvider({
       'The connectors prop passed to Web3ReactProvider must be referentially static. If connectors is changing, try providing a key prop to Web3ReactProvider that changes every time connectors changes.'
     )
 
-  const hooks = getPriorityConnector(...connectors)
+  const hooks = getPriorityConnectorHooks(...connectors)
   const {
     usePriorityConnector,
     useSelectedChainId,

@@ -22,9 +22,9 @@ export type Web3ReactHooks = ReturnType<typeof getStateHooks> &
   ReturnType<typeof getDerivedHooks> &
   ReturnType<typeof getAugmentedHooks>
 
-export type Web3ReactSelectedHooks = ReturnType<typeof getSelectedConnector>
+export type Web3ReactSelectedHooks = ReturnType<typeof getSelectedConnectorHooks>
 
-export type Web3ReactPriorityHooks = ReturnType<typeof getPriorityConnector>
+export type Web3ReactPriorityHooks = ReturnType<typeof getPriorityConnectorHooks>
 
 /**
  * Wraps the initialization of a `connector`. Creates a zustand `store` with `actions` bound to it, and then passes
@@ -58,7 +58,7 @@ function computeIsActive({ chainId, accounts, activating }: Partial<Web3ReactSta
  * @param initializedConnectors - Two or more [connector, hooks(, store)] arrays, as returned from initializeConnector.
  * @returns hooks - A variety of convenience hooks that wrap the hooks returned from initializeConnector.
  */
-export function getSelectedConnector(
+export function getSelectedConnectorHooks(
   ...initializedConnectors: [Connector, Web3ReactHooks][] | [Connector, Web3ReactHooks, Web3ReactStore][]
 ) {
   function getIndex(connector: Connector) {
@@ -113,7 +113,7 @@ export function getSelectedConnector(
 
   /**
    * @typeParam T - A type argument must only be provided if one or more of the connectors passed to
-   * getSelectedConnector is using `connector.customProvider`, in which case it must match every possible type of this
+   * getSelectedConnectorHooks is using `connector.customProvider`, in which case it must match every possible type of this
    * property, over all connectors.
    */
   function useSelectedProvider<T extends BaseProvider = Web3Provider>(
@@ -204,7 +204,7 @@ export function getSelectedConnector(
  * @param initializedConnectors - Two or more [connector, hooks(, store)] arrays, as returned from initializeConnector.
  * @returns hooks - A variety of convenience hooks that wrap the hooks returned from initializeConnector.
  */
-export function getPriorityConnector(
+export function getPriorityConnectorHooks(
   ...initializedConnectors: [Connector, Web3ReactHooks][] | [Connector, Web3ReactHooks, Web3ReactStore][]
 ) {
   const {
@@ -223,7 +223,7 @@ export function getPriorityConnector(
     useSelectedAddingChain,
     useSelectedSwitchingChain,
     useSelectedWatchingAsset,
-  } = getSelectedConnector(...initializedConnectors)
+  } = getSelectedConnectorHooks(...initializedConnectors)
 
   function usePriorityConnector() {
     // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -262,7 +262,7 @@ export function getPriorityConnector(
 
   /**
    * @typeParam T - A type argument must only be provided if one or more of the connectors passed to
-   * getPriorityConnector is using `connector.customProvider`, in which case it must match every possible type of this
+   * getPriorityConnectorHooks is using `connector.customProvider`, in which case it must match every possible type of this
    * property, over all connectors.
    */
   function usePriorityProvider<T extends BaseProvider = Web3Provider>(network?: Networkish) {
@@ -340,9 +340,9 @@ function getStateHooks(store: Web3ReactStore) {
   function useAccounts(): Web3ReactState['accounts'] {
     return useStore(
       store,
-      ({ accounts }) => accounts ?? [],
+      ({ accounts }) => accounts,
       // Equality Checker
-      (oldAccounts: string[], newAccounts: string[]) =>
+      (oldAccounts?: string[], newAccounts?: string[]) =>
         (oldAccounts === undefined && newAccounts === undefined) ||
         (oldAccounts !== undefined &&
           oldAccounts.length === newAccounts?.length &&

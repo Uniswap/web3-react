@@ -51,7 +51,11 @@ describe('EIP1193', () => {
       expect(store.getState()).toEqual({
         chainId: 1,
         accounts,
+        accountIndex: undefined,
         activating: false,
+        addingChain: undefined,
+        switchingChain: undefined,
+        watchingAsset: undefined,
       })
     })
   })
@@ -79,7 +83,11 @@ describe('EIP1193', () => {
         expect(store.getState()).toEqual({
           chainId: undefined,
           accounts: undefined,
+          accountIndex: undefined,
           activating: false,
+          addingChain: undefined,
+          switchingChain: undefined,
+          watchingAsset: undefined,
         })
 
         expect(mockProvider.eth_chainId.mock.calls.length).toBe(0)
@@ -97,14 +105,19 @@ describe('EIP1193', () => {
         expect(store.getState()).toEqual({
           chainId: 1,
           accounts,
+          accountIndex: undefined,
           activating: false,
+          addingChain: undefined,
+          switchingChain: undefined,
+          watchingAsset: undefined,
         })
 
         expect(mockProvider.eth_chainId.mock.calls.length).toBe(1)
         expect(mockProvider.eth_accounts.mock.calls.length).toBe(1)
         expect(mockProvider.eth_requestAccounts.mock.calls.length).toBe(0)
-        expect(mockProvider.eth_chainId.mock.invocationCallOrder[0])
-          .toBeGreaterThan(mockProvider.eth_accounts.mock.invocationCallOrder[0])
+        expect(mockProvider.eth_chainId.mock.invocationCallOrder[0]).toBeGreaterThan(
+          mockProvider.eth_accounts.mock.invocationCallOrder[0]
+        )
       })
     })
 
@@ -123,7 +136,11 @@ describe('EIP1193', () => {
         expect(store.getState()).toEqual({
           chainId: undefined,
           accounts: undefined,
+          accountIndex: undefined,
           activating: false,
+          addingChain: undefined,
+          switchingChain: undefined,
+          watchingAsset: undefined,
         })
       })
 
@@ -132,8 +149,9 @@ describe('EIP1193', () => {
           expect(mockProvider.eth_chainId.mock.calls.length).toBe(1)
           expect(mockProvider.eth_accounts.mock.calls.length).toBe(0)
           expect(mockProvider.eth_requestAccounts.mock.calls.length).toBe(1)
-          expect(mockProvider.eth_chainId.mock.invocationCallOrder[0])
-            .toBeGreaterThan(mockProvider.eth_requestAccounts.mock.invocationCallOrder[0])
+          expect(mockProvider.eth_chainId.mock.invocationCallOrder[0]).toBeGreaterThan(
+            mockProvider.eth_requestAccounts.mock.invocationCallOrder[0]
+          )
         })
 
         test(`chainId = ${chainId}`, async () => {
@@ -145,7 +163,11 @@ describe('EIP1193', () => {
           expect(store.getState()).toEqual({
             chainId: 1,
             accounts,
+            accountIndex: undefined,
             activating: false,
+            addingChain: undefined,
+            switchingChain: undefined,
+            watchingAsset: undefined,
           })
         })
 
@@ -158,7 +180,11 @@ describe('EIP1193', () => {
           expect(store.getState()).toEqual({
             chainId: 1,
             accounts,
+            accountIndex: undefined,
             activating: false,
+            addingChain: undefined,
+            switchingChain: undefined,
+            watchingAsset: undefined,
           })
         })
 
@@ -174,7 +200,11 @@ describe('EIP1193', () => {
           expect(store.getState()).toEqual({
             chainId: 1,
             accounts,
+            accountIndex: 0,
             activating: false,
+            addingChain: undefined,
+            switchingChain: undefined,
+            watchingAsset: undefined,
           })
         })
 
@@ -193,7 +223,11 @@ describe('EIP1193', () => {
           expect(store.getState()).toEqual({
             chainId: 1,
             accounts,
+            accountIndex: 0,
             activating: false,
+            addingChain: undefined,
+            switchingChain: undefined,
+            watchingAsset: undefined,
           })
         })
       })

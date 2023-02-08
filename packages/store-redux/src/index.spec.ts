@@ -1,5 +1,4 @@
-import { createWeb3ReactStoreAndActions } from '@web3-react/store/src'
-import { MAX_SAFE_CHAIN_ID } from './validators'
+import { createWeb3ReactStoreAndActions, MAX_SAFE_CHAIN_ID } from '.'
 
 describe('#createWeb3ReactStoreAndActions', () => {
   test('uninitialized', () => {
@@ -9,6 +8,10 @@ describe('#createWeb3ReactStoreAndActions', () => {
       accounts: undefined,
       activating: false,
       error: undefined,
+      accountIndex: undefined,
+      addingChain: undefined,
+      switchingChain: undefined,
+      watchingAsset: undefined,
     })
   })
 
@@ -16,11 +19,16 @@ describe('#createWeb3ReactStoreAndActions', () => {
     test('works', () => {
       const [store, actions] = createWeb3ReactStoreAndActions()
       actions.startActivation()
+
       expect(store.getState()).toEqual({
         chainId: undefined,
         accounts: undefined,
         activating: true,
         error: undefined,
+        accountIndex: undefined,
+        addingChain: undefined,
+        switchingChain: undefined,
+        watchingAsset: undefined,
       })
     })
 
@@ -35,6 +43,10 @@ describe('#createWeb3ReactStoreAndActions', () => {
         accounts: undefined,
         activating: false,
         error: undefined,
+        accountIndex: undefined,
+        addingChain: undefined,
+        switchingChain: undefined,
+        watchingAsset: undefined,
       })
     })
   })
@@ -61,6 +73,10 @@ describe('#createWeb3ReactStoreAndActions', () => {
         accounts: undefined,
         activating: false,
         error: undefined,
+        accountIndex: undefined,
+        addingChain: undefined,
+        switchingChain: undefined,
+        watchingAsset: undefined,
       })
     })
 
@@ -74,6 +90,10 @@ describe('#createWeb3ReactStoreAndActions', () => {
           accounts,
           activating: false,
           error: undefined,
+          accountIndex: undefined,
+          addingChain: undefined,
+          switchingChain: undefined,
+          watchingAsset: undefined,
         })
       })
 
@@ -81,11 +101,16 @@ describe('#createWeb3ReactStoreAndActions', () => {
         const [store, actions] = createWeb3ReactStoreAndActions()
         const accounts = ['0x0000000000000000000000000000000000000000']
         actions.update({ accounts })
+
         expect(store.getState()).toEqual({
           chainId: undefined,
           accounts,
           activating: false,
           error: undefined,
+          accountIndex: 0,
+          addingChain: undefined,
+          switchingChain: undefined,
+          watchingAsset: undefined,
         })
       })
 
@@ -98,6 +123,10 @@ describe('#createWeb3ReactStoreAndActions', () => {
           accounts,
           activating: false,
           error: undefined,
+          accountIndex: 0,
+          addingChain: undefined,
+          switchingChain: undefined,
+          watchingAsset: undefined,
         })
       })
     })
@@ -112,6 +141,10 @@ describe('#createWeb3ReactStoreAndActions', () => {
         accounts,
         activating: false,
         error: undefined,
+        accountIndex: undefined,
+        addingChain: undefined,
+        switchingChain: undefined,
+        watchingAsset: undefined,
       })
     })
 
@@ -125,6 +158,10 @@ describe('#createWeb3ReactStoreAndActions', () => {
         accounts: undefined,
         activating: true,
         error: undefined,
+        accountIndex: undefined,
+        addingChain: undefined,
+        switchingChain: undefined,
+        watchingAsset: undefined,
       })
     })
 
@@ -138,6 +175,10 @@ describe('#createWeb3ReactStoreAndActions', () => {
         accounts,
         activating: true,
         error: undefined,
+        accountIndex: undefined,
+        addingChain: undefined,
+        switchingChain: undefined,
+        watchingAsset: undefined,
       })
     })
 
@@ -152,6 +193,10 @@ describe('#createWeb3ReactStoreAndActions', () => {
         accounts,
         activating: false,
         error: undefined,
+        accountIndex: undefined,
+        addingChain: undefined,
+        switchingChain: undefined,
+        watchingAsset: undefined,
       })
     })
   })

@@ -18,7 +18,6 @@ export default function Tabs({
         flexWrap: 'nowrap',
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: '1em',
       }}
     >
       {data.map((tab, index) => (

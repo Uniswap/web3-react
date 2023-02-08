@@ -4,7 +4,7 @@ import type { Actions } from '@web3-react/types'
 import { Connector } from '@web3-react/types'
 import EventEmitter from 'events'
 import type { Web3ReactHooks, Web3ReactPriorityHooks, Web3ReactSelectedHooks } from './hooks'
-import { getPriorityConnector, getSelectedConnector, initializeConnector } from './hooks'
+import { getPriorityConnectorHooks, getSelectedConnectorHooks, initializeConnector } from './hooks'
 
 class MockProvider extends EventEmitter {
   request = jest.fn()
@@ -103,7 +103,7 @@ describe('#initializeConnector', () => {
   })
 })
 
-describe('#getSelectedConnector', () => {
+describe('#getSelectedConnectorHooks', () => {
   let connector: MockConnector
   let hooks: Web3ReactHooks
 
@@ -116,7 +116,7 @@ describe('#getSelectedConnector', () => {
     ;[connector, hooks] = initializeConnector((actions) => new MockConnector(actions))
     ;[connector2, hooks2] = initializeConnector((actions) => new MockConnector2(actions))
 
-    selectedConnectorHooks = getSelectedConnector([connector, hooks], [connector2, hooks2])
+    selectedConnectorHooks = getSelectedConnectorHooks([connector, hooks], [connector2, hooks2])
   })
 
   test('isActive is false for connector', () => {
@@ -164,7 +164,7 @@ describe('#getSelectedConnector', () => {
   })
 })
 
-describe('#getPriorityConnector', () => {
+describe('#getPriorityConnectorHooks', () => {
   let connector: MockConnector
   let hooks: Web3ReactHooks
 
@@ -177,7 +177,7 @@ describe('#getPriorityConnector', () => {
     ;[connector, hooks] = initializeConnector((actions) => new MockConnector(actions))
     ;[connector2, hooks2] = initializeConnector((actions) => new MockConnector2(actions))
 
-    priorityConnectorHooks = getPriorityConnector([connector, hooks], [connector2, hooks2])
+    priorityConnectorHooks = getPriorityConnectorHooks([connector, hooks], [connector2, hooks2])
   })
 
   test('returns first connector if both are uninitialized', () => {
