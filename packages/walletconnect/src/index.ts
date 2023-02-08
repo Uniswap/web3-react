@@ -10,10 +10,9 @@ export const URI_AVAILABLE = 'URI_AVAILABLE'
 type MockWalletConnectProvider = WalletConnectProvider & EventEmitter
 
 /**
- * Rpc map is a map of chainIds to rpc url(s). If multiple urls are provided, the first one that responds
- * within a given timeout will be used. 
- * 
- * Since WalletConnect does not support multiple urls, we will have to resolve the best url before passing it down.
+ * @param rpcMap - Map of chainIds to rpc url(s). If multiple urls are provided, the first one that responds
+ * within a given timeout will be used. Since WalletConnect does not support multiple urls, we will have
+ * to resolve the best url before passing it down.
  */
 type WalletConnectOptions = Omit<Parameters<typeof WalletConnectProvider.init>[0], 'rpcMap'> & {
   rpcMap?: { [chainId: number]: string | string[] }
