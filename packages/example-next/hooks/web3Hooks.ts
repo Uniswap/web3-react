@@ -1,5 +1,5 @@
-import type { YoroiProvider } from '@web3-react/yoroi'
-import type { NamiProvider } from '@web3-react/nami'
+// import type { YoroiProvider } from '@web3-react/yoroi'
+// import type { NamiProvider } from '@web3-react/nami'
 
 import { useCallback, useEffect, useState } from 'react'
 
@@ -16,7 +16,7 @@ import { YoroiWallet } from '@web3-react/yoroi'
 import { NamiWallet } from '@web3-react/nami'
 
 import { PublicKey } from '@solana/web3.js'
-import * as CardanoWasm from '@emurgo/cardano-serialization-lib-browser'
+// import * as CardanoWasm from '@emurgo/cardano-serialization-lib-browser'
 
 /**
  * @param subscribe - Whether to poll data
@@ -175,21 +175,21 @@ export function useBalances(
 
     // Cardano Connectors
     else if (connector instanceof YoroiWallet) {
-      const cborBalance = await (provider as unknown as YoroiProvider).getBalance()
+      // const cborBalance = await (provider as unknown as YoroiProvider).getBalance()
 
-      const bytes = Buffer.from(cborBalance, 'hex')
-      const value = CardanoWasm.Value.from_bytes(bytes)
-      const balance = value.coin().to_str()
+      // const bytes = Buffer.from(cborBalance, 'hex')
+      // const value = CardanoWasm.Value.from_bytes(bytes)
+      // const balance = value.coin().to_str()
 
-      return [BigNumber.from(balance)]
+      return [BigNumber.from(0)]
     } else if (connector instanceof NamiWallet) {
-      const cborBalance = await (provider as unknown as NamiProvider).getBalance()
+      // const cborBalance = await (provider as unknown as NamiProvider).getBalance()
 
-      const bytes = Buffer.from(cborBalance, 'hex')
-      const value = CardanoWasm.Value.from_bytes(bytes)
-      const balance = value.coin().to_str()
+      // const bytes = Buffer.from(cborBalance, 'hex')
+      // const value = CardanoWasm.Value.from_bytes(bytes)
+      // const balance = value.coin().to_str()
 
-      return [BigNumber.from(balance)]
+      return [BigNumber.from(0)]
     }
 
     // Tron Connectors

@@ -1,5 +1,6 @@
 import type { Connector } from '@web3-react/types'
 import { getName } from '../../utils/connectors'
+import Image from 'next/image'
 
 export default function ConnectorTitleView({
   connector,
@@ -8,6 +9,8 @@ export default function ConnectorTitleView({
   connector: Connector
   walletLogoUrl?: string
 }) {
+  const connectorName = getName(connector)
+
   return (
     <div
       style={{
@@ -19,7 +22,8 @@ export default function ConnectorTitleView({
       }}
     >
       {walletLogoUrl && (
-        <img
+        <Image
+          alt={`${connectorName ?? 'Connector'} Logo`}
           src={walletLogoUrl}
           style={{
             width: 'auto',
@@ -31,7 +35,7 @@ export default function ConnectorTitleView({
           }}
         />
       )}
-      <b>{getName(connector)}</b>
+      <b>{connectorName}</b>
     </div>
   )
 }

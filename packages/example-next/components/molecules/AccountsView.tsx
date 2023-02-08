@@ -3,6 +3,7 @@ import type { Connector } from '@web3-react/types'
 import { formatUnits } from '@ethersproject/units'
 import { CHAINS } from '../../utils/chains'
 import { useBalances } from '../../hooks/web3Hooks'
+import Image from 'next/image'
 import SpacerView from '../atoms/SpacerView'
 import AddressEllipsis from '../atoms/AddressEllipsis'
 import CircleLoader from '../atoms/CircleLoader'
@@ -89,7 +90,8 @@ export default function AccountsView({
                   }}
                 >
                   {ensAvatar ? (
-                    <img
+                    <Image
+                      alt="ENS Avatar"
                       src={ensAvatar}
                       style={{ width: 24, height: 24, marginRight: '8px', borderRadius: '50%', overflow: 'hidden' }}
                     />

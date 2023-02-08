@@ -1,4 +1,5 @@
 import Button from '../atoms/Button'
+import Image from 'next/image'
 
 export default function NavBar() {
   return (
@@ -24,7 +25,8 @@ export default function NavBar() {
           alignItems: 'center',
         }}
       >
-        <img
+        <Image
+          alt="Web3React logo"
           src="https://avatars.githubusercontent.com/u/36115574?s=200&v=4"
           style={{ width: 40, height: 40, marginRight: 12, marginTop: -8 }}
         />

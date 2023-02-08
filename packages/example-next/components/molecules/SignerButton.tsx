@@ -1,4 +1,4 @@
-import type { JsonRpcProvider } from '@ethersproject/providers'
+import type { Web3Provider } from '@ethersproject/providers'
 import type { Connector } from '@web3-react/types'
 import { useTimeout } from '../../hooks/hooks'
 import { useSignMessage } from '../../hooks/web3Hooks'
@@ -11,7 +11,7 @@ export default function SignerButton({
   account,
 }: {
   connector?: Connector
-  provider?: JsonRpcProvider
+  provider?: Web3Provider
   account?: string
 }) {
   const { start, isTimedOut } = useTimeout({

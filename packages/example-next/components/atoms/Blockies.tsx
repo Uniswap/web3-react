@@ -1,5 +1,6 @@
 import { memo, useEffect, useRef, useState } from 'react'
 import { renderIcon } from '@download/blockies'
+import Image from 'next/image'
 
 function Blockies({ account, diameter, alt }: { account: string; diameter: number; alt?: string }) {
   const [dataUrl, setDataUrl] = useState<string>(null)
@@ -21,7 +22,7 @@ function Blockies({ account, diameter, alt }: { account: string; diameter: numbe
       style={{ borderRadius: diameter, overflow: 'hidden', height: diameter, minWidth: diameter, marginRight: '0.5em' }}
     >
       <canvas ref={canvasRef} style={{ display: 'none' }} />
-      {dataUrl ? <img src={dataUrl} style={{ height: diameter, width: diameter }} alt={alt || ''} /> : null}
+      {dataUrl ? <Image src={dataUrl} style={{ height: diameter, width: diameter }} alt={alt || ''} /> : null}
     </div>
   )
 }

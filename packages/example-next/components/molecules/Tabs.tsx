@@ -1,4 +1,5 @@
 import Button from '../atoms/Button'
+import Image from 'next/image'
 
 export default function Tabs({
   data,
@@ -39,7 +40,8 @@ export default function Tabs({
         >
           <>
             {tab?.iconUrl && (
-              <img
+              <Image
+                alt={`${tab.title} Logo`}
                 style={{
                   width: 24,
                   height: 24,
