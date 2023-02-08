@@ -39,7 +39,7 @@ In addition to compiling each package in watch mode, this will also spin up [pac
 
 ## Publish
 
-- `yarn lerna publish --no-private [--dist-tag] `
+- `yarn lerna publish [--dist-tag] `
 
 ## Documentation
 
