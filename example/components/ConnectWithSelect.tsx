@@ -136,7 +136,7 @@ export function ConnectWithSelect({
         <div style={{ marginBottom: '1rem' }} />
         <button
           onClick={() => {
-            if ('deactivate' in connector) {
+            if (connector?.deactivate) {
               void connector.deactivate()
             } else {
               void connector.resetState()
