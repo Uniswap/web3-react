@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Card } from '../Card'
 import { hooks, bscWallet } from '../../../config/connectors/bscWallet'
-import bscLogo from '../../../images/wallet/bsc.png'
 
 const {
   useChainId,
@@ -38,7 +37,7 @@ export default function BscWalletCard({ hide }: { hide: boolean }) {
   return (
     <Card
       hide={hide}
-      walletLogoUrl={bscLogo}
+      walletLogoUrl="/static/images/wallet/bsc.png"
       connector={bscWallet}
       chainId={chainId}
       accountIndex={accountIndex}
