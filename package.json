@@ -16,7 +16,8 @@
     "prepack": "yarn build"
   },
   "workspaces": [
-    "packages/*"
+    "packages/*",
+    "example"
   ],
   "devDependencies": {
     "@coinbase/wallet-sdk": "^3.3.0",
