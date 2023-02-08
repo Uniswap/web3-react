@@ -26,9 +26,8 @@ export default function WalletConnectCard() {
 
   // attempt to connect eagerly on mount
   useEffect(() => {
-    walletConnect.connectEagerly().catch((e) => {
-      console.debug('Failed to connect eagerly to walletconnect')
-      console.log(e)
+    walletConnect.connectEagerly().catch((error) => {
+      console.debug('Failed to connect eagerly to walletconnect', error)
     })
   }, [])
 
