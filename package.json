@@ -5,7 +5,6 @@
     "node": "^14 || ^16"
   },
   "scripts": {
-    "bootstrap": "lerna bootstrap",
     "clean": "lerna clean --yes",
     "lint": "yarn run eslint --ext .ts,.tsx .",
     "test": "jest",
@@ -16,6 +15,9 @@
     "version": "yarn pin && git add packages/example-{next,cra}/package.json",
     "prepack": "yarn build"
   },
+  "workspaces": [
+    "packages/*"
+  ],
   "devDependencies": {
     "@coinbase/wallet-sdk": "^3.3.0",
     "@testing-library/react-hooks": "^8.0.0",

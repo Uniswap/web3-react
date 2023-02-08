@@ -1,7 +1,7 @@
 import type { EventEmitter } from 'node:events'
-import type { State, StoreApi } from 'zustand'
+import type { StoreApi } from 'zustand'
 
-export interface Web3ReactState extends State {
+export interface Web3ReactState {
   chainId: number | undefined
   accounts: string[] | undefined
   activating: boolean
