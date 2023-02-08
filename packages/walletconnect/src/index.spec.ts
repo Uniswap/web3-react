@@ -10,6 +10,7 @@ import { EthereumProvider } from '@walletconnect/ethereum-provider'
 
 import { WalletConnect, WalletConnectOptions } from '.'
 
+// @todo mock `universal-provider` and get rid of projectId
 const createTestEnvironment = (opts: Omit<WalletConnectOptions, 'projectId'>) => {
   const [store, actions] = createWeb3ReactStoreAndActions()
   const connector = new WalletConnect({ actions, options: { ...opts, projectId: 'a6cc11517a10f6f12953fd67b1eb67e7' } })
