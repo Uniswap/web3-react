@@ -85,10 +85,6 @@ export class WalletConnect extends Connector {
   ): Promise<MockWalletConnectProvider> {
     if (this.eagerConnection) return this.eagerConnection
 
-    if (this.provider) {
-      await this.deactivate()
-    }
-
     const rpcMap = this.rpcMap
     const rpcBestUrlMap = rpcMap
       ? Object.fromEntries(
