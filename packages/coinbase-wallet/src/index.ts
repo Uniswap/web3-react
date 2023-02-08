@@ -89,9 +89,9 @@ export class CoinbaseWallet extends Connector {
 
       // Wallets may resolve eth_chainId and hang on eth_accounts pending user interaction, which may include changing
       // chains; they should be requested serially, with accounts first, so that the chainId can settle.
-      const accounts = await this.provider.request<string[]>({ method: 'eth_accounts' }) 
+      const accounts = await this.provider.request<string[]>({ method: 'eth_accounts' })
       if (!accounts.length) throw new Error('No accounts returned')
-      const chainId = await this.provider.request<string>({ method: 'eth_chainId' }) 
+      const chainId = await this.provider.request<string>({ method: 'eth_chainId' })
       this.actions.update({ chainId: parseChainId(chainId), accounts })
     } catch (error) {
       cancelActivation()
@@ -118,21 +118,23 @@ export class CoinbaseWallet extends Connector {
       if (!desiredChainId || desiredChainId === parseChainId(this.provider.chainId)) return
 
       const desiredChainIdHex = `0x${desiredChainId.toString(16)}`
-      return this.provider.request<void>({
-        method: 'wallet_switchEthereumChain',
-        params: [{ chainId: desiredChainIdHex }],
-      }).catch(async (error: ProviderRpcError) => {
-        if (error.code === 4902 && typeof desiredChainIdOrChainParameters !== 'number') {
-          if (!this.provider) throw new Error('No provider')
-          // if we're here, we can try to add a new network
-          return this.provider.request<void>({
-            method: 'wallet_addEthereumChain',
-            params: [{ ...desiredChainIdOrChainParameters, chainId: desiredChainIdHex }],
-          })
-        }
+      return this.provider
+        .request<void>({
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId: desiredChainIdHex }],
+        })
+        .catch(async (error: ProviderRpcError) => {
+          if (error.code === 4902 && typeof desiredChainIdOrChainParameters !== 'number') {
+            if (!this.provider) throw new Error('No provider')
+            // if we're here, we can try to add a new network
+            return this.provider.request<void>({
+              method: 'wallet_addEthereumChain',
+              params: [{ ...desiredChainIdOrChainParameters, chainId: desiredChainIdHex }],
+            })
+          }
 
-        throw error
-      })
+          throw error
+        })
     }
 
     const cancelActivation = this.actions.startActivation()

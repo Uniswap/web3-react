@@ -10,7 +10,8 @@ import type {
 import { Connector } from '@web3-react/types'
 
 type MetaMaskProvider = Provider & {
-  isMetaMask?: boolean; isConnected?: () => boolean
+  isMetaMask?: boolean
+  isConnected?: () => boolean
   providers?: MetaMaskProvider[]
   get chainId(): string
   get accounts(): string[]
@@ -104,16 +105,16 @@ export class MetaMask extends Connector {
 
       // Wallets may resolve eth_chainId and hang on eth_accounts pending user interaction, which may include changing
       // chains; they should be requested serially, with accounts first, so that the chainId can settle.
-      const accounts = await this.provider.request({ method: 'eth_accounts' }) as string[]
+      const accounts = (await this.provider.request({ method: 'eth_accounts' })) as string[]
       if (!accounts.length) throw new Error('No accounts returned')
-      const chainId = await this.provider.request({ method: 'eth_chainId' }) as string
+      const chainId = (await this.provider.request({ method: 'eth_chainId' })) as string
       this.actions.update({ chainId: parseChainId(chainId), accounts })
     } catch (error) {
-        console.debug('Could not connect eagerly', error)
-        // we should be able to use `cancelActivation` here, but on mobile, metamask emits a 'connect'
-        // event, meaning that chainId is updated, and cancelActivation doesn't work because an intermediary
-        // update has occurred, so we reset state instead
-        this.actions.resetState()
+      console.debug('Could not connect eagerly', error)
+      // we should be able to use `cancelActivation` here, but on mobile, metamask emits a 'connect'
+      // event, meaning that chainId is updated, and cancelActivation doesn't work because an intermediary
+      // update has occurred, so we reset state instead
+      this.actions.resetState()
     }
   }
 
@@ -136,8 +137,8 @@ export class MetaMask extends Connector {
 
         // Wallets may resolve eth_chainId and hang on eth_accounts pending user interaction, which may include changing
         // chains; they should be requested serially, with accounts first, so that the chainId can settle.
-        const accounts = await this.provider.request({ method: 'eth_requestAccounts' }) as string[]
-        const chainId = await this.provider.request({ method: 'eth_chainId' }) as string
+        const accounts = (await this.provider.request({ method: 'eth_requestAccounts' })) as string[]
+        const chainId = (await this.provider.request({ method: 'eth_chainId' })) as string
         const receivedChainId = parseChainId(chainId)
         const desiredChainId =
           typeof desiredChainIdOrChainParameters === 'number'
@@ -151,10 +152,11 @@ export class MetaMask extends Connector {
         const desiredChainIdHex = `0x${desiredChainId.toString(16)}`
 
         // if we're here, we can try to switch networks
-        return this.provider.request({
-          method: 'wallet_switchEthereumChain',
-          params: [{ chainId: desiredChainIdHex }],
-        })
+        return this.provider
+          .request({
+            method: 'wallet_switchEthereumChain',
+            params: [{ chainId: desiredChainIdHex }],
+          })
           .catch((error: ProviderRpcError) => {
             if (error.code === 4902 && typeof desiredChainIdOrChainParameters !== 'number') {
               if (!this.provider) throw new Error('No provider')

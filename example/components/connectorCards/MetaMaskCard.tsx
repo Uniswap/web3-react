@@ -1,11 +1,11 @@
-import { URI_AVAILABLE } from '@web3-react/walletconnect'
 import { useEffect, useState } from 'react'
-import { hooks, walletConnect } from '../../connectors/walletConnect'
+
+import { hooks, metaMask } from '../../connectors/metaMask'
 import { Card } from '../Card'
 
 const { useChainId, useAccounts, useIsActivating, useIsActive, useProvider, useENSNames } = hooks
 
-export default function WalletConnectCard() {
+export default function MetaMaskCard() {
   const chainId = useChainId()
   const accounts = useAccounts()
   const isActivating = useIsActivating()
@@ -17,23 +17,16 @@ export default function WalletConnectCard() {
 
   const [error, setError] = useState(undefined)
 
-  // log URI when available
-  useEffect(() => {
-    walletConnect.events.on(URI_AVAILABLE, (uri: string) => {
-      console.log(`uri: ${uri}`)
-    })
-  }, [])
-
   // attempt to connect eagerly on mount
   useEffect(() => {
-    walletConnect.connectEagerly().catch((error) => {
-      console.debug('Failed to connect eagerly to walletconnect', error)
+    void metaMask.connectEagerly().catch(() => {
+      console.debug('Failed to connect eagerly to metamask')
     })
   }, [])
 
   return (
     <Card
-      connector={walletConnect}
+      connector={metaMask}
       chainId={chainId}
       isActivating={isActivating}
       isActive={isActive}

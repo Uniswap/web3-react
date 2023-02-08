@@ -1,8 +1,10 @@
+import type { EventEmitter } from 'node:events'
+
 import type WalletConnectProvider from '@walletconnect/ethereum-provider'
 import type { Actions, ProviderRpcError } from '@web3-react/types'
 import { Connector } from '@web3-react/types'
 import EventEmitter3 from 'eventemitter3'
-import type { EventEmitter } from 'node:events'
+
 import { getBestUrl } from './utils'
 
 export const URI_AVAILABLE = 'URI_AVAILABLE'
@@ -78,7 +80,9 @@ export class WalletConnect extends Connector {
     this.events.emit(URI_AVAILABLE, uri)
   }
 
-  private async isomorphicInitialize(desiredChainId: number | undefined = this.defaultChainId): Promise<MockWalletConnectProvider> {
+  private async isomorphicInitialize(
+    desiredChainId: number | undefined = this.defaultChainId
+  ): Promise<MockWalletConnectProvider> {
     if (this.eagerConnection) return this.eagerConnection
 
     if (this.provider) {

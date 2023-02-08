@@ -1,10 +1,12 @@
+import { URI_AVAILABLE } from '@web3-react/walletconnect'
 import { useEffect, useState } from 'react'
-import { coinbaseWallet, hooks } from '../../connectors/coinbaseWallet'
+
+import { hooks, walletConnect } from '../../connectors/walletConnect'
 import { Card } from '../Card'
 
 const { useChainId, useAccounts, useIsActivating, useIsActive, useProvider, useENSNames } = hooks
 
-export default function CoinbaseWalletCard() {
+export default function WalletConnectCard() {
   const chainId = useChainId()
   const accounts = useAccounts()
   const isActivating = useIsActivating()
@@ -16,16 +18,23 @@ export default function CoinbaseWalletCard() {
 
   const [error, setError] = useState(undefined)
 
+  // log URI when available
+  useEffect(() => {
+    walletConnect.events.on(URI_AVAILABLE, (uri: string) => {
+      console.log(`uri: ${uri}`)
+    })
+  }, [])
+
   // attempt to connect eagerly on mount
   useEffect(() => {
-    void coinbaseWallet.connectEagerly().catch(() => {
-      console.debug('Failed to connect eagerly to coinbase wallet')
+    walletConnect.connectEagerly().catch((error) => {
+      console.debug('Failed to connect eagerly to walletconnect', error)
     })
   }, [])
 
   return (
     <Card
-      connector={coinbaseWallet}
+      connector={walletConnect}
       chainId={chainId}
       isActivating={isActivating}
       isActive={isActive}
