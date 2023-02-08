@@ -93,7 +93,9 @@ export default function AccountsView({
                     <Image
                       alt="ENS Avatar"
                       src={ensAvatar}
-                      style={{ width: 24, height: 24, marginRight: '8px', borderRadius: '50%', overflow: 'hidden' }}
+                      width={24}
+                      height={24}
+                      style={{ marginRight: '8px', borderRadius: '50%', overflow: 'hidden' }}
                     />
                   ) : (
                     <Blockies diameter={24} account={account} alt={account} />

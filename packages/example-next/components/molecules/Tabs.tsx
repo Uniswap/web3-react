@@ -42,6 +42,8 @@ export default function Tabs({
             {tab?.iconUrl && (
               <Image
                 alt={`${tab.title} Logo`}
+                width={24}
+                height={24}
                 style={{
                   width: 24,
                   height: 24,

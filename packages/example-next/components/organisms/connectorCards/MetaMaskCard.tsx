@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Card } from '../Card'
 import { hooks, metaMask } from '../../../config/connectors/metaMask'
+import metamaskLogo from '../../../images/wallet/metamask.png'
 
 const {
   useChainId,
@@ -43,7 +44,7 @@ export default function MetaMaskCard({ hide }: { hide: boolean }) {
   return (
     <Card
       hide={hide}
-      walletLogoUrl="https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/MetaMask_Fox.svg/1200px-MetaMask_Fox.svg.png"
+      walletLogoUrl={metamaskLogo}
       connector={metaMask}
       chainId={chainId}
       accountIndex={accountIndex}

@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import type { Web3ReactHooks } from '@web3-react/core'
 import type { Connector } from '@web3-react/types'
+import { StaticImageData } from 'next/image'
 import AccountsView from '../molecules/AccountsView'
 import StatusView from '../molecules/StatusView'
 import NetworkView from '../molecules/NetworkView'
@@ -27,7 +28,7 @@ interface Props {
   switchingChain?: ReturnType<Web3ReactHooks['useSwitchingChain']>
   watchingAsset?: ReturnType<Web3ReactHooks['useWatchingAsset']>
   accounts?: string[]
-  walletLogoUrl?: string
+  walletLogoUrl?: string | StaticImageData
   hide?: boolean
   children?: ReactNode
 }

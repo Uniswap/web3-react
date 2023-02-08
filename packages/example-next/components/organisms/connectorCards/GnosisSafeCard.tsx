@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Card } from '../Card'
 import { gnosisSafe, hooks } from '../../../config/connectors/gnosisSafe'
+import gnosisSafeLogo from '../../../images/wallet/gnosis.png'
 
 const { useChainId, useAccounts, useIsActivating, useIsActive, useProvider, useENSNames, useENSAvatars } = hooks
 
@@ -25,7 +26,7 @@ export default function GnosisSafeCard({ hide }: { hide: boolean }) {
   return (
     <Card
       hide={hide}
-      walletLogoUrl="https://assets-global.website-files.com/61571d3b8fe2e30679056424/6341d34a6a3b918698693b5e_gnosis.png"
+      walletLogoUrl={gnosisSafeLogo}
       connector={gnosisSafe}
       chainId={chainId}
       isActivating={isActivating}

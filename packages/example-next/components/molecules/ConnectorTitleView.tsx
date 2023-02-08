@@ -25,10 +25,11 @@ export default function ConnectorTitleView({
         <Image
           alt={`${connectorName ?? 'Connector'} Logo`}
           src={walletLogoUrl}
+          width={24}
+          height={24}
           style={{
             width: 'auto',
             minWidth: 24,
-            height: 24,
             marginRight: '0.5em',
             borderRadius: '50%',
             overflow: 'hidden',

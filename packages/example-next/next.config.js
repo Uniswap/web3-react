@@ -6,6 +6,14 @@ const nextConfig = {
     infuraKey: process.env.INFURA_KEY,
     alchemyKey: process.env.ALCHEMY_KEY,
   },
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**',
+      },
+    ],
+  },
   webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
     config.externals.push({
       'utf-8-validate': 'commonjs utf-8-validate',

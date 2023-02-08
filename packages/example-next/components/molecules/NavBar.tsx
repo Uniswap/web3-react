@@ -1,5 +1,6 @@
 import Button from '../atoms/Button'
 import Image from 'next/image'
+import uniswapLogo from '../../images/uniswap.png'
 
 export default function NavBar() {
   return (
@@ -27,8 +28,10 @@ export default function NavBar() {
       >
         <Image
           alt="Web3React logo"
-          src="https://avatars.githubusercontent.com/u/36115574?s=200&v=4"
-          style={{ width: 40, height: 40, marginRight: 12, marginTop: -8 }}
+          src={uniswapLogo}
+          width={40}
+          height={40}
+          style={{ marginRight: 12, marginTop: -8 }}
         />
         <b style={{ fontSize: '2em', fontFamily: 'sans-serif', color: 'white' }}>Web3React</b>
         <b style={{ fontSize: '1em', fontFamily: 'sans-serif', color: 'white', marginTop: 12, marginLeft: 8 }}>v8</b>

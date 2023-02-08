@@ -2,6 +2,7 @@ import { URI_AVAILABLE } from '@web3-react/walletconnect'
 import { useEffect, useState } from 'react'
 import { Card } from '../Card'
 import { hooks, walletConnect } from '../../../config/connectors/walletConnect'
+import walletConnectLogo from '../../../images/wallet/walletconnect.png'
 
 const {
   useChainId,
@@ -43,7 +44,7 @@ export default function WalletConnectCard({ hide }: { hide: boolean }) {
   return (
     <Card
       hide={hide}
-      walletLogoUrl="https://1000logos.net/wp-content/uploads/2022/05/WalletConnect-Logo.png"
+      walletLogoUrl={walletConnectLogo}
       accountIndex={accountIndex}
       connector={walletConnect}
       chainId={chainId}
