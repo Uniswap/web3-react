@@ -12,10 +12,6 @@ const nextConfig = {
         protocol: 'https',
         hostname: '**.githubusercontent.com',
       },
-      {
-        protocol: 'https',
-        hostname: '**.vercel.app',
-      },
     ],
   },
   webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {

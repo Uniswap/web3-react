@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Card } from '../Card'
 import { hooks, phantom } from '../../../config/connectors/phantom'
+import phantomLogo from '../../../public/static/images/wallet/phantom.png'
 
 const { useChainId, useAccounts, useAccountIndex, useIsActivating, useIsActive, useProvider, useSwitchingChain } = hooks
 
@@ -25,7 +26,7 @@ export default function PhantomWalletCard({ hide }: { hide: boolean }) {
   return (
     <Card
       hide={hide}
-      walletLogoUrl="/static/images/wallet/phantom.png"
+      walletLogoUrl={phantomLogo}
       connector={phantom}
       chainId={chainId}
       accountIndex={accountIndex}

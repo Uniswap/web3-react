@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { Card } from '../Card'
 import { portisWallet, hooks } from '../../../config/connectors/portisWallet'
 import Button from '../../atoms/Button'
+import portisLogo from '../../../public/static/images/wallet/portis.png'
 
 const {
   useChainId,
@@ -64,7 +65,7 @@ export default function PortisWalletCard({ hide }: { hide: boolean }) {
   return (
     <Card
       hide={hide}
-      walletLogoUrl="/static/images/wallet/portis.png"
+      walletLogoUrl={portisLogo}
       connector={portisWallet}
       chainId={chainId}
       accountIndex={accountIndex}
