@@ -1,9 +1,11 @@
+import type { EventEmitter } from 'node:events'
+
 import type WalletConnectProvider from '@walletconnect/ethereum-provider'
 import type { IWCEthRpcConnectionOptions } from '@walletconnect/types'
 import type { Actions, ProviderRpcError } from '@web3-react/types'
 import { Connector } from '@web3-react/types'
 import EventEmitter3 from 'eventemitter3'
-import type { EventEmitter } from 'node:events'
+
 import { getBestUrl } from './utils'
 
 export const URI_AVAILABLE = 'URI_AVAILABLE'
