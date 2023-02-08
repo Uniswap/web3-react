@@ -1,8 +1,10 @@
 {
   "version": "independent",
   "packages": [
-    "packages/*"
+    "packages/*",
+    "example"
   ],
   "npmClient": "yarn",
-  "ignoreChanges": ["**/*.md", "**/*.spec.ts"]
+  "ignoreChanges": ["**/*.md", "**/*.spec.ts"],
+  "useWorkspaces": true
 }

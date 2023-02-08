@@ -28,7 +28,6 @@ This is a hosted version of [packages/example-next](packages/example-next).
 ## Get Started
 
 - `yarn`
-- `yarn bootstrap`
 - `yarn start`
 
 In addition to compiling each package in watch mode, this will also spin up [packages/example-next](packages/example-next) on [localhost:3000](http://localhost:3000/). (It will also spin up [packages/example-cra](packages/example-cra) on [localhost:3001](http://localhost:3001/), but this is just a skeleton app for testing compatibility.)
@@ -38,23 +37,9 @@ In addition to compiling each package in watch mode, this will also spin up [pac
 - `yarn build`
 - `yarn test --watch`
 
-## Add a Dependency
-
-- `yarn lerna add <DEPENDENCY> --scope <PACKAGE>`
-
-## Remove a Dependency
-
-- Delete the relevant `package.json` entry
-
-Because of a [lerna bug](https://github.com/lerna/lerna/issues/1883), it's not possible to prune `yarn.lock` programmatically, so regenerate it manually:
-
-- `yarn lerna exec "rm -f yarn.lock" --scope <SUBPACKAGE>`
-- `yarn clean --scope <SUBPACKAGE>`
-- `yarn bootstrap`
-
 ## Publish
 
-- `yarn lerna publish [--dist-tag]`
+- `yarn lerna publish [--dist-tag] `
 
 ## Documentation
 

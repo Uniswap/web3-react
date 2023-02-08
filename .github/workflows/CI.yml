@@ -29,7 +29,6 @@ jobs:
           cache: 'yarn'
 
       - run: yarn
-      - run: yarn bootstrap
 
       - run: yarn build
 
@@ -37,4 +36,3 @@ jobs:
       - run: yarn test
 
       - run: yarn lerna exec 'yarn next build' --scope=example-next
-      - run: yarn lerna exec 'yarn react-scripts build' --scope=example-cra
