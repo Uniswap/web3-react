@@ -4,6 +4,11 @@
     "packages/*",
     "example"
   ],
+  "command": {
+    "publish": {
+      "private": false
+    }
+  },
   "npmClient": "yarn",
   "ignoreChanges": ["**/*.md", "**/*.spec.ts"],
   "useWorkspaces": true
