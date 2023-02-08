@@ -1,4 +1,5 @@
 import type { EventEmitter } from 'node:events'
+
 import type { State, StoreApi } from 'zustand'
 
 export interface Web3ReactState extends State {

@@ -1,5 +1,5 @@
 import { initializeConnector } from '@web3-react/core'
-import { Empty, EMPTY } from '@web3-react/empty'
+import { EMPTY, Empty } from '@web3-react/empty'
 import React from 'react'
 import ReactDOM from 'react-dom'
 

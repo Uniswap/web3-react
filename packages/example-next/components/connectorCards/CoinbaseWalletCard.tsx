@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+
 import { coinbaseWallet, hooks } from '../../connectors/coinbaseWallet'
 import { Card } from '../Card'
 

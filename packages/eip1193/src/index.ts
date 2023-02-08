@@ -49,11 +49,11 @@ export class EIP1193 extends Connector {
       // Wallets may resolve eth_chainId and hang on eth_accounts pending user interaction, which may include changing
       // chains; they should be requested serially, with accounts first, so that the chainId can settle.
       const accounts = await requestAccounts()
-      const chainId = await this.provider.request({ method: 'eth_chainId' }) as string
+      const chainId = (await this.provider.request({ method: 'eth_chainId' })) as string
       this.actions.update({ chainId: parseChainId(chainId), accounts })
     } catch (error) {
-        cancelActivation()
-        throw error
+      cancelActivation()
+      throw error
     }
   }
 
@@ -64,8 +64,11 @@ export class EIP1193 extends Connector {
 
   /** {@inheritdoc Connector.activate} */
   public async activate(): Promise<void> {
-    return this.activateAccounts(() => this.provider
-        .request({ method: 'eth_requestAccounts' })
-        .catch(() => this.provider.request({ method: 'eth_accounts' })) as Promise<string[]>)
+    return this.activateAccounts(
+      () =>
+        this.provider
+          .request({ method: 'eth_requestAccounts' })
+          .catch(() => this.provider.request({ method: 'eth_accounts' })) as Promise<string[]>
+    )
   }
 }

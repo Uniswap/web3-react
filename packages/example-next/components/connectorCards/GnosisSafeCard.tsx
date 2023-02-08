@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+
 import { gnosisSafe, hooks } from '../../connectors/gnosisSafe'
 import { Card } from '../Card'
 
