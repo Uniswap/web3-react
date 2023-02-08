@@ -5,7 +5,7 @@ import type { Actions, ProviderRpcError } from '@web3-react/types'
 import { Connector } from '@web3-react/types'
 import EventEmitter3 from 'eventemitter3'
 
-import { getRpcBestUrlMap } from './utils'
+import { getRpcBestUrlMap, orderToSetDefaultChain } from './utils'
 
 export const URI_AVAILABLE = 'URI_AVAILABLE'
 
@@ -85,21 +85,14 @@ export class WalletConnect extends Connector {
   ): Promise<MockWalletConnectProvider> {
     if (this.eagerConnection) return this.eagerConnection
 
-    const chains = [...this.chains]
-    if (desiredChainId) {
-      const idx = chains.indexOf(desiredChainId)
-      if (idx === -1) {
-        throw new Error(`Invalid chainId ${desiredChainId}. Make sure to include it in the "chains" option.`)
-      }
-      chains.splice(idx, 1)
-      chains.unshift(desiredChainId)
-    }
+    const chains = desiredChainId ? orderToSetDefaultChain(this.chains, desiredChainId) : this.chains
+    const rpcMap = this.rpcMap ? await getRpcBestUrlMap(this.rpcMap, this.timeout) : undefined
 
     return (this.eagerConnection = import('@walletconnect/ethereum-provider').then(async (ethProviderModule) => {
       const provider = (this.provider = (await ethProviderModule.default.init({
         ...this.options,
         chains,
-        rpcMap: this.rpcMap ? await getRpcBestUrlMap(this.rpcMap, this.timeout) : undefined,
+        rpcMap,
       })) as unknown as MockWalletConnectProvider)
       provider.on('disconnect', this.disconnectListener)
       provider.on('chainChanged', this.chainChangedListener)

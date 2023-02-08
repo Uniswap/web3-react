@@ -1,4 +1,4 @@
-import { getRpcBestUrlMap } from './utils'
+import { getRpcBestUrlMap, orderToSetDefaultChain } from './utils'
 
 class MockHttpConnection {
   public readonly succeed: boolean
@@ -71,5 +71,11 @@ describe('getBestUrl', () => {
   test('works with 2 successful urls (after timeout/before timeout)', async () => {
     const rpc = await getRpcBestUrlMap({0: ['succeed_100', 'succeed_0']}, 50)
     expect(rpc[0]).toBe('succeed_0')
+  })
+})
+
+describe('orderToSetDefaultChain', () => {
+  test('puts the default chain first at the beginning', () => {
+    expect(orderToSetDefaultChain([1, 2, 3], 3)).toEqual([3, 1, 2])
   })
 })
