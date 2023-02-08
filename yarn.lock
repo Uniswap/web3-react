@@ -348,11 +348,6 @@
     stream-browserify "^3.0.0"
     util "^0.12.4"
 
-"@emurgo/cardano-serialization-lib-browser@^11.2.1":
-  version "11.2.1"
-  resolved "https://registry.yarnpkg.com/@emurgo/cardano-serialization-lib-browser/-/cardano-serialization-lib-browser-11.2.1.tgz#932996810da95b609e58966155e78e4d2a4f7e05"
-  integrity sha512-J9Pmeta7y1GYnMCxtb3GnGCRw6zk1wiQ8EdCYQRn/Yqa/ss1zoBjd41euVi02Eb58aLuOJS81nNU+BcMLGXvUg==
-
 "@emurgo/cip4-js@^1.0.7":
   version "1.0.7"
   resolved "https://registry.yarnpkg.com/@emurgo/cip4-js/-/cip4-js-1.0.7.tgz#a6e1fbbfb485d23a9562a2364b09c6a97f069551"

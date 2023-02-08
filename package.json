@@ -19,7 +19,6 @@
   },
   "devDependencies": {
     "@coinbase/wallet-sdk": "^3.3.0",
-    "@emurgo/cardano-serialization-lib-browser": "^11.2.1",
     "@emurgo/cip4-js": "^1.0.7",
     "@portis/web3": "^4.1.0",
     "@solana/web3.js": "^1.73.0",
