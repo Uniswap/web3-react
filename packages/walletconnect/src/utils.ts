@@ -1,8 +1,22 @@
 /**
- * @param urls - An array of URLs to try to connect to.
+ * @param rpcMap - Map of chainIds to rpc url(s).
  * @param timeout - How long to wait before a call is considered failed, in ms.
  */
-export async function getBestUrl(urls: string | string[], timeout: number): Promise<string> {
+export async function getRpcBestUrlMap(rpcMap: Record<string, string | string[]>, timeout: number) {
+  return Object.fromEntries(
+    await Promise.all(
+      Object.entries(rpcMap).map(
+        async ([chainId, map]): Promise<[string, string]> => [`${chainId}`, await getBestUrl(map, timeout)]
+      )
+    )
+  )
+}
+
+/**
+ * @param urls - An array of URLs to try to connect to.
+ * @param timeout - @see getRpcBestUrlMap#timeout
+ */
+async function getBestUrl(urls: string | string[], timeout: number): Promise<string> {
   // if we only have 1 url, it's the best!
   if (typeof urls === 'string') return urls
   if (urls.length === 1) return urls[0]

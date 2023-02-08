@@ -5,7 +5,7 @@ import type { Actions, ProviderRpcError } from '@web3-react/types'
 import { Connector } from '@web3-react/types'
 import EventEmitter3 from 'eventemitter3'
 
-import { getBestUrl } from './utils'
+import { getRpcBestUrlMap } from './utils'
 
 export const URI_AVAILABLE = 'URI_AVAILABLE'
 
@@ -85,17 +85,6 @@ export class WalletConnect extends Connector {
   ): Promise<MockWalletConnectProvider> {
     if (this.eagerConnection) return this.eagerConnection
 
-    const rpcMap = this.rpcMap
-    const rpcBestUrlMap = rpcMap
-      ? Object.fromEntries(
-          await Promise.all(
-            Object.entries(rpcMap).map(
-              async ([chainId, map]): Promise<[string, string]> => [`${chainId}`, await getBestUrl(map, this.timeout)]
-            )
-          )
-        )
-      : undefined
-
     const chains = [...this.chains]
     if (desiredChainId) {
       const idx = chains.indexOf(desiredChainId)
@@ -110,7 +99,7 @@ export class WalletConnect extends Connector {
       const provider = (this.provider = (await ethProviderModule.default.init({
         ...this.options,
         chains,
-        rpcMap: rpcBestUrlMap,
+        rpcMap: this.rpcMap ? await getRpcBestUrlMap(this.rpcMap, this.timeout) : undefined,
       })) as unknown as MockWalletConnectProvider)
       provider.on('disconnect', this.disconnectListener)
       provider.on('chainChanged', this.chainChangedListener)
