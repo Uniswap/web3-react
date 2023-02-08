@@ -1,60 +1,47 @@
+// Not avaiable in the `node` environment, but required by WalletConnect
+global.TextEncoder = jest.fn()
+global.TextDecoder = jest.fn()
+
+// We are not using Web3Modal and it is not available in the `node` environment either
+jest.mock('@web3modal/standalone', () => ({ Web3Modal: jest.fn().mockImplementation() }))
+
 import { createWeb3ReactStoreAndActions } from '@web3-react/store'
-import type { Actions, RequestArguments, Web3ReactStore } from '@web3-react/types'
-import EventEmitter from 'node:events'
+import { EthereumProvider } from '@walletconnect/ethereum-provider'
+
 import { WalletConnect } from '.'
-import { MockEIP1193Provider } from '../../eip1193/src/mock'
 
-// necessary because walletconnect returns chainId as a number
-class MockMockWalletConnectProvider extends MockEIP1193Provider {
-  public connector = new EventEmitter()
-
-  public eth_chainId_number = jest.fn((chainId?: string) =>
-    chainId === undefined ? chainId : Number.parseInt(chainId, 16)
-  )
-
-  public request(x: RequestArguments): Promise<unknown> {
-    if (x.method === 'eth_chainId') {
-      return Promise.resolve(this.eth_chainId_number(this.chainId))
-    } else {
-      return super.request(x)
-    }
-  }
+const createTestEnvironment = (chains: number[]) => {
+  const [store, actions] = createWeb3ReactStoreAndActions()
+  const connector = new WalletConnect({ actions, options: { projectId: 'a6cc11517a10f6f12953fd67b1eb67e7', chains } })
+  return {connector, store}
 }
 
-jest.mock('@walletconnect/ethereum-provider', () => MockMockWalletConnectProvider)
-
-const chainId = '0x1'
-const accounts: string[] = []
-
 describe('WalletConnect', () => {
-  let store: Web3ReactStore
-  let connector: WalletConnect
-  let mockProvider: MockMockWalletConnectProvider
-
-  describe('works', () => {
-    beforeEach(async () => {
-      let actions: Actions
-      ;[store, actions] = createWeb3ReactStoreAndActions()
-      connector = new WalletConnect({ actions, options: { projectId: '', chains: [1] } })
+  describe('#connectEagerly', () => {
+    test('should fail when no existing session', async () => {
+      const {connector} = createTestEnvironment([1])
+      await expect(connector.connectEagerly()).rejects.toThrow()
     })
+  })
+  describe('#activate', () => {
+    test('should activate', async () => {
+      const chainId = 1
+      const accounts = ['0x0000000000000000000000000000000000000000']
 
-    test('#activate', async () => {
-      await connector.connectEagerly().catch(() => {})
+      const {connector, store} = createTestEnvironment([chainId])
 
-      mockProvider = connector.provider as unknown as MockMockWalletConnectProvider
-      mockProvider.chainId = chainId
-      mockProvider.accounts = accounts
+      // @ts-ignore
+      jest.spyOn(EthereumProvider, 'init').mockResolvedValueOnce({
+        accounts,
+        chainId,
+        on() {},
+        async enable() { return accounts },
+      })
 
       await connector.activate()
 
-      expect(mockProvider.eth_requestAccounts).toHaveBeenCalled()
-      expect(mockProvider.eth_accounts).not.toHaveBeenCalled()
-      expect(mockProvider.eth_chainId_number).toHaveBeenCalled()
-      expect(mockProvider.eth_chainId_number.mock.invocationCallOrder[0])
-        .toBeGreaterThan(mockProvider.eth_requestAccounts.mock.invocationCallOrder[0])
-
       expect(store.getState()).toEqual({
-        chainId: Number.parseInt(chainId, 16),
+        chainId,
         accounts,
         activating: false,
         error: undefined,
