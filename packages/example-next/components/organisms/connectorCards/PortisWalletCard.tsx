@@ -80,12 +80,16 @@ export default function PortisWalletCard({ hide }: { hide: boolean }) {
       error={error}
       setError={setError}
     >
-      <Button style={{ marginBottom: '1em' }} disabled={isShowing} onClick={() => void showPortis()}>
-        Show Wallet
-      </Button>
-      <Button disabled={isShowingBitcoin} onClick={() => void showPortisBitcoin()}>
-        Show Bitcoin Wallet
-      </Button>
+      {isActive && (
+        <>
+          <Button style={{ marginBottom: '1em' }} disabled={isShowing} onClick={() => void showPortis()}>
+            Show Wallet
+          </Button>
+          <Button disabled={isShowingBitcoin} onClick={() => void showPortisBitcoin()}>
+            Show Bitcoin Wallet
+          </Button>
+        </>
+      )}
     </Card>
   )
 }

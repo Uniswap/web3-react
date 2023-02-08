@@ -13,6 +13,7 @@
     "prestart": "yarn build",
     "start": "lerna run start --parallel",
     "rebuild": "yarn clean && yarn bootstrap && yarn start",
+    "buildprod": "yarn lerna exec 'yarn next build' --scope=example-next",
     "pin": "lerna run pin && yarn bootstrap",
     "version": "yarn pin && git add packages/example-{next,cra}/package.json",
     "prepack": "yarn build"

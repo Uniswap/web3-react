@@ -11,7 +11,7 @@ export default function StatusView({
   isActive,
   error,
 }: {
-  connector: Connector
+  connector?: Connector
   accountIndex?: ReturnType<Web3ReactHooks['useAccountIndex']>
   accounts?: string[]
   isActivating: ReturnType<Web3ReactHooks['useIsActivating']>
@@ -105,7 +105,7 @@ export default function StatusView({
           </div>
         )}
       </div>
-      {error || isActivating || (isActive && <SpacerView />)}
+      {!!accounts?.length && <SpacerView />}
     </>
   )
 }
