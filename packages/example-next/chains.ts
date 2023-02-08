@@ -92,15 +92,15 @@ export const TESTNET_CHAINS: ChainConfig = {
     urls: [infuraUrl('goerli')].filter(Boolean),
     name: 'Görli',
   },
-  69: {
-    urls: [infuraUrl('optimism-kovan'), 'https://kovan.optimism.io'].filter(Boolean),
-    name: 'Optimism Kovan',
+  420: {
+    urls: [infuraUrl('optimism-goerli'), 'https://goerli.optimism.io'].filter(Boolean),
+    name: 'Optimism Goerli',
     nativeCurrency: ETH,
-    blockExplorerUrls: ['https://kovan-optimistic.etherscan.io'],
+    blockExplorerUrls: ['https://goerli-explorer.optimism.io'],
   },
-  421611: {
-    urls: [infuraUrl('arbitrum-rinkeby'), 'https://rinkeby.arbitrum.io/rpc'].filter(Boolean),
-    name: 'Arbitrum Testnet',
+  421613: {
+    urls: [infuraUrl('arbitrum-goerli'), 'https://goerli-rollup.arbitrum.io/rpc'].filter(Boolean),
+    name: 'Arbitrum Goerli',
     nativeCurrency: ETH,
     blockExplorerUrls: ['https://testnet.arbiscan.io'],
   },
@@ -121,24 +121,6 @@ export const TESTNET_CHAINS: ChainConfig = {
 export const CHAINS: ChainConfig = {
   ...MAINNET_CHAINS,
   ...TESTNET_CHAINS,
-  3: {
-    urls: [process.env.infuraKey ? `https://ropsten.infura.io/v3/${process.env.infuraKey}` : ''].filter(
-      (url) => url !== ''
-    ),
-    name: 'Ropsten',
-  },
-  4: {
-    urls: [process.env.infuraKey ? `https://rinkeby.infura.io/v3/${process.env.infuraKey}` : ''].filter(
-      (url) => url !== ''
-    ),
-    name: 'Rinkeby',
-  },
-  42: {
-    urls: [process.env.infuraKey ? `https://kovan.infura.io/v3/${process.env.infuraKey}` : ''].filter(
-      (url) => url !== ''
-    ),
-    name: 'Kovan',
-  },
 }
 
 export const URLS: { [chainId: number]: string[] } = Object.keys(CHAINS).reduce<{ [chainId: number]: string[] }>(
