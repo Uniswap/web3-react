@@ -39,37 +39,37 @@ jest.mock('@walletconnect/jsonrpc-provider', () => ({
 
 describe('getBestUrl', () => {
   test('works with a single string', async () => {
-    const url = await getRpcBestUrlMap({0: 'succeed_0'}, 100)
-    expect(url[0]).toBe('succeed_0')
+    const rpc = await getRpcBestUrlMap({0: 'succeed_0'}, 100)
+    expect(rpc[0]).toBe('succeed_0')
   })
 
-  test('works with 1 url (success)', async () => {
-    const url = await getRpcBestUrlMap({0: ['succeed_0']}, 100)
-    expect(url[0]).toBe('succeed_0')
+  test('works with 1 rpc (success)', async () => {
+    const rpc = await getRpcBestUrlMap({0: ['succeed_0']}, 100)
+    expect(rpc[0]).toBe('succeed_0')
   })
 
   test('works with 2 urls (success/failure)', async () => {
-    const url = await getRpcBestUrlMap({0: ['succeed_0', 'fail_0']}, 100)
-    expect(url[0]).toBe('succeed_0')
+    const rpc = await getRpcBestUrlMap({0: ['succeed_0', 'fail_0']}, 100)
+    expect(rpc[0]).toBe('succeed_0')
   })
 
   test('works with 2 urls (failure/success)', async () => {
-    const url = await getRpcBestUrlMap({0: ['fail_0', 'succeed_0']}, 100)
-    expect(url[0]).toBe('succeed_0')
+    const rpc = await getRpcBestUrlMap({0: ['fail_0', 'succeed_0']}, 100)
+    expect(rpc[0]).toBe('succeed_0')
   })
 
   test('works with 2 successful urls (fast/slow)', async () => {
-    const url = await getRpcBestUrlMap({0: ['succeed_0', 'succeed_1']}, 100)
-    expect(url[0]).toBe('succeed_0')
+    const rpc = await getRpcBestUrlMap({0: ['succeed_0', 'succeed_1']}, 100)
+    expect(rpc[0]).toBe('succeed_0')
   })
 
   test('works with 2 successful urls (slow/fast)', async () => {
-    const url = await getRpcBestUrlMap({0: ['succeed_1', 'succeed_0']}, 100)
-    expect(url[0]).toBe('succeed_1')
+    const rpc = await getRpcBestUrlMap({0: ['succeed_1', 'succeed_0']}, 100)
+    expect(rpc[0]).toBe('succeed_1')
   })
 
   test('works with 2 successful urls (after timeout/before timeout)', async () => {
-    const url = await getRpcBestUrlMap({0: ['succeed_100', 'succeed_0']}, 50)
-    expect(url[0]).toBe('succeed_0')
+    const rpc = await getRpcBestUrlMap({0: ['succeed_100', 'succeed_0']}, 50)
+    expect(rpc[0]).toBe('succeed_0')
   })
 })
