@@ -14,7 +14,7 @@ type MockWalletConnectProvider = WalletConnectProvider & EventEmitter
  * within a given timeout will be used. Since WalletConnect does not support multiple urls, we will have
  * to resolve the best url before passing it down.
  */
-type WalletConnectOptions = Omit<Parameters<typeof WalletConnectProvider.init>[0], 'rpcMap'> & {
+export type WalletConnectOptions = Omit<Parameters<typeof WalletConnectProvider.init>[0], 'rpcMap'> & {
   rpcMap?: { [chainId: number]: string | string[] }
 }
 
