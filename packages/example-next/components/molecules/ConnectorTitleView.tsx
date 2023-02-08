@@ -1,4 +1,5 @@
 import type { Connector } from '@web3-react/types'
+import type { StaticImageData } from 'next/image'
 import { getName } from '../../utils/connectors'
 import Image from 'next/image'
 
@@ -7,7 +8,7 @@ export default function ConnectorTitleView({
   walletLogoUrl,
 }: {
   connector: Connector
-  walletLogoUrl?: string
+  walletLogoUrl?: string | StaticImageData
 }) {
   const connectorName = getName(connector)
 

@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import type { Web3ReactHooks } from '@web3-react/core'
 import type { Connector } from '@web3-react/types'
-import { StaticImageData } from 'next/image'
+import type { StaticImageData } from 'next/image'
 import AccountsView from '../molecules/AccountsView'
 import StatusView from '../molecules/StatusView'
 import NetworkView from '../molecules/NetworkView'
