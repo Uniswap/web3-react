@@ -1,5 +1,5 @@
-import { ChainConfig } from '../chains.interface'
 import { ethMainChainId } from '../chainIds'
+import { ChainConfig } from '../chains.interface'
 
 const chainConfig: ChainConfig = {
   chainId: ethMainChainId,

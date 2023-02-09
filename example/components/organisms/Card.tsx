@@ -1,17 +1,18 @@
-import type { ReactNode } from 'react'
 import type { Web3ReactHooks } from '@web3-react/core'
 import type { Connector } from '@web3-react/types'
 import type { StaticImageData } from 'next/image'
-import AccountsView from '../molecules/AccountsView'
-import StatusView from '../molecules/StatusView'
-import NetworkView from '../molecules/NetworkView'
-import ChainView from '../molecules/ChainView'
-import BlockNumberView from '../molecules/BlockNumberView'
-import ConnectWithSelectView from '../molecules/ConnectWithSelectView'
-import WatchAssetView from '../molecules/WatchAssetView'
+import type { ReactNode } from 'react'
+
 import SpacerView from '../atoms/SpacerView'
-import SelectionView from '../molecules/SelectionView'
+import AccountsView from '../molecules/AccountsView'
+import BlockNumberView from '../molecules/BlockNumberView'
+import ChainView from '../molecules/ChainView'
 import ConnectorTitleView from '../molecules/ConnectorTitleView'
+import ConnectWithSelectView from '../molecules/ConnectWithSelectView'
+import NetworkView from '../molecules/NetworkView'
+import SelectionView from '../molecules/SelectionView'
+import StatusView from '../molecules/StatusView'
+import WatchAssetView from '../molecules/WatchAssetView'
 
 interface Props {
   connector: Connector

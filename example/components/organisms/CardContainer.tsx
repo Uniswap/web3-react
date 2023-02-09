@@ -1,8 +1,9 @@
-import { useState } from 'react'
-import { Connector } from '@web3-react/types'
 import { useWeb3React } from '@web3-react/core'
-import { cardanoMainChainId, ethMainChainId, solMainChainId, tronMainChainId } from '../../config/chains/chainIds'
+import { Connector } from '@web3-react/types'
+import { useState } from 'react'
+
 import { cardanoConnectors, evmConnectors, solanaConnectors, tronConnectors } from '../../utils/connectors'
+import Tabs from '../molecules/Tabs'
 import BscWalletCard from './connectorCards/BscWalletCard'
 import CoinbaseWalletCard from './connectorCards/CoinbaseWalletCard'
 import GnosisSafeCard from './connectorCards/GnosisSafeCard'
@@ -16,7 +17,6 @@ import SolflareWalletCard from './connectorCards/SolflareWalletCard'
 import TronLinkCard from './connectorCards/TronLinkCard'
 import WalletConnectCard from './connectorCards/WalletConnectCard'
 import YoroiWalletCard from './connectorCards/YoroiWalletCard'
-import Tabs from '../molecules/Tabs'
 
 const tabTitles = ['All', 'EVM', 'Cardano', 'Solana', 'Tron']
 const tabIndex = {
@@ -26,14 +26,6 @@ const tabIndex = {
   Solana: 3,
   Tron: 4,
 }
-
-const tabChainIds = [
-  0,
-  ethMainChainId, // Using ETH icon for all EVMs
-  cardanoMainChainId,
-  solMainChainId,
-  tronMainChainId,
-]
 
 export default function CardContainer() {
   const { setSelectedConnector } = useWeb3React()

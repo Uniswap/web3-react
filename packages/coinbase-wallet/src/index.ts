@@ -1,14 +1,14 @@
 import type { CoinbaseWalletProvider, CoinbaseWalletSDK } from '@coinbase/wallet-sdk'
-import type { LogoType } from '@coinbase/wallet-sdk/dist/assets/wallet-logo'
 import type {
-  ConnectorArgs,
   AddEthereumChainParameter,
+  ConnectorArgs,
   ProviderConnectInfo,
   ProviderRpcError,
   WatchAssetParameters,
 } from '@web3-react/types'
 import { Connector, Web3ReactState } from '@web3-react/types'
 
+export type LogoType = 'standard' | 'circle' | 'text' | 'textWithLogo' | 'textLight' | 'textWithLogoLight'
 type CoinbaseWalletSDKOptions = ConstructorParameters<typeof CoinbaseWalletSDK>[0] & { url: string }
 
 /**
@@ -97,7 +97,7 @@ export class CoinbaseWallet extends Connector {
       const accounts = await this.provider.request<string[]>({ method: 'eth_accounts' })
       if (!accounts.length) throw new Error('No accounts returned')
       const chainId = await this.provider.request<string>({ method: 'eth_chainId' })
-      this.actions.update({ chainId: parseChainId(chainId), accounts })
+      return this.actions.update({ chainId: this.parseChainId(chainId), accounts })
     } catch (error) {
       return cancelActivation()
     }

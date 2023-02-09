@@ -1,4 +1,4 @@
-import type { Provider, ProviderConnectInfo, ProviderRpcError, ConnectorArgs, Web3ReactState } from '@web3-react/types'
+import type { ConnectorArgs, Provider, ProviderConnectInfo, ProviderRpcError, Web3ReactState } from '@web3-react/types'
 import { Connector } from '@web3-react/types'
 
 // BSC Wallet extension bugs:

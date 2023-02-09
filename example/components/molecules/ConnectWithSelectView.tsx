@@ -1,19 +1,16 @@
-import { useCallback, useEffect, useState } from 'react'
-
-import type { AddingChainInfo, Connector, SwitchingChainInfo } from '@web3-react/types'
-import { useWeb3React, Web3ReactHooks } from '@web3-react/core'
-
-import { MetaMask } from '@web3-react/metamask'
 import { CoinbaseWallet } from '@web3-react/coinbase-wallet'
-import { WalletConnect } from '@web3-react/walletconnect'
-import { PortisWallet } from '@web3-react/portis-wallet'
-import { PhantomWallet } from '@web3-react/phantom'
-import { SolflareWallet } from '@web3-react/solflare'
+import { useWeb3React, Web3ReactHooks } from '@web3-react/core'
+import { MetaMask } from '@web3-react/metamask'
 import { Network } from '@web3-react/network'
+import { PhantomWallet } from '@web3-react/phantom'
+import { PortisWallet } from '@web3-react/portis-wallet'
+import { SolflareWallet } from '@web3-react/solflare'
+import type { AddingChainInfo, Connector, SwitchingChainInfo } from '@web3-react/types'
+import { WalletConnect } from '@web3-react/walletconnect'
+import { useCallback, useEffect, useState } from 'react'
 
 import { allEvmChainIds, ethMainChainId } from '../../config/chains/chainIds'
 import { CHAINS, getAddChainParameters } from '../../utils/chains'
-
 import Button from '../atoms/Button'
 import SpacerView from '../atoms/SpacerView'
 

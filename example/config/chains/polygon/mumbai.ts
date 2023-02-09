@@ -1,6 +1,6 @@
-import { ChainConfig } from '../chains.interface'
-import { polygonMainChainId, polygonTestChainId } from '../chainIds'
 import { getImageUrlFromTrust } from '../../../utils/helpers'
+import { polygonMainChainId, polygonTestChainId } from '../chainIds'
+import { ChainConfig } from '../chains.interface'
 
 const maticTestnet: ChainConfig = {
   chainId: polygonTestChainId,

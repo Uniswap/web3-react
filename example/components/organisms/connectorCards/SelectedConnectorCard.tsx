@@ -1,14 +1,15 @@
 import { useWeb3React } from '@web3-react/core'
+
 import { network } from '../../../config/connectors/network'
 import { getName } from '../../../utils/connectors'
-import AccountsView from '../../molecules/AccountsView'
-import StatusView from '../../molecules/StatusView'
-import NetworkView from '../../molecules/NetworkView'
-import ChainView from '../../molecules/ChainView'
-import BlockNumberView from '../../molecules/BlockNumberView'
-import SpacerView from '../../atoms/SpacerView'
-import SignerButton from '../../molecules/SignerButton'
 import Button from '../../atoms/Button'
+import SpacerView from '../../atoms/SpacerView'
+import AccountsView from '../../molecules/AccountsView'
+import BlockNumberView from '../../molecules/BlockNumberView'
+import ChainView from '../../molecules/ChainView'
+import NetworkView from '../../molecules/NetworkView'
+import SignerButton from '../../molecules/SignerButton'
+import StatusView from '../../molecules/StatusView'
 
 export default function SelectedConnectorCard({ hide }: { hide: boolean }) {
   const {

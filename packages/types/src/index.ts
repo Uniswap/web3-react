@@ -1,8 +1,9 @@
 import type { EventEmitter } from 'node:events'
-import type { StoreApi } from 'zustand'
-import type { EnhancedStore } from '@reduxjs/toolkit'
-import type { BaseProvider, Web3Provider } from '@ethersproject/providers'
+
 import type { Networkish } from '@ethersproject/networks'
+import type { BaseProvider, Web3Provider } from '@ethersproject/providers'
+import type { EnhancedStore } from '@reduxjs/toolkit'
+import type { StoreApi } from 'zustand'
 
 export type AddingChainInfo = {
   chainId: number
@@ -13,7 +14,6 @@ export type SwitchingChainInfo = {
   toChainId: number
 }
 
-export interface Web3ReactState {
 export interface Web3ReactState {
   chainId: number | undefined
   accounts: string[] | undefined

@@ -1,6 +1,7 @@
 import type { Web3ReactHooks } from '@web3-react/core'
-import type { Connector } from '@web3-react/types'
 import { Network } from '@web3-react/network'
+import type { Connector } from '@web3-react/types'
+
 import SpacerView from '../atoms/SpacerView'
 
 export default function StatusView({
@@ -84,7 +85,7 @@ export default function StatusView({
               <p
                 style={{ width: '100%', whiteSpace: 'pre', marginTop: '0.5em', marginBottom: '0.5em', marginLeft: -1 }}
               >
-                {'⚠️  Unlock wallet'}
+                ⚠️ Unlock wallet
               </p>
             )}
           </div>

@@ -1,7 +1,7 @@
-import type { Provider, ProviderRpcError, ConnectorArgs } from '@web3-react/types'
-import type { Transaction, SendOptions } from '@solana/web3.js'
-import { Connector, Web3ReactState } from '@web3-react/types'
+import type { SendOptions, Transaction } from '@solana/web3.js'
 import { Connection, PublicKey } from '@solana/web3.js'
+import type { ConnectorArgs, Provider, ProviderRpcError } from '@web3-react/types'
+import { Connector, Web3ReactState } from '@web3-react/types'
 
 declare global {
   interface Window {

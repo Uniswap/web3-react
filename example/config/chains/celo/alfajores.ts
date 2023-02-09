@@ -1,6 +1,6 @@
-import { ChainConfig } from '../chains.interface'
-import { celoMainChainId, celoTestChainId } from '../chainIds'
 import { getImageUrlFromTrust } from '../../../utils/helpers'
+import { celoMainChainId, celoTestChainId } from '../chainIds'
+import { ChainConfig } from '../chains.interface'
 
 const chainConfig: ChainConfig = {
   chainId: celoTestChainId,

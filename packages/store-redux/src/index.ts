@@ -1,7 +1,7 @@
-import type { Actions, Web3ReactState, Web3ReactStateUpdate, Web3ReactReduxStore } from '@web3-react/types'
+import { getAddress } from '@ethersproject/address'
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { configureStore, createSlice } from '@reduxjs/toolkit'
-import { getAddress } from '@ethersproject/address'
+import type { Actions, Web3ReactReduxStore, Web3ReactState, Web3ReactStateUpdate } from '@web3-react/types'
 
 /**
  * MAX_SAFE_CHAIN_ID is the upper bound limit on what will be accepted for `chainId`

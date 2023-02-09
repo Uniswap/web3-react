@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
-import { Card } from '../Card'
+
 import { gnosisSafe, hooks } from '../../../config/connectors/gnosisSafe'
+import { Card } from '../Card'
 
 const { useChainId, useAccounts, useIsActivating, useIsActive, useProvider, useENSNames, useENSAvatars } = hooks
 

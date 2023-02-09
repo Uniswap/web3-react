@@ -1,6 +1,6 @@
-import { ChainConfig } from '../chains.interface'
-import { poaTestChainId, poaMainChainId } from '../chainIds'
 import { getImageUrlFromTrust } from '../../../utils/helpers'
+import { poaMainChainId, poaTestChainId } from '../chainIds'
+import { ChainConfig } from '../chains.interface'
 
 const chainConfig: ChainConfig = {
   chainId: poaTestChainId,

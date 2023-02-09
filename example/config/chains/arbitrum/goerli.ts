@@ -1,6 +1,6 @@
-import { ChainConfig } from '../chains.interface'
-import { arbitrumTestChainId, arbitrumMainChainId } from '../chainIds'
 import { getImageUrlFromTrust } from '../../../utils/helpers'
+import { arbitrumMainChainId, arbitrumTestChainId } from '../chainIds'
+import { ChainConfig } from '../chains.interface'
 
 const chainConfig: ChainConfig = {
   chainId: arbitrumTestChainId,

@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Card } from '../Card'
-import { portisWallet, hooks } from '../../../config/connectors/portisWallet'
+
+import { hooks, portisWallet } from '../../../config/connectors/portisWallet'
 import Button from '../../atoms/Button'
+import { Card } from '../Card'
 
 const {
   useChainId,

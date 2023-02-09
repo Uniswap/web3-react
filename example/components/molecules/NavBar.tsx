@@ -29,8 +29,8 @@ export default function NavBar() {
       </div>
       <Button
         style={{ width: 100, height: 44 }}
-        color={'rgba(255,0,122,0.15)'}
-        borderColor={'rgba(255,0,122,0.4)'}
+        color="rgba(255,0,122,0.15)"
+        borderColor="rgba(255,0,122,0.4)"
         onClick={() => {
           const newWindow = window.open('https://github.com/Uniswap/web3-react', '_blank', 'noopener,noreferrer')
           if (newWindow) newWindow.opener = null

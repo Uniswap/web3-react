@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
-import { Card } from '../Card'
+
 import { coinbaseWallet, hooks } from '../../../config/connectors/coinbaseWallet'
+import { Card } from '../Card'
 
 const {
   useChainId,

@@ -1,5 +1,5 @@
-import type { Connector } from '@web3-react/types'
 import { useWeb3React } from '@web3-react/core'
+import type { Connector } from '@web3-react/types'
 
 export default function SelectionView({ connector }: { connector: Connector }) {
   const {

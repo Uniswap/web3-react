@@ -1,8 +1,8 @@
-import type { Provider, ProviderRpcError, ConnectorArgs, Web3ReactState } from '@web3-react/types'
-import type { Transaction, SendOptions } from '@solana/web3.js'
-import { Connector } from '@web3-react/types'
-import { Connection, PublicKey } from '@solana/web3.js'
 import { BigNumber } from '@ethersproject/bignumber'
+import type { SendOptions, Transaction } from '@solana/web3.js'
+import { Connection, PublicKey } from '@solana/web3.js'
+import type { ConnectorArgs, Provider, ProviderRpcError, Web3ReactState } from '@web3-react/types'
+import { Connector } from '@web3-react/types'
 
 declare global {
   interface Window {

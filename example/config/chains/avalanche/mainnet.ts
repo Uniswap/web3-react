@@ -1,6 +1,6 @@
-import { ChainConfig } from '../chains.interface'
-import { avaxMainChainId } from '../chainIds'
 import { getImageUrlFromTrust } from '../../../utils/helpers'
+import { avaxMainChainId } from '../chainIds'
+import { ChainConfig } from '../chains.interface'
 
 const chainConfig: ChainConfig = {
   chainId: avaxMainChainId,

@@ -1,6 +1,6 @@
-import { ChainConfig } from '../chains.interface'
-import { tronMainChainId, tronNileChainId } from '../chainIds'
 import { getImageUrlFromTrust } from '../../../utils/helpers'
+import { tronMainChainId, tronNileChainId } from '../chainIds'
+import { ChainConfig } from '../chains.interface'
 
 const chainConfig: ChainConfig = {
   chainId: tronNileChainId,

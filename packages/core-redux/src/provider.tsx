@@ -1,18 +1,19 @@
 import type { Networkish } from '@ethersproject/networks'
 import type { BaseProvider, Web3Provider } from '@ethersproject/providers'
 import type { Connector, Web3ReactReduxStore } from '@web3-react/types'
-import type { Web3ReactHooks, Web3ReactPriorityHooks } from './hooks'
 import { Dispatch, SetStateAction } from 'react'
 import React, {
-  createContext,
-  useContext,
-  useRef,
   Context,
+  createContext,
   MutableRefObject,
   ReactNode,
   useCallback,
+  useContext,
+  useRef,
   useState,
 } from 'react'
+
+import type { Web3ReactHooks, Web3ReactPriorityHooks } from './hooks'
 import { getPriorityConnectorHooks } from './hooks'
 
 /**

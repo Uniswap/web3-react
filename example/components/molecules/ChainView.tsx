@@ -1,5 +1,6 @@
 import type { Web3ReactHooks } from '@web3-react/core'
 import type { Connector } from '@web3-react/types'
+
 import { isCardanoConnector, isSolanaConnector, isTronConnector } from '../../utils/connectors'
 
 export default function ChainView({

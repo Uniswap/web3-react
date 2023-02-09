@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
-import { Card } from '../Card'
+
 import { hooks, solflare } from '../../../config/connectors/solflare'
+import { Card } from '../Card'
 
 const { useChainId, useAccounts, useAccountIndex, useIsActivating, useIsActive, useProvider, useSwitchingChain } = hooks
 

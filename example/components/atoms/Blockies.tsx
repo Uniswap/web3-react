@@ -1,6 +1,6 @@
-import { memo, useEffect, useRef, useState } from 'react'
 import { renderIcon } from '@download/blockies'
 import Image from 'next/image'
+import { memo, useEffect, useRef, useState } from 'react'
 
 function Blockies({ account, diameter, alt }: { account: string; diameter: number; alt?: string }) {
   const [dataUrl, setDataUrl] = useState<string>(null)

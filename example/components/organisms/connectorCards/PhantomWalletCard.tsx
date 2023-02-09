@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
-import { Card } from '../Card'
+
 import { hooks, phantom } from '../../../config/connectors/phantom'
+import { Card } from '../Card'
 
 const { useChainId, useAccounts, useAccountIndex, useIsActivating, useIsActive, useProvider, useSwitchingChain } = hooks
 

@@ -1,15 +1,15 @@
 import type { Networkish } from '@ethersproject/networks'
 import type { BaseProvider, Web3Provider } from '@ethersproject/providers'
+import { createWeb3ReactStoreAndActions } from '@web3-react/store-redux'
 import type {
   Actions,
   Connector,
-  Web3ReactState,
-  Web3ReactReduxStore,
-  Web3SelectedSelectors,
   Web3PrioritySelectors,
+  Web3ReactReduxStore,
+  Web3ReactState,
+  Web3SelectedSelectors,
 } from '@web3-react/types'
 import { useEffect, useMemo, useState } from 'react'
-import { createWeb3ReactStoreAndActions } from '@web3-react/store-redux'
 import { useSyncExternalStoreWithSelector } from 'use-sync-external-store/with-selector'
 
 let DynamicProvider: typeof Web3Provider | null | undefined

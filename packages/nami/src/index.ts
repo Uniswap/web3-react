@@ -1,4 +1,4 @@
-import type { Provider, ConnectorArgs, Web3ReactState } from '@web3-react/types'
+import type { ConnectorArgs, Provider, Web3ReactState } from '@web3-react/types'
 import { Connector } from '@web3-react/types'
 
 // https://cips.cardano.org/cips/cip30/

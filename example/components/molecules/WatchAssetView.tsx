@@ -1,12 +1,13 @@
-import type { Connector } from '@web3-react/types'
 import type { Web3ReactHooks } from '@web3-react/core'
+import type { Connector } from '@web3-react/types'
+
 import { polygonMainChainId } from '../../config/chains/chainIds'
-import { CHAINS, getAddChainParameters } from '../../utils/chains'
-import { getImageUrlFromTrust } from '../../utils/helpers'
-import { isEVMConnector } from '../../utils/connectors'
-import { WatchAssetButton } from './WatchAssetButton'
 import { ChainConfig } from '../../config/chains/chains.interface'
+import { CHAINS, getAddChainParameters } from '../../utils/chains'
+import { isEVMConnector } from '../../utils/connectors'
+import { getImageUrlFromTrust } from '../../utils/helpers'
 import SpacerView from '../atoms/SpacerView'
+import { WatchAssetButton } from './WatchAssetButton'
 
 export default function WatchAssetView({
   connector,

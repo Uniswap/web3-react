@@ -1,12 +1,12 @@
+import { BigNumber } from '@ethersproject/bignumber'
 import type {
   ConnectorArgs,
   Provider,
   ProviderRpcError,
-  WatchAssetParameters,
   RequestArguments,
+  WatchAssetParameters,
   Web3ReactState,
 } from '@web3-react/types'
-import { BigNumber } from '@ethersproject/bignumber'
 import { Connector } from '@web3-react/types'
 
 declare global {

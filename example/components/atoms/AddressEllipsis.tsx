@@ -1,7 +1,7 @@
-import type { Connector } from '@web3-react/types'
 import { textPartFromWalletChecksumImagePart } from '@emurgo/cip4-js'
-import { YoroiWallet } from '@web3-react/yoroi'
 import { NamiWallet } from '@web3-react/nami'
+import type { Connector } from '@web3-react/types'
+import { YoroiWallet } from '@web3-react/yoroi'
 
 export default function AddressEllipsis({
   connector,

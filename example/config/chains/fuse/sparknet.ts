@@ -1,6 +1,6 @@
-import { ChainConfig } from '../chains.interface'
-import { fuseTestChainId, fuseMainChainId } from '../chainIds'
 import { getImageUrlFromTrust } from '../../../utils/helpers'
+import { fuseMainChainId, fuseTestChainId } from '../chainIds'
+import { ChainConfig } from '../chains.interface'
 
 const chainConfig: ChainConfig = {
   chainId: fuseTestChainId,

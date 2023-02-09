@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
+
+import { bscWallet, hooks } from '../../../config/connectors/bscWallet'
 import { Card } from '../Card'
-import { hooks, bscWallet } from '../../../config/connectors/bscWallet'
 
 const {
   useChainId,

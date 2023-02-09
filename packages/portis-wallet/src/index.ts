@@ -1,6 +1,6 @@
 import type Portis from '@portis/web3'
 import type { INetwork, IOptions } from '@portis/web3'
-import type { Provider, ConnectorArgs, Web3ReactState } from '@web3-react/types'
+import type { ConnectorArgs, Provider, Web3ReactState } from '@web3-react/types'
 import { Connector } from '@web3-react/types'
 
 // https://docs.portis.io/#/configuration?id=network

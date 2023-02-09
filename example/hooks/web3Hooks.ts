@@ -1,21 +1,16 @@
-import type { YoroiProvider } from '@web3-react/yoroi'
-import type { NamiProvider } from '@web3-react/nami'
-
-import { useCallback, useEffect, useState } from 'react'
-
 import { BigNumber } from '@ethersproject/bignumber'
 import { Web3Provider } from '@ethersproject/providers'
-
+import { PublicKey } from '@solana/web3.js'
 import { Web3ReactHooks } from '@web3-react/core'
-
+import type { NamiProvider } from '@web3-react/nami'
+import { NamiWallet } from '@web3-react/nami'
 import { PhantomWallet } from '@web3-react/phantom'
 import { SolflareWallet } from '@web3-react/solflare'
 import { TronLink } from '@web3-react/tron-link'
 import { Connector } from '@web3-react/types'
+import type { YoroiProvider } from '@web3-react/yoroi'
 import { YoroiWallet } from '@web3-react/yoroi'
-import { NamiWallet } from '@web3-react/nami'
-
-import { PublicKey } from '@solana/web3.js'
+import { useCallback, useEffect, useState } from 'react'
 
 /**
  * @param subscribe - Whether to poll data
@@ -335,5 +330,5 @@ export function useSignMessage({
     setIsLoading(false)
   }, [account, connector, provider, onSigned, onRejected])
 
-  return { signMessage, isLoading: isLoading }
+  return { signMessage, isLoading }
 }

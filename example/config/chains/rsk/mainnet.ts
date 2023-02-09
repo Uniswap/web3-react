@@ -1,6 +1,6 @@
-import { ChainConfig } from '../chains.interface'
-import { rskMainChainId } from '../chainIds'
 import { getImageUrlFromTrust } from '../../../utils/helpers'
+import { rskMainChainId } from '../chainIds'
+import { ChainConfig } from '../chains.interface'
 
 const chainConfig: ChainConfig = {
   chainId: rskMainChainId,

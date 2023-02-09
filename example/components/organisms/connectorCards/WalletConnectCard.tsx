@@ -1,7 +1,8 @@
 import { URI_AVAILABLE } from '@web3-react/walletconnect'
 import { useEffect, useState } from 'react'
-import { Card } from '../Card'
+
 import { hooks, walletConnect } from '../../../config/connectors/walletConnect'
+import { Card } from '../Card'
 
 const {
   useChainId,

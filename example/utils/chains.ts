@@ -1,6 +1,15 @@
 import { AddEthereumChainParameter, AddEthereumChainParameters } from '@web3-react/types'
-import { ChainConfig } from '../config/chains/chains.interface'
+
+import arbitrumTestnet from '../config/chains/arbitrum/goerli'
+import arbitrumMainnet from '../config/chains/arbitrum/mainnet'
+import avaxTestnet from '../config/chains/avalanche/fuji'
+import avaxMainnet from '../config/chains/avalanche/mainnet'
+import cardanoMainnet from '../config/chains/cardano/mainnet'
+import cardanoPreProd from '../config/chains/cardano/preProd'
+import celoTestnet from '../config/chains/celo/alfajores'
+import celoMainnet from '../config/chains/celo/mainnet'
 import {
+  allEvmChainIds,
   arbitrumMainChainId,
   arbitrumTestChainId,
   avaxMainChainId,
@@ -11,12 +20,12 @@ import {
   cardanoPreProdChainId,
   celoMainChainId,
   celoTestChainId,
-  ethMainChainId,
-  ethGoerliChainId,
-  ethSepoliaChainId,
-  etcMainChainId,
   etcKottiChainId,
+  etcMainChainId,
   etcMordorChainId,
+  ethGoerliChainId,
+  ethMainChainId,
+  ethSepoliaChainId,
   fantomMainChainId,
   fantomTestChainId,
   fuseMainChainId,
@@ -26,40 +35,30 @@ import {
   lightstreamsTestChainId,
   optimismMainChainId,
   optimismTestChainId,
+  plsTestChainId,
   poaMainChainId,
   poaTestChainId,
   polygonMainChainId,
   polygonTestChainId,
-  plsTestChainId,
   rskMainChainId,
   rskTestChainId,
-  solMainChainId,
   solDevChainId,
+  solMainChainId,
   solTestChainId,
   thunderMainChainId,
   thunderTestChainId,
   tronMainChainId,
-  tronShastaChainId,
   tronNileChainId,
+  tronShastaChainId,
   ubiqMainChainId,
-  allEvmChainIds,
 } from '../config/chains/chainIds'
-import arbitrumMainnet from '../config/chains/arbitrum/mainnet'
-import arbitrumTestnet from '../config/chains/arbitrum/goerli'
-import avaxMainnet from '../config/chains/avalanche/mainnet'
-import avaxTestnet from '../config/chains/avalanche/fuji'
-import bscMainnet from '../config/chains/smart/mainnet'
-import bscTestnet from '../config/chains/smart/testnet'
-import cardanoMainnet from '../config/chains/cardano/mainnet'
-import cardanoPreProd from '../config/chains/cardano/preProd'
-import celoMainnet from '../config/chains/celo/mainnet'
-import celoTestnet from '../config/chains/celo/alfajores'
-import ethMainnet from '../config/chains/ethereum/mainnet'
-import ethGoerliTestnet from '../config/chains/ethereum/goerli'
-import ethSepoliaTestnet from '../config/chains/ethereum/sepolia'
-import etcMainnet from '../config/chains/classic/mainnet'
+import { ChainConfig } from '../config/chains/chains.interface'
 import etcKottiTestnet from '../config/chains/classic/kotti'
+import etcMainnet from '../config/chains/classic/mainnet'
 import etcMordorTestnet from '../config/chains/classic/mordor'
+import ethGoerliTestnet from '../config/chains/ethereum/goerli'
+import ethMainnet from '../config/chains/ethereum/mainnet'
+import ethSepoliaTestnet from '../config/chains/ethereum/sepolia'
 import fantomMainnet from '../config/chains/fantom/mainnet'
 import fantomTestnet from '../config/chains/fantom/testnet'
 import fuseMainnet from '../config/chains/fuse/mainnet'
@@ -67,8 +66,8 @@ import fuseTestnet from '../config/chains/fuse/sparknet'
 import gnosisMainnet from '../config/chains/gnosis/mainnet'
 import lightstreamsMainnet from '../config/chains/lightstreams/mainnet'
 import lightstreamsTestnet from '../config/chains/lightstreams/sirius'
-import optimismMainnet from '../config/chains/optimism/mainnet'
 import optimismTestnet from '../config/chains/optimism/goerli'
+import optimismMainnet from '../config/chains/optimism/mainnet'
 import poaMainnet from '../config/chains/poa/mainnet'
 import poaTestnet from '../config/chains/poa/sokol'
 import polygonMainnet from '../config/chains/polygon/mainnet'
@@ -76,14 +75,16 @@ import polygonTestnet from '../config/chains/polygon/mumbai'
 import plsTestnet from '../config/chains/pulse/testnet'
 import rskMainnet from '../config/chains/rsk/mainnet'
 import rskTestnet from '../config/chains/rsk/testnet'
-import solMainnet from '../config/chains/sol/mainnet'
+import bscMainnet from '../config/chains/smart/mainnet'
+import bscTestnet from '../config/chains/smart/testnet'
 import solDevnet from '../config/chains/sol/devnet'
+import solMainnet from '../config/chains/sol/mainnet'
 import solTestnet from '../config/chains/sol/testnet'
 import thunderMainnet from '../config/chains/thunder/mainnet'
 import thunderTestnet from '../config/chains/thunder/testnet'
 import tronMainnet from '../config/chains/tron/mainnet'
-import tronShastaTestnet from '../config/chains/tron/shasta'
 import tronNileTestnet from '../config/chains/tron/nile'
+import tronShastaTestnet from '../config/chains/tron/shasta'
 import ubiqMainnet from '../config/chains/ubiq/mainnet'
 
 export const CHAINS: { [chainId: number]: ChainConfig } = {

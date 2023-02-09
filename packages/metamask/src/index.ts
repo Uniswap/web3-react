@@ -1,19 +1,17 @@
 import type detectEthereumProvider from '@metamask/detect-provider'
 import type {
-  ConnectorArgs,
   AddEthereumChainParameter,
+  ConnectorArgs,
+  PermissionCaveat,
   Provider,
   ProviderConnectInfo,
   WatchAssetParameters,
   Web3WalletPermission,
-  PermissionCaveat,
 } from '@web3-react/types'
 import { ProviderRpcError, Web3ReactState } from '@web3-react/types'
 import { Connector } from '@web3-react/types'
 
 type MetaMaskProvider = Provider & {
-  isMetaMask?: boolean
-  isConnected?: () => boolean
   isMetaMask?: boolean
   isConnected?: () => boolean
   providers?: MetaMaskProvider[]

@@ -1,8 +1,10 @@
+/* eslint-disable react/no-unknown-property */
 import { Web3ReactProvider } from '@web3-react/core'
-import { connectors } from '../utils/connectors'
 import Head from 'next/head'
+
 import NavBar from '../components/molecules/NavBar'
 import CardContainer from '../components/organisms/CardContainer'
+import { connectors } from '../utils/connectors'
 
 export default function Home() {
   return (

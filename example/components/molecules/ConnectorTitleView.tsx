@@ -1,7 +1,8 @@
 import type { Connector } from '@web3-react/types'
 import type { StaticImageData } from 'next/image'
-import { getName } from '../../utils/connectors'
 import Image from 'next/image'
+
+import { getName } from '../../utils/connectors'
 
 export default function ConnectorTitleView({
   connector,

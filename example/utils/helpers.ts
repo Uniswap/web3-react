@@ -1,4 +1,5 @@
-import { isAddress, getAddress } from '@ethersproject/address'
+import { getAddress, isAddress } from '@ethersproject/address'
+
 import {
   arbitrumChains,
   avaxChains,
@@ -11,9 +12,9 @@ import {
   // gnosisChains,
   // lightstreamsChains,
   optimismChains,
-  polygonChains,
   plsChains,
   poaChains,
+  polygonChains,
   // rskChains,
   solChains,
   thunderChains,

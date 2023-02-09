@@ -1,13 +1,14 @@
+import { formatUnits } from '@ethersproject/units'
 import type { Web3ReactHooks } from '@web3-react/core'
 import type { Connector } from '@web3-react/types'
-import { formatUnits } from '@ethersproject/units'
-import { CHAINS } from '../../utils/chains'
-import { useBalances } from '../../hooks/web3Hooks'
 import Image from 'next/image'
-import SpacerView from '../atoms/SpacerView'
+
+import { useBalances } from '../../hooks/web3Hooks'
+import { CHAINS } from '../../utils/chains'
 import AddressEllipsis from '../atoms/AddressEllipsis'
-import CircleLoader from '../atoms/CircleLoader'
 import Blockies from '../atoms/Blockies'
+import CircleLoader from '../atoms/CircleLoader'
+import SpacerView from '../atoms/SpacerView'
 
 export default function AccountsView({
   connector,
