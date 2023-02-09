@@ -14,6 +14,8 @@ import { Connector } from '@web3-react/types'
 type MetaMaskProvider = Provider & {
   isMetaMask?: boolean
   isConnected?: () => boolean
+  isMetaMask?: boolean
+  isConnected?: () => boolean
   providers?: MetaMaskProvider[]
   selectedAddress?: string
   get chainId(): string

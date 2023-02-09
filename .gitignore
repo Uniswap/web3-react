@@ -1,4 +1,4 @@
 node_modules/
 packages/*/dist/
-packages/example-next/.next/
+example/.next/
 .env.local

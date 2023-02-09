@@ -5,19 +5,18 @@
     "node": "^14 || ^16"
   },
   "scripts": {
-    "bootstrap": "lerna bootstrap",
     "clean": "lerna clean --yes",
     "lint": "yarn run eslint --ext .ts,.tsx .",
     "test": "jest",
     "build": "lerna run build",
     "prestart": "yarn build",
     "start": "lerna run start --parallel",
-    "rebuild": "yarn clean && yarn bootstrap && yarn start",
-    "buildprod": "yarn lerna exec 'yarn next build' --scope=example-next",
-    "pin": "lerna run pin && yarn bootstrap",
-    "version": "yarn pin && git add packages/example-{next,cra}/package.json",
     "prepack": "yarn build"
   },
+  "workspaces": [
+    "packages/*",
+    "example"
+  ],
   "devDependencies": {
     "@coinbase/wallet-sdk": "^3.3.0",
     "@emurgo/cip4-js": "^1.0.7",
@@ -30,11 +29,9 @@
     "@types/react": "^18.0.5",
     "@typescript-eslint/eslint-plugin": "^5.19.0",
     "@typescript-eslint/parser": "^5.19.0",
+    "@uniswap/eslint-config": "^1.1.1",
     "@walletconnect/ethereum-provider": "^1.7.8",
     "eslint": "^8.13.0",
-    "eslint-config-next": "^13.1.6",
-    "eslint-plugin-react-hooks": "^4.4.0",
-    "eslint-plugin-tsdoc": "^0.2.16",
     "eth-provider": "^0.9.4",
     "jest": "^27.5.1",
     "lerna": "^4.0.0",

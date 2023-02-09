@@ -1,4 +1,4 @@
-import type { ProviderRpcError, RequestArguments, Web3WalletPermission } from '@web3-react/types'
+import type { ProviderRpcError, RequestArguments, Web3WalletPermission  } from '@web3-react/types'
 import { EventEmitter } from 'node:events'
 
 export class MockEIP1193Provider extends EventEmitter {

@@ -14,6 +14,7 @@ export type SwitchingChainInfo = {
 }
 
 export interface Web3ReactState {
+export interface Web3ReactState {
   chainId: number | undefined
   accounts: string[] | undefined
   accountIndex: number | undefined
