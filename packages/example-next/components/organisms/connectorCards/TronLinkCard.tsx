@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Card } from '../Card'
 import { hooks, tronLink } from '../../../config/connectors/tronLink'
-import tronLinkLogo from '../../../public/static/images/wallet/tronlink.png'
 
 const { useChainId, useAccounts, useAccountIndex, useIsActivating, useIsActive, useProvider, useWatchingAsset } = hooks
 
@@ -26,7 +25,6 @@ export default function TronLinkCard({ hide }: { hide: boolean }) {
   return (
     <Card
       hide={hide}
-      walletLogoUrl={tronLinkLogo}
       connector={tronLink}
       chainId={chainId}
       accountIndex={accountIndex}

@@ -3,7 +3,6 @@ import { Connector } from '@web3-react/types'
 import { useWeb3React } from '@web3-react/core'
 import { cardanoMainChainId, ethMainChainId, solMainChainId, tronMainChainId } from '../../config/chains/chainIds'
 import { cardanoConnectors, evmConnectors, solanaConnectors, tronConnectors } from '../../utils/connectors'
-import { getImageUrlFromTrust } from '../../utils/helpers'
 import BscWalletCard from './connectorCards/BscWalletCard'
 import CoinbaseWalletCard from './connectorCards/CoinbaseWalletCard'
 import GnosisSafeCard from './connectorCards/GnosisSafeCard'
@@ -83,9 +82,8 @@ export default function CardContainer() {
         }}
       >
         <Tabs
-          data={tabTitles.map((title, index) => ({
+          data={tabTitles.map((title) => ({
             title,
-            iconUrl: index === 0 ? undefined : getImageUrlFromTrust(tabChainIds[index]),
           }))}
           selectedIndex={selectedIndex}
           setSelectedIndex={handleSelectedIndex}

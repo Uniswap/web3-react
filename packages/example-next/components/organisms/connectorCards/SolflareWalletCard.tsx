@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Card } from '../Card'
 import { hooks, solflare } from '../../../config/connectors/solflare'
-import solflareLogo from '../../../public/static/images/wallet/solflare.png'
 
 const { useChainId, useAccounts, useAccountIndex, useIsActivating, useIsActive, useProvider, useSwitchingChain } = hooks
 
@@ -26,7 +25,6 @@ export default function SolflareWalletCard({ hide }: { hide: boolean }) {
   return (
     <Card
       hide={hide}
-      walletLogoUrl={solflareLogo}
       connector={solflare}
       chainId={chainId}
       accountIndex={accountIndex}
