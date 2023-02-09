@@ -39,7 +39,7 @@ export function createWeb3ReactStoreAndActions(connectorName?: string): [Web3Rea
         existingState: Web3ReactState,
         action: PayloadAction<Web3ReactStateUpdate & { skipValidation?: boolean }>
       ) => {
-        const stateUpdate = action.payload
+        const stateUpdate = { ...action.payload }
 
         // validate chainId statically, independent of existing state
         if (stateUpdate.chainId !== undefined && !stateUpdate.skipValidation) {
@@ -47,10 +47,8 @@ export function createWeb3ReactStoreAndActions(connectorName?: string): [Web3Rea
         }
 
         // validate accounts statically, independent of existing state
-        if (stateUpdate.accounts !== undefined && !stateUpdate.skipValidation) {
-          for (let i = 0; i < stateUpdate.accounts.length; i++) {
-            stateUpdate.accounts[i] = validateAccount(stateUpdate.accounts[i])
-          }
+        if (!!stateUpdate?.accounts?.length && !stateUpdate.skipValidation) {
+          stateUpdate.accounts = stateUpdate.accounts.map((account) => validateAccount(account))
         }
 
         // determine the next chainId and accounts
