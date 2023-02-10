@@ -15,6 +15,7 @@ type MockWalletConnectProvider = WalletConnectProvider & EventEmitter
  * @param rpcMap - Map of chainIds to rpc url(s). If multiple urls are provided, the first one that responds
  * within a given timeout will be used. Since WalletConnect does not support multiple urls, we will have
  * to resolve the best url before passing it down.
+ * @see getRpcBestUrlMap
  */
 export type WalletConnectOptions = Omit<Parameters<typeof WalletConnectProvider.init>[0], 'rpcMap'> & {
   rpcMap?: { [chainId: number]: string | string[] }
