@@ -6,6 +6,7 @@ import type { CoreWallet } from '@web3-react/core-wallet'
 import { Network } from '@web3-react/network'
 import { WalletConnect } from '@web3-react/walletconnect'
 import { useCallback, useState } from 'react'
+
 import { CHAINS, getAddChainParameters, URLS } from '../chains'
 
 function ChainSelect({

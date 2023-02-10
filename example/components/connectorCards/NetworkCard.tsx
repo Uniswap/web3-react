@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react'
-import { hooks, metaMask } from '../../connectors/metaMask'
+
+import { hooks, network } from '../../connectors/network'
 import { Card } from '../Card'
 
 const { useChainId, useAccounts, useIsActivating, useIsActive, useProvider, useENSNames } = hooks
 
-export default function MetaMaskCard() {
+export default function NetworkCard() {
   const chainId = useChainId()
   const accounts = useAccounts()
   const isActivating = useIsActivating()
@@ -18,14 +19,14 @@ export default function MetaMaskCard() {
 
   // attempt to connect eagerly on mount
   useEffect(() => {
-    void metaMask.connectEagerly().catch(() => {
-      console.debug('Failed to connect eagerly to metamask')
+    void network.activate().catch(() => {
+      console.debug('Failed to connect to network')
     })
   }, [])
 
   return (
     <Card
-      connector={metaMask}
+      connector={network}
       chainId={chainId}
       isActivating={isActivating}
       isActive={isActive}

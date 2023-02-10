@@ -3,6 +3,7 @@ import type { BaseProvider, Web3Provider } from '@ethersproject/providers'
 import type { Connector, Web3ReactStore } from '@web3-react/types'
 import type { Context, MutableRefObject, ReactNode } from 'react'
 import React, { createContext, useContext, useRef } from 'react'
+
 import type { Web3ReactHooks, Web3ReactPriorityHooks } from './hooks'
 import { getPriorityConnector } from './hooks'
 
