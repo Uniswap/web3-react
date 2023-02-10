@@ -9,10 +9,10 @@ import type { AddingChainInfo, Connector, SwitchingChainInfo } from '@web3-react
 import { WalletConnect } from '@web3-react/walletconnect'
 import { useCallback, useEffect, useState } from 'react'
 
-import { allEvmChainIds, ethMainChainId } from '../../config/chains/chainIds'
-import { CHAINS, getAddChainParameters } from '../../utils/chains'
-import Button from '../atoms/Button'
-import SpacerView from '../atoms/SpacerView'
+import { allEvmChainIds, ethMainChainId } from '../../../config/chains/chainIds'
+import { CHAINS, getAddChainParameters } from '../../../utils/chains'
+import Button from '../../controls/Button'
+import SpacerView from './SpacerView'
 
 function ChainSelect({
   chainId,

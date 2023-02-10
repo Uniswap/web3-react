@@ -2,7 +2,7 @@ import type { Web3ReactHooks } from '@web3-react/core'
 import { Network } from '@web3-react/network'
 import type { Connector } from '@web3-react/types'
 
-import SpacerView from '../atoms/SpacerView'
+import SpacerView from './SpacerView'
 
 export default function StatusView({
   connector,

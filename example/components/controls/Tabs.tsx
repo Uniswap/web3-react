@@ -1,6 +1,6 @@
 import Image from 'next/image'
 
-import Button from '../atoms/Button'
+import Button from './Button'
 
 export default function Tabs({
   data,

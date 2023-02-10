@@ -2,8 +2,8 @@
 import { Web3ReactProvider } from '@web3-react/core'
 import Head from 'next/head'
 
-import NavBar from '../components/molecules/NavBar'
-import CardContainer from '../components/organisms/CardContainer'
+import CardContainer from '../components/layout/CardContainer'
+import NavBar from '../components/layout/NavBar'
 import { connectors } from '../utils/connectors'
 
 export default function Home() {

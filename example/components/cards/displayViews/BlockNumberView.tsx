@@ -1,8 +1,8 @@
 import type { Web3ReactHooks } from '@web3-react/core'
 import type { Connector } from '@web3-react/types'
 
-import { useBlockNumber } from '../../hooks/web3Hooks'
-import CircleLoader from '../atoms/CircleLoader'
+import { useBlockNumber } from '../../../hooks/web3Hooks'
+import CircleLoader from '../../feedback/CircleLoader'
 
 export default function BlockNumberView({
   connector,

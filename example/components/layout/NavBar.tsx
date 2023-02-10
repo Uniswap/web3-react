@@ -1,4 +1,4 @@
-import Button from '../atoms/Button'
+import Button from '../controls/Button'
 
 export default function NavBar() {
   return (

@@ -1,10 +1,10 @@
 import type { Web3Provider } from '@ethersproject/providers'
 import type { Connector } from '@web3-react/types'
 
-import { useTimeout } from '../../hooks/hooks'
-import { useSignMessage } from '../../hooks/web3Hooks'
-import Button from '../atoms/Button'
-import SpacerView from '../atoms/SpacerView'
+import { useTimeout } from '../../../hooks/hooks'
+import { useSignMessage } from '../../../hooks/web3Hooks'
+import Button from '../../controls/Button'
+import SpacerView from './SpacerView'
 
 export default function SignerButton({
   connector,

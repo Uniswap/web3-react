@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 
 import { hooks, portisWallet } from '../../../config/connectors/portisWallet'
-import Button from '../../atoms/Button'
+import Button from '../../controls/Button'
 import { Card } from '../Card'
 
 const {

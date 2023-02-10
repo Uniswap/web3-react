@@ -3,12 +3,12 @@ import type { Web3ReactHooks } from '@web3-react/core'
 import type { Connector } from '@web3-react/types'
 import Image from 'next/image'
 
-import { useBalances } from '../../hooks/web3Hooks'
-import { CHAINS } from '../../utils/chains'
-import AddressEllipsis from '../atoms/AddressEllipsis'
-import Blockies from '../atoms/Blockies'
-import CircleLoader from '../atoms/CircleLoader'
-import SpacerView from '../atoms/SpacerView'
+import { useBalances } from '../../../hooks/web3Hooks'
+import { CHAINS } from '../../../utils/chains'
+import CircleLoader from '../../feedback/CircleLoader'
+import AddressEllipsis from './AddressEllipsis'
+import Blockies from './Blockies'
+import SpacerView from './SpacerView'
 
 export default function AccountsView({
   connector,
