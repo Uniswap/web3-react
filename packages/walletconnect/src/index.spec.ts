@@ -13,7 +13,7 @@ import { WalletConnect, WalletConnectOptions } from '.'
 const createTestEnvironment = (opts: Omit<WalletConnectOptions, 'projectId'>) => {
   const [store, actions] = createWeb3ReactStoreAndActions()
   const connector = new WalletConnect({ actions, options: { ...opts, projectId: '' } })
-  return {connector, store }
+  return {connector, store}
 }
 
 const accounts = ['0x0000000000000000000000000000000000000000']
