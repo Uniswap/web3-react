@@ -138,17 +138,10 @@ export class WalletConnect extends Connector {
 
     try {
       const provider = await this.isomorphicInitialize(desiredChainId)
-
       await provider.enable()
-
-      // @todo this method no longer throws an error but is pending forever. Issue raised.
-      //
-      // .catch(async (error: Error) => {
-      //   if (error?.message === 'User closed modal') await this.deactivate()
-      //   throw error
-      // })
       this.actions.update({ chainId: provider.chainId, accounts: provider.accounts })
     } catch (error) {
+      await this.deactivate()
       cancelActivation()
       throw error
     }
