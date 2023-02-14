@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { hooks, coreWallet } from '../../connectors/coreWallet'
+
+import { coreWallet, hooks } from '../../connectors/coreWallet'
 import { Card } from '../Card'
 
 const { useChainId, useAccounts, useIsActivating, useIsActive, useProvider, useENSNames } = hooks

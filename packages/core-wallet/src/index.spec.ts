@@ -1,8 +1,7 @@
 import { createWeb3ReactStoreAndActions } from '@web3-react/store'
 import type { Actions, Web3ReactStore } from '@web3-react/types'
 import { CoreWallet } from '.'
-import { MockEIP1193Provider } from '../../eip1193/src/index.spec'
-import { CoreWalletProvider } from './utils'
+import { MockEIP1193Provider } from '../../eip1193/src/mock'
 
 const chainId = '0x1'
 const accounts: string[] = []

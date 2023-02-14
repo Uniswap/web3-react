@@ -6,8 +6,8 @@ import type {
   WatchAssetParameters,
 } from '@web3-react/types'
 import { Connector } from '@web3-react/types'
-import { CoreWalletProvider, detectCoreWalletProvider, DetectCoreWalletProviderOptions } from './utils'
 
+import { CoreWalletProvider, detectCoreWalletProvider, DetectCoreWalletProviderOptions } from './utils'
 
 export class NoCoreWalletError extends Error {
   public constructor() {
