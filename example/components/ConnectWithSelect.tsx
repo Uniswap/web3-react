@@ -3,6 +3,7 @@ import type { Web3ReactHooks } from '@web3-react/core'
 import { GnosisSafe } from '@web3-react/gnosis-safe'
 import type { MetaMask } from '@web3-react/metamask'
 import { Network } from '@web3-react/network'
+import { Connector } from '@web3-react/types'
 import { WalletConnect } from '@web3-react/walletconnect'
 import { useCallback, useState } from 'react'
 
@@ -37,6 +38,17 @@ function ChainSelect({
   )
 }
 
+const getChainIdsForConnector = (connector: Connector) => {
+  switch (true) {
+    case connector instanceof Network:
+      return Object.keys(URLS).map(Number)
+    case connector instanceof WalletConnect:
+      return Object.keys(MAINNET_CHAINS).map(Number)
+    default:
+      return Object.keys(CHAINS).map(Number)
+  }
+}
+
 export function ConnectWithSelect({
   connector,
   chainId,
@@ -52,16 +64,7 @@ export function ConnectWithSelect({
   error: Error | undefined
   setError: (error: Error | undefined) => void
 }) {
-  const chainIds = (() => {
-    switch (true) {
-      case connector instanceof Network:
-        return Object.keys(URLS)
-      case connector instanceof WalletConnect:
-        return Object.keys(MAINNET_CHAINS)
-      default:
-        return Object.keys(CHAINS)
-    }
-  })().map(Number)
+  const chainIds = getChainIdsForConnector(connector)
 
   const isNetwork = connector instanceof Network
   const displayDefault = !isNetwork
