@@ -86,12 +86,10 @@ export function ConnectWithSelect({
 
         if (desiredChainId === -1 || connector instanceof GnosisSafe) {
           await connector.activate()
+        } else if (connector instanceof WalletConnect || connector instanceof Network) {
+          await connector.activate(desiredChainId)
         } else {
-          await connector.activate(
-            connector instanceof WalletConnect || connector instanceof Network
-              ? desiredChainId
-              : getAddChainParameters(desiredChainId)
-          )
+          await connector.activate(getAddChainParameters(desiredChainId))
         }
 
         setError(undefined)
