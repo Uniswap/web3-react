@@ -102,10 +102,9 @@ export class WalletConnect extends Connector {
     if (this.eagerConnection) return this.eagerConnection
 
     const rpcMap = this.rpcMap ? getBestUrlMap(this.rpcMap, this.timeout) : undefined
+    const chains = desiredChainId ? getChainsWithDefault(this.chains, desiredChainId) : this.chains
 
     return (this.eagerConnection = import('@walletconnect/ethereum-provider').then(async (ethProviderModule) => {
-      const chains = desiredChainId ? getChainsWithDefault(this.chains, desiredChainId) : this.chains
-
       const provider = (this.provider = (await ethProviderModule.default.init({
         ...this.options,
         chains,
@@ -133,6 +132,7 @@ export class WalletConnect extends Connector {
       }
       this.actions.update({ accounts, chainId })
     } catch (error) {
+      await this.deactivate()
       cancelActivation()
       throw error
     }

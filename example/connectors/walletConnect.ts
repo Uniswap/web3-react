@@ -11,6 +11,5 @@ export const [walletConnect, hooks] = initializeConnector<WalletConnect>(
         projectId: process.env.walletConnectProjectId,
         chains: Object.keys(MAINNET_CHAINS).map(Number),
       },
-      defaultChainId: 10,
     })
 )
