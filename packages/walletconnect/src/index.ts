@@ -124,6 +124,7 @@ export class WalletConnect extends Connector {
 
     try {
       const { session, accounts, chainId } = await this.isomorphicInitialize()
+      // WalletConnect automatically persists and restores active sessions
       if (!session) {
         throw new Error('No active session found. Connect your wallet first.')
       }
