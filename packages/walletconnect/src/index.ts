@@ -3,7 +3,7 @@ import type { Actions, ProviderRpcError } from '@web3-react/types'
 import { Connector } from '@web3-react/types'
 import EventEmitter3 from 'eventemitter3'
 
-import { getRpcBestUrlMap, orderToSetDefaultChain } from './utils'
+import { getBestUrlMap, orderToSetDefaultChain } from './utils'
 
 export const URI_AVAILABLE = 'URI_AVAILABLE'
 
@@ -16,7 +16,7 @@ export type WalletConnectOptions = Omit<Parameters<typeof WalletConnectProvider.
    * @param rpcMap - Map of chainIds to rpc url(s). If multiple urls are provided, the first one that responds
    * within a given timeout will be used. Note that multiple urls are not supported by WalletConnect by default.
    * That's why we extend its options with our own `rpcMap`.
-   * @see getRpcBestUrlMap
+   * @see getBestUrlMap
    */
   rpcMap?: { [chainId: number]: string | string[] }
   /**
@@ -101,7 +101,7 @@ export class WalletConnect extends Connector {
 
     return (this.eagerConnection = import('@walletconnect/ethereum-provider').then(async (ethProviderModule) => {
       const chains = desiredChainId ? orderToSetDefaultChain(this.chains, desiredChainId) : this.chains
-      const rpcMap = this.rpcMap ? await getRpcBestUrlMap(this.rpcMap, this.timeout) : undefined
+      const rpcMap = this.rpcMap ? await getBestUrlMap(this.rpcMap, this.timeout) : undefined
 
       const provider = (this.provider = (await ethProviderModule.default.init({
         ...this.options,
