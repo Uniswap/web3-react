@@ -3,8 +3,7 @@ import type { BaseProvider, Web3Provider } from '@ethersproject/providers'
 import { createWeb3ReactStoreAndActions } from '@web3-react/store'
 import type { Actions, Connector, Web3ReactState, Web3ReactStore } from '@web3-react/types'
 import { useEffect, useMemo, useState } from 'react'
-import type { EqualityChecker, UseBoundStore } from 'zustand'
-import create from 'zustand'
+import { EqualityChecker, useStore } from 'zustand'
 
 let DynamicProvider: typeof Web3Provider | null | undefined
 async function importProvider(): Promise<void> {
@@ -41,9 +40,7 @@ export function initializeConnector<T extends Connector>(
   const [store, actions] = createWeb3ReactStoreAndActions()
 
   const connector = f(actions)
-  const useConnector = create(store)
-
-  const stateHooks = getStateHooks(useConnector)
+  const stateHooks = getStateHooks(store)
   const derivedHooks = getDerivedHooks(stateHooks)
   const augmentedHooks = getAugmentedHooks<T>(connector, stateHooks, derivedHooks)
 
@@ -253,17 +250,17 @@ const ACCOUNTS_EQUALITY_CHECKER: EqualityChecker<Web3ReactState['accounts']> = (
     oldAccounts.every((oldAccount, i) => oldAccount === newAccounts[i]))
 const ACTIVATING = ({ activating }: Web3ReactState) => activating
 
-function getStateHooks(useConnector: UseBoundStore<Web3ReactStore>) {
+function getStateHooks(store: Web3ReactStore) {
   function useChainId(): Web3ReactState['chainId'] {
-    return useConnector(CHAIN_ID)
+    return useStore(store, CHAIN_ID)
   }
 
   function useAccounts(): Web3ReactState['accounts'] {
-    return useConnector(ACCOUNTS, ACCOUNTS_EQUALITY_CHECKER)
+    return useStore(store, ACCOUNTS, ACCOUNTS_EQUALITY_CHECKER)
   }
 
   function useIsActivating(): Web3ReactState['activating'] {
-    return useConnector(ACTIVATING)
+    return useStore(store, ACTIVATING)
   }
 
   return { useChainId, useAccounts, useIsActivating }
