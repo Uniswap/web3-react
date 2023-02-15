@@ -1,6 +1,7 @@
 /**
  * @param rpcMap - Map of chainIds to rpc url(s).
- * @param timeout - How long to wait before a call is considered failed, in ms.
+ * @param timeout - Timeout, in milliseconds, after which to treat network calls to urls as failed when selecting
+ * online urls.
  */
 export async function getRpcBestUrlMap(rpcMap: Record<string, string | string[]>, timeout: number) {
   return Object.fromEntries(
@@ -14,7 +15,8 @@ export async function getRpcBestUrlMap(rpcMap: Record<string, string | string[]>
 
 /**
  * @param urls - An array of URLs to try to connect to.
- * @param timeout - @see getRpcBestUrlMap#timeout
+ * @param timeout - Timeout, in milliseconds, after which to treat network calls to urls as failed when selecting
+ * online urls.
  */
 async function getBestUrl(urls: string | string[], timeout: number): Promise<string> {
   // if we only have 1 url, it's the best!
@@ -83,8 +85,8 @@ async function getBestUrl(urls: string | string[], timeout: number): Promise<str
 }
 
 /**
- * @param chains - An array of chain IDs
- * @param defaultChainId - An ID to move to the front of the array (first element is always the default chain)
+ * @param chains - An array of chain IDs.
+ * @param defaultChainId - An ID to move to the front of the array (first element is always the default chain).
  */
 export function orderToSetDefaultChain(chains: number[], defaultChainId: number) {
   const ordered = [...chains]
