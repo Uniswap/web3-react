@@ -1,8 +1,11 @@
 import { URI_AVAILABLE } from '@web3-react/walletconnect'
 import { useEffect, useState } from 'react'
 
+import { MAINNET_CHAINS } from '../../chains'
 import { hooks, walletConnect } from '../../connectors/walletConnect'
 import { Card } from '../Card'
+
+const MAINNET_CHAIN_IDS = Object.keys(MAINNET_CHAINS).map(Number)
 
 const { useChainId, useAccounts, useIsActivating, useIsActive, useProvider, useENSNames } = hooks
 
@@ -35,7 +38,8 @@ export default function WalletConnectCard() {
   return (
     <Card
       connector={walletConnect}
-      chainId={chainId}
+      activeChainId={chainId}
+      chainIds={MAINNET_CHAIN_IDS}
       isActivating={isActivating}
       isActive={isActive}
       error={error}
