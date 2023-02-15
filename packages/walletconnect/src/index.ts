@@ -52,6 +52,7 @@ export interface WalletConnectConstructorArgs {
 
 export class WalletConnect extends Connector {
   /** {@inheritdoc Connector.provider} */
+  // @ts-ignore @todo walletconnect is working on making their provider EIP-1193 compliant.
   public provider?: WalletConnectProvider
   public readonly events = new EventEmitter3()
 
