@@ -94,24 +94,26 @@ export class WalletConnect extends Connector {
     this.events.emit(URI_AVAILABLE, uri)
   }
 
-  private async isomorphicInitialize(
+  private isomorphicInitialize(
     desiredChainId: number | undefined = this.defaultChainId
   ): Promise<WalletConnectProvider> {
     if (this.eagerConnection) return this.eagerConnection
 
-    const chains = desiredChainId ? orderToSetDefaultChain(this.chains, desiredChainId) : this.chains
-    const rpcMap = this.rpcMap ? await getRpcBestUrlMap(this.rpcMap, this.timeout) : undefined
-
     return (this.eagerConnection = import('@walletconnect/ethereum-provider').then(async (ethProviderModule) => {
+      const chains = desiredChainId ? orderToSetDefaultChain(this.chains, desiredChainId) : this.chains
+      const rpcMap = this.rpcMap ? await getRpcBestUrlMap(this.rpcMap, this.timeout) : undefined
+
       const provider = (this.provider = (await ethProviderModule.default.init({
         ...this.options,
         chains,
         rpcMap,
       })) as unknown as WalletConnectProvider)
+
       provider.on('disconnect', this.disconnectListener)
       provider.on('chainChanged', this.chainChangedListener)
       provider.on('accountsChanged', this.accountsChangedListener)
       provider.on('display_uri', this.URIListener)
+
       return provider
     }))
   }
