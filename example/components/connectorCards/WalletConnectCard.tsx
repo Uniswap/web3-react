@@ -5,7 +5,7 @@ import { MAINNET_CHAINS } from '../../chains'
 import { hooks, walletConnect } from '../../connectors/walletConnect'
 import { Card } from '../Card'
 
-const MAINNET_CHAIN_IDS = Object.keys(MAINNET_CHAINS).map(Number)
+const CHAIN_IDS = Object.keys(MAINNET_CHAINS).map(Number)
 
 const { useChainId, useAccounts, useIsActivating, useIsActive, useProvider, useENSNames } = hooks
 
@@ -39,7 +39,7 @@ export default function WalletConnectCard() {
     <Card
       connector={walletConnect}
       activeChainId={chainId}
-      chainIds={MAINNET_CHAIN_IDS}
+      chainIds={CHAIN_IDS}
       isActivating={isActivating}
       isActive={isActive}
       error={error}
