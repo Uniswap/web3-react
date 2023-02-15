@@ -1,5 +1,3 @@
-import type { EventEmitter } from 'node:events'
-
 import type { StoreApi } from 'zustand'
 
 export interface Web3ReactState {
@@ -37,8 +35,10 @@ export interface RequestArguments {
 }
 
 // per EIP-1193
-export interface Provider extends EventEmitter {
+export interface Provider {
   request(args: RequestArguments): Promise<unknown>
+  on(event: any, listener: any): void
+  removeListener(event: string, listener: any): void
 }
 
 // per EIP-1193
