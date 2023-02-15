@@ -1,6 +1,6 @@
 import type WalletConnectProvider from '@walletconnect/ethereum-provider'
 import type { Actions, ProviderRpcError } from '@web3-react/types'
-import { Connector } from '@web3-react/types'
+import { Connector, Provider } from '@web3-react/types'
 import EventEmitter3 from 'eventemitter3'
 
 import { getBestUrlMap, getChainsWithDefault } from './utils'
@@ -50,10 +50,12 @@ export interface WalletConnectConstructorArgs {
   onError?: (error: Error) => void
 }
 
+// @todo WC is not EIP-1193 compatible. This is a temporary fix.
+type MockWalletConnectProvider = WalletConnectProvider & Provider
+
 export class WalletConnect extends Connector {
   /** {@inheritdoc Connector.provider} */
-  // @ts-ignore @todo walletconnect is working on making their provider EIP-1193 compliant.
-  public provider?: WalletConnectProvider
+  public provider?: MockWalletConnectProvider
   public readonly events = new EventEmitter3()
 
   private readonly options: Omit<WalletConnectOptions, 'rpcMap' | 'chains'>
@@ -109,7 +111,7 @@ export class WalletConnect extends Connector {
         ...this.options,
         chains,
         rpcMap: await rpcMap,
-      })) as unknown as WalletConnectProvider)
+      })) as unknown as MockWalletConnectProvider)
 
       provider.on('disconnect', this.disconnectListener)
       provider.on('chainChanged', this.chainChangedListener)

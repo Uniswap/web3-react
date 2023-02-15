@@ -50,7 +50,6 @@ export function Card({
         borderRadius: '1rem',
       }}
     >
-      {/* @ts-ignore @todo walletconnect is not EIP-1193 compliant yet. Fix on the way */}
       <b>{getName(connector)}</b>
       <div style={{ marginBottom: '1rem' }}>
         <Status isActivating={isActivating} isActive={isActive} error={error} />
