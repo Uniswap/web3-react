@@ -6,7 +6,7 @@ export async function getRpcBestUrlMap(rpcMap: Record<string, string | string[]>
   return Object.fromEntries(
     await Promise.all(
       Object.entries(rpcMap).map(
-        async ([chainId, map]): Promise<[string, string]> => [`${chainId}`, await getBestUrl(map, timeout)]
+        async ([chainId, map]): Promise<[string, string]> => [chainId, await getBestUrl(map, timeout)]
       )
     )
   )
