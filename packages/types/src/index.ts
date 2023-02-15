@@ -1,3 +1,4 @@
+import type EventEmitter from 'events'
 import type { StoreApi } from 'zustand'
 
 export interface Web3ReactState {
@@ -28,32 +29,30 @@ export interface Actions {
   resetState: () => void
 }
 
-// per EIP-1193
+/** per {@link https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1193.md#request EIP-1193} */
 export interface RequestArguments {
   readonly method: string
   readonly params?: readonly unknown[] | object
 }
 
-// per EIP-1193
-export interface Provider {
+/** per {@link https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1193.md#events EIP-1193} */
+export type Provider = Pick<EventEmitter, 'on' | 'removeListener'> & {
   request(args: RequestArguments): Promise<unknown>
-  on(event: any, listener: any): void
-  removeListener(event: string, listener: any): void
 }
 
-// per EIP-1193
+/** per {@link https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1193.md#connect-1 EIP-1193} */
 export interface ProviderConnectInfo {
   readonly chainId: string
 }
 
-// per EIP-1193
+/** per {@link https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1193.md#rpc-errors EIP-1193} */
 export interface ProviderRpcError extends Error {
   message: string
   code: number
   data?: unknown
 }
 
-// per EIP-3085
+/** Per {@link https://github.com/ethereum/EIPs/blob/master/EIPS/eip-3085.md#parameters EIP-3085} */
 export interface AddEthereumChainParameter {
   chainId: number
   chainName: string
@@ -67,7 +66,7 @@ export interface AddEthereumChainParameter {
   iconUrls?: string[] // Currently ignored.
 }
 
-// per EIP-747
+/** per {@link https://github.com/ethereum/EIPs/blob/master/EIPS/eip-747.md#wallet_watchasset-parameters EIP-747} */
 export interface WatchAssetParameters {
   address: string // The address that the token is at.
   symbol: string // A ticker symbol or shorthand, up to 5 chars.

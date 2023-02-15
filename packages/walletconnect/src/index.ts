@@ -3,9 +3,10 @@ import type { Actions, ProviderRpcError } from '@web3-react/types'
 import { Connector } from '@web3-react/types'
 import EventEmitter3 from 'eventemitter3'
 
-import { getBestUrlMap, orderToSetDefaultChain } from './utils'
+import { getBestUrlMap, getChainsWithDefault } from './utils'
 
 export const URI_AVAILABLE = 'URI_AVAILABLE'
+const DEFAULT_TIMEOUT = 5000
 
 /**
  * Options to configure the WalletConnect provider.
@@ -64,7 +65,7 @@ export class WalletConnect extends Connector {
 
   private eagerConnection?: Promise<WalletConnectProvider>
 
-  constructor({ actions, options, defaultChainId, timeout = 5000, onError }: WalletConnectConstructorArgs) {
+  constructor({ actions, options, defaultChainId, timeout = DEFAULT_TIMEOUT, onError }: WalletConnectConstructorArgs) {
     super(actions, onError)
 
     const { rpcMap, rpc, chains, ...rest } = options
@@ -99,14 +100,15 @@ export class WalletConnect extends Connector {
   ): Promise<WalletConnectProvider> {
     if (this.eagerConnection) return this.eagerConnection
 
+    const rpcMap = this.rpcMap ? getBestUrlMap(this.rpcMap, this.timeout) : undefined
+
     return (this.eagerConnection = import('@walletconnect/ethereum-provider').then(async (ethProviderModule) => {
-      const chains = desiredChainId ? orderToSetDefaultChain(this.chains, desiredChainId) : this.chains
-      const rpcMap = this.rpcMap ? await getBestUrlMap(this.rpcMap, this.timeout) : undefined
+      const chains = desiredChainId ? getChainsWithDefault(this.chains, desiredChainId) : this.chains
 
       const provider = (this.provider = (await ethProviderModule.default.init({
         ...this.options,
         chains,
-        rpcMap,
+        rpcMap: await rpcMap,
       })) as unknown as WalletConnectProvider)
 
       provider.on('disconnect', this.disconnectListener)
@@ -165,10 +167,10 @@ export class WalletConnect extends Connector {
 
   /** {@inheritdoc Connector.deactivate} */
   public async deactivate(): Promise<void> {
-    this.provider?.off('disconnect', this.disconnectListener)
-    this.provider?.off('chainChanged', this.chainChangedListener)
-    this.provider?.off('accountsChanged', this.accountsChangedListener)
-    this.provider?.off('display_uri', this.URIListener)
+    this.provider?.removeListener('disconnect', this.disconnectListener)
+    this.provider?.removeListener('chainChanged', this.chainChangedListener)
+    this.provider?.removeListener('accountsChanged', this.accountsChangedListener)
+    this.provider?.removeListener('display_uri', this.URIListener)
     await this.provider?.disconnect()
     this.provider = undefined
     this.eagerConnection = undefined

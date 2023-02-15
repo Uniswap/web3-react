@@ -38,10 +38,10 @@ describe('WalletConnect', () => {
       },
       // methods used in `activate` and `isomorphicInitialize`
       enable: wc2EnableMock,
+      // mock EIP-1193
       request: wc2RequestMock,
-      // basic EventEmitter
       on() {},
-      off() {},
+      removeListener() {},
     }))
   })
 

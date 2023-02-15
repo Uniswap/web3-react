@@ -15,8 +15,7 @@ export async function getBestUrlMap(rpcMap: Record<string, string | string[]>, t
 
 /**
  * @param urls - An array of URLs to try to connect to.
- * @param timeout - Timeout, in milliseconds, after which to treat network calls to urls as failed when selecting
- * online urls.
+ * @param timeout - {@link getBestUrlMap}
  */
 async function getBestUrl(urls: string | string[], timeout: number): Promise<string> {
   // if we only have 1 url, it's the best!
@@ -88,7 +87,7 @@ async function getBestUrl(urls: string | string[], timeout: number): Promise<str
  * @param chains - An array of chain IDs.
  * @param defaultChainId - An ID to move to the front of the array (first element is always the default chain).
  */
-export function orderToSetDefaultChain(chains: number[], defaultChainId: number) {
+export function getChainsWithDefault(chains: number[], defaultChainId: number) {
   const ordered = [...chains]
   const idx = ordered.indexOf(defaultChainId)
   if (idx === -1) {
