@@ -1,5 +1,3 @@
-import type { EventEmitter } from 'node:events'
-
 import type WalletConnectProvider from '@walletconnect/ethereum-provider'
 import type { Actions, ProviderRpcError } from '@web3-react/types'
 import { Connector } from '@web3-react/types'
@@ -9,36 +7,51 @@ import { getRpcBestUrlMap, orderToSetDefaultChain } from './utils'
 
 export const URI_AVAILABLE = 'URI_AVAILABLE'
 
-type MockWalletConnectProvider = WalletConnectProvider & EventEmitter
-
 /**
- * @param rpcMap - Map of chainIds to rpc url(s). If multiple urls are provided, the first one that responds
- * within a given timeout will be used. Since WalletConnect does not support multiple urls, we will have
- * to resolve the best url before passing it down.
- * @see getRpcBestUrlMap
+ * Options to configure the WalletConnect provider.
+ * For the full list of options, see {@link https://docs.walletconnect.com/2.0/javascript/providers/ethereum#initialization WalletConnect documentation}.
  */
 export type WalletConnectOptions = Omit<Parameters<typeof WalletConnectProvider.init>[0], 'rpcMap'> & {
+  /**
+   * @param rpcMap - Map of chainIds to rpc url(s). If multiple urls are provided, the first one that responds
+   * within a given timeout will be used. Note that multiple urls are not supported by WalletConnect by default.
+   * That's why we extend its options with our own `rpcMap`.
+   * @see getRpcBestUrlMap
+   */
   rpcMap?: { [chainId: number]: string | string[] }
+  /**
+   * @deprecated Use `rpcMap` instead.
+   */
+  rpc?: { [chainId: number]: string | string[] }
 }
 
 /**
- * @param options - Options to pass to `@walletconnect/ethereum-provider`
- * @param defaultChainId - The chainId to connect to in activate if one is not provided.
- * @param timeout - Timeout, in milliseconds, after which to treat network calls to urls as failed when selecting
- * online urls.
- * @param onError - Handler to report errors thrown from eventListeners.
+ * Options to configure the WalletConect connector.
  */
 export interface WalletConnectConstructorArgs {
   actions: Actions
+  /**
+   * @param options - Options to pass to `@walletconnect/ethereum-provider`.
+   */
   options: WalletConnectOptions
+  /**
+   * @param defaultChainId - The chainId to connect to in activate if one is not provided.
+   */
   defaultChainId?: number
+  /**
+   * @param timeout - Timeout, in milliseconds, after which to treat network calls to urls as failed when selecting
+   * online urls.
+   */
   timeout?: number
+  /**
+   * @param onError - Handler to report errors thrown from eventListeners.
+   */
   onError?: (error: Error) => void
 }
 
 export class WalletConnect extends Connector {
   /** {@inheritdoc Connector.provider} */
-  public provider?: MockWalletConnectProvider
+  public provider?: WalletConnectProvider
   public readonly events = new EventEmitter3()
 
   private readonly options: Omit<WalletConnectOptions, 'rpcMap' | 'chains'>
@@ -49,17 +62,17 @@ export class WalletConnect extends Connector {
 
   private readonly timeout: number
 
-  private eagerConnection?: Promise<MockWalletConnectProvider>
+  private eagerConnection?: Promise<WalletConnectProvider>
 
   constructor({ actions, options, defaultChainId, timeout = 5000, onError }: WalletConnectConstructorArgs) {
     super(actions, onError)
 
-    const { rpcMap, chains, ...rest } = options
+    const { rpcMap, rpc, chains, ...rest } = options
 
     this.options = rest
     this.chains = chains
     this.defaultChainId = defaultChainId
-    this.rpcMap = rpcMap
+    this.rpcMap = rpcMap || rpc
 
     this.timeout = timeout
   }
@@ -83,7 +96,7 @@ export class WalletConnect extends Connector {
 
   private async isomorphicInitialize(
     desiredChainId: number | undefined = this.defaultChainId
-  ): Promise<MockWalletConnectProvider> {
+  ): Promise<WalletConnectProvider> {
     if (this.eagerConnection) return this.eagerConnection
 
     const chains = desiredChainId ? orderToSetDefaultChain(this.chains, desiredChainId) : this.chains
@@ -94,7 +107,7 @@ export class WalletConnect extends Connector {
         ...this.options,
         chains,
         rpcMap,
-      })) as unknown as MockWalletConnectProvider)
+      })) as unknown as WalletConnectProvider)
       provider.on('disconnect', this.disconnectListener)
       provider.on('chainChanged', this.chainChangedListener)
       provider.on('accountsChanged', this.accountsChangedListener)
