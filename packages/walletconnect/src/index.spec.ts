@@ -21,23 +21,25 @@ const chains = [1, 2, 3]
 
 describe('WalletConnect', () => {
   const wc2RequestMock = jest.fn()
+  let wc2InitMock: jest.Mock
 
   beforeAll(() => {
     const wc2EnableMock = jest.fn().mockResolvedValue(accounts)
-
     // @ts-ignore
     // TypeScript error is expected here. We're mocking a factory `init` method
     // to only define a subset of `EthereumProvider` that we use internally
-    jest.spyOn(EthereumProvider, 'init').mockImplementation(async (opts) => ({
+    wc2InitMock = jest.spyOn(EthereumProvider, 'init').mockImplementation(async (opts) => ({
       // we read this in `enable` to get current chain 
       accounts,
       chainId: opts.chains[0],
-      // non-null `session` indicates we have a connected wallet 
-      session: wc2EnableMock.mock.calls.length,
+      // session is an object when connected, undefined otherwise
+      get session() {
+        return wc2EnableMock.mock.calls.length > 0 ? {} : undefined
+      },
       // methods used in `activate` and `isomorphicInitialize`
       enable: wc2EnableMock,
       request: wc2RequestMock,
-      // basic EventEmmiter
+      // basic EventEmitter
       on() {},
       off() {},
     }))
@@ -51,6 +53,15 @@ describe('WalletConnect', () => {
     test('should fail when no existing session', async () => {
       const {connector} = createTestEnvironment({ chains })
       await expect(connector.connectEagerly()).rejects.toThrow()
+    })
+  })
+
+  describe(`#isomorphicInitialize`, () => {
+    test('should initialize exactly one provider and return a Promise if pending initialization', async () => {
+      const {connector, store} = createTestEnvironment({ chains })
+      connector.activate()
+      connector.activate()
+      expect(wc2InitMock).toHaveBeenCalledTimes(1)
     })
   })
 

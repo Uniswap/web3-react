@@ -3,7 +3,7 @@
  * @param timeout - Timeout, in milliseconds, after which to treat network calls to urls as failed when selecting
  * online urls.
  */
-export async function getRpcBestUrlMap(rpcMap: Record<string, string | string[]>, timeout: number) {
+export async function getBestUrlMap(rpcMap: Record<string, string | string[]>, timeout: number) {
   return Object.fromEntries(
     await Promise.all(
       Object.entries(rpcMap).map(
@@ -95,6 +95,5 @@ export function orderToSetDefaultChain(chains: number[], defaultChainId: number)
     throw new Error(`Invalid chainId ${defaultChainId}. Make sure to include it in the "chains" array.`)
   }
   ordered.splice(idx, 1)
-  ordered.unshift(defaultChainId)
-  return ordered
+  return [defaultChainId, ...ordered]
 }
