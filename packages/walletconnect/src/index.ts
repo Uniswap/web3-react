@@ -1,6 +1,6 @@
 import type WalletConnectProvider from '@walletconnect/ethereum-provider'
 import type { Actions, ProviderRpcError } from '@web3-react/types'
-import { Connector, Provider } from '@web3-react/types'
+import { Connector } from '@web3-react/types'
 import EventEmitter3 from 'eventemitter3'
 
 import { getBestUrlMap, getChainsWithDefault } from './utils'
@@ -50,12 +50,9 @@ export interface WalletConnectConstructorArgs {
   onError?: (error: Error) => void
 }
 
-// @todo WC is not EIP-1193 compatible. This is a temporary fix.
-type MockWalletConnectProvider = WalletConnectProvider & Provider
-
 export class WalletConnect extends Connector {
   /** {@inheritdoc Connector.provider} */
-  public provider?: MockWalletConnectProvider
+  public provider?: WalletConnectProvider
   public readonly events = new EventEmitter3()
 
   private readonly options: Omit<WalletConnectOptions, 'rpcMap' | 'chains'>
@@ -86,8 +83,9 @@ export class WalletConnect extends Connector {
     if (error) this.onError?.(error)
   }
 
-  private chainChangedListener = (chainId: number): void => {
-    this.actions.update({ chainId })
+  private chainChangedListener = (chainId: string | number): void => {
+    // @todo incorrect type in WC, this is always `number`
+    this.actions.update({ chainId: +chainId })
   }
 
   private accountsChangedListener = (accounts: string[]): void => {
@@ -107,11 +105,11 @@ export class WalletConnect extends Connector {
     const chains = desiredChainId ? getChainsWithDefault(this.chains, desiredChainId) : this.chains
 
     return (this.eagerConnection = import('@walletconnect/ethereum-provider').then(async (ethProviderModule) => {
-      const provider = (this.provider = (await ethProviderModule.default.init({
+      const provider = (this.provider = await ethProviderModule.default.init({
         ...this.options,
         chains,
         rpcMap: await rpcMap,
-      })) as unknown as MockWalletConnectProvider)
+      }))
 
       provider.on('disconnect', this.disconnectListener)
       provider.on('chainChanged', this.chainChangedListener)
