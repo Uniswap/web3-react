@@ -35,4 +35,4 @@ jobs:
       - run: yarn lint
       - run: yarn test
 
-      - run: yarn lerna exec 'yarn next build' --scope=example-next
+      - run: yarn lerna exec 'yarn next build' --scope=example
