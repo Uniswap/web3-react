@@ -1,7 +1,7 @@
 {
   "private": true,
   "version": "0.0.0",
-  "name": "example-next",
+  "name": "example",
   "scripts": {
     "start": "next dev"
   },
