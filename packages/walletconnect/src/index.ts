@@ -147,7 +147,7 @@ export class WalletConnect extends Connector {
     if (provider.session) {
       if (!desiredChainId || desiredChainId === provider.chainId) return
       if (!this.chains.includes(desiredChainId)) {
-        throw new Error(`Cannot activate chain ${desiredChainId} that provider wasn't initialized with`)
+        throw new Error(`Cannot activate chain (${desiredChainId}) that was not included in initial options.chains.`)
       }
       return provider.request<void>({
         method: 'wallet_switchEthereumChain',
