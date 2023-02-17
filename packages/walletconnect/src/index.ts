@@ -45,7 +45,7 @@ export interface WalletConnectConstructorArgs {
    */
   timeout?: number
   /**
-   * @param onError - Handler to report errors thrown from eventListeners.
+   * @param onError - Handler to report errors thrown from WalletConnect.
    */
   onError?: (error: Error) => void
 }
