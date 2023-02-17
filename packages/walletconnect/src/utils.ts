@@ -2,7 +2,7 @@
  * @param rpcMap - Map of chainIds to rpc url(s).
  * @param timeout - Timeout, in milliseconds, after which to consider network calls failed.
  */
-export async function getBestUrlMap(rpcMap: Record<string, string | string[]>, timeout: number) {
+export async function getBestUrlMap(rpcMap: Record<string, string | string[]>, timeout: number): Promise<[string, string]> {
   return Object.fromEntries(
     await Promise.all(
       Object.entries(rpcMap).map(
