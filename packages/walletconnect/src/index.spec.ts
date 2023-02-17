@@ -101,5 +101,7 @@ describe('WalletConnect', () => {
       await connector.activate(2)
       expect(wc2RequestMock).toBeCalledTimes(0)
     })
+
+    test.skip('should switch chain if session was restored while activating', async () => {})
   })
 })
