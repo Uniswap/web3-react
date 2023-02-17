@@ -23,7 +23,7 @@ describe('WalletConnect', () => {
   const wc2RequestMock = jest.fn()
   let wc2InitMock: jest.Mock
 
-  beforeAll(() => {
+  beforeEach(() => {
     const wc2EnableMock = jest.fn().mockResolvedValue(accounts)
     // @ts-ignore
     // TypeScript error is expected here. We're mocking a factory `init` method
