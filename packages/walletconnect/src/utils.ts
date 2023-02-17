@@ -87,11 +87,12 @@ async function getBestUrl(urls: string | string[], timeout: number): Promise<str
  * @param defaultChainId - The chain ID to treat as the default (it will be the first element in the returned array).
  */
 export function getChainsWithDefault(chains: number[], defaultChainId: number) {
-  const ordered = [...chains]
-  const idx = ordered.indexOf(defaultChainId)
+  const idx = chains.indexOf(defaultChainId)
   if (idx === -1) {
     throw new Error(`Invalid chainId ${defaultChainId}. Make sure to include it in the "chains" array.`)
   }
+
+  const ordered = [...chains]
   ordered.splice(idx, 1)
   return [defaultChainId, ...ordered]
 }
