@@ -142,12 +142,14 @@ export class WalletConnect extends Connector {
    * @param desiredChainId - The desired chainId to connect to.
    */
   public async activate(desiredChainId?: number): Promise<void> {
-    if (this.provider?.session) {
-      if (!desiredChainId || desiredChainId === this.provider.chainId) return
+    const provider = await this.isomorphicInitialize(desiredChainId)
+
+    if (provider.session) {
+      if (!desiredChainId || desiredChainId === provider.chainId) return
       if (!this.chains.includes(desiredChainId)) {
         throw new Error(`Cannot activate chain ${desiredChainId} that provider wasn't initialized with`)
       }
-      return this.provider.request<void>({
+      return provider.request<void>({
         method: 'wallet_switchEthereumChain',
         params: [{ chainId: `0x${desiredChainId.toString(16)}` }],
       })
@@ -156,7 +158,6 @@ export class WalletConnect extends Connector {
     const cancelActivation = this.actions.startActivation()
 
     try {
-      const provider = await this.isomorphicInitialize(desiredChainId)
       await provider.enable()
       this.actions.update({ chainId: provider.chainId, accounts: provider.accounts })
     } catch (error) {
@@ -168,11 +169,12 @@ export class WalletConnect extends Connector {
 
   /** {@inheritdoc Connector.deactivate} */
   public async deactivate(): Promise<void> {
-    this.provider?.removeListener('disconnect', this.disconnectListener)
-    this.provider?.removeListener('chainChanged', this.chainChangedListener)
-    this.provider?.removeListener('accountsChanged', this.accountsChangedListener)
-    this.provider?.removeListener('display_uri', this.URIListener)
-    await this.provider?.disconnect()
+    await this.provider
+      ?.removeListener('disconnect', this.disconnectListener)
+      .removeListener('chainChanged', this.chainChangedListener)
+      .removeListener('accountsChanged', this.accountsChangedListener)
+      .removeListener('display_uri', this.URIListener)
+      .disconnect()
     this.provider = undefined
     this.eagerConnection = undefined
     this.actions.resetState()
