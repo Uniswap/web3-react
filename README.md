@@ -6,7 +6,7 @@ _Looking for the prior version of this library? It's available on the [v6 branch
 
 ## [Example](https://web3-react-mu.vercel.app/)
 
-This is a hosted version of [packages/example](packages/example).
+This is a hosted version of [example](/example).
 
 ## Packages
 
