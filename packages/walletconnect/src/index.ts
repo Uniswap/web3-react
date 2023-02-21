@@ -78,14 +78,13 @@ export class WalletConnect extends Connector {
     this.timeout = timeout
   }
 
-  private disconnectListener = (error?: ProviderRpcError): void => {
+  private disconnectListener = (error: ProviderRpcError) => {
     this.actions.resetState()
     if (error) this.onError?.(error)
   }
 
-  private chainChangedListener = (chainId: string | number): void => {
-    // @todo incorrect type in WC, this is always `number`
-    this.actions.update({ chainId: +chainId })
+  private chainChangedListener = (chainId: string): void => {
+    this.actions.update({ chainId: parseInt(chainId, 16) })
   }
 
   private accountsChangedListener = (accounts: string[]): void => {
