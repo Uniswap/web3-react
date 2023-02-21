@@ -84,7 +84,7 @@ export class WalletConnect extends Connector {
   }
 
   private chainChangedListener = (chainId: string): void => {
-    this.actions.update({ chainId: parseInt(chainId, 16) })
+    this.actions.update({ chainId: Number.parseInt(chainId, 16) })
   }
 
   private accountsChangedListener = (accounts: string[]): void => {
