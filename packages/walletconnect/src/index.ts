@@ -110,6 +110,7 @@ export class WalletConnect extends Connector {
         rpcMap: await rpcMap,
       }))
 
+      // @ts-ignore WalletConnect provider has a non-spec compliant signature for `disconnect` event
       provider.on('disconnect', this.disconnectListener)
       provider.on('chainChanged', this.chainChangedListener)
       provider.on('accountsChanged', this.accountsChangedListener)
