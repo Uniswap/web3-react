@@ -170,6 +170,7 @@ export class WalletConnect extends Connector {
   /** {@inheritdoc Connector.deactivate} */
   public async deactivate(): Promise<void> {
     await this.provider
+      // @ts-ignore WalletConnect provider has a non-spec compliant signature for `disconnect` event
       ?.removeListener('disconnect', this.disconnectListener)
       .removeListener('chainChanged', this.chainChangedListener)
       .removeListener('accountsChanged', this.accountsChangedListener)
