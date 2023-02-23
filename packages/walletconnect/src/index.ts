@@ -110,7 +110,6 @@ export class WalletConnect extends Connector {
         rpcMap: await rpcMap,
       }))
 
-      // @ts-ignore WalletConnect provider has a non-spec compliant signature for `disconnect` event
       provider.on('disconnect', this.disconnectListener)
       provider.on('chainChanged', this.chainChangedListener)
       provider.on('accountsChanged', this.accountsChangedListener)
@@ -170,7 +169,6 @@ export class WalletConnect extends Connector {
   /** {@inheritdoc Connector.deactivate} */
   public async deactivate(): Promise<void> {
     await this.provider
-      // @ts-ignore WalletConnect provider has a non-spec compliant signature for `disconnect` event
       ?.removeListener('disconnect', this.disconnectListener)
       .removeListener('chainChanged', this.chainChangedListener)
       .removeListener('accountsChanged', this.accountsChangedListener)
