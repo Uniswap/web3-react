@@ -14,7 +14,7 @@ const DEFAULT_TIMEOUT = 5000
  */
 export type WalletConnectOptions = Omit<Parameters<typeof WalletConnectProvider.init>[0], 'rpcMap'> & {
   /**
-   * @param rpcMap - Map of chainIds to rpc url(s). If multiple urls are provided, the first one that responds
+   * Map of chainIds to rpc url(s). If multiple urls are provided, the first one that responds
    * within a given timeout will be used. Note that multiple urls are not supported by WalletConnect by default.
    * That's why we extend its options with our own `rpcMap`.
    * @see getBestUrlMap
