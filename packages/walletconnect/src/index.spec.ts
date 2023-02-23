@@ -40,8 +40,12 @@ describe('WalletConnect', () => {
       enable: wc2EnableMock,
       // mock EIP-1193
       request: wc2RequestMock,
-      on() {},
-      removeListener() {},
+      on() {
+        return this
+      },
+      removeListener() {
+        return this
+      },
     }))
   })
 
