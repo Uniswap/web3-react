@@ -103,12 +103,11 @@ export class WalletConnect extends Connector {
         rpcMap: await rpcMap,
       }))
 
-      provider.on('disconnect', this.disconnectListener)
-      provider.on('chainChanged', this.chainChangedListener)
-      provider.on('accountsChanged', this.accountsChangedListener)
-      provider.on('display_uri', this.URIListener)
-
       return provider
+        .on('disconnect', this.disconnectListener)
+        .on('chainChanged', this.chainChangedListener)
+        .on('accountsChanged', this.accountsChangedListener)
+        .on('display_uri', this.URIListener)
     }))
   }
 
