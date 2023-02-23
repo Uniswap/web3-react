@@ -20,9 +20,7 @@ export type WalletConnectOptions = Omit<Parameters<typeof WalletConnectProvider.
    * @see getBestUrlMap
    */
   rpcMap?: { [chainId: number]: string | string[] }
-  /**
-   * @deprecated Use `rpcMap` instead.
-   */
+  /** @deprecated Use `rpcMap` instead. */
   rpc?: { [chainId: number]: string | string[] }
 }
 
