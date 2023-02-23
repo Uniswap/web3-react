@@ -30,9 +30,7 @@ export interface WalletConnectConstructorArgs {
   actions: Actions
   /** Options to pass to `@walletconnect/ethereum-provider`. */
   options: WalletConnectOptions
-  /**
-   * @param defaultChainId - The chainId to connect to in activate if one is not provided.
-   */
+  /** The chainId to connect to in activate if one is not provided. */
   defaultChainId?: number
   /**
    * @param timeout - Timeout, in milliseconds, after which to treat network calls to urls as failed when selecting
