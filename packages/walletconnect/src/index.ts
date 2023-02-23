@@ -116,12 +116,12 @@ export class WalletConnect extends Connector {
     const cancelActivation = this.actions.startActivation()
 
     try {
-      const { session, accounts, chainId } = await this.isomorphicInitialize()
+      const provider = await this.isomorphicInitialize()
       // WalletConnect automatically persists and restores active sessions
-      if (!session) {
+      if (!provider.session) {
         throw new Error('No active session found. Connect your wallet first.')
       }
-      this.actions.update({ accounts, chainId })
+      this.actions.update({ accounts: provider.accounts, chainId: provider.chainId })
     } catch (error) {
       await this.deactivate()
       cancelActivation()
