@@ -53,7 +53,6 @@ export class WalletConnect extends Connector {
   private readonly rpcMap?: Record<number, string | string[]>
   private readonly chains: number[]
   private readonly defaultChainId?: number
-
   private readonly timeout: number
 
   private eagerConnection?: Promise<WalletConnectProvider>
