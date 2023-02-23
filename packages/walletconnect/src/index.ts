@@ -66,7 +66,6 @@ export class WalletConnect extends Connector {
     this.chains = chains
     this.defaultChainId = defaultChainId
     this.rpcMap = rpcMap || rpc
-
     this.timeout = timeout
   }
 
