@@ -28,9 +28,7 @@ export type WalletConnectOptions = Omit<Parameters<typeof WalletConnectProvider.
  */
 export interface WalletConnectConstructorArgs {
   actions: Actions
-  /**
-   * @param options - Options to pass to `@walletconnect/ethereum-provider`.
-   */
+  /** Options to pass to `@walletconnect/ethereum-provider`. */
   options: WalletConnectOptions
   /**
    * @param defaultChainId - The chainId to connect to in activate if one is not provided.
