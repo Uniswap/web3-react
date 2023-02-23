@@ -28,7 +28,7 @@
     "eventemitter3": "^4.0.7"
   },
   "peerDependencies": {
-    "@walletconnect/ethereum-provider": "^1.7.8"
+    "@walletconnect/ethereum-provider": "^2.4.4"
   },
   "devDependencies": {
     "@web3-react/store": "^8.0.26-beta.0"

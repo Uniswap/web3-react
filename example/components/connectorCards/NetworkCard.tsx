@@ -1,9 +1,12 @@
 import { useEffect, useState } from 'react'
 
+import { URLS } from '../../chains'
 import { hooks, network } from '../../connectors/network'
 import { Card } from '../Card'
 
 const { useChainId, useAccounts, useIsActivating, useIsActive, useProvider, useENSNames } = hooks
+
+const CHAIN_IDS = Object.keys(URLS).map(Number)
 
 export default function NetworkCard() {
   const chainId = useChainId()
@@ -27,7 +30,8 @@ export default function NetworkCard() {
   return (
     <Card
       connector={network}
-      chainId={chainId}
+      activeChainId={chainId}
+      chainIds={CHAIN_IDS}
       isActivating={isActivating}
       isActive={isActive}
       error={error}
