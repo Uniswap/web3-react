@@ -27,7 +27,7 @@ export default function MetaMaskCard() {
   return (
     <Card
       connector={metaMask}
-      chainId={chainId}
+      activeChainId={chainId}
       isActivating={isActivating}
       isActive={isActive}
       error={error}

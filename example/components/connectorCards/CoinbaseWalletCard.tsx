@@ -27,7 +27,7 @@ export default function CoinbaseWalletCard() {
   return (
     <Card
       connector={coinbaseWallet}
-      chainId={chainId}
+      activeChainId={chainId}
       isActivating={isActivating}
       isActive={isActive}
       error={error}
