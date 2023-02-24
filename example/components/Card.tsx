@@ -13,7 +13,8 @@ import { Status } from './Status'
 
 interface Props {
   connector: MetaMask | WalletConnect | CoinbaseWallet | Network | GnosisSafe
-  chainId: ReturnType<Web3ReactHooks['useChainId']>
+  activeChainId: ReturnType<Web3ReactHooks['useChainId']>
+  chainIds?: ReturnType<Web3ReactHooks['useChainId']>[]
   isActivating: ReturnType<Web3ReactHooks['useIsActivating']>
   isActive: ReturnType<Web3ReactHooks['useIsActive']>
   error: Error | undefined
@@ -25,7 +26,8 @@ interface Props {
 
 export function Card({
   connector,
-  chainId,
+  activeChainId,
+  chainIds,
   isActivating,
   isActive,
   error,
@@ -52,13 +54,14 @@ export function Card({
       <div style={{ marginBottom: '1rem' }}>
         <Status isActivating={isActivating} isActive={isActive} error={error} />
       </div>
-      <Chain chainId={chainId} />
+      <Chain chainId={activeChainId} />
       <div style={{ marginBottom: '1rem' }}>
         <Accounts accounts={accounts} provider={provider} ENSNames={ENSNames} />
       </div>
       <ConnectWithSelect
         connector={connector}
-        chainId={chainId}
+        activeChainId={activeChainId}
+        chainIds={chainIds}
         isActivating={isActivating}
         isActive={isActive}
         error={error}

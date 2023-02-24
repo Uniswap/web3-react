@@ -4,32 +4,35 @@ import { GnosisSafe } from '@web3-react/gnosis-safe'
 import type { MetaMask } from '@web3-react/metamask'
 import { Network } from '@web3-react/network'
 import { WalletConnect } from '@web3-react/walletconnect'
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
-import { CHAINS, getAddChainParameters, URLS } from '../chains'
+import { CHAINS, getAddChainParameters } from '../chains'
 
 function ChainSelect({
-  chainId,
+  activeChainId,
   switchChain,
-  displayDefault,
   chainIds,
 }: {
-  chainId: number
-  switchChain: (chainId: number) => void | undefined
-  displayDefault: boolean
+  activeChainId: number
+  switchChain: (chainId: number) => void
   chainIds: number[]
 }) {
   return (
     <select
-      value={chainId}
+      value={activeChainId}
       onChange={(event) => {
-        switchChain?.(Number(event.target.value))
+        switchChain(Number(event.target.value))
       }}
       disabled={switchChain === undefined}
     >
-      {displayDefault ? <option value={-1}>Default Chain</option> : null}
+      <option hidden disabled selected={activeChainId === undefined}>
+        Select chain
+      </option>
+      <option value={-1} selected={activeChainId === -1}>
+        Default
+      </option>
       {chainIds.map((chainId) => (
-        <option key={chainId} value={chainId}>
+        <option key={chainId} value={chainId} selected={chainId === activeChainId}>
           {CHAINS[chainId]?.name ?? chainId}
         </option>
       ))}
@@ -39,152 +42,102 @@ function ChainSelect({
 
 export function ConnectWithSelect({
   connector,
-  chainId,
+  activeChainId,
+  chainIds = Object.keys(CHAINS).map(Number),
   isActivating,
   isActive,
   error,
   setError,
 }: {
   connector: MetaMask | WalletConnect | CoinbaseWallet | Network | GnosisSafe
-  chainId: ReturnType<Web3ReactHooks['useChainId']>
+  activeChainId: ReturnType<Web3ReactHooks['useChainId']>
+  chainIds?: ReturnType<Web3ReactHooks['useChainId']>[]
   isActivating: ReturnType<Web3ReactHooks['useIsActivating']>
   isActive: ReturnType<Web3ReactHooks['useIsActive']>
   error: Error | undefined
   setError: (error: Error | undefined) => void
 }) {
-  const isNetwork = connector instanceof Network
-  const displayDefault = !isNetwork
-  const chainIds = (isNetwork ? Object.keys(URLS) : Object.keys(CHAINS)).map((chainId) => Number(chainId))
+  const [desiredChainId, setDesiredChainId] = useState<number>(undefined)
 
-  const [desiredChainId, setDesiredChainId] = useState<number>(isNetwork ? 1 : -1)
+  /**
+   * When user connects eagerly (`desiredChainId` is undefined) or to the default chain (`desiredChainId` is -1),
+   * update the `desiredChainId` value so that <select /> has the right selection.
+   */
+  useEffect(() => {
+    if (activeChainId && (!desiredChainId || desiredChainId === -1)) {
+      setDesiredChainId(activeChainId)
+    }
+  }, [desiredChainId, activeChainId])
 
   const switchChain = useCallback(
-    (desiredChainId: number) => {
+    async (desiredChainId: number) => {
       setDesiredChainId(desiredChainId)
-      // if we're already connected to the desired chain, return
-      if (desiredChainId === chainId) {
-        setError(undefined)
-        return
-      }
 
-      // if they want to connect to the default chain and we're already connected, return
-      if (desiredChainId === -1 && chainId !== undefined) {
-        setError(undefined)
-        return
-      }
+      try {
+        if (
+          // If we're already connected to the desired chain, return
+          desiredChainId === activeChainId ||
+          // If they want to connect to the default chain and we're already connected, return
+          (desiredChainId === -1 && activeChainId !== undefined)
+        ) {
+          setError(undefined)
+          return
+        }
 
-      if (connector instanceof WalletConnect || connector instanceof Network) {
-        connector
-          .activate(desiredChainId === -1 ? undefined : desiredChainId)
-          .then(() => setError(undefined))
-          .catch(setError)
-      } else {
-        connector
-          .activate(desiredChainId === -1 ? undefined : getAddChainParameters(desiredChainId))
-          .then(() => setError(undefined))
-          .catch(setError)
+        if (desiredChainId === -1 || connector instanceof GnosisSafe) {
+          await connector.activate()
+        } else if (connector instanceof WalletConnect || connector instanceof Network) {
+          await connector.activate(desiredChainId)
+        } else {
+          await connector.activate(getAddChainParameters(desiredChainId))
+        }
+
+        setError(undefined)
+      } catch (error) {
+        setError(error)
       }
     },
-    [connector, chainId, setError]
+    [connector, activeChainId, setError]
   )
 
-  const onClick = useCallback((): void => {
-    setError(undefined)
-    if (connector instanceof GnosisSafe) {
-      connector
-        .activate()
-        .then(() => setError(undefined))
-        .catch(setError)
-    } else if (connector instanceof WalletConnect || connector instanceof Network) {
-      connector
-        .activate(desiredChainId === -1 ? undefined : desiredChainId)
-        .then(() => setError(undefined))
-        .catch(setError)
-    } else {
-      connector
-        .activate(desiredChainId === -1 ? undefined : getAddChainParameters(desiredChainId))
-        .then(() => setError(undefined))
-        .catch(setError)
-    }
-  }, [connector, desiredChainId, setError])
-
-  if (error) {
-    return (
-      <div style={{ display: 'flex', flexDirection: 'column' }}>
-        {!(connector instanceof GnosisSafe) && (
-          <ChainSelect
-            chainId={desiredChainId}
-            switchChain={switchChain}
-            displayDefault={displayDefault}
-            chainIds={chainIds}
-          />
-        )}
-        <div style={{ marginBottom: '1rem' }} />
-        <button onClick={onClick}>Try Again?</button>
-      </div>
-    )
-  } else if (isActive) {
-    return (
-      <div style={{ display: 'flex', flexDirection: 'column' }}>
-        {!(connector instanceof GnosisSafe) && (
-          <ChainSelect
-            chainId={desiredChainId === -1 ? -1 : chainId}
-            switchChain={switchChain}
-            displayDefault={displayDefault}
-            chainIds={chainIds}
-          />
-        )}
-        <div style={{ marginBottom: '1rem' }} />
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column' }}>
+      {!(connector instanceof GnosisSafe) && (
+        <ChainSelect activeChainId={desiredChainId} switchChain={switchChain} chainIds={chainIds} />
+      )}
+      <div style={{ marginBottom: '1rem' }} />
+      {isActive ? (
+        error ? (
+          <button onClick={() => switchChain(desiredChainId)}>Try again?</button>
+        ) : (
+          <button
+            onClick={() => {
+              if (connector?.deactivate) {
+                void connector.deactivate()
+              } else {
+                void connector.resetState()
+              }
+              setDesiredChainId(undefined)
+            }}
+          >
+            Disconnect
+          </button>
+        )
+      ) : (
         <button
-          onClick={() => {
-            if (connector?.deactivate) {
-              void connector.deactivate()
-            } else {
-              void connector.resetState()
-            }
-          }}
-        >
-          Disconnect
-        </button>
-      </div>
-    )
-  } else {
-    return (
-      <div style={{ display: 'flex', flexDirection: 'column' }}>
-        {!(connector instanceof GnosisSafe) && (
-          <ChainSelect
-            chainId={desiredChainId}
-            switchChain={isActivating ? undefined : switchChain}
-            displayDefault={displayDefault}
-            chainIds={chainIds}
-          />
-        )}
-        <div style={{ marginBottom: '1rem' }} />
-        <button
-          onClick={
-            isActivating
-              ? undefined
-              : () =>
-                  connector instanceof GnosisSafe
-                    ? void connector
-                        .activate()
-                        .then(() => setError(undefined))
-                        .catch(setError)
-                    : connector instanceof WalletConnect || connector instanceof Network
-                    ? connector
-                        .activate(desiredChainId === -1 ? undefined : desiredChainId)
-                        .then(() => setError(undefined))
-                        .catch(setError)
-                    : connector
-                        .activate(desiredChainId === -1 ? undefined : getAddChainParameters(desiredChainId))
-                        .then(() => setError(undefined))
-                        .catch(setError)
+          onClick={() =>
+            connector instanceof GnosisSafe
+              ? void connector
+                  .activate()
+                  .then(() => setError(undefined))
+                  .catch(setError)
+              : switchChain(desiredChainId)
           }
-          disabled={isActivating}
+          disabled={isActivating || !desiredChainId}
         >
-          Connect
+          {error ? 'Try again?' : 'Connect'}
         </button>
-      </div>
-    )
-  }
+      )}
+    </div>
+  )
 }
