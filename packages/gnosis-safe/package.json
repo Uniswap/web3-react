@@ -24,8 +24,8 @@
     "start": "tsc --watch"
   },
   "dependencies": {
-    "@gnosis.pm/safe-apps-provider": "^0.12.0",
-    "@gnosis.pm/safe-apps-sdk": "^7.6.0",
+    "@safe-global/safe-apps-provider": "^0.16.0",
+    "@safe-global/safe-apps-sdk": "^7.10.0",
     "@web3-react/types": "^8.1.0-beta.0"
   }
 }

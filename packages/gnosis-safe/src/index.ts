@@ -1,6 +1,6 @@
-import type { SafeAppProvider } from '@gnosis.pm/safe-apps-provider'
-import type SafeAppsSDK from '@gnosis.pm/safe-apps-sdk'
-import type { Opts } from '@gnosis.pm/safe-apps-sdk'
+import type { SafeAppProvider } from '@safe-global/safe-apps-provider'
+import type SafeAppsSDK from '@safe-global/safe-apps-sdk'
+import type { Opts } from '@safe-global/safe-apps-sdk'
 import type { Actions } from '@web3-react/types'
 import { Connector } from '@web3-react/types'
 
@@ -13,7 +13,7 @@ export class NoSafeContext extends Error {
 }
 
 /**
- * @param options - Options to pass to `@gnosis.pm/safe-apps-sdk`.
+ * @param options - Options to pass to `@safe-global/safe-apps-sdk`.
  */
 export interface GnosisSafeConstructorArgs {
   actions: Actions
@@ -57,11 +57,11 @@ export class GnosisSafe extends Connector {
     if (this.eagerConnection) return
 
     // kick off import early to minimize waterfalls
-    const SafeAppProviderPromise = import('@gnosis.pm/safe-apps-provider').then(
+    const SafeAppProviderPromise = import('@safe-global/safe-apps-provider').then(
       ({ SafeAppProvider }) => SafeAppProvider
     )
 
-    await (this.eagerConnection = import('@gnosis.pm/safe-apps-sdk').then(async (m) => {
+    await (this.eagerConnection = import('@safe-global/safe-apps-sdk').then(async (m) => {
       this.sdk = new m.default(this.options)
 
       const safe = await Promise.race([
