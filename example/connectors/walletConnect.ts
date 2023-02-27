@@ -1,5 +1,5 @@
 import { initializeConnector } from '@web3-react/core'
-import { WalletConnect } from '@web3-react/walletconnect'
+import { WalletConnect } from '@web3-react/walletconnect-v2'
 
 import { MAINNET_CHAINS } from '../chains'
 

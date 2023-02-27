@@ -1,10 +1,10 @@
 {
-  "name": "@web3-react/walletconnect",
+  "name": "@web3-react/walletconnect-v2",
   "keywords": [
     "web3-react",
     "walletconnect"
   ],
-  "author": "Noah Zinsmeister <noahwz@gmail.com>",
+  "author": "Mike Grabowski <mike.grabowski@uniswap.org>",
   "license": "GPL-3.0-or-later",
   "repository": "github:Uniswap/web3-react",
   "publishConfig": {
@@ -25,10 +25,8 @@
   },
   "dependencies": {
     "@web3-react/types": "^8.1.0-beta.0",
-    "eventemitter3": "^4.0.7"
-  },
-  "peerDependencies": {
-    "@walletconnect/ethereum-provider": "^2.4.4"
+    "eventemitter3": "^4.0.7",
+    "@walletconnect/ethereum-provider": "^2.4.6"
   },
   "devDependencies": {
     "@web3-react/store": "^8.1.0-beta.0"

@@ -1,4 +1,4 @@
-import { URI_AVAILABLE } from '@web3-react/walletconnect'
+import { URI_AVAILABLE } from '@web3-react/walletconnect-v2'
 import { useEffect, useState } from 'react'
 
 import { MAINNET_CHAINS } from '../../chains'

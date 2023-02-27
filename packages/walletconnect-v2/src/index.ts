@@ -101,11 +101,18 @@ export class WalletConnect extends Connector {
         rpcMap: await rpcMap,
       }))
 
-      return provider
+      /**
+       * WalletConnect `on` and `removeListener` methods do not return the provider instance,
+       * but underlying EventEmitter instead. This is why we have to return `provider` explicitly later
+       * rather than here.
+       */
+      provider
         .on('disconnect', this.disconnectListener)
         .on('chainChanged', this.chainChangedListener)
         .on('accountsChanged', this.accountsChangedListener)
         .on('display_uri', this.URIListener)
+
+      return provider
     }))
   }
 
@@ -163,7 +170,10 @@ export class WalletConnect extends Connector {
       .removeListener('chainChanged', this.chainChangedListener)
       .removeListener('accountsChanged', this.accountsChangedListener)
       .removeListener('display_uri', this.URIListener)
-      .disconnect()
+    /**
+     * @todo chain `disconnect()` too once WalletConnect fixes `removeListener` to return Provider instead of EventEmitter
+     */
+    this.provider?.disconnect()
     this.provider = undefined
     this.eagerConnection = undefined
     this.actions.resetState()
