@@ -27,7 +27,7 @@
     "@web3-react/types": "^8.1.0-beta.0"
   },
   "peerDependencies": {
-    "@coinbase/wallet-sdk": "^3.0.4"
+    "@coinbase/wallet-sdk": "^3.6.4"
   },
   "devDependencies": {
     "@web3-react/store": "^8.1.0-beta.0"
