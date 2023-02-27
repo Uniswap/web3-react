@@ -24,7 +24,7 @@ export type WalletConnectOptions = Omit<Parameters<typeof WalletConnectProvider.
 }
 
 /**
- * Options to configure the WalletConect connector.
+ * Options to configure the WalletConnect connector.
  */
 export interface WalletConnectConstructorArgs {
   actions: Actions
@@ -102,6 +102,7 @@ export class WalletConnect extends Connector {
       }))
 
       /**
+       * TODO(INFRA-137):
        * WalletConnect `on` and `removeListener` methods do not return the provider instance,
        * but underlying EventEmitter instead. This is why we have to return `provider` explicitly later
        * rather than here.
@@ -171,7 +172,7 @@ export class WalletConnect extends Connector {
       .removeListener('accountsChanged', this.accountsChangedListener)
       .removeListener('display_uri', this.URIListener)
     /**
-     * @todo chain `disconnect()` too once WalletConnect fixes `removeListener` to return Provider instead of EventEmitter
+     * TODO(INFRA-137): chain `disconnect()` too once WalletConnect fixes `removeListener` to return Provider instead of EventEmitter
      */
     this.provider?.disconnect()
     this.provider = undefined
