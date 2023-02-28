@@ -24,12 +24,12 @@
     "start": "tsc --watch"
   },
   "dependencies": {
-    "@web3-react/types": "^8.0.21-beta.0",
+    "@web3-react/types": "^8.1.0-beta.0",
     "eventemitter3": "^4.0.7",
     "@walletconnect/ethereum-provider": "^1.7.8"
   },
   "devDependencies": {
-    "@web3-react/store": "^8.0.26-beta.0",
+    "@web3-react/store": "^8.1.0-beta.0",
     "@walletconnect/types": "^1.7.8"
   }
 }

@@ -2933,22 +2933,6 @@
     "@walletconnect/window-getters" "^1.0.1"
     tslib "1.14.1"
 
-"@web3-react/store@^8.0.26-beta.0":
-  version "8.0.26-beta.0"
-  resolved "https://registry.yarnpkg.com/@web3-react/store/-/store-8.0.26-beta.0.tgz#44c7c0af5b4df46bfb81898dd3c115da44c45ad0"
-  integrity sha512-d5Bza4qFeJFrdsYy3ESMYpTecIUv7kTGiKODE1uH1HX4sLD61EOBtDtwXP+5DfNmYSpeeUx5uCuIRXWZiL+DTg==
-  dependencies:
-    "@ethersproject/address" "^5"
-    "@web3-react/types" "^8.0.21-beta.0"
-    zustand "^4.0.0"
-
-"@web3-react/types@^8.0.21-beta.0":
-  version "8.0.21-beta.0"
-  resolved "https://registry.yarnpkg.com/@web3-react/types/-/types-8.0.21-beta.0.tgz#a8c1437f343a5d2955561f4b204190ad3cdf9244"
-  integrity sha512-eOkRtMhB1WDJZPQPDHKRydo5n+2ZEYbYPNm2jmgg2CcfNO2w1gav8OQISvABVW/ExQSaF9iKveGQd897xFLdcQ==
-  dependencies:
-    zustand "^4.0.0"
-
 "@web3modal/core@2.1.1":
   version "2.1.1"
   resolved "https://registry.yarnpkg.com/@web3modal/core/-/core-2.1.1.tgz#e1ebe8faaae6e4b74df911fd5ac6023f280b12c1"
@@ -10099,12 +10083,5 @@ zustand@4.3.3:
   version "4.3.3"
   resolved "https://registry.yarnpkg.com/zustand/-/zustand-4.3.3.tgz#c9113499074dde2d6d99c1b5f591e9329572c224"
   integrity sha512-x2jXq8S0kfLGNwGh87nhRfEc2eZy37tSatpSoSIN+O6HIaBhgQHSONV/F9VNrNcBcKQu/E80K1DeHDYQC/zCrQ==
-  dependencies:
-    use-sync-external-store "1.2.0"
-
-zustand@^4.0.0:
-  version "4.3.5"
-  resolved "https://registry.yarnpkg.com/zustand/-/zustand-4.3.5.tgz#011d2997534f8a187ea7b1d75db56df31f58453d"
-  integrity sha512-2iPUzfwx+g3f0PagOMz2vDO9mZzEp2puFpNe7vrAymVPOEIEUjCPkC4/zy84eAscxIWmTU4j9g6upXYkJdzEFQ==
   dependencies:
     use-sync-external-store "1.2.0"
