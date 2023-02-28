@@ -1,15 +1,14 @@
 import { initializeConnector } from '@web3-react/core'
-import { WalletConnect as WalletConnectV2 } from '@web3-react/walletconnect-v2'
+import { WalletConnect } from '@web3-react/walletconnect'
 
-import { MAINNET_CHAINS } from '../chains'
+import { URLS } from '../chains'
 
-export const [walletConnectV2, hooks] = initializeConnector<WalletConnectV2>(
+export const [walletConnect, hooks] = initializeConnector<WalletConnect>(
   (actions) =>
-    new WalletConnectV2({
+    new WalletConnect({
       actions,
       options: {
-        projectId: process.env.walletConnectProjectId,
-        chains: Object.keys(MAINNET_CHAINS).map(Number),
+        rpc: URLS,
       },
     })
 )
