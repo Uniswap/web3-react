@@ -50,7 +50,7 @@ export class Network extends Connector {
       if (Array.isArray(urls)) {
         accumulator[Number(chainId)] = urls
       } else {
-        // thie ternary just makes typescript happy, since it can't infer that the array has elements of the same type
+        // this ternary just makes typescript happy, since it can't infer that the array has elements of the same type
         accumulator[Number(chainId)] = isUrl(urls) ? [urls] : [urls]
       }
 
