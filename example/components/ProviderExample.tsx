@@ -14,8 +14,8 @@ import { getName } from '../utils'
 
 const connectors: [MetaMask | WalletConnect | WalletConnectV2 | CoinbaseWallet | Network, Web3ReactHooks][] = [
   [metaMask, metaMaskHooks],
-  [walletConnectV2, walletConnectV2Hooks],
   [walletConnect, walletConnectHooks],
+  [walletConnectV2, walletConnectV2Hooks],
   [coinbaseWallet, coinbaseWalletHooks],
   [network, networkHooks],
 ]
