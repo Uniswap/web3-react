@@ -158,7 +158,7 @@ export class MetaMask extends Connector {
             params: [{ chainId: desiredChainIdHex }],
           })
           .catch((error: ProviderRpcError) => {
-            if (error.code === 4902 && typeof desiredChainIdOrChainParameters !== 'number') {
+            if ((error.data?.originalError?.code === 4902 || error.code === 4902) && typeof desiredChainIdOrChainParameters !== 'number') {
               if (!this.provider) throw new Error('No provider')
               // if we're here, we can try to add a new network
               return this.provider.request({
