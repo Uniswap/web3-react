@@ -1,5 +1,3 @@
-import type EventEmitter from 'node:events'
-
 import type { StoreApi } from 'zustand'
 
 export interface Web3ReactState {
@@ -37,8 +35,10 @@ export interface RequestArguments {
 }
 
 /** per {@link https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1193.md#events EIP-1193} */
-export type Provider = Pick<EventEmitter, 'on' | 'removeListener'> & {
+export interface Provider {
   request(args: RequestArguments): Promise<unknown>
+  on(eventName: string | symbol, listener: (...args: any[]) => void): this
+  removeListener(eventName: string | symbol, listener: (...args: any[]) => void): this
 }
 
 /** per {@link https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1193.md#connect-1 EIP-1193} */
