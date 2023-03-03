@@ -7,12 +7,6 @@ const nextConfig = {
     alchemyKey: process.env.ALCHEMY_KEY,
     walletConnectProjectId: process.env.WALLET_CONNECT_PROJECT_ID,
   },
-  /**
-   * @todo debug why this is needed before merging
-   */
-  experimental: {
-    esmExternals: 'loose'
-  }
 }
 
 module.exports = nextConfig
