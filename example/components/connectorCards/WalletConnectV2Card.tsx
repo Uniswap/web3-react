@@ -9,7 +9,7 @@ const CHAIN_IDS = Object.keys(MAINNET_CHAINS).map(Number)
 
 const { useChainId, useAccounts, useIsActivating, useIsActive, useProvider, useENSNames } = hooks
 
-export default function WalletConnectCard() {
+export default function WalletConnectV2Card() {
   const chainId = useChainId()
   const accounts = useAccounts()
   const isActivating = useIsActivating()
