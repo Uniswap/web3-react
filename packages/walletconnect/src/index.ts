@@ -175,10 +175,10 @@ export class WalletConnect extends Connector {
         })
       const chainId = parseChainId(await this.provider.request<string>({ method: 'eth_chainId' }))
       /**
-       * It is possible that the user has changed the chain in the wallet while the modal was open.
+       * TODO(INFRA-140): It is possible that the user has changed the chain in the wallet while the modal was open.
        * In that case, the `desiredChainId` will differ from the `chainId` returned by the wallet,
-       * resulting in incorrect `rpc` endpoint being used. Unfortunately, there's no public API
-       * to set the `rpc` endpoint, so we have to use the private API instead.
+       * resulting in incorrect `rpc` endpoint being used. Unfortunately, there's no public API to set the `rpc` endpoint,
+       * rather than using private APIs. We should remove this once the underlying bug is resolved upstream.
        */
       if (chainId !== desiredChainId) {
         // @ts-ignore
