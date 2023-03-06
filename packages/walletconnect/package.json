@@ -31,5 +31,8 @@
   "devDependencies": {
     "@walletconnect/types": "^1.7.8",
     "@web3-react/store": "^8.1.1-beta.0"
+  },
+  "resolutions": {
+    "decode-uri-component": "^0.2.2"
   }
 }
