@@ -22,7 +22,7 @@ class MockMockWalletConnectProvider extends MockEIP1193Provider {
 
   /**
    * TODO(INFRA-140): We're using the following private API to fix an underlying WalletConnect issue.
-   * Once the issue is fixed, this mock will no longer be needed.
+   * See {@link WalletConnect.activate} for details.
    */
   private setHttpProvider() {}
 }
