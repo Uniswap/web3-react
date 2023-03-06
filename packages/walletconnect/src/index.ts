@@ -173,9 +173,18 @@ export class WalletConnect extends Connector {
           if (error?.message === 'User closed modal') await this.deactivate()
           throw error
         })
-      const chainId = await this.provider.request<string>({ method: 'eth_chainId' })
-
-      this.actions.update({ chainId: parseChainId(chainId), accounts })
+      const chainId = parseChainId(await this.provider.request<string>({ method: 'eth_chainId' }))
+      /**
+       * TODO(INFRA-140): It is possible that the user has changed the chain in the wallet while the modal was open.
+       * In that case, WalletConnect will not update the RPC endpoint to the one configured for that chain.
+       * Unfortunately, there's no public API to set the `rpc` endpoint, rather than calling private `setHttpProvider`.
+       * We should remove this once the underlying bug is resolved upstream.
+       */
+      if (chainId !== desiredChainId) {
+        // @ts-ignore
+        this.provider.http = this.provider.setHttpProvider(chainId)
+      }
+      this.actions.update({ chainId, accounts })
     } catch (error) {
       cancelActivation()
       throw error

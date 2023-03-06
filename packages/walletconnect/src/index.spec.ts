@@ -19,6 +19,12 @@ class MockMockWalletConnectProvider extends MockEIP1193Provider {
       return super.request(x)
     }
   }
+
+  /**
+   * TODO(INFRA-140): We're using the following private API to fix an underlying WalletConnect issue.
+   * See {@link WalletConnect.activate} for details.
+   */
+  private setHttpProvider() {}
 }
 
 jest.mock('@walletconnect/ethereum-provider', () => MockMockWalletConnectProvider)
