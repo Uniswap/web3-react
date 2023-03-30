@@ -1,0 +1,31 @@
+{
+  "name": "@web3-react/venly",
+  "keywords": [
+    "web3-react",
+    "venly"
+  ],
+  "repository": "github:Uniswap/web3-react",
+  "publishConfig": {
+    "access": "public"
+  },
+  "version": "8.1.2-beta.0",
+  "files": [
+    "dist/*"
+  ],
+  "type": "commonjs",
+  "types": "./dist/index.d.ts",
+  "main": "./dist/index.js",
+  "exports": "./dist/index.js",
+  "scripts": {
+    "prebuild": "rm -rf dist",
+    "build": "tsc",
+    "start": "tsc --watch"
+  },
+  "dependencies": {
+    "@venly/web3-provider": "^3.0.0-develop.4",
+    "@web3-react/types": "^8.1.2-beta.0"
+  },
+  "devDependencies": {
+    "@web3-react/store": "^8.1.2-beta.0"
+  }
+}
