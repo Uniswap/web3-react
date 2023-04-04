@@ -2,11 +2,11 @@ import { EventEmitter } from 'node:events'
 
 import type { ProviderRpcError, RequestArguments } from '@web3-react/types'
 
-export class MockEIP1193Provider extends EventEmitter {
-  public chainId?: string
+export class MockEIP1193Provider<T = string> extends EventEmitter {
+  public chainId?: T
   public accounts?: string[]
 
-  public eth_chainId = jest.fn((chainId?: string) => chainId)
+  public eth_chainId = jest.fn((chainId?: T) => chainId)
   public eth_accounts = jest.fn((accounts?: string[]) => accounts)
   public eth_requestAccounts = jest.fn((accounts?: string[]) => accounts)
 
@@ -22,7 +22,7 @@ export class MockEIP1193Provider extends EventEmitter {
       case 'eth_requestAccounts':
         return Promise.resolve(this.eth_requestAccounts(this.accounts))
       default:
-        throw new Error()
+        throw new Error(`Method not supported: ${JSON.stringify(x)}`)
     }
   }
 

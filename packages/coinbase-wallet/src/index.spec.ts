@@ -1,7 +1,7 @@
 import { createWeb3ReactStoreAndActions } from '@web3-react/store'
 import type { Actions, Web3ReactStore } from '@web3-react/types'
 import { CoinbaseWallet } from '.'
-import { MockEIP1193Provider } from '../../eip1193/src/mock'
+import { MockEIP1193Provider } from '@web3-react/core'
 
 jest.mock(
   '@coinbase/wallet-sdk',
