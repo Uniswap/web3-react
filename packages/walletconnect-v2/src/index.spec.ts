@@ -1,3 +1,4 @@
+// Not avaiable in the `node` environment, but required by WalletConnect
 global.TextEncoder = jest.fn()
 global.TextDecoder = jest.fn()
 
