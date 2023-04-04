@@ -31,17 +31,13 @@ const isSwitchEthereumChainRequest = (x: RequestArguments): x is SwitchEthereumC
 }
 
 class MockWalletConnectProvider extends MockEIP1193Provider<number> {
-  public eth_switchEthereumChain = jest.fn((args: string) => args)
+  /** per {@link https://eips.ethereum.org/EIPS/eip-3326#specification EIP-3326} */
+  public eth_switchEthereumChain = jest.fn((args: string) => null)
 
   public request(x: RequestArguments | SwitchEthereumChainRequestArguments): Promise<unknown> {
-    /*
-     * Switches active chain and returns `null` to indicate success
-     * https://eips.ethereum.org/EIPS/eip-3326#specification
-     */
     if (isSwitchEthereumChainRequest(x)) {
       this.chainId = parseInt(x.params[0].chainId, 16)
-      this.eth_switchEthereumChain(JSON.stringify(x))
-      return Promise.resolve(null)
+      return Promise.resolve(this.eth_switchEthereumChain(JSON.stringify(x)))
     } else {
       return super.request(x)
     }
