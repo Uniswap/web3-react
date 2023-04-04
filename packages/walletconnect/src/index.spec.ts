@@ -4,13 +4,7 @@ import EventEmitter from 'node:events'
 import { WalletConnect } from '.'
 import { MockEIP1193Provider } from '@web3-react/core'
 
-/**
- * Creating a WalletConnect specific mock is required because it returns
- * `chainId` as a number instead of a string. 
- */
 class MockWalletConnectProvider extends MockEIP1193Provider<number> {
-  public connector = new EventEmitter()
-
   /**
    * TODO(INFRA-140): We're using the following private API to fix an underlying WalletConnect issue.
    * See {@link WalletConnect.activate} for details.
