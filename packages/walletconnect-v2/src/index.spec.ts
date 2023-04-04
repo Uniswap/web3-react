@@ -39,11 +39,7 @@ class MockWalletConnectProvider extends MockEIP1193Provider<number> {
      * https://eips.ethereum.org/EIPS/eip-3326#specification
      */
     if (isSwitchEthereumChainRequest(x)) {
-      const chainId = x.params[0].chainId
-      if (!chainId) {
-        throw new Error('Invalid request, missing `chainId`')
-      }
-      this.chainId = parseInt(chainId, 16)
+      this.chainId = parseInt(x.params[0].chainId, 16)
       this.eth_switchEthereumChain(JSON.stringify(x))
       return Promise.resolve(null)
     } else {
