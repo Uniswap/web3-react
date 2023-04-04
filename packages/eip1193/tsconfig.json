@@ -1,6 +1,6 @@
 {
   "extends": "../../tsconfig.json",
-  "include": ["./src", "../core/src/mockProvider.ts"],
+  "include": ["./src"],
   "compilerOptions": {
     "outDir": "./dist"
   }
