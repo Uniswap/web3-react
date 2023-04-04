@@ -1,6 +1,5 @@
-import { EventEmitter } from 'node:events'
-
 import type { ProviderRpcError, RequestArguments } from '@web3-react/types'
+import { EventEmitter } from 'eventemitter3'
 
 export class MockEIP1193Provider extends EventEmitter {
   public chainId?: string
