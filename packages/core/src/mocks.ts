@@ -21,7 +21,7 @@ export class MockEIP1193Provider<T = string> extends EventEmitter {
       case 'eth_requestAccounts':
         return Promise.resolve(this.eth_requestAccounts(this.accounts))
       default:
-        throw new Error(`Method not supported: ${JSON.stringify(x)}`)
+        throw new Error(`Method not supported on mock: ${JSON.stringify(x)}`)
     }
   }
 
