@@ -18,9 +18,6 @@ const createTestEnvironment = (opts: Omit<WalletConnectOptions, 'projectId'>) =>
 const accounts = ['0x0000000000000000000000000000000000000000']
 const chains = [1, 2, 3]
 
-/*
- * TODO: Move this to `@web3-react/types` and further narrow down types for `RequestArguments` 
- */
 type SwitchEthereumChainRequestArguments = {
   method: 'wallet_switchEthereumChain',
   params: [{ chainId: string }]
