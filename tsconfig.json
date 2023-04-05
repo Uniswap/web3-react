@@ -3,7 +3,8 @@
   "compilerOptions": {
     "module": "CommonJS",
     "declaration": true,
-    "moduleResolution": "Node"
+    "moduleResolution": "Node",
+    "jsx": "react"
   },
   "exclude": ["**/*.spec.ts"]
 }

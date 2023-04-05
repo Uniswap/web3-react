@@ -1,9 +1,9 @@
 import { Eip1193Bridge } from '@ethersproject/experimental'
 import { Web3Provider } from '@ethersproject/providers'
 import { createWeb3ReactStoreAndActions } from '@web3-react/store'
+import { MockEIP1193Provider } from '@web3-react/core'
 import type { Actions, Web3ReactStore } from '@web3-react/types'
 import { EIP1193 } from '.'
-import { MockEIP1193Provider } from './mock'
 
 class MockProviderRpcError extends Error {
   public code: number

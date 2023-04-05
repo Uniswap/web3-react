@@ -2,24 +2,9 @@ import { createWeb3ReactStoreAndActions } from '@web3-react/store'
 import type { Actions, RequestArguments, Web3ReactStore } from '@web3-react/types'
 import EventEmitter from 'eventemitter3'
 import { WalletConnect } from '.'
-import { MockEIP1193Provider } from '../../eip1193/src/mock'
+import { MockEIP1193Provider } from '@web3-react/core'
 
-// necessary because walletconnect returns chainId as a number
-class MockMockWalletConnectProvider extends MockEIP1193Provider {
-  public connector = new EventEmitter()
-
-  public eth_chainId_number = jest.fn((chainId?: string) =>
-    chainId === undefined ? chainId : Number.parseInt(chainId, 16)
-  )
-
-  public request(x: RequestArguments): Promise<unknown> {
-    if (x.method === 'eth_chainId') {
-      return Promise.resolve(this.eth_chainId_number(this.chainId))
-    } else {
-      return super.request(x)
-    }
-  }
-
+class MockWalletConnectProvider extends MockEIP1193Provider<number> {
   /**
    * TODO(INFRA-140): We're using the following private API to fix an underlying WalletConnect issue.
    * See {@link WalletConnect.activate} for details.
@@ -27,15 +12,15 @@ class MockMockWalletConnectProvider extends MockEIP1193Provider {
   private setHttpProvider() {}
 }
 
-jest.mock('@walletconnect/ethereum-provider', () => MockMockWalletConnectProvider)
+jest.mock('@walletconnect/ethereum-provider', () => MockWalletConnectProvider)
 
-const chainId = '0x1'
+const chainId = 1
 const accounts: string[] = []
 
 describe('WalletConnect', () => {
   let store: Web3ReactStore
   let connector: WalletConnect
-  let mockProvider: MockMockWalletConnectProvider
+  let mockProvider: MockWalletConnectProvider
 
   describe('works', () => {
     beforeEach(async () => {
@@ -47,7 +32,7 @@ describe('WalletConnect', () => {
     test('#activate', async () => {
       await connector.connectEagerly().catch(() => {})
 
-      mockProvider = connector.provider as unknown as MockMockWalletConnectProvider
+      mockProvider = connector.provider as unknown as MockWalletConnectProvider
       mockProvider.chainId = chainId
       mockProvider.accounts = accounts
 
@@ -55,12 +40,12 @@ describe('WalletConnect', () => {
 
       expect(mockProvider.eth_requestAccounts).toHaveBeenCalled()
       expect(mockProvider.eth_accounts).not.toHaveBeenCalled()
-      expect(mockProvider.eth_chainId_number).toHaveBeenCalled()
-      expect(mockProvider.eth_chainId_number.mock.invocationCallOrder[0])
+      expect(mockProvider.eth_chainId).toHaveBeenCalled()
+      expect(mockProvider.eth_chainId.mock.invocationCallOrder[0])
         .toBeGreaterThan(mockProvider.eth_requestAccounts.mock.invocationCallOrder[0])
 
       expect(store.getState()).toEqual({
-        chainId: Number.parseInt(chainId, 16),
+        chainId,
         accounts,
         activating: false,
         error: undefined,
