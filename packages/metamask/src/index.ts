@@ -157,8 +157,8 @@ export class MetaMask extends Connector {
             method: 'wallet_switchEthereumChain',
             params: [{ chainId: desiredChainIdHex }],
           })
-          .catch((error: any) => {
-            const errorCode = error.data?.originalError?.code || error.code
+          .catch((error: ProviderRpcError) => {
+            const errorCode = (error.data as any)?.originalError?.code || error.code
             if (errorCode === 4902 && typeof desiredChainIdOrChainParameters !== 'number') {
               if (!this.provider) throw new Error('No provider')
               // if we're here, we can try to add a new network
