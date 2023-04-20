@@ -31,7 +31,7 @@ describe('WalletConnect', () => {
      */
     // @ts-expect-error
     wc2InitMock = jest.spyOn(EthereumProvider, 'init').mockImplementation(async (opts) => ({
-      // We read `accounts` and `chainId` to read current connection state
+      // We read `accounts` and `chainId` to get current connection state
       accounts,
       chainId: opts.chains[0],
       // Session is an object when connected, undefined otherwise
