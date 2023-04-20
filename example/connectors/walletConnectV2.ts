@@ -13,6 +13,7 @@ export const [walletConnectV2, hooks] = initializeConnector<WalletConnectV2>(
         projectId: process.env.walletConnectProjectId,
         chains: [mainnet],
         optionalChains,
+        showQrModal: true,
       },
     })
 )
