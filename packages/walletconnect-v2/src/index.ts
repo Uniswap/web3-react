@@ -135,8 +135,22 @@ export class WalletConnect extends Connector {
 
     if (provider.session) {
       if (!desiredChainId || desiredChainId === provider.chainId) return
-      if (!this.chains.includes(desiredChainId)) {
-        throw new Error(`Cannot activate chain (${desiredChainId}) that was not included in initial options.chains.`)
+      /*
+       * Unfortunately, WalletConnect does not provide a better/cleaner way to access connected chains.
+       * We have to work with the list of accounts in format: `eip155:${chain}:${address}`.
+       */
+      const isConnectedToDesiredChain = provider.session.namespaces.eip155.accounts.some((account) =>
+        account.startsWith(`eip155:${desiredChainId}:`)
+      )
+      if (!isConnectedToDesiredChain) {
+        if ((this.options.optionalChains || []).includes(desiredChainId)) {
+          throw new Error(
+            `Cannot activate an optional chain (${desiredChainId}). This error is expected, because there is no guarantee that the user is connected to a given optional chains. Either handle this error in your code or remove the chain from the list of optional chains.`
+          )
+        }
+        throw new Error(
+          `Unknown chain (${desiredChainId}). Make sure to include all the chains in the 'chains' array while initialising WalletConnect.`
+        )
       }
       return provider.request<void>({
         method: 'wallet_switchEthereumChain',

@@ -34,7 +34,15 @@ describe('WalletConnect', () => {
       chainId: opts.chains[0],
       // session is an object when connected, undefined otherwise
       get session() {
-        return wc2EnableMock.mock.calls.length > 0 ? {} : undefined
+        return wc2EnableMock.mock.calls.length > 0 ? {
+          // we read `accounts` in `activate()` to check if we're connected to the desired chain
+          namespaces: {
+            eip155: {
+              // for testing purposes, let's assume we're connected to both required and optional chains
+              accounts: opts.chains.concat(opts.optionalChains || []).map((chainId) => `eip155:${chainId}:${accounts[0]}`),
+            }
+          }
+        } : undefined
       },
       // methods used in `activate` and `isomorphicInitialize`
       enable: wc2EnableMock,
@@ -86,12 +94,33 @@ describe('WalletConnect', () => {
       await connector.activate(2)
       expect(store.getState().chainId).toEqual(2)
     })
-    
-    test('should throw an error for invalid chain', async () => {
-      const {connector} = createTestEnvironment({ chains })
-      expect(connector.activate(99)).rejects.toThrow()
+
+    test('should activate optional chain', async () => {
+      const {connector} = createTestEnvironment({ chains, optionalChains: [10] })
+      expect(connector.activate(10)).rejects.toThrow()
     })
     
+    test('should throw an error for unknown chain', async () => {
+      const {connector} = createTestEnvironment({ chains })
+      expect(connector.activate(99)).rejects.toThrow('unknown')
+    })
+
+    test('should throw an error for inactive optional chain', async () => {
+      const {connector} = createTestEnvironment({ chains, optionalChains: [10] })
+      // @ts-expect-error we're pursposefully mocking only the subset of `EthereumProvider`'s session that we use internally
+      jest.spyOn(EthereumProvider.prototype, 'session', 'get').mockReturnValueOnce({
+        namespaces: {
+          eip155: {
+            // the following values will be empty arrays when we are not connected to any particular chain
+            accounts: [],
+            methods: [],
+            events: [],
+          },
+        },
+      })
+      expect(connector.activate(10)).rejects.toThrow('optional')
+    })
+
     test('should switch chain if already connected', async () => {
       const {connector} = createTestEnvironment({ chains })
       await connector.activate()
