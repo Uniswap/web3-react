@@ -37,10 +37,10 @@ describe('WalletConnect', () => {
       // Session is an object when connected, undefined otherwise
       get session() {
         return wc2EnableMock.mock.calls.length > 0 ? {
-          // We read `accounts` in `activate()` to check if we're connected to the desired chain
+          // We read `accounts` to check what chains from `optionalChains` did we connect to
           namespaces: {
             eip155: {
-              // For testing purposes, let's assume we're connected to both required and optional chains
+              // For testing purposes, let's assume we're connected to all required and optional chains
               accounts: opts.chains.concat(opts.optionalChains || []).map((chainId) => `eip155:${chainId}:${accounts[0]}`),
             }
           }
