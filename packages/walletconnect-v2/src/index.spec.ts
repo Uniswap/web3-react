@@ -10,9 +10,9 @@ import { EthereumProvider } from '@walletconnect/ethereum-provider'
 
 import { WalletConnect, WalletConnectOptions } from '.'
 
-const createTestEnvironment = (opts: Omit<WalletConnectOptions, 'projectId'>) => {
+const createTestEnvironment = (opts: Omit<WalletConnectOptions, 'projectId'>, defaultChainId?: number) => {
   const [store, actions] = createWeb3ReactStoreAndActions()
-  const connector = new WalletConnect({ actions, options: { ...opts, projectId: '' } })
+  const connector = new WalletConnect({ actions, defaultChainId, options: { ...opts, projectId: '' } })
   return {connector, store}
 }
 
@@ -25,28 +25,30 @@ describe('WalletConnect', () => {
 
   beforeEach(() => {
     const wc2EnableMock = jest.fn().mockResolvedValue(accounts)
-    // @ts-ignore
-    // TypeScript error is expected here. We're mocking a factory `init` method
-    // to only define a subset of `EthereumProvider` that we use internally
+    /**
+     * TypeScript error is expected here. We're mocking a factory `init` method
+     * to only define a subset of `EthereumProvider` that we use internally
+     */
+    // @ts-expect-error
     wc2InitMock = jest.spyOn(EthereumProvider, 'init').mockImplementation(async (opts) => ({
-      // we read this in `enable` to get current chain 
+      // We read `accounts` and `chainId` to read current connection state
       accounts,
       chainId: opts.chains[0],
-      // session is an object when connected, undefined otherwise
+      // Session is an object when connected, undefined otherwise
       get session() {
         return wc2EnableMock.mock.calls.length > 0 ? {
-          // we read `accounts` in `activate()` to check if we're connected to the desired chain
+          // We read `accounts` in `activate()` to check if we're connected to the desired chain
           namespaces: {
             eip155: {
-              // for testing purposes, let's assume we're connected to both required and optional chains
+              // For testing purposes, let's assume we're connected to both required and optional chains
               accounts: opts.chains.concat(opts.optionalChains || []).map((chainId) => `eip155:${chainId}:${accounts[0]}`),
             }
           }
         } : undefined
       },
-      // methods used in `activate` and `isomorphicInitialize`
+      // Methods used in `activate` and `isomorphicInitialize`
       enable: wc2EnableMock,
-      // mock EIP-1193
+      // Mock EIP-1193
       request: wc2RequestMock,
       on() {
         return this
@@ -78,7 +80,7 @@ describe('WalletConnect', () => {
   })
 
   describe('#activate', () => {
-    test('should activate default chain', async () => {
+    test('should take first chain as default', async () => {
       const {connector, store} = createTestEnvironment({ chains })
       await connector.activate()
       expect(store.getState()).toEqual({
@@ -89,39 +91,62 @@ describe('WalletConnect', () => {
       })
     })
 
-    test('should activate passed chain', async () => {
+    test('should use `defaultChainId` when available', async () => {
+      const {connector, store} = createTestEnvironment({ chains }, 3)
+      await connector.activate()
+      expect(store.getState().chainId).toEqual(3)
+    })
+
+    test('should use chain passed as argument', async () => {
       const {connector, store} = createTestEnvironment({ chains })
       await connector.activate(2)
       expect(store.getState().chainId).toEqual(2)
     })
 
-    test('should activate optional chain', async () => {
-      const {connector} = createTestEnvironment({ chains, optionalChains: [10] })
-      expect(connector.activate(10)).rejects.toThrow()
+    test('should prefer argument over `defaultChainId`', async () => {
+      const {connector, store} = createTestEnvironment({ chains }, 3)
+      await connector.activate(2)
+      expect(store.getState().chainId).toEqual(2)
     })
     
-    test('should throw an error for unknown chain', async () => {
+    test('should throw an error when activating an unknown chain', async () => {
       const {connector} = createTestEnvironment({ chains })
       expect(connector.activate(99)).rejects.toThrow('unknown')
     })
 
-    test('should throw an error for inactive optional chain', async () => {
-      const {connector} = createTestEnvironment({ chains, optionalChains: [10] })
-      // @ts-expect-error we're pursposefully mocking only the subset of `EthereumProvider`'s session that we use internally
-      jest.spyOn(EthereumProvider.prototype, 'session', 'get').mockReturnValueOnce({
-        namespaces: {
-          eip155: {
-            // the following values will be empty arrays when we are not connected to any particular chain
-            accounts: [],
-            methods: [],
-            events: [],
-          },
-        },
-      })
-      expect(connector.activate(10)).rejects.toThrow('optional')
+    test('should throw an error when using optional chain as default', async () => {
+      const {connector} = createTestEnvironment({ chains, optionalChains: [8] })
+      expect(connector.activate(8)).rejects.toThrow('invalid')
     })
 
-    test('should switch chain if already connected', async () => {
+    test('should switch to an optional chain', async () => {
+      const {connector} = createTestEnvironment({ chains, optionalChains: [8] })
+      await connector.activate()
+      await connector.activate(8)
+      expect(wc2RequestMock).toHaveBeenCalledWith({
+        method: 'wallet_switchEthereumChain',
+        params: [{ chainId: `0x8` }]
+      })
+    })
+
+    // TODO: fix the mock and uncomment
+    // test('should throw an error when activating an inactive optional chain', async () => {
+    //   // @ts-expect-error we're pursposefully mocking only the subset of `EthereumProvider`'s session that we use internally
+    //   jest.spyOn(EthereumProvider.prototype, 'session', 'get').mockReturnValueOnce({
+    //     namespaces: {
+    //       eip155: {
+    //         accounts: [],
+    //         methods: [],
+    //         events: [],
+    //       },
+    //     },
+    //   })
+    //   const {connector} = createTestEnvironment({ chains, optionalChains: [8] })
+    //   await connector.activate(1)
+    //   await connector.activate(8)
+    // })
+
+    test('should switch chain', async () => {
       const {connector} = createTestEnvironment({ chains })
       await connector.activate()
       await connector.activate(2)
