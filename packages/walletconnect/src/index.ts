@@ -1,10 +1,8 @@
-import type { EventEmitter } from 'node:events'
-
 import type WalletConnectProvider from '@walletconnect/ethereum-provider'
 import type { IWCEthRpcConnectionOptions } from '@walletconnect/types'
 import type { Actions, ProviderRpcError } from '@web3-react/types'
 import { Connector } from '@web3-react/types'
-import EventEmitter3 from 'eventemitter3'
+import EventEmitter from 'eventemitter3'
 
 import { getBestUrl } from './utils'
 
@@ -47,7 +45,7 @@ export interface ActivateOptions {
 export class WalletConnect extends Connector {
   /** {@inheritdoc Connector.provider} */
   public provider?: MockWalletConnectProvider
-  public readonly events = new EventEmitter3()
+  public readonly events = new EventEmitter()
 
   private readonly options: Omit<WalletConnectOptions, 'rpc'>
   private readonly rpc: { [chainId: number]: string[] }

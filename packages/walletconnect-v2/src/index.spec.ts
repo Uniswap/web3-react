@@ -2,10 +2,9 @@
 global.TextEncoder = jest.fn()
 global.TextDecoder = jest.fn()
 
-// We are not using Web3Modal and it is not available in the `node` environment either
-jest.mock('@web3modal/standalone', () => ({ Web3Modal: jest.fn().mockImplementation() }))
-
 import { createWeb3ReactStoreAndActions } from '@web3-react/store'
+import { MockEIP1193Provider } from '@web3-react/core'
+import { RequestArguments } from '@web3-react/types'
 import { EthereumProvider } from '@walletconnect/ethereum-provider'
 
 import { WalletConnect, WalletConnectOptions } from '.'
@@ -19,48 +18,61 @@ const createTestEnvironment = (opts: Omit<WalletConnectOptions, 'projectId'>, de
 const accounts = ['0x0000000000000000000000000000000000000000']
 const chains = [1, 2, 3]
 
+type SwitchEthereumChainRequestArguments = {
+  method: 'wallet_switchEthereumChain',
+  params: [{ chainId: string }]
+}
+
+const isSwitchEthereumChainRequest = (x: RequestArguments): x is SwitchEthereumChainRequestArguments => {
+  return x.method === 'wallet_switchEthereumChain'
+}
+
+class MockWalletConnectProvider extends MockEIP1193Provider<number> {
+  /** per {@link https://eips.ethereum.org/EIPS/eip-3326#specification EIP-3326} */
+  public eth_switchEthereumChain = jest.fn((args: string) => null)
+
+  public request(x: RequestArguments | SwitchEthereumChainRequestArguments): Promise<unknown> {
+    if (isSwitchEthereumChainRequest(x)) {
+      this.chainId = parseInt(x.params[0].chainId, 16)
+      return Promise.resolve(this.eth_switchEthereumChain(JSON.stringify(x)))
+    } else {
+      return super.request(x)
+    }
+  }
+
+  public enable() {
+    return super.request({ method: 'eth_requestAccounts' })
+  }
+
+  // session is an object when connected, undefined otherwise
+  get session() {
+    return this.eth_requestAccounts.mock.calls.length > 0 ? {
+      // We read `accounts` to check what chains from `optionalChains` did we connect to
+      namespaces: {
+        eip155: {
+          // For testing purposes, let's assume we're connected to all required and optional chains
+          accounts: opts.chains.concat(opts.optionalChains || []).map((chainId) => `eip155:${chainId}:${accounts[0]}`),
+        }
+      }
+    } : undefined
+  }
+}
+
 describe('WalletConnect', () => {
-  const wc2RequestMock = jest.fn()
   let wc2InitMock: jest.Mock
 
   beforeEach(() => {
-    const wc2EnableMock = jest.fn().mockResolvedValue(accounts)
-    /**
+    /*
      * TypeScript error is expected here. We're mocking a factory `init` method
      * to only define a subset of `EthereumProvider` that we use internally
      */
-    // @ts-expect-error
-    wc2InitMock = jest.spyOn(EthereumProvider, 'init').mockImplementation(async (opts) => ({
-      // We read `accounts` and `chainId` to get current connection state
-      accounts,
-      chainId: opts.chains[0],
-      // Session is an object when connected, undefined otherwise
-      get session() {
-        return wc2EnableMock.mock.calls.length > 0 ? {
-          // We read `accounts` to check what chains from `optionalChains` did we connect to
-          namespaces: {
-            eip155: {
-              // For testing purposes, let's assume we're connected to all required and optional chains
-              accounts: opts.chains.concat(opts.optionalChains || []).map((chainId) => `eip155:${chainId}:${accounts[0]}`),
-            }
-          }
-        } : undefined
-      },
-      // Methods used in `activate` and `isomorphicInitialize`
-      enable: wc2EnableMock,
-      // Mock EIP-1193
-      request: wc2RequestMock,
-      on() {
-        return this
-      },
-      removeListener() {
-        return this
-      },
-    }))
-  })
-
-  afterEach(() => {
-    wc2RequestMock.mockReset()
+    // @ts-ignore
+    wc2InitMock = jest.spyOn(EthereumProvider, 'init').mockImplementation(async (opts) => {
+      const provider = new MockWalletConnectProvider()
+      provider.chainId = opts.chains[0]
+      provider.accounts = accounts
+      return provider
+    })
   })
 
   describe('#connectEagerly', () => {
@@ -72,7 +84,7 @@ describe('WalletConnect', () => {
 
   describe(`#isomorphicInitialize`, () => {
     test('should initialize exactly one provider and return a Promise if pending initialization', async () => {
-      const {connector, store} = createTestEnvironment({ chains })
+      const {connector} = createTestEnvironment({ chains })
       connector.activate()
       connector.activate()
       expect(wc2InitMock).toHaveBeenCalledTimes(1)
@@ -97,10 +109,10 @@ describe('WalletConnect', () => {
       expect(store.getState().chainId).toEqual(3)
     })
 
-    test('should use chain passed as argument', async () => {
-      const {connector, store} = createTestEnvironment({ chains })
+    test('should activate passed chain', async () => {
+      const {connector} = createTestEnvironment({ chains })
       await connector.activate(2)
-      expect(store.getState().chainId).toEqual(2)
+      expect(connector.provider?.chainId).toEqual(2)
     })
 
     test('should prefer argument over `defaultChainId`', async () => {
@@ -149,15 +161,16 @@ describe('WalletConnect', () => {
     test('should switch chain', async () => {
       const {connector} = createTestEnvironment({ chains })
       await connector.activate()
+      expect(connector.provider?.chainId).toEqual(1)
       await connector.activate(2)
-      expect(wc2RequestMock).toHaveBeenCalledWith({ method: 'wallet_switchEthereumChain', params: [{ chainId: '0x2' }] })
+      expect(connector.provider?.chainId).toEqual(2)
     })
     
     test('should not switch chain if already connected', async () => {
       const {connector} = createTestEnvironment({ chains })
       await connector.activate(2)
       await connector.activate(2)
-      expect(wc2RequestMock).toBeCalledTimes(0)
+      expect((connector.provider as unknown as MockWalletConnectProvider).eth_switchEthereumChain).toBeCalledTimes(0)
     })
   })
 })
