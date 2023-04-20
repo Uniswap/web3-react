@@ -136,8 +136,11 @@ export class WalletConnect extends Connector {
     if (provider.session) {
       if (!desiredChainId || desiredChainId === provider.chainId) return
       /*
+       * TODO(INFRA-XXXX):
        * Unfortunately, WalletConnect does not provide a better/cleaner way to access connected chains.
        * We have to work with the list of accounts in format: `eip155:${chain}:${address}`.
+       *
+       * Replace this with a cleaner solution when WalletConnect team provides one.
        */
       const isConnectedToDesiredChain = provider.session.namespaces.eip155.accounts.some((account) =>
         account.startsWith(`eip155:${desiredChainId}:`)
