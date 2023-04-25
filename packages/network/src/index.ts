@@ -66,6 +66,10 @@ export class Network extends Connector {
 
     const urls = this.urlMap[chainId]
 
+    if (!urls) {
+      throw new Error(`No provider specified for chainId ${chainId}`)
+    }
+
     // early return if we have a single jsonrpc provider already
     if (urls.length === 1 && !isUrl(urls[0])) {
       return (this.providerCache[chainId] = Promise.resolve(urls[0]))
