@@ -88,7 +88,9 @@ async function getBestUrl(urls: string | string[], timeout: number): Promise<str
 export function getChainsWithDefault(chains: number[], defaultChainId: number) {
   const idx = chains.indexOf(defaultChainId)
   if (idx === -1) {
-    throw new Error(`Invalid chainId ${defaultChainId}. Make sure to include it in the "chains" array.`)
+    throw new Error(
+      `Invalid chainId ${defaultChainId}. Make sure default chain is included in "chains" - chains specified in "optionalChains" may not be selected as the default, as they may not be supported by the wallet.`
+    )
   }
 
   const ordered = [...chains]
