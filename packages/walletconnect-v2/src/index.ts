@@ -146,7 +146,7 @@ export class WalletConnect extends Connector {
           )
         }
         throw new Error(
-          `Unknown chain (${desiredChainId}). Make sure to include all the chains in the "chains" array while initialising WalletConnect.`
+          `Unknown chain (${desiredChainId}). Make sure to include any chains you might connect to in the "chains" or "optionalChains" parameters when initializing WalletConnect.`
         )
       }
       return provider.request<void>({
