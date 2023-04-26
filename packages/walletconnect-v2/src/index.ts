@@ -142,7 +142,7 @@ export class WalletConnect extends Connector {
       if (!isConnectedToDesiredChain) {
         if (this.options.optionalChains?.includes(desiredChainId)) {
           throw new Error(
-            `Cannot activate an optional chain (${desiredChainId}). This error is expected, because there is no guarantee that the user is connected to a given optional chain. Either handle this error in your code or remove the chain from the list of optional chains.`
+            `Cannot activate an optional chain (${desiredChainId}), as the wallet is not connected to it.\n\tYou should handle this error in application code, as there is no guarantee that a wallet is connected to a chain configured in "optionalChains".`
           )
         }
         throw new Error(
