@@ -158,7 +158,12 @@ export class MetaMask extends Connector {
             params: [{ chainId: desiredChainIdHex }],
           })
           .catch((error: ProviderRpcError) => {
-            if (error.code === 4902 && typeof desiredChainIdOrChainParameters !== 'number') {
+            // https://github.com/MetaMask/metamask-mobile/issues/3312#issuecomment-1065923294
+            const errorCode = (error.data as any)?.originalError?.code || error.code
+
+            // 4902 indicates that the chain has not been added to MetaMask and wallet_addEthereumChain needs to be called
+            // https://docs.metamask.io/guide/rpc-api.html#wallet-switchethereumchain
+            if (errorCode === 4902 && typeof desiredChainIdOrChainParameters !== 'number') {
               if (!this.provider) throw new Error('No provider')
               // if we're here, we can try to add a new network
               return this.provider.request({
