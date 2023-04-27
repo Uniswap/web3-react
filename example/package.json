@@ -1,6 +1,6 @@
 {
   "private": true,
-  "version": "8.2.1",
+  "version": "8.2.2",
   "name": "example",
   "scripts": {
     "start": "next dev"
@@ -15,7 +15,7 @@
     "@web3-react/eip1193": "^8.2.0",
     "@web3-react/empty": "^8.2.0",
     "@web3-react/gnosis-safe": "^8.2.0",
-    "@web3-react/metamask": "^8.2.0",
+    "@web3-react/metamask": "^8.2.1",
     "@web3-react/network": "^8.2.0",
     "@web3-react/types": "^8.2.0",
     "@web3-react/url": "^8.2.0",
