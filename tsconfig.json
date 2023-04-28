@@ -4,7 +4,10 @@
     "module": "CommonJS",
     "declaration": true,
     "moduleResolution": "Node",
-    "jsx": "react"
+    "jsx": "react",
+    "strictNullChecks": true
   },
-  "exclude": ["**/*.spec.ts"]
+  "exclude": [
+    "**/*.spec.ts"
+  ]
 }
