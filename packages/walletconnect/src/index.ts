@@ -133,6 +133,7 @@ export class WalletConnect extends Connector {
 
       this.actions.update({ chainId: parseChainId(chainId), accounts })
     } catch (error) {
+      await this.deactivate()
       cancelActivation()
       throw error
     }
@@ -184,6 +185,7 @@ export class WalletConnect extends Connector {
       }
       this.actions.update({ chainId, accounts })
     } catch (error) {
+      await this.deactivate()
       cancelActivation()
       throw error
     }
