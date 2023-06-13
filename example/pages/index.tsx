@@ -5,7 +5,7 @@ import NetworkCard from '../components/connectorCards/NetworkCard'
 import WalletConnectCard from '../components/connectorCards/WalletConnectCard'
 import WalletConnectV2Card from '../components/connectorCards/WalletConnectV2Card'
 import ProviderExample from '../components/ProviderExample'
-
+import MagicAuthCard from "../components/connectorCards/MagicAuthCard"
 export default function Home() {
   return (
     <>
@@ -17,6 +17,7 @@ export default function Home() {
         <CoinbaseWalletCard />
         <NetworkCard />
         <GnosisSafeCard />
+        <MagicAuthCard />
       </div>
     </>
   )

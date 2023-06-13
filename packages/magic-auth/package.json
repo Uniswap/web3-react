@@ -1,0 +1,31 @@
+{
+  "name": "@web3-react/magic-auth",
+  "keywords": [
+    "web3-react",
+    "magic-auth"
+  ],
+  "author": "Noah Zinsmeister <noahwz@gmail.com>",
+  "license": "GPL-3.0-or-later",
+  "repository": "github:Uniswap/web3-react",
+  "publishConfig": {
+    "access": "public"
+  },
+  "version": "8.2.0",
+  "files": [
+    "dist/*"
+  ],
+  "type": "commonjs",
+  "types": "./dist/index.d.ts",
+  "main": "./dist/index.js",
+  "exports": "./dist/index.js",
+  "scripts": {
+    "prebuild": "rm -rf dist",
+    "build": "tsc",
+    "start": "tsc --watch"
+  },
+  "dependencies": {
+    "@magic-ext/oauth": "11.0.0",
+    "@web3-react/types": "^8.2.0",
+    "magic-sdk": "17.0.0"
+  }
+}
