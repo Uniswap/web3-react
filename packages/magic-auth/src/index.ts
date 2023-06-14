@@ -9,7 +9,7 @@ function parseChainId(chainId: string | number) {
 
 export interface MagicAuthSDKOptions extends MagicSDKAdditionalConfiguration {
   magicAuthApiKey: string
-  redirectURI?: string
+  redirectURI: string
   oAuthProvider: OAuthProvider
   networkOptions: {
     rpcUrl: string
@@ -24,32 +24,35 @@ export interface MagicAuthConstructorArgs {
 }
 
 export class MagicConnect extends Connector {
-  public provider: any
-  public magic: InstanceWithExtensions<SDKBase, OAuthExtension[]>
-  public chainId: number
+  name: string
+  authId?: string
+  provider: any
+  magic: InstanceWithExtensions<SDKBase, OAuthExtension[]> | null
+  chainId: number
   magicAuthApiKey: string
-  public redirectURI: string
-  private readonly options: MagicAuthSDKOptions
-  public authId?: string
+  redirectURI: string
   oAuthProvider: OAuthProvider
-  public oAuthResult: OAuthRedirectResult | null
+  oAuthResult: OAuthRedirectResult | null
+  private readonly options: MagicAuthSDKOptions
+
 
   constructor({ actions, options, onError }: MagicAuthConstructorArgs) {
     super(actions, onError)
     this.options = options
+    this.name = `${options.oAuthProvider as string} Connector`
     this.magicAuthApiKey = options.magicAuthApiKey || 'pk_live_846F1095F0E1303C'
     this.oAuthProvider = options.oAuthProvider
-    this.redirectURI = options.redirectURI || window.location.href
+    this.redirectURI = options.redirectURI
+    if (!this.serverSide && window.location.href) this.redirectURI = window.location.href
     this.oAuthResult = null
-    // Initializing Magic Instance in constructor otherwise it will be undefined when calling connectEagerly
     const { magic, chainId, provider } = this.initializeMagicInstance()
     this.magic = magic
     this.chainId = chainId
     this.provider = provider
-    console.log('MagicConnect constructor', this.magic, this.chainId, this.provider)
   }
 
-  private getMagic(): InstanceWithExtensions<SDKBase, OAuthExtension[]> {
+  private getMagic(): InstanceWithExtensions<SDKBase, OAuthExtension[]> | null {
+    if (this.magic) return this.magic
     const { magicAuthApiKey, networkOptions } = this.options
 
     // Create a new Magic instance with desired ChainId for network switching
@@ -84,7 +87,7 @@ export class MagicConnect extends Connector {
     }
   }
 
-  private setEventListeners(): void {
+  setEventListeners(): void {
     if (this.provider) {
       this.provider.on('connect', this.connectListener)
       this.provider.on('disconnect', this.disconnectListener)
@@ -93,7 +96,7 @@ export class MagicConnect extends Connector {
     }
   }
 
-  private removeEventListeners(): void {
+  removeEventListeners(): void {
     if (this.provider) {
       this.provider.off('connect', this.connectListener)
       this.provider.off('disconnect', this.disconnectListener)
@@ -105,21 +108,24 @@ export class MagicConnect extends Connector {
   private initializeMagicInstance(desiredChainIdOrChainParameters?: AddEthereumChainParameter) {
     // Extract apiKey and networkOptions from options
     const { networkOptions } = this.options
+    if (this.serverSide) return { magic: null, chainId: networkOptions.chainId, provider: null }
 
     // Create a new Magic instance with desired ChainId for network switching
     // or with the networkOptions if no parameters were passed to the function
     const magic = this.getMagic()
 
     // Get the provider from magicInstance
-    const provider = magic.rpcProvider
+    const provider = magic?.rpcProvider
 
     // Set the chainId. If no chainId was passed as a parameter, use the chainId from networkOptions
     const chainId = desiredChainIdOrChainParameters?.chainId || networkOptions.chainId
-
+    this.isAuthorized().then((isAuthorized) => {
+      if (isAuthorized) this.completeActivation()
+    })
     return { magic, chainId, provider }
   }
 
-  async getAuthId() {
+  getAuthId() {
     if (this.authId) {
       return this.authId
     }
@@ -142,36 +148,46 @@ export class MagicConnect extends Connector {
     }
   }
 
+  /**
+   * A function to determine whether or not this code is executing on a server.
+   */
+  private get serverSide() {
+    return typeof window === 'undefined'
+  }
+
   // "autoconnect"
-  public override async connectEagerly(): Promise<void> {
+  override async connectEagerly(): Promise<void> {
     const isLoggedIn = await this.checkLoggedInStatus()
     if (!isLoggedIn) return
     await this.activate()
   }
 
   // "connect"
-  public async activate(desiredChainIdOrChainParameters?: AddEthereumChainParameter): Promise<void> {
+  async activate(desiredChainIdOrChainParameters?: AddEthereumChainParameter): Promise<void> {
     const cancelActivation = this.actions.startActivation()
-
     try {
       // Initialize the magic instance
       if (await this.isAuthorized()) {
         this.completeActivation()
+        return
       }
 
-      const { magic, chainId: networkId, provider } = this.initializeMagicInstance(desiredChainIdOrChainParameters)
-      this.magic = magic
-      this.chainId = networkId
-      this.provider = provider
+      // if it failed to be initialized during construction due to server side rendering, initialize it now
+      if (this.magic == null || this.provider == null) {
+        const { magic, chainId: networkId, provider } = this.initializeMagicInstance(desiredChainIdOrChainParameters)
+        this.magic = magic
+        this.chainId = networkId
+        this.provider = provider
+      }
 
-      await this.magic.oauth.loginWithRedirect({
+      await this.magic?.oauth.loginWithRedirect({
         provider: this.oAuthProvider,
         redirectURI: this.redirectURI,
       })
 
       this.setEventListeners()
 
-      if (await magic.user.isLoggedIn()) {
+      if (await this.magic?.user.isLoggedIn()) {
         // TODO URGENT - this is not working since it needs to wait for the redirect to happen
         this.completeActivation()
       }
@@ -181,14 +197,14 @@ export class MagicConnect extends Connector {
   }
 
   // "disconnect"
-  public override async deactivate(): Promise<void> {
+  override async deactivate(): Promise<void> {
     this.actions.resetState()
     await this.magic?.wallet.disconnect()
     this.removeEventListeners()
   }
 
   // sets the account and chainId for the connector completing the login
-  public async completeActivation(): Promise<void> {
+  async completeActivation(): Promise<void> {
     // Get the current chainId and account from the provider
     const [chainId, accounts] = await Promise.all([
       this.provider?.request({ method: 'eth_chainId' }) as Promise<string>,
@@ -197,11 +213,14 @@ export class MagicConnect extends Connector {
 
     // Update the connector state with the current chainId and account
     this.actions.update({ chainId: parseChainId(chainId), accounts })
+    this.authId = this.getAuthId()
   }
 
-  public async isAuthorized() {
+  async isAuthorized() {
     try {
       const magic = this.getMagic()
+      if (magic == null) return false
+
       const isLoggedIn = await magic.user.isLoggedIn()
       if (isLoggedIn) {
         return true
