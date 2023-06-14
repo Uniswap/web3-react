@@ -40,7 +40,7 @@ export class MagicConnect extends Connector {
     super(actions, onError)
     this.options = options
     this.name = `${options.oAuthProvider as string} Connector`
-    this.magicAuthApiKey = options.magicAuthApiKey || 'pk_live_846F1095F0E1303C'
+    this.magicAuthApiKey = options.magicAuthApiKey || 'YOUR_MAGIC_API_KEY'
     this.oAuthProvider = options.oAuthProvider
     this.redirectURI = options.redirectURI
     if (!this.serverSide && window.location.href) this.redirectURI = window.location.href
