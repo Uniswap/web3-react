@@ -10,6 +10,10 @@
     "@ethersproject/experimental": "^5.6.0",
     "@ethersproject/providers": "^5.6.0",
     "@ethersproject/units": "^5.6.0",
+    "@types/ms.macro": "^2.0.0",
+    "@uniswap/conedison": "^1.7.1",
+    "@uniswap/permit2-sdk": "^1.2.0",
+    "@uniswap/universal-router-sdk": "^1.5.2",
     "@web3-react/coinbase-wallet": "^8.2.0",
     "@web3-react/core": "^8.2.0",
     "@web3-react/eip1193": "^8.2.0",
@@ -21,6 +25,7 @@
     "@web3-react/url": "^8.2.0",
     "@web3-react/walletconnect": "^8.2.0",
     "@web3-react/walletconnect-v2": "^8.3.3",
+    "ms.macro": "^2.0.0",
     "next": "^12.1.5",
     "react-dom": "^18.0.0"
   }
