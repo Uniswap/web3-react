@@ -24,8 +24,8 @@
     "start": "tsc --watch"
   },
   "dependencies": {
-    "@magic-ext/oauth": "11.0.0",
+    "@magic-ext/oauth": "11.4.0",
     "@web3-react/types": "^8.2.0",
-    "magic-sdk": "17.0.0"
+    "magic-sdk": "17.4.0"
   }
 }
