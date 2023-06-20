@@ -124,7 +124,7 @@ export class CoinbaseWallet extends Connector {
           params: [{ chainId: desiredChainIdHex }],
         })
         .catch(async (error: ProviderRpcError) => {
-          if (error.code === 4902 && typeof desiredChainIdOrChainParameters !== 'number') {
+          if ((error.code === 4902 || error.code === -32603) && typeof desiredChainIdOrChainParameters !== 'number') {
             if (!this.provider) throw new Error('No provider')
             // if we're here, we can try to add a new network
             return this.provider.request<void>({
@@ -160,7 +160,7 @@ export class CoinbaseWallet extends Connector {
           params: [{ chainId: desiredChainIdHex }],
         })
         .catch(async (error: ProviderRpcError) => {
-          if (error.code === 4902 && typeof desiredChainIdOrChainParameters !== 'number') {
+          if ((error.code === 4902 || error.code === -32603) && typeof desiredChainIdOrChainParameters !== 'number') {
             if (!this.provider) throw new Error('No provider')
             // if we're here, we can try to add a new network
             return this.provider.request<void>({
