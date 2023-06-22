@@ -21,6 +21,7 @@ jobs:
           node-version: 14
           cache: 'yarn'
       - run: yarn
+      - run: yarn install
 
       - uses: actions/checkout@v2
       - name: Run Snyk to check for known vulnerabilities in software supply chain
