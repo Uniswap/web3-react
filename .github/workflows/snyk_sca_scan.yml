@@ -1,0 +1,26 @@
+name: Snyk Code Security
+
+on:
+  pull_request:
+    branches:
+      - '**'
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - '**/*.md'
+
+jobs:
+  open-source:
+    name: '🔒 Open Source Scan'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@7884fcad6b5d53d10323aee724dc68d8b9096a2e
+      - name: Run Snyk to check for known vulnerabilities in software supply chain
+        uses: snyk/actions/node@0e928f3e9ae859e2b95ac2b89af55d7b6434244d
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_API_TOKEN }}
+        with:
+          command: test
+          args: --severity-threshold=medium --all-projects
