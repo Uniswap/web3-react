@@ -32,5 +32,5 @@ jobs:
           SNYK_TOKEN: ${{ secrets.SNYK_API_TOKEN }}
         with:
           command: monitor
-        # include devDependencies to deps list for Snyk dep-graph
+          # include devDependencies to deps list for Snyk dep-graph
           args: --dev --severity-threshold=medium 
