@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Run Snyk to check for known vulnerabilities in software supply chain
+      - name: Run Snyk test to check for known vulnerabilities in software supply chain
         uses: snyk/actions/node@0e928f3e9ae859e2b95ac2b89af55d7b6434244d
         #continue-on-error: true
         env:
