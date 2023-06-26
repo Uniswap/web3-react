@@ -27,7 +27,6 @@ jobs:
 
       - name: Run Snyk monitor to upload the latest snapshot 
         uses: snyk/actions/node@0e928f3e9ae859e2b95ac2b89af55d7b6434244d
-        #continue-on-error: true
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_API_TOKEN }}
         with:
