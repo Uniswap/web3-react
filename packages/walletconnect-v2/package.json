@@ -10,7 +10,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "version": "8.3.5",
+  "version": "8.3.6",
   "files": [
     "dist/*"
   ],

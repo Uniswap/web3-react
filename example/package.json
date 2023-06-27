@@ -1,6 +1,6 @@
 {
   "private": true,
-  "version": "8.2.7",
+  "version": "8.2.8",
   "name": "example",
   "scripts": {
     "start": "next dev"
@@ -20,7 +20,7 @@
     "@web3-react/types": "^8.2.0",
     "@web3-react/url": "^8.2.0",
     "@web3-react/walletconnect": "^8.2.0",
-    "@web3-react/walletconnect-v2": "^8.3.5",
+    "@web3-react/walletconnect-v2": "^8.3.6",
     "next": "^12.1.5",
     "react-dom": "^18.0.0"
   }
