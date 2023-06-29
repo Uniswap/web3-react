@@ -1,6 +1,6 @@
 {
   "private": true,
-  "version": "8.2.8",
+  "version": "8.2.9",
   "name": "example",
   "scripts": {
     "start": "next dev"
@@ -14,13 +14,13 @@
     "@web3-react/core": "^8.2.0",
     "@web3-react/eip1193": "^8.2.0",
     "@web3-react/empty": "^8.2.0",
-    "@web3-react/gnosis-safe": "^8.2.0",
+    "@web3-react/gnosis-safe": "^8.2.1",
     "@web3-react/metamask": "^8.2.1",
     "@web3-react/network": "^8.2.0",
     "@web3-react/types": "^8.2.0",
     "@web3-react/url": "^8.2.0",
     "@web3-react/walletconnect": "^8.2.0",
-    "@web3-react/walletconnect-v2": "^8.3.6",
+    "@web3-react/walletconnect-v2": "^8.3.7",
     "next": "^12.1.5",
     "react-dom": "^18.0.0"
   }
