@@ -2,7 +2,7 @@
   "private": true,
   "name": "web3-react",
   "engines": {
-    "node": "^14 || ^16"
+    "node": "^16 || ^18"
   },
   "scripts": {
     "clean": "lerna clean --yes",

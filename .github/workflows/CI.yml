@@ -18,8 +18,8 @@ jobs:
           - ubuntu-latest
           - macOS-latest
         node_version:
-          - 14
           - 16
+          - 18
 
     steps:
       - uses: actions/checkout@v2
