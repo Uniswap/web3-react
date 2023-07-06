@@ -28,7 +28,8 @@ jobs:
           node-version: ${{ matrix.node_version }}
           cache: 'yarn'
 
-      - run: yarn
+      # ensure the lockfile is in sync with the specified dependencies
+      - run: yarn install --frozen-lockfile
 
       - run: yarn build
 
