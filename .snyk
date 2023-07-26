@@ -1,0 +1,50 @@
+# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
+version: v1.25.0
+# ignores vulnerabilities until expiry date; change duration by modifying expiry date
+ignore:
+  SNYK-JS-SEMVER-3247795:
+    - '*':
+        reason: >-
+          lerna is fine with this version and vulnerability path is not
+          reachable
+        expires: 2023-08-06T16:52:38.439Z
+        created: 2023-07-07T16:52:38.448Z
+  SNYK-JS-NWSAPI-2841516:
+    - '*':
+        reason: >-
+          no direct update or patch available suggested for jest / most probably
+          vuln is not reachable
+        expires: 2023-08-06T16:54:16.219Z
+        created: 2023-07-07T16:54:16.233Z
+  SNYK-JS-TOUGHCOOKIE-5672873:
+    - '*':
+        reason: no patch or suggestion is available by jest
+        expires: 2023-08-06T16:55:11.239Z
+        created: 2023-07-07T16:55:11.253Z
+  SNYK-JS-WORDWRAP-3149973:
+    - '*':
+        reason: >-
+          ReDoS is valid when there is a path between the source (user
+          uncontrolled input) to a sink that is a regex parser but in this case
+          is not applicable
+        expires: 2023-08-06T16:56:21.700Z
+        created: 2023-07-07T16:56:21.716Z
+  'snyk:lic:npm:rlp:MPL-2.0':
+    - '*':
+        reason: >-
+          introduced through Coinbase Wallet and should be discussed with them -
+          MPL 2.0
+        expires: 2023-08-06T16:57:10.898Z
+        created: 2023-07-07T16:57:10.915Z
+  'snyk:lic:npm:ethereumjs-util:MPL-2.0':
+    - '*':
+        reason: >-
+          introduced through Coinbase Wallet and should be discussed with them -
+          MPL 2.0
+        expires: 2023-08-06T16:57:55.493Z
+        created: 2023-07-07T16:57:55.512Z
+patch: {}
+exclude:
+  global:
+    - packages/**
+    - examples/**
