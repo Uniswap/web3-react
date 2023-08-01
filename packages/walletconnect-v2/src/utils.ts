@@ -1,4 +1,16 @@
-import { ArrayOneOrMore } from '.'
+/**
+ * Necessary type to interface with @walletconnect/ethereum-provider@2.9.2 which is currently unexported
+ */
+export type ArrayOneOrMore<T> = {
+  0: T
+} & Array<T>
+
+/**
+ * This is a type guard for ArrayOneOrMore
+ */
+export function isArrayOneOrMore<T>(input: T[] = []): input is ArrayOneOrMore<T> {
+  return input.length > 0
+}
 
 /**
  * @param rpcMap - Map of chainIds to rpc url(s).
@@ -81,24 +93,4 @@ async function getBestUrl(urls: string | string[], timeout: number): Promise<str
         })
     })
   })
-}
-
-/**
- * @param chains - An array of chain IDs.
- * @param defaultChainId - The chain ID to treat as the default (it will be the first element in the returned array).
- */
-export function getChainsWithDefault(
-  chains: number[] | ArrayOneOrMore<number> = [],
-  defaultChainId: number
-): ArrayOneOrMore<number> {
-  const idx = chains.indexOf(defaultChainId)
-  if (idx === -1) {
-    throw new Error(
-      `Invalid chainId ${defaultChainId}. Make sure default chain is included in "chains" - chains specified in "optionalChains" may not be selected as the default, as they may not be supported by the wallet.`
-    )
-  }
-
-  const ordered = [...chains]
-  ordered.splice(idx, 1)
-  return [defaultChainId, ...ordered]
 }
