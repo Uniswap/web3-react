@@ -3,7 +3,7 @@ import type { Actions, ProviderRpcError } from '@web3-react/types'
 import { Connector } from '@web3-react/types'
 import EventEmitter3 from 'eventemitter3'
 
-import { ArrayOneOrMore, getBestUrlMap, isArrayOneOrMore } from './utils'
+import { ArrayOneOrMore, getBestUrlMap, getChainsWithDefault, isArrayOneOrMore } from './utils'
 
 export const URI_AVAILABLE = 'URI_AVAILABLE'
 const DEFAULT_TIMEOUT = 5000
@@ -61,18 +61,17 @@ export class WalletConnect extends Connector {
   public provider?: WalletConnectProvider
   public readonly events = new EventEmitter3()
 
+  private readonly defaultChainId?: number
+  private eagerConnection?: Promise<WalletConnectProvider>
   private readonly options: Omit<WalletConnectOptions, 'rpcMap'>
-
   private readonly rpcMap?: Record<number, string | string[]>
   private readonly timeout: number
 
-  private eagerConnection?: Promise<WalletConnectProvider>
-
-  constructor({ actions, options, timeout = DEFAULT_TIMEOUT, onError }: WalletConnectConstructorArgs) {
+  constructor({ actions, defaultChainId, options, timeout = DEFAULT_TIMEOUT, onError }: WalletConnectConstructorArgs) {
     super(actions, onError)
 
     const { rpcMap, rpc, ...rest } = options
-
+    this.defaultChainId = defaultChainId
     this.options = rest
     this.rpcMap = rpcMap || rpc
     this.timeout = timeout
@@ -103,12 +102,15 @@ export class WalletConnect extends Connector {
     this.events.emit(URI_AVAILABLE, uri)
   }
 
-  private async initializeProvider(): Promise<WalletConnectProvider> {
+  private async initializeProvider(
+    desiredChainId: number | undefined = this.defaultChainId
+  ): Promise<WalletConnectProvider> {
     const ethProviderModule = await import('@walletconnect/ethereum-provider')
     const rpcMap = this.rpcMap ? await getBestUrlMap(this.rpcMap, this.timeout) : undefined
+
     const provider = await ethProviderModule.default.init({
       ...this.options,
-      ...this.getChainProps(),
+      ...this.getChainProps(desiredChainId),
       rpcMap,
     })
 
@@ -117,22 +119,37 @@ export class WalletConnect extends Connector {
     return provider
   }
 
-  private getChainProps(): ChainsProps {
-    const { chains, optionalChains } = this.options
-
-    if (isArrayOneOrMore(chains)) {
-      return { chains, optionalChains }
+  // Helper function to reorder chains array based on desiredChainId
+  private reorderChainsBasedOnId(
+    chains: number[] | undefined,
+    desiredChainId: number | undefined
+  ): number[] | undefined {
+    if (!chains || !desiredChainId || !chains.includes(desiredChainId) || chains.length === 0) {
+      return chains
     }
-    if (isArrayOneOrMore(optionalChains)) {
-      return { optionalChains, chains }
+    return getChainsWithDefault(chains, desiredChainId)
+  }
+
+  private getChainProps(desiredChainId: number | undefined = this.defaultChainId): ChainsProps {
+    // Reorder chains and optionalChains if necessary
+    const orderedChains = this.reorderChainsBasedOnId(this.options.chains, desiredChainId)
+    const orderedOptionalChains = this.reorderChainsBasedOnId(this.options.optionalChains, desiredChainId)
+
+    // Validate and return the result
+    if (isArrayOneOrMore(orderedChains)) {
+      return { chains: orderedChains, optionalChains: orderedOptionalChains }
+    } else if (isArrayOneOrMore(orderedOptionalChains)) {
+      return { optionalChains: orderedOptionalChains, chains: orderedChains }
     }
 
     throw new Error('Either chains or optionalChains must have at least one item.')
   }
 
-  private isomorphicInitialize(): Promise<WalletConnectProvider> {
+  private isomorphicInitialize(
+    desiredChainId: number | undefined = this.defaultChainId
+  ): Promise<WalletConnectProvider> {
     if (this.eagerConnection) return this.eagerConnection
-    this.eagerConnection = this.initializeProvider()
+    this.eagerConnection = this.initializeProvider(desiredChainId)
     return this.eagerConnection
   }
 
@@ -155,7 +172,7 @@ export class WalletConnect extends Connector {
   }
 
   public async activate(desiredChainId?: number): Promise<void> {
-    const provider = await this.isomorphicInitialize()
+    const provider = await this.isomorphicInitialize(desiredChainId)
 
     if (provider.session) {
       console.log(provider.session.namespaces)

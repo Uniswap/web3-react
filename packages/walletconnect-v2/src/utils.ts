@@ -94,3 +94,20 @@ async function getBestUrl(urls: string | string[], timeout: number): Promise<str
     })
   })
 }
+
+/**
+ * @param chains - An array of chain IDs.
+ * @param defaultChainId - The chain ID to treat as the default (it will be the first element in the returned array).
+ */
+export function getChainsWithDefault(chains: number[], defaultChainId: number): number[] {
+  const idx = chains.indexOf(defaultChainId)
+  if (idx === -1) {
+    throw new Error(
+      `Invalid chainId ${defaultChainId}. Make sure default chain is included in "chains" - chains specified in "optionalChains" may not be selected as the default, as they may not be supported by the wallet.`
+    )
+  }
+
+  const ordered = [...chains]
+  ordered.splice(idx, 1)
+  return [defaultChainId, ...ordered]
+}
