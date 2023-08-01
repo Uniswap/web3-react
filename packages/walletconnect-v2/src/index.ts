@@ -171,11 +171,13 @@ export class WalletConnect extends Connector {
     }
   }
 
+  /**
+   * @param desiredChainId - The desired chainId to connect to.
+   */
   public async activate(desiredChainId?: number): Promise<void> {
     const provider = await this.isomorphicInitialize(desiredChainId)
 
     if (provider.session) {
-      console.log(provider.session.namespaces)
       if (!desiredChainId || desiredChainId === provider.chainId) return
       // WalletConnect exposes connected accounts, not chains: `eip155:${chainId}:${address}`
       const isConnectedToDesiredChain = provider.session.namespaces.eip155.accounts.some((account) =>

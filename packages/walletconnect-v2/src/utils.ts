@@ -99,7 +99,7 @@ async function getBestUrl(urls: string | string[], timeout: number): Promise<str
  * @param chains - An array of chain IDs.
  * @param defaultChainId - The chain ID to treat as the default (it will be the first element in the returned array).
  */
-export function getChainsWithDefault(chains: number[], defaultChainId: number): number[] {
+export function getChainsWithDefault(chains: number[], defaultChainId: number) {
   const idx = chains.indexOf(defaultChainId)
   if (idx === -1) {
     throw new Error(

@@ -1,4 +1,4 @@
-import { getBestUrlMap } from './utils'
+import { getBestUrlMap, getChainsWithDefault } from './utils'
 
 class MockHttpConnection {
   public readonly succeed: boolean
@@ -74,3 +74,8 @@ describe('getBestUrl', () => {
   })
 })
 
+describe('getChainsWithDefault', () => {
+  test('puts the default chain first at the beginning', () => {
+    expect(getChainsWithDefault([1, 2, 3], 3)).toEqual([3, 1, 2])
+  })
+})
