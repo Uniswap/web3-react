@@ -23,6 +23,10 @@ export type WalletConnectOptions = Omit<Parameters<typeof WalletConnectProvider.
   rpc?: { [chainId: number]: string | string[] }
 }
 
+export type ArrayOneOrMore<T> = {
+  0: T
+} & Array<T>
+
 /**
  * Options to configure the WalletConnect connector.
  */
@@ -48,10 +52,9 @@ export class WalletConnect extends Connector {
   public provider?: WalletConnectProvider
   public readonly events = new EventEmitter3()
 
-  private readonly options: Omit<WalletConnectOptions, 'rpcMap' | 'chains'>
+  private readonly options: Omit<WalletConnectOptions, 'rpcMap'>
 
   private readonly rpcMap?: Record<number, string | string[]>
-  private readonly chains: number[]
   private readonly defaultChainId?: number
   private readonly timeout: number
 
@@ -60,10 +63,9 @@ export class WalletConnect extends Connector {
   constructor({ actions, options, defaultChainId, timeout = DEFAULT_TIMEOUT, onError }: WalletConnectConstructorArgs) {
     super(actions, onError)
 
-    const { rpcMap, rpc, chains, ...rest } = options
+    const { rpcMap, rpc, ...rest } = options
 
     this.options = rest
-    this.chains = chains
     this.defaultChainId = defaultChainId
     this.rpcMap = rpcMap || rpc
     this.timeout = timeout
@@ -91,12 +93,32 @@ export class WalletConnect extends Connector {
   ): Promise<WalletConnectProvider> {
     if (this.eagerConnection) return this.eagerConnection
 
+    function isArrayOneOrMore<T>(input: T[]): input is ArrayOneOrMore<T> {
+      return input.length > 0
+    }
+
     const rpcMap = this.rpcMap ? getBestUrlMap(this.rpcMap, this.timeout) : undefined
-    const chains = desiredChainId ? getChainsWithDefault(this.chains, desiredChainId) : this.chains
+    const chains = desiredChainId ? getChainsWithDefault(this.options.chains, desiredChainId) : this.options.chains
+
+    let optionalChains: ArrayOneOrMore<number> = [this.defaultChainId || 1]
+
+    if (
+      this.options.optionalChains &&
+      this.options.optionalChains.length > 0 &&
+      isArrayOneOrMore(this.options.optionalChains)
+    ) {
+      optionalChains = this.options.optionalChains
+    }
+
+    console.log('this.options.chains', this.options.chains)
+    console.log('chains', chains)
+    console.log('this.options.optionalChains', this.options.optionalChains)
+    console.log('optionalChains', optionalChains)
 
     return (this.eagerConnection = import('@walletconnect/ethereum-provider').then(async (ethProviderModule) => {
       const provider = (this.provider = await ethProviderModule.default.init({
         ...this.options,
+        optionalChains,
         chains,
         rpcMap: await rpcMap,
       }))
