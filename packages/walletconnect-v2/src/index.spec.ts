@@ -40,7 +40,11 @@ class MockWalletConnectProvider extends MockEIP1193Provider<number> {
 
   constructor(opts: EthereumProviderOptions) {
     super()
-    this.chainId = opts.chains[0]
+    if (opts.chains && opts.chains.length > 0) {
+      this.chainId = opts.chains[0]
+    } else if (opts.optionalChains && opts.optionalChains.length > 0) {
+      this.chainId = opts.optionalChains[0]
+    }
     this.opts = opts
   }
 
@@ -68,7 +72,7 @@ class MockWalletConnectProvider extends MockEIP1193Provider<number> {
    * We mock this method later in the test suite to test behavior when optional chains are not supported.
    */
   public getConnectedChains() {
-    return this.opts.chains.concat(this.opts.optionalChains || [])
+    return (this.opts.chains || []).concat(this.opts.optionalChains || [])
   }
 
   // session is an object when connected, undefined otherwise
