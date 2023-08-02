@@ -114,6 +114,8 @@ export class WalletConnect extends Connector {
       rpcMap,
     })
 
+    this.provider = provider
+
     this.handleProviderEvents(provider)
 
     return provider
