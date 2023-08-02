@@ -156,10 +156,10 @@ describe('WalletConnect', () => {
       await expect(connector.activate(99)).rejects.toThrow()
     })
 
-    test('should throw an error when using optional chain as default', async () => {
-      const { connector } = createTestEnvironment({ chains, optionalChains: [8] }, 8)
-      await expect(connector.activate()).rejects.toThrow()
+    test('should throw an error when using optional chain as default', () => {
+      expect(() => createTestEnvironment({ chains, optionalChains: [8] }, 8)).toThrow('Invalid chainId 8. Make sure default chain is included in "chains" - chains specified in "optionalChains" may not be selected as the default, as they may not be supported by the wallet.')
     })
+
 
     test('should switch to an optional chain', async () => {
       const { connector, store } = createTestEnvironment({

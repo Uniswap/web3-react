@@ -74,14 +74,16 @@ export class WalletConnect extends Connector {
   constructor({ actions, defaultChainId, options, timeout = DEFAULT_TIMEOUT, onError }: WalletConnectConstructorArgs) {
     super(actions, onError)
 
-    const { rpcMap, rpc, chains, optionalChains, ...rest } = options
+    const { rpcMap, rpc, ...rest } = options
 
-    this.chains = chains
-    this.optionalChains = optionalChains
     this.options = rest
     this.defaultChainId = defaultChainId
     this.rpcMap = rpcMap || rpc
     this.timeout = timeout
+
+    const { chains, optionalChains } = this.getChainProps(rest.chains, rest.optionalChains, defaultChainId)
+    this.chains = chains
+    this.optionalChains = optionalChains
   }
 
   private handleProviderEvents(provider: WalletConnectProvider): WalletConnectProvider {
@@ -114,7 +116,7 @@ export class WalletConnect extends Connector {
   ): Promise<WalletConnectProvider> {
     const ethProviderModule = await import('@walletconnect/ethereum-provider')
     const rpcMap = this.rpcMap ? await getBestUrlMap(this.rpcMap, this.timeout) : undefined
-    const chainProps = this.getChainProps(desiredChainId)
+    const chainProps = this.getChainProps(this.chains, this.optionalChains, desiredChainId)
 
     this.provider = await ethProviderModule.default.init({
       ...this.options,
@@ -125,10 +127,14 @@ export class WalletConnect extends Connector {
     return this.handleProviderEvents(this.provider)
   }
 
-  private getChainProps(desiredChainId: number | undefined = this.defaultChainId): ChainsProps {
+  private getChainProps(
+    chains: number[] | ArrayOneOrMore<number> | undefined,
+    optionalChains: number[] | ArrayOneOrMore<number> | undefined,
+    desiredChainId: number | undefined = this.defaultChainId
+  ): ChainsProps {
     // Reorder chains and optionalChains if necessary
-    const orderedChains = getChainsWithDefault(this.chains, desiredChainId)
-    const orderedOptionalChains = getChainsWithDefault(this.optionalChains, desiredChainId)
+    const orderedChains = getChainsWithDefault(chains, desiredChainId)
+    const orderedOptionalChains = getChainsWithDefault(optionalChains, desiredChainId)
 
     // Validate and return the result
     if (isArrayOneOrMore(orderedChains)) {
