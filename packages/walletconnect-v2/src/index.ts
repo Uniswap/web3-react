@@ -61,18 +61,25 @@ export class WalletConnect extends Connector {
   public provider?: WalletConnectProvider
   public readonly events = new EventEmitter3()
 
-  private readonly defaultChainId?: number
-  private eagerConnection?: Promise<WalletConnectProvider>
-  private readonly options: Omit<WalletConnectOptions, 'rpcMap'>
+  private readonly options: Omit<WalletConnectOptions, 'rpcMap' | 'chains'>
+
   private readonly rpcMap?: Record<number, string | string[]>
+  private readonly chains: number[] | ArrayOneOrMore<number> | undefined
+  private readonly optionalChains: number[] | ArrayOneOrMore<number> | undefined
+  private readonly defaultChainId?: number
   private readonly timeout: number
+
+  private eagerConnection?: Promise<WalletConnectProvider>
 
   constructor({ actions, defaultChainId, options, timeout = DEFAULT_TIMEOUT, onError }: WalletConnectConstructorArgs) {
     super(actions, onError)
 
-    const { rpcMap, rpc, ...rest } = options
-    this.defaultChainId = defaultChainId
+    const { rpcMap, rpc, chains, optionalChains, ...rest } = options
+
+    this.chains = chains
+    this.optionalChains = optionalChains
     this.options = rest
+    this.defaultChainId = defaultChainId
     this.rpcMap = rpcMap || rpc
     this.timeout = timeout
   }
@@ -118,21 +125,10 @@ export class WalletConnect extends Connector {
     return this.handleProviderEvents(this.provider)
   }
 
-  // Helper function to reorder chains array based on desiredChainId
-  private reorderChainsBasedOnId(
-    chains: number[] | undefined,
-    desiredChainId: number | undefined
-  ): number[] | undefined {
-    if (!chains || !desiredChainId || !chains.includes(desiredChainId) || chains.length === 0) {
-      return chains
-    }
-    return getChainsWithDefault(chains, desiredChainId)
-  }
-
   private getChainProps(desiredChainId: number | undefined = this.defaultChainId): ChainsProps {
     // Reorder chains and optionalChains if necessary
-    const orderedChains = this.reorderChainsBasedOnId(this.options.chains, desiredChainId)
-    const orderedOptionalChains = this.reorderChainsBasedOnId(this.options.optionalChains, desiredChainId)
+    const orderedChains = getChainsWithDefault(this.chains, desiredChainId)
+    const orderedOptionalChains = getChainsWithDefault(this.optionalChains, desiredChainId)
 
     // Validate and return the result
     if (isArrayOneOrMore(orderedChains)) {
