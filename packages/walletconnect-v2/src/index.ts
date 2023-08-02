@@ -77,8 +77,8 @@ export class WalletConnect extends Connector {
     this.timeout = timeout
   }
 
-  private handleProviderEvents(provider: WalletConnectProvider): void {
-    provider
+  private handleProviderEvents(provider: WalletConnectProvider): WalletConnectProvider {
+    return provider
       .on('disconnect', this.disconnectListener)
       .on('chainChanged', this.chainChangedListener)
       .on('accountsChanged', this.accountsChangedListener)
@@ -107,18 +107,15 @@ export class WalletConnect extends Connector {
   ): Promise<WalletConnectProvider> {
     const ethProviderModule = await import('@walletconnect/ethereum-provider')
     const rpcMap = this.rpcMap ? await getBestUrlMap(this.rpcMap, this.timeout) : undefined
+    const chainProps = this.getChainProps(desiredChainId)
 
-    const provider = await ethProviderModule.default.init({
+    this.provider = await ethProviderModule.default.init({
       ...this.options,
-      ...this.getChainProps(desiredChainId),
+      ...chainProps,
       rpcMap,
     })
 
-    this.provider = provider
-
-    this.handleProviderEvents(provider)
-
-    return provider
+    return this.handleProviderEvents(this.provider)
   }
 
   // Helper function to reorder chains array based on desiredChainId
