@@ -95,21 +95,17 @@ class MockWalletConnectProvider extends MockEIP1193Provider<number> {
 }
 
 describe('WalletConnect', () => {
-  let wc2InitMock: jest.Mock
+  let wc2InitMock: jest.SpyInstance<ReturnType<typeof EthereumProvider.init>, Parameters<typeof EthereumProvider.init>>;
 
   beforeEach(() => {
     /*
      * TypeScript error is expected here. We're mocking a factory `init` method
      * to only define a subset of `EthereumProvider` that we use internally
      */
-    // @ts-ignore
     wc2InitMock = jest
       .spyOn(EthereumProvider, 'init')
-      // @ts-ignore
-      .mockImplementation(async (opts) => {
-        const provider = new MockWalletConnectProvider(opts)
-        return provider
-      })
+      // @ts-expect-error
+      .mockImplementation((opts) => Promise.resolve(new MockWalletConnectProvider(opts)))
   })
 
   describe('#connectEagerly', () => {
@@ -125,6 +121,14 @@ describe('WalletConnect', () => {
       connector.activate()
       connector.activate()
       expect(wc2InitMock).toHaveBeenCalledTimes(1)
+      wc2InitMock.mockClear()
+    })
+    test('should be able to initialize with only optionalChains', async () => {
+      const { connector } = createTestEnvironment({ chains: undefined, optionalChains: chains })
+      connector.activate()
+      connector.activate()
+      expect(wc2InitMock).toHaveBeenCalledTimes(1)
+      wc2InitMock.mockClear()
     })
   })
 
