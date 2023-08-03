@@ -4,6 +4,7 @@ import { createWeb3ReactStoreAndActions } from '@web3-react/store'
 import type { Actions, Connector, Web3ReactState, Web3ReactStore } from '@web3-react/types'
 import { useEffect, useMemo, useState } from 'react'
 import { useStore } from 'zustand'
+import { useStoreWithEqualityFn } from 'zustand/traditional'
 
 let DynamicProvider: typeof Web3Provider | null | undefined
 async function importProvider(): Promise<void> {
@@ -260,7 +261,7 @@ function getStateHooks(store: Web3ReactStore) {
   }
 
   function useAccounts(): Web3ReactState['accounts'] {
-    return useStore(store, ACCOUNTS, ACCOUNTS_EQUALITY_CHECKER)
+    return useStoreWithEqualityFn(store, ACCOUNTS, ACCOUNTS_EQUALITY_CHECKER)
   }
 
   function useIsActivating(): Web3ReactState['activating'] {
