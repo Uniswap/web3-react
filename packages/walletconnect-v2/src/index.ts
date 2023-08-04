@@ -86,14 +86,6 @@ export class WalletConnect extends Connector {
     this.optionalChains = optionalChains
   }
 
-  private handleProviderEvents(provider: WalletConnectProvider): WalletConnectProvider {
-    return provider
-      .on('disconnect', this.disconnectListener)
-      .on('chainChanged', this.chainChangedListener)
-      .on('accountsChanged', this.accountsChangedListener)
-      .on('display_uri', this.URIListener)
-  }
-
   private disconnectListener = (error: ProviderRpcError) => {
     this.actions.resetState()
     if (error) this.onError?.(error)
@@ -117,13 +109,18 @@ export class WalletConnect extends Connector {
     const rpcMap = this.rpcMap ? getBestUrlMap(this.rpcMap, this.timeout) : undefined
     const chainProps = this.getChainProps(this.chains, this.optionalChains, desiredChainId)
 
-    this.provider = (await import('@walletconnect/ethereum-provider')).default.init({
+    const ethProviderModule = await import('@walletconnect/ethereum-provider')
+    this.provider = await ethProviderModule.default.init({
       ...this.options,
       ...chainProps,
       rpcMap: await rpcMap,
     })
 
-    return this.handleProviderEvents(this.provider)
+    return this.provider
+      .on('disconnect', this.disconnectListener)
+      .on('chainChanged', this.chainChangedListener)
+      .on('accountsChanged', this.accountsChangedListener)
+      .on('display_uri', this.URIListener)
   }
 
   private getChainProps(
