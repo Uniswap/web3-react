@@ -114,14 +114,13 @@ export class WalletConnect extends Connector {
   private async initializeProvider(
     desiredChainId: number | undefined = this.defaultChainId
   ): Promise<WalletConnectProvider> {
-    const ethProviderModule = await import('@walletconnect/ethereum-provider')
-    const rpcMap = this.rpcMap ? await getBestUrlMap(this.rpcMap, this.timeout) : undefined
+    const rpcMap = this.rpcMap ? getBestUrlMap(this.rpcMap, this.timeout) : undefined
     const chainProps = this.getChainProps(this.chains, this.optionalChains, desiredChainId)
 
-    this.provider = await ethProviderModule.default.init({
+    this.provider = (await import('@walletconnect/ethereum-provider')).default.init({
       ...this.options,
       ...chainProps,
-      rpcMap,
+      rpcMap: await rpcMap,
     })
 
     return this.handleProviderEvents(this.provider)
