@@ -136,7 +136,8 @@ export class WalletConnect extends Connector {
     const orderedChains = getChainsWithDefault(chains, desiredChainId)
     const orderedOptionalChains = getChainsWithDefault(optionalChains, desiredChainId)
 
-    // Validate and return the result
+    // Validate and return the result.
+    // Type discrimination requires that we use these typeguard checks to guarantee a valid return type.
     if (isArrayOneOrMore(orderedChains)) {
       return { chains: orderedChains, optionalChains: orderedOptionalChains }
     } else if (isArrayOneOrMore(orderedOptionalChains)) {
