@@ -140,7 +140,7 @@ export class WalletConnect extends Connector {
     if (isArrayOneOrMore(orderedChains)) {
       return { chains: orderedChains, optionalChains: orderedOptionalChains }
     } else if (isArrayOneOrMore(orderedOptionalChains)) {
-      return { optionalChains: orderedOptionalChains, chains: orderedChains }
+      return { chains: orderedChains, optionalChains: orderedOptionalChains }
     }
 
     throw new Error('Either chains or optionalChains must have at least one item.')
