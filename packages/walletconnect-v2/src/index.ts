@@ -151,8 +151,7 @@ export class WalletConnect extends Connector {
     desiredChainId: number | undefined = this.defaultChainId
   ): Promise<WalletConnectProvider> {
     if (this.eagerConnection) return this.eagerConnection
-    this.eagerConnection = this.initializeProvider(desiredChainId)
-    return this.eagerConnection
+    return (this.eagerConnection = this.initializeProvider(desiredChainId))
   }
 
   /** {@inheritdoc Connector.connectEagerly} */
