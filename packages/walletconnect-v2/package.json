@@ -24,8 +24,8 @@
     "start": "tsc --watch"
   },
   "dependencies": {
-    "@walletconnect/ethereum-provider": "^2.8.6",
-    "@walletconnect/modal": "^2.5.9",
+    "@walletconnect/ethereum-provider": "^2.9.2",
+    "@walletconnect/modal": "^2.6.1",
     "@web3-react/types": "^8.2.0",
     "eventemitter3": "^4.0.7"
   },

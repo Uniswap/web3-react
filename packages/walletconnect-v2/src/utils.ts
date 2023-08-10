@@ -1,4 +1,18 @@
 /**
+ * Necessary type to interface with @walletconnect/ethereum-provider@2.9.2 which is currently unexported
+ */
+export type ArrayOneOrMore<T> = {
+  0: T
+} & Array<T>
+
+/**
+ * This is a type guard for ArrayOneOrMore
+ */
+export function isArrayOneOrMore<T>(input: T[] = []): input is ArrayOneOrMore<T> {
+  return input.length > 0
+}
+
+/**
  * @param rpcMap - Map of chainIds to rpc url(s).
  * @param timeout - Timeout, in milliseconds, after which to consider network calls failed.
  */
@@ -85,7 +99,13 @@ async function getBestUrl(urls: string | string[], timeout: number): Promise<str
  * @param chains - An array of chain IDs.
  * @param defaultChainId - The chain ID to treat as the default (it will be the first element in the returned array).
  */
-export function getChainsWithDefault(chains: number[], defaultChainId: number) {
+export function getChainsWithDefault(
+  chains: number[] | ArrayOneOrMore<number> | undefined,
+  defaultChainId: number | undefined
+) {
+  if (!chains || !defaultChainId || chains.length === 0) {
+    return chains
+  }
   const idx = chains.indexOf(defaultChainId)
   if (idx === -1) {
     throw new Error(

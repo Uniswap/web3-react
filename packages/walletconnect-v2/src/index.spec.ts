@@ -40,7 +40,11 @@ class MockWalletConnectProvider extends MockEIP1193Provider<number> {
 
   constructor(opts: EthereumProviderOptions) {
     super()
-    this.chainId = opts.chains[0]
+    if (opts.chains && opts.chains.length > 0) {
+      this.chainId = opts.chains[0]
+    } else if (opts.optionalChains && opts.optionalChains.length > 0) {
+      this.chainId = opts.optionalChains[0]
+    }
     this.opts = opts
   }
 
@@ -68,7 +72,7 @@ class MockWalletConnectProvider extends MockEIP1193Provider<number> {
    * We mock this method later in the test suite to test behavior when optional chains are not supported.
    */
   public getConnectedChains() {
-    return this.opts.chains.concat(this.opts.optionalChains || [])
+    return (this.opts.chains || []).concat(this.opts.optionalChains || [])
   }
 
   // session is an object when connected, undefined otherwise
@@ -91,21 +95,17 @@ class MockWalletConnectProvider extends MockEIP1193Provider<number> {
 }
 
 describe('WalletConnect', () => {
-  let wc2InitMock: jest.Mock
+  let wc2InitMock: jest.SpyInstance<ReturnType<typeof EthereumProvider.init>, Parameters<typeof EthereumProvider.init>>;
 
   beforeEach(() => {
     /*
      * TypeScript error is expected here. We're mocking a factory `init` method
      * to only define a subset of `EthereumProvider` that we use internally
      */
-    // @ts-ignore
     wc2InitMock = jest
       .spyOn(EthereumProvider, 'init')
-      // @ts-ignore
-      .mockImplementation(async (opts) => {
-        const provider = new MockWalletConnectProvider(opts)
-        return provider
-      })
+      // @ts-expect-error
+      .mockImplementation((opts) => Promise.resolve(new MockWalletConnectProvider(opts)))
   })
 
   describe('#connectEagerly', () => {
@@ -121,6 +121,14 @@ describe('WalletConnect', () => {
       connector.activate()
       connector.activate()
       expect(wc2InitMock).toHaveBeenCalledTimes(1)
+      wc2InitMock.mockClear()
+    })
+    test('should be able to initialize with only optionalChains', async () => {
+      const { connector } = createTestEnvironment({ chains: undefined, optionalChains: chains })
+      connector.activate()
+      connector.activate()
+      expect(wc2InitMock).toHaveBeenCalledTimes(1)
+      wc2InitMock.mockClear()
     })
   })
 
@@ -148,10 +156,10 @@ describe('WalletConnect', () => {
       await expect(connector.activate(99)).rejects.toThrow()
     })
 
-    test('should throw an error when using optional chain as default', async () => {
-      const { connector } = createTestEnvironment({ chains, optionalChains: [8] }, 8)
-      await expect(connector.activate()).rejects.toThrow()
+    test('should throw an error when using optional chain as default', () => {
+      expect(() => createTestEnvironment({ chains, optionalChains: [8] }, 8)).toThrow('Invalid chainId 8. Make sure default chain is included in "chains" - chains specified in "optionalChains" may not be selected as the default, as they may not be supported by the wallet.')
     })
+
 
     test('should switch to an optional chain', async () => {
       const { connector, store } = createTestEnvironment({

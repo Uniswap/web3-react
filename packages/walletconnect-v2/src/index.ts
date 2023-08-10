@@ -3,7 +3,7 @@ import type { Actions, ProviderRpcError } from '@web3-react/types'
 import { Connector } from '@web3-react/types'
 import EventEmitter3 from 'eventemitter3'
 
-import { getBestUrlMap, getChainsWithDefault } from './utils'
+import { ArrayOneOrMore, getBestUrlMap, getChainsWithDefault, isArrayOneOrMore } from './utils'
 
 export const URI_AVAILABLE = 'URI_AVAILABLE'
 const DEFAULT_TIMEOUT = 5000
@@ -22,6 +22,19 @@ export type WalletConnectOptions = Omit<Parameters<typeof WalletConnectProvider.
   /** @deprecated Use `rpcMap` instead. */
   rpc?: { [chainId: number]: string | string[] }
 }
+
+/**
+ * Necessary type to interface with @walletconnect/ethereum-provider@2.9.2 which is currently unexported
+ */
+type ChainsProps =
+  | {
+      chains: ArrayOneOrMore<number>
+      optionalChains?: number[]
+    }
+  | {
+      chains?: number[]
+      optionalChains: ArrayOneOrMore<number>
+    }
 
 /**
  * Options to configure the WalletConnect connector.
@@ -51,22 +64,26 @@ export class WalletConnect extends Connector {
   private readonly options: Omit<WalletConnectOptions, 'rpcMap' | 'chains'>
 
   private readonly rpcMap?: Record<number, string | string[]>
-  private readonly chains: number[]
+  private readonly chains: number[] | ArrayOneOrMore<number> | undefined
+  private readonly optionalChains: number[] | ArrayOneOrMore<number> | undefined
   private readonly defaultChainId?: number
   private readonly timeout: number
 
   private eagerConnection?: Promise<WalletConnectProvider>
 
-  constructor({ actions, options, defaultChainId, timeout = DEFAULT_TIMEOUT, onError }: WalletConnectConstructorArgs) {
+  constructor({ actions, defaultChainId, options, timeout = DEFAULT_TIMEOUT, onError }: WalletConnectConstructorArgs) {
     super(actions, onError)
 
-    const { rpcMap, rpc, chains, ...rest } = options
+    const { rpcMap, rpc, ...rest } = options
 
     this.options = rest
-    this.chains = chains
     this.defaultChainId = defaultChainId
     this.rpcMap = rpcMap || rpc
     this.timeout = timeout
+
+    const { chains, optionalChains } = this.getChainProps(rest.chains, rest.optionalChains, defaultChainId)
+    this.chains = chains
+    this.optionalChains = optionalChains
   }
 
   private disconnectListener = (error: ProviderRpcError) => {
@@ -86,27 +103,51 @@ export class WalletConnect extends Connector {
     this.events.emit(URI_AVAILABLE, uri)
   }
 
+  private async initializeProvider(
+    desiredChainId: number | undefined = this.defaultChainId
+  ): Promise<WalletConnectProvider> {
+    const rpcMap = this.rpcMap ? getBestUrlMap(this.rpcMap, this.timeout) : undefined
+    const chainProps = this.getChainProps(this.chains, this.optionalChains, desiredChainId)
+
+    const ethProviderModule = await import('@walletconnect/ethereum-provider')
+    this.provider = await ethProviderModule.default.init({
+      ...this.options,
+      ...chainProps,
+      rpcMap: await rpcMap,
+    })
+
+    return this.provider
+      .on('disconnect', this.disconnectListener)
+      .on('chainChanged', this.chainChangedListener)
+      .on('accountsChanged', this.accountsChangedListener)
+      .on('display_uri', this.URIListener)
+  }
+
+  private getChainProps(
+    chains: number[] | ArrayOneOrMore<number> | undefined,
+    optionalChains: number[] | ArrayOneOrMore<number> | undefined,
+    desiredChainId: number | undefined = this.defaultChainId
+  ): ChainsProps {
+    // Reorder chains and optionalChains if necessary
+    const orderedChains = getChainsWithDefault(chains, desiredChainId)
+    const orderedOptionalChains = getChainsWithDefault(optionalChains, desiredChainId)
+
+    // Validate and return the result.
+    // Type discrimination requires that we use these typeguard checks to guarantee a valid return type.
+    if (isArrayOneOrMore(orderedChains)) {
+      return { chains: orderedChains, optionalChains: orderedOptionalChains }
+    } else if (isArrayOneOrMore(orderedOptionalChains)) {
+      return { chains: orderedChains, optionalChains: orderedOptionalChains }
+    }
+
+    throw new Error('Either chains or optionalChains must have at least one item.')
+  }
+
   private isomorphicInitialize(
     desiredChainId: number | undefined = this.defaultChainId
   ): Promise<WalletConnectProvider> {
     if (this.eagerConnection) return this.eagerConnection
-
-    const rpcMap = this.rpcMap ? getBestUrlMap(this.rpcMap, this.timeout) : undefined
-    const chains = desiredChainId ? getChainsWithDefault(this.chains, desiredChainId) : this.chains
-
-    return (this.eagerConnection = import('@walletconnect/ethereum-provider').then(async (ethProviderModule) => {
-      const provider = (this.provider = await ethProviderModule.default.init({
-        ...this.options,
-        chains,
-        rpcMap: await rpcMap,
-      }))
-
-      return provider
-        .on('disconnect', this.disconnectListener)
-        .on('chainChanged', this.chainChangedListener)
-        .on('accountsChanged', this.accountsChangedListener)
-        .on('display_uri', this.URIListener)
-    }))
+    return (this.eagerConnection = this.initializeProvider(desiredChainId))
   }
 
   /** {@inheritdoc Connector.connectEagerly} */
