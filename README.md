@@ -33,7 +33,7 @@ This is a hosted version of [example](/example).
 - `yarn`
 - `yarn start`
 
-In addition to compiling each package in watch mode, this will also spin up [packages/example](packages/example) on [localhost:3000](http://localhost:3000/). (It will also spin up [packages/example-cra](packages/example-cra) on [localhost:3001](http://localhost:3001/), but this is just a skeleton app for testing compatibility.)
+In addition to compiling each package in watch mode, this will also spin up [/example](/example) on [localhost:3000](http://localhost:3000/).
 
 ## Run Tests
 
@@ -46,7 +46,7 @@ In addition to compiling each package in watch mode, this will also spin up [pac
 
 ## Documentation
 
-This version of web3-react is still in beta, so unfortunately documentation is pretty sparse at the moment. [packages/example](packages/example), TSDoc comments, and the source code itself are the best ways to get an idea of what's going on. More thorough documentation is a priority as development continues!
+This version of web3-react is still in beta, so unfortunately documentation is pretty sparse at the moment. [/example](/example), TSDoc comments, and the source code itself are the best ways to get an idea of what's going on. More thorough documentation is a priority as development continues!
 
 ## Upgrading Connector Dependencies
 
