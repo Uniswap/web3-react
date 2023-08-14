@@ -10,7 +10,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "version": "8.2.1",
+  "version": "8.2.3",
   "files": [
     "dist/*"
   ],
@@ -25,9 +25,9 @@
   },
   "dependencies": {
     "@metamask/detect-provider": "^1.2.0",
-    "@web3-react/types": "^8.2.0"
+    "@web3-react/types": "^8.2.2"
   },
   "devDependencies": {
-    "@web3-react/store": "^8.2.0"
+    "@web3-react/store": "^8.2.2"
   }
 }

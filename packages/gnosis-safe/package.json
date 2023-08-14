@@ -10,7 +10,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "version": "8.2.1",
+  "version": "8.2.3",
   "files": [
     "dist/*"
   ],
@@ -26,6 +26,6 @@
   "dependencies": {
     "@safe-global/safe-apps-provider": "^0.17.1",
     "@safe-global/safe-apps-sdk": "^8.0.0",
-    "@web3-react/types": "^8.2.0"
+    "@web3-react/types": "^8.2.2"
   }
 }

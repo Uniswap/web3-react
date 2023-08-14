@@ -10,7 +10,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "version": "8.2.0",
+  "version": "8.2.2",
   "files": [
     "dist/*"
   ],
@@ -24,12 +24,12 @@
     "start": "tsc --watch"
   },
   "dependencies": {
-    "@web3-react/types": "^8.2.0",
+    "@web3-react/types": "^8.2.2",
     "eventemitter3": "^4.0.7"
   },
   "devDependencies": {
     "@ethersproject/experimental": "^5.6.0",
     "@ethersproject/providers": "^5.6.0",
-    "@web3-react/store": "^8.2.0"
+    "@web3-react/store": "^8.2.2"
   }
 }
