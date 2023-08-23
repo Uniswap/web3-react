@@ -35,8 +35,8 @@ export function createWeb3ReactStoreAndActions(): [Web3ReactStore, Actions] {
   /**
    * Sets activating to true, indicating that an update is in progress.
    *
-   * @returns cancelActivation - A function that cancels the activation by setting activating to false,
-   * as long as there haven't been any intervening updates.
+   * @returns cancelActivation(force?: boolean) - A function that cancels the activation by setting activating to false,
+   * as long as there haven't been any intervening updates (or if called with force=true).
    */
   function startActivation(): () => void {
     const nullifierCached = ++nullifier
@@ -44,8 +44,8 @@ export function createWeb3ReactStoreAndActions(): [Web3ReactStore, Actions] {
     store.setState({ ...DEFAULT_STATE, activating: true })
 
     // return a function that cancels the activation iff nothing else has happened
-    return () => {
-      if (nullifier === nullifierCached) store.setState({ activating: false })
+    return (force?: boolean) => {
+      if (force === true || nullifier === nullifierCached) store.setState({ activating: false })
     }
   }
 
