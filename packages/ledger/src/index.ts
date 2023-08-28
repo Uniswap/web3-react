@@ -1,5 +1,4 @@
-/* eslint-disable prettier/prettier */
-import { Connector, ProviderRpcError } from "@web3-react/types";
+import { Connector } from "@web3-react/types";
 
 import { LedgerConstructorArgs, LedgerOptions, LedgerProvider } from "./type";
 
