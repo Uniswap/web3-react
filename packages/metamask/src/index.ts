@@ -1,4 +1,4 @@
-import MetaMaskSDK, { EventType, MetaMaskSDKOptions, PROVIDER_UPDATE_TYPE } from '@metamask/sdk'
+import MetaMaskSDK, { MetaMaskSDKOptions, PROVIDER_UPDATE_TYPE } from '@metamask/sdk'
 import type {
   Actions,
   AddEthereumChainParameter,
@@ -7,7 +7,6 @@ import type {
   WatchAssetParameters,
 } from '@web3-react/types'
 import { Connector } from '@web3-react/types'
-
 export class NoMetaMaskError extends Error {
   public constructor() {
     super('MetaMask not installed')
@@ -101,7 +100,7 @@ export class MetaMask extends Connector {
       const onProviderEvent = (type: PROVIDER_UPDATE_TYPE) => {
         this.sdkProviderWatcher()
       }
-      this.sdk.on(EventType.PROVIDER_UPDATE, onProviderEvent)
+      this.sdk.on('provider_update', onProviderEvent)
     }))
   }
 
