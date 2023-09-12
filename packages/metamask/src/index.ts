@@ -1,4 +1,4 @@
-import MetaMaskSDK, { MetaMaskSDKOptions, PROVIDER_UPDATE_TYPE } from '@metamask/sdk'
+import MetaMaskSDK, { EventType, MetaMaskSDKOptions, PROVIDER_UPDATE_TYPE } from '@metamask/sdk'
 import type {
   Actions,
   AddEthereumChainParameter,
@@ -44,7 +44,6 @@ export class MetaMask extends Connector {
   private async sdkProviderWatcher(): Promise<void> {
     const provider = this.sdk?.getProvider()
 
-    console.debug(`MetaMaskProvider::sdkProviderWatcher`, provider)
     if (!provider) {
       throw new Error('No provider')
     }
@@ -100,7 +99,7 @@ export class MetaMask extends Connector {
       const onProviderEvent = (type: PROVIDER_UPDATE_TYPE) => {
         this.sdkProviderWatcher()
       }
-      this.sdk.on('provider_update', onProviderEvent)
+      this.sdk.on(EventType.PROVIDER_UPDATE, onProviderEvent)
     }))
   }
 

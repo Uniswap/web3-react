@@ -9,8 +9,8 @@ dependencies:
     specifier: ^1.2.0
     version: 1.2.0
   '@metamask/sdk':
-    specifier: ^0.6.0
-    version: 0.6.0(react-native@0.71.13)(react@18.2.0)
+    specifier: ^0.6.2
+    version: 0.6.2(react-native@0.71.13)(react@18.2.0)
   '@web3-react/types':
     specifier: ^8.2.2
     version: 8.2.2(react@18.2.0)
@@ -328,6 +328,7 @@ packages:
   /@babel/plugin-proposal-async-generator-functions@7.20.7(@babel/core@7.22.11):
     resolution: {integrity: sha512-xMbiLsn/8RK7Wq7VeVytytS2L6qE69bXPB10YCmMdDZbKF4okCqY74pI/jJQ/8U0b/F6NrT2+14b8/P9/3AMGA==}
     engines: {node: '>=6.9.0'}
+    deprecated: This proposal has been merged to the ECMAScript standard and thus this plugin is no longer maintained. Please use @babel/plugin-transform-async-generator-functions instead.
     peerDependencies:
       '@babel/core': ^7.0.0-0
     dependencies:
@@ -341,6 +342,7 @@ packages:
   /@babel/plugin-proposal-class-properties@7.18.6(@babel/core@7.22.11):
     resolution: {integrity: sha512-cumfXOF0+nzZrrN8Rf0t7M+tF6sZc7vhQwYQck9q1/5w2OExlD+b4v4RpMJFaV1Z7WcDRgO6FqvxqxGlwo+RHQ==}
     engines: {node: '>=6.9.0'}
+    deprecated: This proposal has been merged to the ECMAScript standard and thus this plugin is no longer maintained. Please use @babel/plugin-transform-class-properties instead.
     peerDependencies:
       '@babel/core': ^7.0.0-0
     dependencies:
@@ -363,6 +365,7 @@ packages:
   /@babel/plugin-proposal-nullish-coalescing-operator@7.18.6(@babel/core@7.22.11):
     resolution: {integrity: sha512-wQxQzxYeJqHcfppzBDnm1yAY0jSRkUXR2z8RePZYrKwMKgMlE8+Z6LUno+bd6LvbGh8Gltvy74+9pIYkr+XkKA==}
     engines: {node: '>=6.9.0'}
+    deprecated: This proposal has been merged to the ECMAScript standard and thus this plugin is no longer maintained. Please use @babel/plugin-transform-nullish-coalescing-operator instead.
     peerDependencies:
       '@babel/core': ^7.0.0-0
     dependencies:
@@ -374,6 +377,7 @@ packages:
   /@babel/plugin-proposal-object-rest-spread@7.20.7(@babel/core@7.22.11):
     resolution: {integrity: sha512-d2S98yCiLxDVmBmE8UjGcfPvNEUbA1U5q5WxaWFUGRzJSVAZqm5W6MbPct0jxnegUZ0niLeNX+IOzEs7wYg9Dg==}
     engines: {node: '>=6.9.0'}
+    deprecated: This proposal has been merged to the ECMAScript standard and thus this plugin is no longer maintained. Please use @babel/plugin-transform-object-rest-spread instead.
     peerDependencies:
       '@babel/core': ^7.0.0-0
     dependencies:
@@ -388,6 +392,7 @@ packages:
   /@babel/plugin-proposal-optional-catch-binding@7.18.6(@babel/core@7.22.11):
     resolution: {integrity: sha512-Q40HEhs9DJQyaZfUjjn6vE8Cv4GmMHCYuMGIWUnlxH6400VGxOuwWsPt4FxXxJkC/5eOzgn0z21M9gMT4MOhbw==}
     engines: {node: '>=6.9.0'}
+    deprecated: This proposal has been merged to the ECMAScript standard and thus this plugin is no longer maintained. Please use @babel/plugin-transform-optional-catch-binding instead.
     peerDependencies:
       '@babel/core': ^7.0.0-0
     dependencies:
@@ -399,6 +404,7 @@ packages:
   /@babel/plugin-proposal-optional-chaining@7.21.0(@babel/core@7.22.11):
     resolution: {integrity: sha512-p4zeefM72gpmEe2fkUr/OnOXpWEf8nAgk7ZYVqqfFiyIG7oFfVZcCrU64hWn5xp4tQ9LkV4bTIa5rD0KANpKNA==}
     engines: {node: '>=6.9.0'}
+    deprecated: This proposal has been merged to the ECMAScript standard and thus this plugin is no longer maintained. Please use @babel/plugin-transform-optional-chaining instead.
     peerDependencies:
       '@babel/core': ^7.0.0-0
     dependencies:
@@ -1794,8 +1800,8 @@ packages:
     engines: {node: '>=12.0.0'}
     dev: false
 
-  /@metamask/sdk-communication-layer@0.6.0:
-    resolution: {integrity: sha512-jyd602q0FVBh0FhJbVmmrua763R76bO39NTLVQIQkJFsz43LvhBPaYf3tHZE3Hjx3wTxc0Lwr4A+am8kvSiVxA==}
+  /@metamask/sdk-communication-layer@0.6.2:
+    resolution: {integrity: sha512-FXCeA25fIZNGTyrfjC/39mORuOiLqCW3LUNnaeZTMkn9ItSGKVqBnLs6YPuxk26YejYltY227wxD4KAQeS8aOA==}
     dependencies:
       cross-fetch: 3.1.8
       date-fns: 2.30.0
@@ -1810,8 +1816,8 @@ packages:
       - utf-8-validate
     dev: false
 
-  /@metamask/sdk-install-modal-web@0.6.0:
-    resolution: {integrity: sha512-ApjPGBy886yhlko+mH5/KUk0wWfmbCXBJ9mx6jc9OT06zmYc7/CphWLVB41zcUHD1aVG2H+oU/mtNV696qCPHw==}
+  /@metamask/sdk-install-modal-web@0.6.2:
+    resolution: {integrity: sha512-bylLobcmInduUb7Xs0Ay3iWpeBWs/ose0G/anH6qvWAN/nLNlGAGN0sS0/ejMguv7XK09ddO3oN3IOSqiqV74Q==}
     dependencies:
       '@emotion/react': 11.11.1(react@18.2.0)
       '@emotion/styled': 11.11.0(@emotion/react@11.11.1)(react@18.2.0)
@@ -1822,8 +1828,8 @@ packages:
       - '@types/react'
     dev: false
 
-  /@metamask/sdk@0.6.0(react-native@0.71.13)(react@18.2.0):
-    resolution: {integrity: sha512-6a8WvHa4/ulti8CbZVyX/jUftgOA16+4y76uyKK/29HXLu5q/Zmf503W66H2G1zciinEXp4r0NSj+gkRWmonzw==}
+  /@metamask/sdk@0.6.2(react-native@0.71.13)(react@18.2.0):
+    resolution: {integrity: sha512-IaAXEkG7v4uPJZZsp2ZOfmtGW6uO3awv5NqVuOzYxq1JyvzxZJBhVJMWQlu0WdBUMHX5GU1KPn+FeMb8x1v+yw==}
     peerDependencies:
       react: ^18.2.0
       react-native: ^0.71.1
@@ -1831,8 +1837,8 @@ packages:
       '@metamask/onboarding': 1.0.1
       '@metamask/post-message-stream': 6.2.0
       '@metamask/providers': 10.2.1
-      '@metamask/sdk-communication-layer': 0.6.0
-      '@metamask/sdk-install-modal-web': 0.6.0
+      '@metamask/sdk-communication-layer': 0.6.2
+      '@metamask/sdk-install-modal-web': 0.6.2
       '@react-native-async-storage/async-storage': 1.19.3(react-native@0.71.13)
       '@types/dom-screen-wake-lock': 1.0.1
       bowser: 2.11.0
