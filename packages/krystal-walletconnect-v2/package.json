@@ -1,0 +1,36 @@
+{
+  "name": "@kyberswap/krystal-walletconnect-v2",
+  "version": "0.0.1-rc1.0",
+  "keywords": [
+    "web3-react",
+    "walletconnect"
+  ],
+  "author": "Mike Grabowski <mike.grabowski@uniswap.org>",
+  "license": "GPL-3.0-or-later",
+  "repository": "github:Uniswap/web3-react",
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "dist/*"
+  ],
+  "type": "commonjs",
+  "types": "./dist/index.d.ts",
+  "main": "./dist/index.js",
+  "exports": "./dist/index.js",
+  "scripts": {
+    "prepublishOnly": "yarn build",
+    "prebuild": "rm -rf dist",
+    "build": "tsc",
+    "start": "tsc --watch"
+  },
+  "dependencies": {
+    "@walletconnect/ethereum-provider": "2.8.1",
+    "@walletconnect/modal": "2.4.7",
+    "@web3-react/types": "8.2.0",
+    "eventemitter3": "4.0.7"
+  },
+  "devDependencies": {
+    "@web3-react/store": "^8.2.0"
+  }
+}

@@ -2,3 +2,4 @@ node_modules/
 packages/*/dist/
 example/.next/
 .env.local
+.vscode
