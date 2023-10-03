@@ -25,6 +25,7 @@
   },
   "dependencies": {
     "@metamask/detect-provider": "^1.2.0",
+    "@metamask/sdk": "^0.6.2",
     "@web3-react/types": "^8.2.2"
   },
   "devDependencies": {
