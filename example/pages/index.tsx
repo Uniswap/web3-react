@@ -1,3 +1,4 @@
+import LedgerCard from '../components/connectorCards/LedgerCard'
 import CoinbaseWalletCard from '../components/connectorCards/CoinbaseWalletCard'
 import GnosisSafeCard from '../components/connectorCards/GnosisSafeCard'
 import MetaMaskCard from '../components/connectorCards/MetaMaskCard'
@@ -10,6 +11,7 @@ export default function Home() {
     <>
       <ProviderExample />
       <div style={{ display: 'flex', flexFlow: 'wrap', fontFamily: 'sans-serif' }}>
+        <LedgerCard />
         <MetaMaskCard />
         <WalletConnectV2Card />
         <CoinbaseWalletCard />
