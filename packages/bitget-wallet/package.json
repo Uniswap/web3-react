@@ -1,0 +1,34 @@
+{
+  "name": "@web3-react/bitget-wallet",
+  "keywords": [
+    "web3-react",
+    "bitget-wallet"
+  ],
+  "author": "kena.yang",
+  "license": "GPL-3.0-or-later",
+  "repository": "github:Uniswap/web3-react",
+  "publishConfig": {
+    "access": "public"
+  },
+  "version": "8.2.1",
+  "files": [
+    "dist/*"
+  ],
+  "type": "commonjs",
+  "types": "./dist/index.d.ts",
+  "main": "./dist/index.js",
+  "exports": "./dist/index.js",
+  "scripts": {
+    "prebuild": "rm -rf dist",
+    "build": "tsc",
+    "start": "tsc --watch"
+  },
+  "dependencies": {
+    "@bitget-wallet/web3-sdk": "^0.0.7",
+    "@metamask/detect-provider": "^1.2.0",
+    "@web3-react/types": "^8.2.0"
+  },
+  "devDependencies": {
+    "@web3-react/store": "^8.2.0"
+  }
+}
