@@ -18,6 +18,7 @@
     "example"
   ],
   "devDependencies": {
+    "@bitget-wallet/web3-sdk": "^0.0.7",
     "@coinbase/wallet-sdk": "^3.3.0",
     "@testing-library/react-hooks": "^8.0.0",
     "@tsconfig/recommended": "^1.0.1",
