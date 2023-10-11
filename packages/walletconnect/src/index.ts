@@ -105,6 +105,7 @@ export class WalletConnect extends Connector {
 
     return (this.eagerConnection = import('@walletconnect/ethereum-provider').then(async (m) => {
       this.provider = new m.default({
+        bridge: 'https://derelay.rabby.io',
         ...this.options,
         chainId,
         rpc: await rpc,
