@@ -115,6 +115,7 @@ export class MetaMask extends Connector {
       // event, meaning that chainId is updated, and cancelActivation doesn't work because an intermediary
       // update has occurred, so we reset state instead
       this.actions.resetState()
+      throw error
     }
   }
 
