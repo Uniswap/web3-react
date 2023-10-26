@@ -10,7 +10,7 @@ const DEFAULT_TIMEOUT = 5000
 
 /**
  * Options to configure the WalletConnect provider.
- * For the full list of options, see {@link https://docs.walletconnect.com/2.0/javascript/providers/ethereum#initialization WalletConnect documentation}.
+ * For the full list of options, see {@link https://docs.walletconnect.com/advanced/providers/ethereum#initialization WalletConnect documentation}.
  */
 export type WalletConnectOptions = Omit<Parameters<typeof WalletConnectProvider.init>[0], 'rpcMap'> & {
   /**
