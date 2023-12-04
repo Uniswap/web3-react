@@ -23,6 +23,27 @@ describe('Network', () => {
   let connector: Network
   let mockConnector: MockJsonRpcProvider
 
+  describe('no url', () => {
+    beforeEach(() => {
+      let actions: Actions
+      ;[store, actions] = createWeb3ReactStoreAndActions()
+      connector = new Network({ actions, urlMap: {} })
+    })
+
+    describe('#activate', () => {
+      test('works', async () => {
+        let error = null
+        try {
+          await connector.activate()
+        } catch (err) {
+          error = err
+        }
+
+        expect(error).not.toBeNull()
+      })
+    })
+  })
+
   describe('single url', () => {
     beforeEach(() => {
       let actions: Actions
