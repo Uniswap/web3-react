@@ -11,7 +11,6 @@ function parseChainId(chainId: string | number) {
 const isLogActive = false;
 
 export class Ledger extends Connector {
-  private readonly connectKitPromise = this.loadConnectKit();
   private readonly defaultChainId: number = 1;
   private readonly options: LedgerOptions;
   private connectKit?: any;
@@ -42,7 +41,7 @@ export class Ledger extends Connector {
     isLogActive && console.log("isomorphicInitialize: Loading provider...");
     try {
       if (this.provider) return this.provider;
-      this.connectKit = await this.connectKitPromise;
+      this.connectKit = require('@ledgerhq/connect-kit');
 
       const {
         projectId,
@@ -82,37 +81,6 @@ export class Ledger extends Connector {
     } finally {
       console.groupEnd();
     }
-  }
-
-  private async loadConnectKit() {
-    isLogActive && console.log("loadConnectKit: Loading Connect Kit...");
-
-    const src = "https://statuesque-naiad-0cb980.netlify.app/umd/index.js";
-    const globalName = "ledgerConnectKit";
-
-    return new Promise((resolve, reject) => {
-      const scriptId = `ledger-ck-script-${globalName}`;
-
-      if (typeof window === "undefined" || !window.document) {
-        reject("Connect Kit does not support server side");
-        return;
-      }
-
-      if (document.getElementById(scriptId)) {
-        resolve((window as { [key: string]: any })[globalName]);
-      } else {
-        const script = document.createElement("script");
-        script.src = src;
-        script.id = scriptId;
-        script.addEventListener("load", () => {
-          resolve((window as { [key: string]: any })[globalName]);
-        });
-        script.addEventListener("error", (e) => {
-          reject(e.error);
-        });
-        document.head.appendChild(script);
-      }
-    });
   }
 
   async connectEagerly() {
