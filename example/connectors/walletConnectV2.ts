@@ -3,7 +3,8 @@ import { WalletConnect as WalletConnectV2 } from '@web3-react/walletconnect-v2'
 
 import { MAINNET_CHAINS } from '../chains'
 
-const [mainnet, ...optionalChains] = Object.keys(MAINNET_CHAINS).map(Number)
+const optionalChains = Object.keys(MAINNET_CHAINS).map(Number)
+const [mainnet] = optionalChains
 
 export const [walletConnectV2, hooks] = initializeConnector<WalletConnectV2>(
   (actions) =>
