@@ -7,6 +7,19 @@
   resolved "https://registry.yarnpkg.com/@adraffy/ens-normalize/-/ens-normalize-1.9.0.tgz#223572538f6bea336750039bb43a4016dcc8182d"
   integrity sha512-iowxq3U30sghZotgl4s/oJRci6WPBfNO5YYgk2cIOMCHr3LeGPcsZjCEr+33Q4N+oV3OABDAtA+pyvWjbvBifQ==
 
+"@akkafinance/bitkeep-detect-provider@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@akkafinance/bitkeep-detect-provider/-/bitkeep-detect-provider-1.0.0.tgz#7de16aca785b2f47e3f8b80e4fecb2d186772208"
+  integrity sha512-LAHjZD51NwJZ/Ck1/JsA/NMcmwcM7m6obNMD09BN8LMeuoKcVn9Roj1azrP9ETXqoYGLuwQwb9Y2kKzARY5gdw==
+
+"@akkafinance/web3-react-bitkeep@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@akkafinance/web3-react-bitkeep/-/web3-react-bitkeep-1.0.0.tgz#f794290aabb1eaa82e4b36e02b646676764b8414"
+  integrity sha512-qG3wBu+WDh1YZzEhD6orhaKl9id22fZBnhtHl2zVZ+gx3i9OeaS4A2KACKiutZtxt5VnhBAybWIl3swi4Dj5Jg==
+  dependencies:
+    "@akkafinance/bitkeep-detect-provider" "^1.0.0"
+    "@web3-react/types" "^8.2.0"
+
 "@babel/code-frame@^7.0.0", "@babel/code-frame@^7.12.13", "@babel/code-frame@^7.16.7":
   version "7.16.7"
   resolved "https://registry.yarnpkg.com/@babel/code-frame/-/code-frame-7.16.7.tgz#44416b6bd7624b998f5b1af5d470856c40138789"

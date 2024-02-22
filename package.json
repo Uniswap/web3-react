@@ -18,6 +18,8 @@
     "example"
   ],
   "devDependencies": {
+    "@akkafinance/bitkeep-detect-provider": "^1.0.0",
+    "@akkafinance/web3-react-bitkeep": "^1.0.0",
     "@coinbase/wallet-sdk": "^3.3.0",
     "@testing-library/react-hooks": "^8.0.0",
     "@tsconfig/recommended": "^1.0.1",
