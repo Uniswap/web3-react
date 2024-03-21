@@ -6,8 +6,8 @@ import { Network } from '@web3-react/network'
 import { WalletConnect } from '@web3-react/walletconnect'
 import { WalletConnect as WalletConnectV2 } from '@web3-react/walletconnect-v2'
 import { useCallback, useEffect, useState } from 'react'
-import { XDEFIWallet } from '@web3-react/xdefi'
-// import { XDEFIWallet } from '../../packages/xdefi/dist/index'
+// import { XDEFIWallet } from '@web3-react/xdefi'
+import { XDEFIWallet } from '../../packages/xdefi/dist/index'
 
 import { CHAINS, getAddChainParameters } from '../chains'
 

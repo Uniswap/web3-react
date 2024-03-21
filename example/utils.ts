@@ -5,8 +5,8 @@ import { Network } from '@web3-react/network'
 import type { Connector } from '@web3-react/types'
 import { WalletConnect as WalletConnect } from '@web3-react/walletconnect'
 import { WalletConnect as WalletConnectV2 } from '@web3-react/walletconnect-v2'
-import { XDEFIWallet } from '@web3-react/xdefi'
-// import { XDEFIWallet } from '../packages/xdefi/dist/index'
+// import { XDEFIWallet } from '@web3-react/xdefi'
+import { XDEFIWallet } from '../packages/xdefi/dist/index'
 
 export function getName(connector: Connector) {
   if (connector instanceof MetaMask) return 'MetaMask'
