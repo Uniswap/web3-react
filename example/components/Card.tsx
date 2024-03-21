@@ -5,6 +5,8 @@ import type { MetaMask } from '@web3-react/metamask'
 import type { Network } from '@web3-react/network'
 import type { WalletConnect } from '@web3-react/walletconnect'
 import type { WalletConnect as WalletConnectV2 } from '@web3-react/walletconnect-v2'
+// import type { XDEFIWallet } from '@web3-react/xdefi'
+import type { XDEFIWallet } from '../../packages/xdefi/dist/index'
 
 import { getName } from '../utils'
 import { Accounts } from './Accounts'
@@ -13,7 +15,7 @@ import { ConnectWithSelect } from './ConnectWithSelect'
 import { Status } from './Status'
 
 interface Props {
-  connector: MetaMask | WalletConnect | WalletConnectV2 | CoinbaseWallet | Network | GnosisSafe
+  connector: MetaMask | WalletConnect | WalletConnectV2 | CoinbaseWallet | Network | GnosisSafe | XDEFIWallet
   activeChainId: ReturnType<Web3ReactHooks['useChainId']>
   chainIds?: ReturnType<Web3ReactHooks['useChainId']>[]
   isActivating: ReturnType<Web3ReactHooks['useIsActivating']>

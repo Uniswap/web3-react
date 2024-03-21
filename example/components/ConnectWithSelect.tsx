@@ -6,6 +6,8 @@ import { Network } from '@web3-react/network'
 import { WalletConnect } from '@web3-react/walletconnect'
 import { WalletConnect as WalletConnectV2 } from '@web3-react/walletconnect-v2'
 import { useCallback, useEffect, useState } from 'react'
+// import { XDEFIWallet } from '@web3-react/xdefi'
+import { XDEFIWallet } from '../../packages/xdefi/dist/index'
 
 import { CHAINS, getAddChainParameters } from '../chains'
 
@@ -48,7 +50,7 @@ export function ConnectWithSelect({
   error,
   setError,
 }: {
-  connector: MetaMask | WalletConnect | WalletConnectV2 | CoinbaseWallet | Network | GnosisSafe
+  connector: MetaMask | WalletConnect | WalletConnectV2 | CoinbaseWallet | Network | GnosisSafe | XDEFIWallet
   activeChainId: ReturnType<Web3ReactHooks['useChainId']>
   chainIds?: ReturnType<Web3ReactHooks['useChainId']>[]
   isActivating: ReturnType<Web3ReactHooks['useIsActivating']>
