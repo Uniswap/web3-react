@@ -1,0 +1,37 @@
+{
+  "name": "@web3-react/okx",
+  "keywords": [
+    "web3-react",
+    "coinbase-wallet"
+  ],
+  "author": "",
+  "license": "GPL-3.0-or-later",
+  "repository": "github:Uniswap/web3-react",
+  "publishConfig": {
+    "access": "public"
+  },
+  "version": "8.2.2",
+  "files": [
+    "dist/*"
+  ],
+  "type": "commonjs",
+  "types": "./dist/index.d.ts",
+  "main": "./dist/index.js",
+  "exports": "./dist/index.js",
+  "scripts": {
+    "prebuild": "rm -rf dist",
+    "build": "tsc",
+    "start": "tsc --watch"
+  },
+  "dependencies": {
+    "@okxweb3/coin-base": "^1.0.8",
+    "@okxweb3/coin-ethereum": "^1.0.3",
+    "@web3-react/types": "^8.2.2"
+  },
+  "peerDependencies": {
+    "@coinbase/wallet-sdk": "^3.0.4"
+  },
+  "devDependencies": {
+    "@web3-react/store": "^8.2.2"
+  }
+}
