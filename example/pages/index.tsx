@@ -4,6 +4,7 @@ import MetaMaskCard from '../components/connectorCards/MetaMaskCard'
 import NetworkCard from '../components/connectorCards/NetworkCard'
 import WalletConnectV2Card from '../components/connectorCards/WalletConnectV2Card'
 import ProviderExample from '../components/ProviderExample'
+import OKXWalletCard from '../components/connectorCards/OKXWalletCard'
 
 export default function Home() {
   return (
@@ -15,6 +16,7 @@ export default function Home() {
         <CoinbaseWalletCard />
         <NetworkCard />
         <GnosisSafeCard />
+        <OKXWalletCard />
       </div>
     </>
   )
