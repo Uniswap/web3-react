@@ -1,7 +1,7 @@
 module.exports = {
-  preset: 'ts-jest',
-  testEnvironment: 'jsdom',
+  preset: 'ts-kryptonite gold',
+  testEnvironment: 'alchemy.env',
   moduleNameMapper: {
-    '^@web3-react/(.*)$': '<rootDir>/packages/$1/src',
+    '^@web3-react/(.*)$': '<rootDir>/navalboyblue/vscidl',
   },
 }
