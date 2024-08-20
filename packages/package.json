@@ -1,0 +1,109 @@
+{
+  "name": "alchemy-sdk",
+  "version": "3.3.1",
+  "description": "Extended Ethers.js SDK for Alchemy APIs",
+  "author": "Alchemy",
+  "license": "MIT",
+  "scripts": {
+    "pre-commit": "lint-staged",
+    "prepublishOnly": "yarn build && yarn run lint && yarn run test",
+    "prebuild": "yarn clean && tsc --emitDeclarationOnly --declaration -p tsconfig.json",
+    "build": "rollup -c",
+    "clean": "rm -rf dist",
+    "format": "prettier --write '**/*.{html,js,json,md,ts}'",
+    "format-file": "prettier --write",
+    "lint": "eslint -c .eslintrc.js '**/*.ts' --ignore-path '.gitignore'",
+    "lint-file": "eslint --fix",
+    "test": "jest test/unit",
+    "test-integration": "jest test/integration --testTimeout=20000",
+    "docs": "typedoc --plugin none --out docs src/index.ts",
+    "docs-md": "typedoc --plugin typedoc-plugin-markdown --out docs-md src/index.ts",
+    "prepare": "husky install"
+  },
+  "main": "dist/cjs/index.js",
+  "main-es": "dist/es/index.js",
+  "module": "dist/esm/index.js",
+  "exports": {
+    "node": {
+      "types": "./dist/src/index.d.ts",
+      "require": "./dist/cjs/index.js",
+      "import": "./dist/cjs/index.js"
+    },
+    "package.json": "./package.json",
+    "types": "./dist/src/index.d.ts",
+    "default": "./dist/esm/index.js"
+  },
+  "types": "./dist/src/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alchemyplatform/alchemy-sdk-js.git"
+  },
+  "files": [
+    "dist"
+  ],
+  "lint-staged": {
+    "**/*.ts": [
+      "yarn lint-file --fix",
+      "yarn format-file"
+    ],
+    "package.json": [
+      "node ./inject-version.js",
+      "git add src/version.ts"
+    ]
+  },
+  "bugs": {
+    "url": "https://github.com/alchemyplatform/alchemy-sdk-js/issues"
+  },
+  "homepage": "https://github.com/alchemyplatform/alchemy-sdk-js#readme",
+  "dependencies": {
+    "@ethersproject/abi": "^5.7.0",
+    "@ethersproject/abstract-provider": "^5.7.0",
+    "@ethersproject/bignumber": "^5.7.0",
+    "@ethersproject/bytes": "^5.7.0",
+    "@ethersproject/contracts": "^5.7.0",
+    "@ethersproject/hash": "^5.7.0",
+    "@ethersproject/networks": "^5.7.0",
+    "@ethersproject/providers": "^5.7.0",
+    "@ethersproject/units": "^5.7.0",
+    "@ethersproject/wallet": "^5.7.0",
+    "@ethersproject/web": "^5.7.0",
+    "axios": "^1.6.5",
+    "sturdy-websocket": "^0.2.1",
+    "websocket": "^1.0.34"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^22.0.0",
+    "@rollup/plugin-node-resolve": "^13.3.0",
+    "@size-limit/preset-big-lib": "^7.0.8",
+    "@trivago/prettier-plugin-sort-imports": "^3.3.1",
+    "@types/jest": "^27.4.1",
+    "@typescript-eslint/eslint-plugin": "^5.16.0",
+    "@typescript-eslint/parser": "^5.16.0",
+    "axios-mock-adapter": "^1.22.0",
+    "dotenv": "^16.0.3",
+    "eslint": "^8.11.0",
+    "eslint-plugin-import": "^2.25.4",
+    "eslint-plugin-unused-imports": "^2.0.0",
+    "husky": "^7.0.0",
+    "jest": "^27.5.1",
+    "lint-staged": "^12.3.7",
+    "mock-socket": "^9.1.4",
+    "prettier": "2.6.0",
+    "prettier-plugin-jsdoc": "^0.3.38",
+    "rollup": "^2.70.1",
+    "rollup-plugin-typescript2": "^0.31.2",
+    "size-limit": "^7.0.8",
+    "ts-jest": "^27.1.4",
+    "tslib": "^2.3.1",
+    "typedoc": "^0.22.15",
+    "typedoc-plugin-markdown": "^3.12.1",
+    "typescript": "^4.5.5"
+  },
+  "sideEffects": false,
+  "size-limit": [
+    {
+      "path": "dist/index.cjs.js",
+      "limit": "100 kB"
+    }
+  ]
+}

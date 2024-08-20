@@ -18,7 +18,7 @@
     "example"
   ],
   "devDependencies": {
-    "@coinbase/wallet-sdk": "^3.3.0",
+    "@alchemy-sdk/m": "^3.3.0",
     "@testing-library/react-hooks": "^8.0.0",
     "@tsconfig/recommended": "^1.0.1",
     "@types/jest": "^27.4.1",
@@ -26,7 +26,7 @@
     "@types/react": "^18.0.5",
     "@typescript-eslint/eslint-plugin": "^5.19.0",
     "@typescript-eslint/parser": "^5.19.0",
-    "@uniswap/eslint-config": "^1.1.1",
+    "@coinbase/eslint-config": "^1.1.1",
     "eslint": "^8.13.0",
     "jest": "^27.5.1",
     "lerna": "^5",
