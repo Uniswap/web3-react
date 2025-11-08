@@ -46,6 +46,12 @@ export class CoinbaseWallet extends Connector {
     return !!this.provider?.selectedAddress
   }
 
+  // Store bound listener references for proper cleanup
+  private connectListener?: (connectInfo: ProviderConnectInfo) => void
+  private disconnectListener?: (error: ProviderRpcError) => void
+  private chainChangedListener?: (chainId: string) => void
+  private accountsChangedListener?: (accounts: string[]) => void
+
   private async isomorphicInitialize(): Promise<void> {
     if (this.eagerConnection) return
 
@@ -54,27 +60,34 @@ export class CoinbaseWallet extends Connector {
       this.coinbaseWallet = new m.default(options)
       this.provider = this.coinbaseWallet.makeWeb3Provider(url)
 
-      this.provider.on('connect', ({ chainId }: ProviderConnectInfo): void => {
+      // Create bound listener functions for proper cleanup
+      this.connectListener = ({ chainId }: ProviderConnectInfo): void => {
         this.actions.update({ chainId: parseChainId(chainId) })
-      })
+      }
 
-      this.provider.on('disconnect', (error: ProviderRpcError): void => {
+      this.disconnectListener = (error: ProviderRpcError): void => {
         this.actions.resetState()
         this.onError?.(error)
-      })
+      }
 
-      this.provider.on('chainChanged', (chainId: string): void => {
+      this.chainChangedListener = (chainId: string): void => {
         this.actions.update({ chainId: parseChainId(chainId) })
-      })
+      }
 
-      this.provider.on('accountsChanged', (accounts: string[]): void => {
+      this.accountsChangedListener = (accounts: string[]): void => {
         if (accounts.length === 0) {
           // handle this edge case by disconnecting
           this.actions.resetState()
         } else {
           this.actions.update({ accounts })
         }
-      })
+      }
+
+      // Register event listeners
+      this.provider.on('connect', this.connectListener)
+      this.provider.on('disconnect', this.disconnectListener)
+      this.provider.on('chainChanged', this.chainChangedListener)
+      this.provider.on('accountsChanged', this.accountsChangedListener)
     }))
   }
 
@@ -179,7 +192,21 @@ export class CoinbaseWallet extends Connector {
 
   /** {@inheritdoc Connector.deactivate} */
   public deactivate(): void {
+    // Remove all event listeners to prevent memory leaks
+    if (
+      this.provider &&
+      this.connectListener &&
+      this.disconnectListener &&
+      this.chainChangedListener &&
+      this.accountsChangedListener
+    ) {
+      this.provider.removeListener('connect', this.connectListener)
+      this.provider.removeListener('disconnect', this.disconnectListener)
+      this.provider.removeListener('chainChanged', this.chainChangedListener)
+      this.provider.removeListener('accountsChanged', this.accountsChangedListener)
+    }
     this.coinbaseWallet?.disconnect()
+    this.actions.resetState()
   }
 
   public async watchAsset({

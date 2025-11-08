@@ -1,0 +1,31 @@
+{
+  "name": "@web3-react/utils",
+  "version": "1.0.0",
+  "description": "Shared utilities for web3-react connectors to ensure consistent behavior",
+  "keywords": [
+    "web3",
+    "ethereum",
+    "react",
+    "utils",
+    "validation"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Uniswap/web3-react.git",
+    "directory": "packages/utils"
+  },
+  "license": "GPL-3.0-or-later",
+  "author": "Uniswap",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "prepublish": "yarn build"
+  },
+  "peerDependencies": {},
+  "dependencies": {},
+  "devDependencies": {}
+}

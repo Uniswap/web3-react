@@ -1,4 +1,4 @@
-import type detectEthereumProvider from '@metamask/detect-provider'
+import detectEthereumProvider from '@metamask/detect-provider'
 import type {
   Actions,
   AddEthereumChainParameter,
@@ -51,11 +51,17 @@ export class MetaMask extends Connector {
     this.options = options
   }
 
+  // Store bound listener references for proper cleanup
+  private connectListener?: (connectInfo: ProviderConnectInfo) => void
+  private disconnectListener?: (error: ProviderRpcError) => void
+  private chainChangedListener?: (chainId: string) => void
+  private accountsChangedListener?: (accounts: string[]) => void
+
   private async isomorphicInitialize(): Promise<void> {
     if (this.eagerConnection) return
 
-    return (this.eagerConnection = import('@metamask/detect-provider').then(async (m) => {
-      const provider = await m.default(this.options)
+    return (this.eagerConnection = Promise.resolve().then(async () => {
+      const provider = await detectEthereumProvider(this.options)
       if (provider) {
         this.provider = provider as MetaMaskProvider
 
@@ -64,11 +70,12 @@ export class MetaMask extends Connector {
           this.provider = this.provider.providers.find((p) => p.isMetaMask) ?? this.provider.providers[0]
         }
 
-        this.provider.on('connect', ({ chainId }: ProviderConnectInfo): void => {
+        // Create bound listener functions for proper cleanup
+        this.connectListener = ({ chainId }: ProviderConnectInfo): void => {
           this.actions.update({ chainId: parseChainId(chainId) })
-        })
+        }
 
-        this.provider.on('disconnect', (error: ProviderRpcError): void => {
+        this.disconnectListener = (error: ProviderRpcError): void => {
           // 1013 indicates that MetaMask is attempting to reestablish the connection
           // https://github.com/MetaMask/providers/releases/tag/v8.0.0
           if (error.code === 1013) {
@@ -77,20 +84,26 @@ export class MetaMask extends Connector {
           }
           this.actions.resetState()
           this.onError?.(error)
-        })
+        }
 
-        this.provider.on('chainChanged', (chainId: string): void => {
+        this.chainChangedListener = (chainId: string): void => {
           this.actions.update({ chainId: parseChainId(chainId) })
-        })
+        }
 
-        this.provider.on('accountsChanged', (accounts: string[]): void => {
+        this.accountsChangedListener = (accounts: string[]): void => {
           if (accounts.length === 0) {
             // handle this edge case by disconnecting
             this.actions.resetState()
           } else {
             this.actions.update({ accounts })
           }
-        })
+        }
+
+        // Register event listeners
+        this.provider.on('connect', this.connectListener)
+        this.provider.on('disconnect', this.disconnectListener)
+        this.provider.on('chainChanged', this.chainChangedListener)
+        this.provider.on('accountsChanged', this.accountsChangedListener)
       }
     }))
   }
@@ -180,6 +193,24 @@ export class MetaMask extends Connector {
         cancelActivation?.()
         throw error
       })
+  }
+
+  /** {@inheritdoc Connector.deactivate} */
+  public deactivate(): void {
+    // Remove all event listeners to prevent memory leaks
+    if (
+      this.provider &&
+      this.connectListener &&
+      this.disconnectListener &&
+      this.chainChangedListener &&
+      this.accountsChangedListener
+    ) {
+      this.provider.removeListener('connect', this.connectListener)
+      this.provider.removeListener('disconnect', this.disconnectListener)
+      this.provider.removeListener('chainChanged', this.chainChangedListener)
+      this.provider.removeListener('accountsChanged', this.accountsChangedListener)
+    }
+    this.actions.resetState()
   }
 
   public async watchAsset({ address, symbol, decimals, image }: WatchAssetParameters): Promise<true> {

@@ -1,0 +1,36 @@
+{
+  "name": "@web3-react/connection-monitor",
+  "version": "1.0.0",
+  "description": "Connection health monitoring and automatic recovery for web3-react connectors",
+  "keywords": [
+    "web3",
+    "ethereum",
+    "react",
+    "hooks",
+    "connector",
+    "health-check",
+    "monitoring"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Uniswap/web3-react.git",
+    "directory": "packages/connection-monitor"
+  },
+  "license": "GPL-3.0-or-later",
+  "author": "Uniswap",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "prepublish": "yarn build"
+  },
+  "peerDependencies": {
+    "@web3-react/types": "^8.0.0",
+    "react": ">=18"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}

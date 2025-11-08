@@ -1,0 +1,34 @@
+{
+  "name": "@web3-react/request-queue",
+  "version": "1.0.0",
+  "description": "Request queuing system to prevent race conditions and concurrent wallet requests",
+  "keywords": [
+    "web3",
+    "ethereum",
+    "react",
+    "request-queue",
+    "wallet",
+    "race-condition"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Uniswap/web3-react.git",
+    "directory": "packages/request-queue"
+  },
+  "license": "GPL-3.0-or-later",
+  "author": "Uniswap",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "prepublish": "yarn build"
+  },
+  "peerDependencies": {
+    "@web3-react/types": "^8.0.0"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}

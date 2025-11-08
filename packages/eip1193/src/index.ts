@@ -19,27 +19,49 @@ export class EIP1193 extends Connector {
   /** {@inheritdoc Connector.provider} */
   provider: Provider
 
+  // Store bound listener references for proper cleanup
+  private connectListener: (connectInfo: ProviderConnectInfo) => void
+  private disconnectListener: (error: ProviderRpcError) => void
+  private chainChangedListener: (chainId: string) => void
+  private accountsChangedListener: (accounts: string[]) => void
+
   constructor({ actions, provider, onError }: EIP1193ConstructorArgs) {
     super(actions, onError)
 
     this.provider = provider
 
-    this.provider.on('connect', ({ chainId }: ProviderConnectInfo): void => {
+    // Create bound listener functions that can be properly removed
+    this.connectListener = ({ chainId }: ProviderConnectInfo): void => {
       this.actions.update({ chainId: parseChainId(chainId) })
-    })
+    }
 
-    this.provider.on('disconnect', (error: ProviderRpcError): void => {
+    this.disconnectListener = (error: ProviderRpcError): void => {
       this.actions.resetState()
       this.onError?.(error)
-    })
+    }
 
-    this.provider.on('chainChanged', (chainId: string): void => {
+    this.chainChangedListener = (chainId: string): void => {
       this.actions.update({ chainId: parseChainId(chainId) })
-    })
+    }
 
-    this.provider.on('accountsChanged', (accounts: string[]): void => {
+    this.accountsChangedListener = (accounts: string[]): void => {
       this.actions.update({ accounts })
-    })
+    }
+
+    // Register all event listeners
+    this.provider.on('connect', this.connectListener)
+    this.provider.on('disconnect', this.disconnectListener)
+    this.provider.on('chainChanged', this.chainChangedListener)
+    this.provider.on('accountsChanged', this.accountsChangedListener)
+  }
+
+  /** Clean up event listeners to prevent memory leaks */
+  public deactivate(): void {
+    this.provider.removeListener('connect', this.connectListener)
+    this.provider.removeListener('disconnect', this.disconnectListener)
+    this.provider.removeListener('chainChanged', this.chainChangedListener)
+    this.provider.removeListener('accountsChanged', this.accountsChangedListener)
+    this.actions.resetState()
   }
 
   private async activateAccounts(requestAccounts: () => Promise<string[]>): Promise<void> {

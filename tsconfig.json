@@ -4,7 +4,9 @@
     "module": "CommonJS",
     "declaration": true,
     "moduleResolution": "Node",
-    "jsx": "react"
+    "jsx": "react",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true
   },
   "exclude": ["**/*.spec.ts"]
 }
