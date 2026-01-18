@@ -45,6 +45,19 @@ In addition to compiling each package in watch mode, this will also spin up [/ex
 - `yarn lerna publish [--dist-tag] `
 
 ## Documentation
+## Example
+
+## Simple Wallet Connection Example (Beginner)
+
+This example shows how to connect a wallet and display the user's Ethereum address using **web3-react** with MetaMask.
+
+---
+
+### Install Dependencies
+
+```bash
+yarn add @web3-react/core @web3-react/metamask
+```
 
 This version of web3-react is still in beta, so unfortunately documentation is pretty sparse at the moment. [/example](/example), TSDoc comments, and the source code itself are the best ways to get an idea of what's going on. More thorough documentation is a priority as development continues!
 
