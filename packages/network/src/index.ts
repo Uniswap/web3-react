@@ -50,7 +50,7 @@ export class Network extends Connector {
       if (Array.isArray(urls)) {
         accumulator[Number(chainId)] = urls
       } else {
-        // this ternary just makes typescript happy, since it can't infer that the array has elements of the same type
+        // this ternary just makes TypeScript happy, since it can't infer that the array has elements of the same type
         accumulator[Number(chainId)] = isUrl(urls) ? [urls] : [urls]
       }
 
@@ -66,7 +66,7 @@ export class Network extends Connector {
 
     const urls = this.urlMap[chainId]
 
-    // early return if we have a single jsonrpc provider already
+    // early return if we have a single JSON-RPC provider already
     if (urls.length === 1 && !isUrl(urls[0])) {
       return (this.providerCache[chainId] = Promise.resolve(urls[0]))
     }
